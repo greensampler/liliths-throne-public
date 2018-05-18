@@ -7,7 +7,8 @@ import com.lilithsthrone.game.sex.OrificeType;
 import com.lilithsthrone.game.sex.PenetrationType;
 import com.lilithsthrone.game.sex.Sex;
 import com.lilithsthrone.game.sex.SexPace;
-import com.lilithsthrone.game.sex.SexPosition;
+import com.lilithsthrone.game.sex.SexParticipantType;
+import com.lilithsthrone.game.sex.SexPositionType;
 import com.lilithsthrone.game.sex.sexActions.SexAction;
 import com.lilithsthrone.game.sex.sexActions.SexActionType;
 import com.lilithsthrone.main.Main;
@@ -24,8 +25,9 @@ public class PlayerPenisBreasts {
 			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.THREE_NORMAL,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.BREAST_PARTNER) {
+			PenetrationType.PENIS,
+			OrificeType.BREAST,
+			SexParticipantType.PITCHER) {
 		@Override
 		public String getActionTitle() {
 			return "Thrust into mouth";
@@ -38,8 +40,11 @@ public class PlayerPenisBreasts {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.getSexPacePlayer()!=SexPace.SUB_RESISTING && Main.game.getPlayer().getPenisRawSizeValue()>=6 && Sex.isPartnerFreeMouth() && Sex.getPartner().isBreastFuckablePaizuri()
-					&& Sex.getPosition() != SexPosition.SIXTY_NINE_PARTNER_TOP && Sex.getPosition() != SexPosition.SIXTY_NINE_PLAYER_TOP;
+			return Sex.getSexPace(Main.game.getPlayer())!=SexPace.SUB_RESISTING
+					&& Main.game.getPlayer().getPenisRawSizeValue()>=6
+					&& Sex.isOrificeFree(Sex.getActivePartner(), OrificeType.MOUTH)
+					&& Sex.getActivePartner().isBreastFuckablePaizuri()
+					&& Sex.getPosition() != SexPositionType.SIXTY_NINE;
 		}
 
 		@Override
@@ -47,7 +52,7 @@ public class PlayerPenisBreasts {
 				
 			UtilText.nodeContentSB.setLength(0);
 			
-			switch(Sex.getSexPacePlayer()) {
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Gently thrusting forwards between [npc.name]'s [npc.breasts], you push your [pc.cock+] all the way up to [npc.her] mouth and force the [pc.cockHead] past [npc.her] [npc.lips].",
@@ -76,7 +81,7 @@ public class PlayerPenisBreasts {
 				case SUB_RESISTING:
 					break;
 			}
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" [npc.She] grins at your enthusiasm, and, opening [npc.her] mouth to give the [pc.cockHead] of your [pc.cock] a loving suck, [npc.she] then draws back, but not before planting a kiss on the very tip.",
@@ -115,7 +120,7 @@ public class PlayerPenisBreasts {
 		
 		@Override
 		public void applyEffects() {
-			Sex.transferLubrication(Main.game.getPlayer(), Sex.getPartner(), PenetrationType.PENIS_PLAYER, OrificeType.MOUTH_PARTNER);
+			Sex.transferLubrication(Main.game.getPlayer(), Sex.getActivePartner(), PenetrationType.PENIS, OrificeType.MOUTH);
 		}
 		
 	};
@@ -125,11 +130,12 @@ public class PlayerPenisBreasts {
 			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.THREE_NORMAL,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.BREAST_PARTNER) {
+			PenetrationType.PENIS,
+			OrificeType.BREAST,
+			SexParticipantType.CATCHER) {
 		@Override
 		public String getActionTitle() {
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				return "Paizuri into mouth";
 			} else {
 				return "Naizuri into mouth";
@@ -143,8 +149,11 @@ public class PlayerPenisBreasts {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.getSexPacePartner()!=SexPace.SUB_RESISTING && Main.game.getPlayer().getPenisRawSizeValue()>=6 && Sex.isPartnerFreeMouth() && Sex.getPartner().isBreastFuckablePaizuri()
-					&& Sex.getPosition() != SexPosition.SIXTY_NINE_PARTNER_TOP && Sex.getPosition() != SexPosition.SIXTY_NINE_PLAYER_TOP;
+			return Sex.getSexPace(Sex.getActivePartner())!=SexPace.SUB_RESISTING
+					&& Main.game.getPlayer().getPenisRawSizeValue()>=6
+					&& Sex.isOrificeFree(Sex.getActivePartner(), OrificeType.MOUTH)
+					&& Sex.getActivePartner().isBreastFuckablePaizuri()
+					&& Sex.getPosition() != SexPositionType.SIXTY_NINE;
 		}
 
 		@Override
@@ -152,7 +161,7 @@ public class PlayerPenisBreasts {
 				
 			UtilText.nodeContentSB.setLength(0);
 			
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Gently pushing [npc.her] [npc.face] down towards your [pc.cock] as it slides up between [npc.her] [npc.breasts], [npc.name] parts [npc.her] [npc.lips+] and takes the [pc.cockHead] into [npc.her] mouth.",
@@ -181,7 +190,7 @@ public class PlayerPenisBreasts {
 				case SUB_RESISTING:
 					break;
 			}
-			switch(Sex.getSexPacePlayer()) {
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" You smile at [npc.her] enthusiasm, and, gently pushing your [pc.cock] into [npc.her] mouth,"
@@ -225,7 +234,7 @@ public class PlayerPenisBreasts {
 		
 		@Override
 		public void applyEffects() {
-			Sex.transferLubrication(Main.game.getPlayer(), Sex.getPartner(), PenetrationType.PENIS_PLAYER, OrificeType.MOUTH_PARTNER);
+			Sex.transferLubrication(Main.game.getPlayer(), Sex.getActivePartner(), PenetrationType.PENIS, OrificeType.MOUTH);
 		}
 		
 	};
@@ -236,17 +245,19 @@ public class PlayerPenisBreasts {
 			ArousalIncrease.FOUR_HIGH,
 			ArousalIncrease.FOUR_HIGH,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.BREAST_PARTNER) {
+			PenetrationType.PENIS,
+			OrificeType.BREAST,
+			SexParticipantType.PITCHER) {
 		
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.getPenetrationTypeInOrifice(OrificeType.ANUS_PLAYER) != PenetrationType.PENIS_PARTNER && Sex.getPenetrationTypeInOrifice(OrificeType.VAGINA_PLAYER) != PenetrationType.PENIS_PARTNER;
+			return Sex.getPenetrationTypeInOrifice(Main.game.getPlayer(), OrificeType.ANUS) != PenetrationType.PENIS
+					&& Sex.getPenetrationTypeInOrifice(Main.game.getPlayer(), OrificeType.VAGINA) != PenetrationType.PENIS;
 		}
 		
 		@Override
 		public String getActionTitle() {
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				return "Start paizuri";
 			} else {
 				return "Start naizuri";
@@ -255,7 +266,7 @@ public class PlayerPenisBreasts {
 
 		@Override
 		public String getActionDescription() {
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				return "Sink your [pc.cock+] between [npc.name]'s [npc.breasts+] and start fucking them.";
 			} else {
 				return "Start grinding your [pc.cock+] over [npc.name]'s chest.";
@@ -267,8 +278,8 @@ public class PlayerPenisBreasts {
 			
 			UtilText.nodeContentSB.setLength(0);
 
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
-				switch(Sex.getSexPacePlayer()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
+				switch(Sex.getSexPace(Main.game.getPlayer())) {
 					case DOM_GENTLE:
 						UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 								"Reaching down to take hold of [npc.name]'s [npc.breasts+], you gently push them together, lining your [pc.cock] up to [npc.her] cleavage before sliding forwards and starting to fuck [npc.her] [npc.breasts]."));
@@ -295,7 +306,7 @@ public class PlayerPenisBreasts {
 					default:
 						break;
 				}
-				switch(Sex.getSexPacePartner()) {
+				switch(Sex.getSexPace(Sex.getActivePartner())) {
 					case DOM_GENTLE:
 						UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 								" [npc.She] lets out a happy little [npc.moan] in response, reaching up to help push [npc.her] [npc.breasts] together as [npc.she] encourages you to keep going."));
@@ -325,8 +336,8 @@ public class PlayerPenisBreasts {
 				}
 				
 			} else {
-				if(Sex.getPartner().hasBreasts()) {
-					switch(Sex.getSexPacePlayer()) {
+				if(Sex.getActivePartner().hasBreasts()) {
+					switch(Sex.getSexPace(Main.game.getPlayer())) {
 						case DOM_GENTLE:
 							UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 									"Reaching down to take hold of [npc.name]'s [npc.breasts+], you gently try to push them together,"
@@ -355,7 +366,7 @@ public class PlayerPenisBreasts {
 						default:
 							break;
 					}
-					switch(Sex.getSexPacePartner()) {
+					switch(Sex.getSexPace(Sex.getActivePartner())) {
 						case DOM_GENTLE:
 							UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 									" [npc.She] lets out a happy little [npc.moan] in response, reaching up to try and help push [npc.her] [npc.breastSize] [npc.breasts] together as [npc.she] encourages you to keep going."));
@@ -385,7 +396,7 @@ public class PlayerPenisBreasts {
 					}
 					
 				} else {
-					switch(Sex.getSexPacePlayer()) {
+					switch(Sex.getSexPace(Main.game.getPlayer())) {
 						case DOM_GENTLE:
 							UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 									"Reaching down to press your [pc.hands] against [npc.name]'s torso, you reposition yourself to line your [pc.cock] up over [npc.her] chest,"
@@ -414,7 +425,7 @@ public class PlayerPenisBreasts {
 						default:
 							break;
 					}
-					switch(Sex.getSexPacePartner()) {
+					switch(Sex.getSexPace(Sex.getActivePartner())) {
 						case DOM_GENTLE:
 							UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 									" [npc.She] lets out a happy little [npc.moan] in response, pushing [npc.her] chest out as [npc.she] encourages you to keep going."));
@@ -455,13 +466,14 @@ public class PlayerPenisBreasts {
 			ArousalIncrease.FOUR_HIGH,
 			ArousalIncrease.FOUR_HIGH,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.BREAST_PARTNER,
+			PenetrationType.PENIS,
+			OrificeType.BREAST,
+			SexParticipantType.PITCHER,
 			SexPace.DOM_GENTLE,
 			null) {
 		@Override
 		public String getActionTitle() {
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				return "Gentle paizuri";
 			} else {
 				return "Gentle naizuri";
@@ -470,7 +482,7 @@ public class PlayerPenisBreasts {
 
 		@Override
 		public String getActionDescription() {
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				return "Gently fuck [npc.name]'s [npc.breasts+].";
 			} else {
 				return "Gently grind against [npc.name]'s chest.";
@@ -479,15 +491,15 @@ public class PlayerPenisBreasts {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isPlayerDom();
+			return Sex.isDom(Main.game.getPlayer());
 		}
 
 		@Override
 		public String getDescription() {
 			UtilText.nodeContentSB.setLength(0);
 			
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
-				switch(Sex.getSexPacePartner()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
+				switch(Sex.getSexPace(Sex.getActivePartner())) {
 					case SUB_EAGER:
 						UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 								"You gently slide your [pc.cock+] up into [npc.name]'s cleavage, grinning as [npc.she] enthusiastically presses [npc.her] [npc.breasts+] together while begging for you to keep going.",
@@ -509,8 +521,8 @@ public class PlayerPenisBreasts {
 				}
 				
 			} else {
-				if(Sex.getPartner().hasBreasts()) {
-					switch(Sex.getSexPacePartner()) {
+				if(Sex.getActivePartner().hasBreasts()) {
+					switch(Sex.getSexPace(Sex.getActivePartner())) {
 						case SUB_EAGER:
 							UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 									"You gently slide your [pc.cock+] up into the small amount of cleavage that [npc.name] has,"
@@ -534,7 +546,7 @@ public class PlayerPenisBreasts {
 					}
 					
 				} else {
-					switch(Sex.getSexPacePartner()) {
+					switch(Sex.getSexPace(Sex.getActivePartner())) {
 						case SUB_EAGER:
 							UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 									"You gently slide your [pc.cock+] against [npc.name]'s chest, grinning as [npc.she] enthusiastically begs for you to keep going.",
@@ -567,13 +579,14 @@ public class PlayerPenisBreasts {
 			ArousalIncrease.FOUR_HIGH,
 			ArousalIncrease.FOUR_HIGH,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.BREAST_PARTNER,
+			PenetrationType.PENIS,
+			OrificeType.BREAST,
+			SexParticipantType.PITCHER,
 			SexPace.DOM_NORMAL,
 			null) {
 		@Override
 		public String getActionTitle() {
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				return "Paizuri";
 			} else {
 				return "Naizuri";
@@ -582,7 +595,7 @@ public class PlayerPenisBreasts {
 
 		@Override
 		public String getActionDescription() {
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				return "Continue fucking [npc.name]'s [npc.breasts+].";
 			} else {
 				return "Continue grinding against [npc.name]'s chest.";
@@ -591,15 +604,15 @@ public class PlayerPenisBreasts {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isPlayerDom();
+			return Sex.isDom(Main.game.getPlayer());
 		}
 
 		@Override
 		public String getDescription() {
 			UtilText.nodeContentSB.setLength(0);
 			
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
-				switch(Sex.getSexPacePartner()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
+				switch(Sex.getSexPace(Sex.getActivePartner())) {
 					case SUB_EAGER:
 						UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 								"You eagerly slide your [pc.cock+] up into [npc.name]'s cleavage, grinning as [npc.she] enthusiastically presses [npc.her] [npc.breasts+] together while begging for you to keep going.",
@@ -621,8 +634,8 @@ public class PlayerPenisBreasts {
 				}
 				
 			} else {
-				if(Sex.getPartner().hasBreasts()) {
-					switch(Sex.getSexPacePartner()) {
+				if(Sex.getActivePartner().hasBreasts()) {
+					switch(Sex.getSexPace(Sex.getActivePartner())) {
 						case SUB_EAGER:
 							UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 									"You eagerly slide your [pc.cock+] up into the small amount of cleavage that [npc.name] has,"
@@ -647,7 +660,7 @@ public class PlayerPenisBreasts {
 					}
 					
 				} else {
-					switch(Sex.getSexPacePartner()) {
+					switch(Sex.getSexPace(Sex.getActivePartner())) {
 						case SUB_EAGER:
 							UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 									"You eagerly slide your [pc.cock+] against [npc.name]'s chest, grinning as [npc.she] enthusiastically begs for you to keep going.",
@@ -680,13 +693,14 @@ public class PlayerPenisBreasts {
 			ArousalIncrease.FOUR_HIGH,
 			ArousalIncrease.FOUR_HIGH,
 			CorruptionLevel.TWO_HORNY,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.BREAST_PARTNER,
+			PenetrationType.PENIS,
+			OrificeType.BREAST,
+			SexParticipantType.PITCHER,
 			SexPace.DOM_ROUGH,
 			null) {
 		@Override
 		public String getActionTitle() {
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				return "Rough paizuri";
 			} else {
 				return "Rough naizuri";
@@ -695,7 +709,7 @@ public class PlayerPenisBreasts {
 
 		@Override
 		public String getActionDescription() {
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				return "Roughly fuck [npc.name]'s [npc.breasts+].";
 			} else {
 				return "Roughly grind against [npc.name]'s chest.";
@@ -704,7 +718,7 @@ public class PlayerPenisBreasts {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isPlayerDom();
+			return Sex.isDom(Main.game.getPlayer());
 		}
 
 
@@ -712,8 +726,8 @@ public class PlayerPenisBreasts {
 		public String getDescription() {
 			UtilText.nodeContentSB.setLength(0);
 			
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
-				switch(Sex.getSexPacePartner()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
+				switch(Sex.getSexPace(Sex.getActivePartner())) {
 					case SUB_EAGER:
 						UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 								"You roughly slam your [pc.cock+] up into [npc.name]'s cleavage, grinning as [npc.she] enthusiastically presses [npc.her] [npc.breasts+] together while begging for you to keep going.",
@@ -735,8 +749,8 @@ public class PlayerPenisBreasts {
 				}
 				
 			} else {
-				if(Sex.getPartner().hasBreasts()) {
-					switch(Sex.getSexPacePartner()) {
+				if(Sex.getActivePartner().hasBreasts()) {
+					switch(Sex.getSexPace(Sex.getActivePartner())) {
 						case SUB_EAGER:
 							UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 									"You roughly slam your [pc.cock+] up into the small amount of cleavage that [npc.name] has,"
@@ -760,7 +774,7 @@ public class PlayerPenisBreasts {
 					}
 					
 				} else {
-					switch(Sex.getSexPacePartner()) {
+					switch(Sex.getSexPace(Sex.getActivePartner())) {
 						case SUB_EAGER:
 							UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 									"You roughly slam your [pc.cock+] against [npc.name]'s chest, grinning as [npc.she] enthusiastically begs for you to keep going.",
@@ -793,13 +807,14 @@ public class PlayerPenisBreasts {
 			ArousalIncrease.FOUR_HIGH,
 			ArousalIncrease.FOUR_HIGH,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.BREAST_PARTNER,
+			PenetrationType.PENIS,
+			OrificeType.BREAST,
+			SexParticipantType.PITCHER,
 			SexPace.SUB_NORMAL,
 			null) {
 		@Override
 		public String getActionTitle() {
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				return "Paizuri";
 			} else {
 				return "Naizuri";
@@ -808,7 +823,7 @@ public class PlayerPenisBreasts {
 
 		@Override
 		public String getActionDescription() {
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				return "Continue fucking [npc.name]'s [npc.breasts+].";
 			} else {
 				return "Continue grinding against [npc.name]'s chest.";
@@ -817,15 +832,15 @@ public class PlayerPenisBreasts {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return !Sex.isPlayerDom();
+			return !Sex.isDom(Main.game.getPlayer());
 		}
 
 		@Override
 		public String getDescription() {
 			UtilText.nodeContentSB.setLength(0);
 			
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
-				switch(Sex.getSexPacePartner()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
+				switch(Sex.getSexPace(Sex.getActivePartner())) {
 					case DOM_GENTLE:
 						UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 								"You slide your [pc.cock+] up into [npc.name]'s cleavage, grinning as [npc.she] gently presses [npc.her] [npc.breasts+] together while begging for you to keep going.",
@@ -847,8 +862,8 @@ public class PlayerPenisBreasts {
 				}
 				
 			} else {
-				if(Sex.getPartner().hasBreasts()) {
-					switch(Sex.getSexPacePartner()) {
+				if(Sex.getActivePartner().hasBreasts()) {
+					switch(Sex.getSexPace(Sex.getActivePartner())) {
 						case DOM_GENTLE:
 							UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 									"You slide your [pc.cock+] up into the small amount of cleavage that [npc.name] has,"
@@ -877,7 +892,7 @@ public class PlayerPenisBreasts {
 					}
 					
 				} else {
-					switch(Sex.getSexPacePartner()) {
+					switch(Sex.getSexPace(Sex.getActivePartner())) {
 						case DOM_GENTLE:
 							UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 									"You slide your [pc.cock+] against [npc.name]'s chest, grinning as [npc.she] gently begs for you to keep going.",
@@ -910,13 +925,14 @@ public class PlayerPenisBreasts {
 			ArousalIncrease.FOUR_HIGH,
 			ArousalIncrease.FOUR_HIGH,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.BREAST_PARTNER,
+			PenetrationType.PENIS,
+			OrificeType.BREAST,
+			SexParticipantType.PITCHER,
 			SexPace.SUB_EAGER,
 			null) {
 		@Override
 		public String getActionTitle() {
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				return "Eager paizuri";
 			} else {
 				return "Eager naizuri";
@@ -925,7 +941,7 @@ public class PlayerPenisBreasts {
 
 		@Override
 		public String getActionDescription() {
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				return "Eagerly fuck [npc.name]'s [npc.breasts+].";
 			} else {
 				return "Eagerly grind against [npc.name]'s chest.";
@@ -934,15 +950,15 @@ public class PlayerPenisBreasts {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return !Sex.isPlayerDom();
+			return !Sex.isDom(Main.game.getPlayer());
 		}
 
 		@Override
 		public String getDescription() {
 			UtilText.nodeContentSB.setLength(0);
 			
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
-				switch(Sex.getSexPacePartner()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
+				switch(Sex.getSexPace(Sex.getActivePartner())) {
 					case DOM_GENTLE:
 						UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 								"You eagerly slide your [pc.cock+] up into [npc.name]'s cleavage, grinning as [npc.she] gently presses [npc.her] [npc.breasts+] together while begging for you to keep going.",
@@ -964,8 +980,8 @@ public class PlayerPenisBreasts {
 				}
 				
 			} else {
-				if(Sex.getPartner().hasBreasts()) {
-					switch(Sex.getSexPacePartner()) {
+				if(Sex.getActivePartner().hasBreasts()) {
+					switch(Sex.getSexPace(Sex.getActivePartner())) {
 						case DOM_GENTLE:
 							UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 									"You eagerly slide your [pc.cock+] up into the small amount of cleavage that [npc.name] has,"
@@ -994,7 +1010,7 @@ public class PlayerPenisBreasts {
 					}
 					
 				} else {
-					switch(Sex.getSexPacePartner()) {
+					switch(Sex.getSexPace(Sex.getActivePartner())) {
 						case DOM_GENTLE:
 							UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 									"You eagerly slide your [pc.cock+] against [npc.name]'s chest, grinning as [npc.she] gently begs for you to keep going.",
@@ -1027,13 +1043,14 @@ public class PlayerPenisBreasts {
 			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.FOUR_HIGH,
 			CorruptionLevel.ZERO_PURE,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.BREAST_PARTNER,
+			PenetrationType.PENIS,
+			OrificeType.BREAST,
+			SexParticipantType.PITCHER,
 			SexPace.SUB_RESISTING,
 			null) {
 		@Override
 		public String getActionTitle() {
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				return "Resist paizuri";
 			} else {
 				return "Resist naizuri";
@@ -1042,7 +1059,7 @@ public class PlayerPenisBreasts {
 
 		@Override
 		public String getActionDescription() {
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				return "Try to pull your [pc.cock] away from [npc.name]'s [npc.breasts+].";
 			} else {
 				return "Try to pull your [pc.cock] away from [npc.name]'s chest.";
@@ -1051,15 +1068,15 @@ public class PlayerPenisBreasts {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return !Sex.isPlayerDom();
+			return !Sex.isDom(Main.game.getPlayer());
 		}
 
 		@Override
 		public String getDescription() {
 			UtilText.nodeContentSB.setLength(0);
 			
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
-				switch(Sex.getSexPacePartner()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
+				switch(Sex.getSexPace(Sex.getActivePartner())) {
 					case DOM_GENTLE:
 						UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 								"You desperately try to pull your [pc.cock+] out of [npc.name]'s cleavage, but [npc.she] firmly holds you in place,"
@@ -1086,8 +1103,8 @@ public class PlayerPenisBreasts {
 				}
 				
 			} else {
-				if(Sex.getPartner().hasBreasts()) {
-					switch(Sex.getSexPacePartner()) {
+				if(Sex.getActivePartner().hasBreasts()) {
+					switch(Sex.getSexPace(Sex.getActivePartner())) {
 						case DOM_GENTLE:
 							UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 									"You desperately try to pull your [pc.cock+] out of the small amount of cleavage that [npc.name] has, but [npc.she] firmly holds you in place,"
@@ -1115,7 +1132,7 @@ public class PlayerPenisBreasts {
 					}
 					
 				} else {
-					switch(Sex.getSexPacePartner()) {
+					switch(Sex.getSexPace(Sex.getActivePartner())) {
 						case DOM_GENTLE:
 							UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 									"You desperately try to pull your [pc.cock+] away from [npc.name]'s chest, but [npc.she] firmly holds you in place, grinding against you as [npc.she] gently [npc.moansVerb] that [npc.she]'ll do whatever [npc.she] wants.",
@@ -1152,17 +1169,18 @@ public class PlayerPenisBreasts {
 			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.ZERO_PURE,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.BREAST_PARTNER) {
+			PenetrationType.PENIS,
+			OrificeType.BREAST,
+			SexParticipantType.PITCHER) {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isPlayerDom() ||Sex.isConsensual(); // Player can only stop if they're in charge (otherwise, this is the partner fucking themselves on the player's cock).
+			return Sex.isDom(Main.game.getPlayer()) ||Sex.isConsensual(); // Player can only stop if they're in charge (otherwise, this is the partner fucking themselves on the player's cock).
 		}
 		
 		@Override
 		public String getActionTitle() {
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				return "Stop paizuri";
 			} else {
 				return "Stop naizuri";
@@ -1171,7 +1189,7 @@ public class PlayerPenisBreasts {
 
 		@Override
 		public String getActionDescription() {
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				return "Pull your [pc.cock+] away from [npc.name]'s [npc.breasts+] and stop fucking them.";
 			} else {
 				return "Pull your [pc.cock+] away from [npc.name]'s chest and stop grinding against [npc.herHim].";
@@ -1183,8 +1201,8 @@ public class PlayerPenisBreasts {
 			
 			UtilText.nodeContentSB.setLength(0);
 
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
-				switch(Sex.getSexPacePlayer()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
+				switch(Sex.getSexPace(Main.game.getPlayer())) {
 					case DOM_ROUGH:
 						UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 								"Roughly pushing [npc.name] away, you pull your [pc.cock+] out from [npc.her] cleavage and tell [npc.herHim] that you've had enough of fucking [npc.her] [npc.breasts+].",
@@ -1197,8 +1215,8 @@ public class PlayerPenisBreasts {
 						break;
 				}
 			} else {
-				if(Sex.getPartner().hasBreasts()) {
-					switch(Sex.getSexPacePlayer()) {
+				if(Sex.getActivePartner().hasBreasts()) {
+					switch(Sex.getSexPace(Main.game.getPlayer())) {
 						case DOM_ROUGH:
 							UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 									"Roughly pushing [npc.name] away, you pull your [pc.cock+] out from [npc.her] tiny amount of cleavage and tell [npc.herHim] that you've had enough of fucking [npc.her] [npc.breastSize] [npc.breasts].",
@@ -1211,7 +1229,7 @@ public class PlayerPenisBreasts {
 							break;
 					}
 				} else {
-					switch(Sex.getSexPacePlayer()) {
+					switch(Sex.getSexPace(Main.game.getPlayer())) {
 						case DOM_ROUGH:
 							UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 									"Roughly pushing [npc.name] away, you take your [pc.cock+] away from [npc.her] chest and tell [npc.herHim] that you've had enough of grinding against [npc.herHim].",
@@ -1226,7 +1244,7 @@ public class PlayerPenisBreasts {
 				}
 			}
 			
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case SUB_RESISTING:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" [npc.She] continues struggling against you, [npc.moaning+] as [npc.she] begs you to leave [npc.herHim] alone.",
@@ -1251,17 +1269,19 @@ public class PlayerPenisBreasts {
 			ArousalIncrease.FOUR_HIGH,
 			ArousalIncrease.FOUR_HIGH,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.BREAST_PARTNER) {
+			PenetrationType.PENIS,
+			OrificeType.BREAST,
+			SexParticipantType.CATCHER) {
 		
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.getPenetrationTypeInOrifice(OrificeType.ANUS_PLAYER) != PenetrationType.PENIS_PARTNER && Sex.getPenetrationTypeInOrifice(OrificeType.VAGINA_PLAYER) != PenetrationType.PENIS_PARTNER;
+			return Sex.getPenetrationTypeInOrifice(Main.game.getPlayer(), OrificeType.ANUS) != PenetrationType.PENIS
+					&& Sex.getPenetrationTypeInOrifice(Main.game.getPlayer(), OrificeType.VAGINA) != PenetrationType.PENIS;
 		}
 
 		@Override
 		public String getActionTitle() {
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				return "Perform paizuri";
 			} else {
 				return "Perform naizuri";
@@ -1270,7 +1290,7 @@ public class PlayerPenisBreasts {
 
 		@Override
 		public String getActionDescription() {
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				return "Use [pc.name]'s [pc.cock+] to fuck your [npc.breasts+].";
 			} else {
 				return "Use [pc.name]'s [pc.cock+] to grind against your chest.";
@@ -1282,8 +1302,8 @@ public class PlayerPenisBreasts {
 			
 			UtilText.nodeContentSB.setLength(0);
 			
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
-				switch(Sex.getSexPacePartner()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
+				switch(Sex.getSexPace(Sex.getActivePartner())) {
 					case DOM_GENTLE:
 						UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 								"Gently taking hold of your [pc.cock+], [npc.name] guides it up to [npc.her] cleavage, and, sliding forwards, [npc.she] presses [npc.her] [npc.breasts+] together and starts giving you a titfuck."));
@@ -1307,7 +1327,7 @@ public class PlayerPenisBreasts {
 					default:
 						break;
 				}
-				switch(Sex.getSexPacePlayer()) {
+				switch(Sex.getSexPace(Main.game.getPlayer())) {
 					case DOM_GENTLE:
 						UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 								" You let out a happy little [pc.moan] in response, helping to push [npc.her] [npc.breasts] together as you encourage [npc.herHim] to keep going."));
@@ -1337,8 +1357,8 @@ public class PlayerPenisBreasts {
 				}
 				
 			} else {
-				if(Sex.getPartner().hasBreasts()) {
-					switch(Sex.getSexPacePartner()) {
+				if(Sex.getActivePartner().hasBreasts()) {
+					switch(Sex.getSexPace(Sex.getActivePartner())) {
 						case DOM_GENTLE:
 							UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 									"Gently taking hold of your [pc.cock+], [npc.name] guides it up to what little cleavage [npc.she] has, and, sliding forwards,"
@@ -1367,7 +1387,7 @@ public class PlayerPenisBreasts {
 						default:
 							break;
 					}
-					switch(Sex.getSexPacePlayer()) {
+					switch(Sex.getSexPace(Main.game.getPlayer())) {
 						case DOM_GENTLE:
 							UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 									" You let out a happy little [pc.moan] in response, gently thrusting into [npc.her] chest as you encourage [npc.herHim] to keep going."));
@@ -1397,7 +1417,7 @@ public class PlayerPenisBreasts {
 					}
 					
 				} else {
-					switch(Sex.getSexPacePartner()) {
+					switch(Sex.getSexPace(Sex.getActivePartner())) {
 						case DOM_GENTLE:
 							UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 									"Gently taking hold of your [pc.cock+], [npc.name] guides it up to [npc.her] flat chest, and, sliding forwards, [npc.she] grinds [npc.her] torso against your [pc.cock+]."));
@@ -1421,7 +1441,7 @@ public class PlayerPenisBreasts {
 						default:
 							break;
 					}
-					switch(Sex.getSexPacePlayer()) {
+					switch(Sex.getSexPace(Main.game.getPlayer())) {
 						case DOM_GENTLE:
 							UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 									" You let out a happy little [pc.moan] in response, gently thrusting into [npc.her] chest as you encourage [npc.herHim] to keep going."));
@@ -1462,19 +1482,20 @@ public class PlayerPenisBreasts {
 			ArousalIncrease.FOUR_HIGH,
 			ArousalIncrease.FOUR_HIGH,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.BREAST_PARTNER,
+			PenetrationType.PENIS,
+			OrificeType.BREAST,
+			SexParticipantType.CATCHER,
 			null,
 			SexPace.DOM_GENTLE) {
 		
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return !Sex.isPlayerDom();
+			return !Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
 		public String getActionTitle() {
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				return "Gentle paizuri";
 			} else {
 				return "Gentle naizuri";
@@ -1483,7 +1504,7 @@ public class PlayerPenisBreasts {
 
 		@Override
 		public String getActionDescription() {
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				return "Gently pleasure [pc.name]'s [pc.cock+] with your [npc.breasts+].";
 			} else {
 				return "Gently pleasure [pc.name]'s [pc.cock+] with your chest.";
@@ -1494,14 +1515,14 @@ public class PlayerPenisBreasts {
 		public String getDescription() {
 			UtilText.nodeContentSB.setLength(0);
 			
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 						"Reaching up to push [npc.her] [npc.breasts+] together around your [pc.cock+], [npc.name] gently raises and lowers [npc.her] torso, softly [npc.moaning] as [npc.she] helps you to fuck [npc.her] cleavage.",
 						"Gently pressing [npc.her] [npc.breasts+] together around your [pc.cock+], [npc.name] slowly lifts them up and down, helping you to fuck [npc.her] cleavage as [npc.she] [npc.moansVerb] in delight.",
 						"Letting out a soft [npc.moan], [npc.name] presses [npc.her] [npc.breasts] together, enveloping your [pc.cock+] in [npc.her] pillowy mounds as [npc.she] gives you a loving titfuck."));
 				
 			} else {
-				if(Sex.getPartner().hasBreasts()) {
+				if(Sex.getActivePartner().hasBreasts()) {
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Reaching up to try and push [npc.her] [npc.breastSize] [npc.breasts+] together around your [pc.cock+], [npc.name] gently raises and lowers [npc.her] torso,"
 									+ " softly [npc.moaning] as [npc.she] helps you to fuck what little cleavage [npc.she] has.",
@@ -1527,19 +1548,20 @@ public class PlayerPenisBreasts {
 			ArousalIncrease.FOUR_HIGH,
 			ArousalIncrease.FOUR_HIGH,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.BREAST_PARTNER,
+			PenetrationType.PENIS,
+			OrificeType.BREAST,
+			SexParticipantType.CATCHER,
 			null,
 			SexPace.DOM_NORMAL) {
 		
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return !Sex.isPlayerDom();
+			return !Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
 		public String getActionTitle() {
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				return "Paizuri";
 			} else {
 				return "Naizuri";
@@ -1548,7 +1570,7 @@ public class PlayerPenisBreasts {
 
 		@Override
 		public String getActionDescription() {
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				return "Pleasure [pc.name]'s [pc.cock+] with your [npc.breasts+].";
 			} else {
 				return "Pleasure [pc.name]'s [pc.cock+] with your chest.";
@@ -1559,14 +1581,14 @@ public class PlayerPenisBreasts {
 		public String getDescription() {
 			UtilText.nodeContentSB.setLength(0);
 			
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 						"Reaching up to eagerly push [npc.her] [npc.breasts+] together around your [pc.cock+], [npc.name] rapidly starts bucking [npc.her] torso up and down, [npc.moaning+] as [npc.she] helps you to fuck [npc.her] cleavage.",
 						"Eagerly pressing [npc.her] [npc.breasts+] together around your [pc.cock+], [npc.name] rapidly starts lifting them up and down, helping you to fuck [npc.her] cleavage as [npc.she] [npc.moansVerb] in delight.",
 						"Letting out [npc.a_moan+], [npc.name] eagerly presses [npc.her] [npc.breasts] together, enveloping your [pc.cock+] in [npc.her] pillowy mounds as [npc.she] gives you an enthusiastic titfuck."));
 				
 			} else {
-				if(Sex.getPartner().hasBreasts()) {
+				if(Sex.getActivePartner().hasBreasts()) {
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Reaching up to desperately try and push [npc.her] [npc.breastSize] [npc.breasts+] together around your [pc.cock+], [npc.name] rapidly starts bucking [npc.her] torso up and down,"
 									+ " [npc.moaning+] as [npc.she] enthusiastically helps you to fuck what little cleavage [npc.she] has.",
@@ -1593,19 +1615,20 @@ public class PlayerPenisBreasts {
 			ArousalIncrease.FOUR_HIGH,
 			ArousalIncrease.FOUR_HIGH,
 			CorruptionLevel.TWO_HORNY,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.BREAST_PARTNER,
+			PenetrationType.PENIS,
+			OrificeType.BREAST,
+			SexParticipantType.CATCHER,
 			null,
 			SexPace.DOM_ROUGH) {
 		
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return !Sex.isPlayerDom();
+			return !Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
 		public String getActionTitle() {
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				return "Rough paizuri";
 			} else {
 				return "Rough naizuri";
@@ -1614,7 +1637,7 @@ public class PlayerPenisBreasts {
 
 		@Override
 		public String getActionDescription() {
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				return "Roughly pleasure [pc.name]'s [pc.cock+] with your [npc.breasts+].";
 			} else {
 				return "Roughly pleasure [pc.name]'s [pc.cock+] with your chest.";
@@ -1625,14 +1648,14 @@ public class PlayerPenisBreasts {
 		public String getDescription() {
 			UtilText.nodeContentSB.setLength(0);
 			
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 						"Reaching up to desperately push [npc.her] [npc.breasts+] together around your [pc.cock+], [npc.name] starts roughly bucking [npc.her] torso up and down, [npc.moaning+] as [npc.she] forces you to fuck [npc.her] cleavage.",
 						"Roughly pressing [npc.her] [npc.breasts+] together around your [pc.cock+], [npc.name] starts rapidly lifting them up and down, forcing you to fuck [npc.her] cleavage as [npc.she] [npc.moansVerb] in delight.",
 						"Letting out [npc.a_moan+], [npc.name] roughly presses [npc.her] [npc.breasts] together, enveloping your [pc.cock+] in [npc.her] pillowy mounds as [npc.she] gives you a forceful titfuck."));
 				
 			} else {
-				if(Sex.getPartner().hasBreasts()) {
+				if(Sex.getActivePartner().hasBreasts()) {
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Reaching up to desperately try and push [npc.her] [npc.breastSize] [npc.breasts+] together around your [pc.cock+], [npc.name] starts rapidly bucking [npc.her] torso up and down,"
 									+ " [npc.moaning+] as [npc.she] roughly forces you to fuck what little cleavage [npc.she] has.",
@@ -1660,19 +1683,20 @@ public class PlayerPenisBreasts {
 			ArousalIncrease.FOUR_HIGH,
 			ArousalIncrease.FOUR_HIGH,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.BREAST_PARTNER,
+			PenetrationType.PENIS,
+			OrificeType.BREAST,
+			SexParticipantType.CATCHER,
 			null,
 			SexPace.SUB_NORMAL) {
 		
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isPlayerDom();
+			return Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
 		public String getActionTitle() {
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				return "Paizuri";
 			} else {
 				return "Naizuri";
@@ -1681,7 +1705,7 @@ public class PlayerPenisBreasts {
 
 		@Override
 		public String getActionDescription() {
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				return "Pleasure [pc.name]'s [pc.cock+] with your [npc.breasts+].";
 			} else {
 				return "Pleasure [pc.name]'s [pc.cock+] with your chest.";
@@ -1692,14 +1716,14 @@ public class PlayerPenisBreasts {
 		public String getDescription() {
 			UtilText.nodeContentSB.setLength(0);
 			
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 						"Reaching up to push [npc.her] [npc.breasts+] together around your [pc.cock+], [npc.name] starts bucking [npc.her] torso up and down, [npc.moaning+] as [npc.she] helps you to fuck [npc.her] cleavage.",
 						"Pressing [npc.her] [npc.breasts+] together around your [pc.cock+], [npc.name] starts lifting them up and down, helping you to fuck [npc.her] cleavage as [npc.she] [npc.moansVerb] in delight.",
 						"Letting out [npc.a_moan+], [npc.name] presses [npc.her] [npc.breasts] together, enveloping your [pc.cock+] in [npc.her] pillowy mounds as [npc.she] gives you a titfuck."));
 				
 			} else {
-				if(Sex.getPartner().hasBreasts()) {
+				if(Sex.getActivePartner().hasBreasts()) {
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Reaching up to try and push [npc.her] [npc.breastSize] [npc.breasts+] together around your [pc.cock+], [npc.name] starts bucking [npc.her] torso up and down,"
 									+ " [npc.moaning+] as [npc.she] helps you to fuck what little cleavage [npc.she] has.",
@@ -1725,19 +1749,20 @@ public class PlayerPenisBreasts {
 			ArousalIncrease.FOUR_HIGH,
 			ArousalIncrease.FOUR_HIGH,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.BREAST_PARTNER,
+			PenetrationType.PENIS,
+			OrificeType.BREAST,
+			SexParticipantType.CATCHER,
 			null,
 			SexPace.SUB_EAGER) {
 		
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isPlayerDom();
+			return Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
 		public String getActionTitle() {
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				return "Eager paizuri";
 			} else {
 				return "Eager naizuri";
@@ -1746,7 +1771,7 @@ public class PlayerPenisBreasts {
 
 		@Override
 		public String getActionDescription() {
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				return "Eagerly pleasure [pc.name]'s [pc.cock+] with your [npc.breasts+].";
 			} else {
 				return "Eagerly pleasure [pc.name]'s [pc.cock+] with your chest.";
@@ -1757,14 +1782,14 @@ public class PlayerPenisBreasts {
 		public String getDescription() {
 			UtilText.nodeContentSB.setLength(0);
 			
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 						"Reaching up to eagerly push [npc.her] [npc.breasts+] together around your [pc.cock+], [npc.name] rapidly starts bucking [npc.her] torso up and down, [npc.moaning+] as [npc.she] helps you to fuck [npc.her] cleavage.",
 						"Eagerly pressing [npc.her] [npc.breasts+] together around your [pc.cock+], [npc.name] rapidly starts lifting them up and down, helping you to fuck [npc.her] cleavage as [npc.she] [npc.moansVerb] in delight.",
 						"Letting out [npc.a_moan+], [npc.name] eagerly presses [npc.her] [npc.breasts] together, enveloping your [pc.cock+] in [npc.her] pillowy mounds as [npc.she] gives you an enthusiastic titfuck."));
 				
 			} else {
-				if(Sex.getPartner().hasBreasts()) {
+				if(Sex.getActivePartner().hasBreasts()) {
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Reaching up to desperately try and push [npc.her] [npc.breastSize] [npc.breasts+] together around your [pc.cock+], [npc.name] rapidly starts bucking [npc.her] torso up and down,"
 									+ " [npc.moaning+] as [npc.she] enthusiastically helps you to fuck what little cleavage [npc.she] has.",
@@ -1788,22 +1813,23 @@ public class PlayerPenisBreasts {
 	
 	public static final SexAction PARTNER_FUCKED_SUB_RESIST = new SexAction(
 			SexActionType.PARTNER,
-			ArousalIncrease.FOUR_HIGH,
 			ArousalIncrease.TWO_LOW,
+			ArousalIncrease.FOUR_HIGH,
 			CorruptionLevel.ZERO_PURE,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.BREAST_PARTNER,
+			PenetrationType.PENIS,
+			OrificeType.BREAST,
+			SexParticipantType.CATCHER,
 			null,
 			SexPace.SUB_RESISTING) {
 		
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isPlayerDom();
+			return Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
 		public String getActionTitle() {
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				return "Resist paizuri";
 			} else {
 				return "Resist naizuri";
@@ -1812,7 +1838,7 @@ public class PlayerPenisBreasts {
 
 		@Override
 		public String getActionDescription() {
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				return "Try and pull your [npc.breasts+] away from [pc.name]'s [pc.cock+].";
 			} else {
 				return "Try and pull your chest away from [pc.name]'s [pc.cock+].";
@@ -1824,14 +1850,14 @@ public class PlayerPenisBreasts {
 
 			UtilText.nodeContentSB.setLength(0);
 			
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 						"[npc.Name] lets out [npc.moan+] as [npc.she] tries to pull [npc.her] [npc.breasts+] away from your [pc.cock+], before begging for you to leave [npc.herHim] alone.",
 						"With [npc.a_moan+], [npc.name] weakly tries to pull away from you, sobbing in distress as your [pc.cock+] continues to thrust up between [npc.her] [npc.breasts+].",
 						"Letting out [npc.a_moan+], [npc.name] tries to push you away from [npc.herHim], tears running down [npc.her] cheeks as you continue thrusting your [pc.cock+] into [npc.her] cleavage."));
 				
 			} else {
-				if(Sex.getPartner().hasBreasts()) {
+				if(Sex.getActivePartner().hasBreasts()) {
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"[npc.Name] lets out [npc.moan+] as [npc.she] tries to pull [npc.her] [npc.breastSize] [npc.breasts] away from your [pc.cock+], before begging for you to leave [npc.herHim] alone.",
 							"With [npc.a_moan+], [npc.name] weakly tries to pull away from you, sobbing in distress as your [pc.cock+] continues to thrust up between [npc.her] [npc.breastSize] [npc.breasts+].",
@@ -1855,17 +1881,18 @@ public class PlayerPenisBreasts {
 			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.ZERO_PURE,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.BREAST_PARTNER) {
+			PenetrationType.PENIS,
+			OrificeType.BREAST,
+			SexParticipantType.CATCHER) {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isConsensual() || !Sex.isPlayerDom(); // Partner can only stop in consensual sex or if they're the dom.
+			return Sex.isConsensual() || !Sex.isDom(Main.game.getPlayer()); // Partner can only stop in consensual sex or if they're the dom.
 		}
 		
 		@Override
 		public String getActionTitle() {
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				return "Stop paizuri";
 			} else {
 				return "Stop naizuri";
@@ -1874,7 +1901,7 @@ public class PlayerPenisBreasts {
 
 		@Override
 		public String getActionDescription() {
-			if(Sex.getPartner().isBreastFuckablePaizuri()) {
+			if(Sex.getActivePartner().isBreastFuckablePaizuri()) {
 				return "Push [pc.name]'s [pc.cock] away from your [npc.breasts+].";
 			} else {
 				return "Push [pc.name]'s [pc.cock] away from your chest.";
@@ -1886,8 +1913,8 @@ public class PlayerPenisBreasts {
 			
 			UtilText.nodeContentSB.setLength(0);
 			
-			if(Sex.getPartner().hasBreasts()) {
-				switch(Sex.getSexPacePlayer()) {
+			if(Sex.getActivePartner().hasBreasts()) {
+				switch(Sex.getSexPace(Main.game.getPlayer())) {
 					case DOM_ROUGH:
 						UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 								"[npc.Name] roughly pushes you away from [npc.herHim], and, in a menacing tone, orders you to stop fucking [npc.her] [npc.breasts+].",
@@ -1900,7 +1927,7 @@ public class PlayerPenisBreasts {
 						break;
 				}
 			} else {
-				switch(Sex.getSexPacePlayer()) {
+				switch(Sex.getSexPace(Main.game.getPlayer())) {
 					case DOM_ROUGH:
 						UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 								"[npc.Name] roughly pushes you away from [npc.herHim], and, in a menacing tone, orders you to stop grinding against [npc.her] chest.",
@@ -1914,7 +1941,7 @@ public class PlayerPenisBreasts {
 				}
 			}
 			
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case SUB_RESISTING:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" You continue struggling against [npc.herHim], [pc.moaning+] as you beg [npc.herHim] to leave you alone.",

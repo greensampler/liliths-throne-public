@@ -27,11 +27,13 @@ public enum BaseColour {
 	MAGENTA(Util.newColour(0xFF1472), Util.newColour(0xFF1472)),
 	CRIMSON(Util.newColour(0xFF385D), Util.newColour(0xFF385D)),
 	RED(Util.newColour(0xEA5D76), Util.newColour(0xDD1D40)),
+	RED_DARK(Util.newColour(0xA61641), Util.newColour(0x960012)),
 	RED_LIGHT(Util.newColour(0xEE95A6), Util.newColour(0xE9536F)),
 	
 	TAN(Util.newColour(0xEDC491), Util.newColour(0xDC8D2E)),
 	BROWN(Util.newColour(0xD0A38B), Util.newColour(0xB5714A)),
 	BROWN_DARK(Util.newColour(0x9F775B), Util.newColour(0x785945)),
+	AUBURN(Util.newColour(0xCF6654), Util.newColour(0xBB4935)),
 	ORANGE(Util.newColour(0xFF9970), Util.newColour(0xFA4700)),
 	AMBER(Util.newColour(0xFFC552), Util.newColour(0xBD7E00)),
 	GINGER(Util.newColour(0xFF9147), Util.newColour(0xF06000)),
@@ -50,11 +52,12 @@ public enum BaseColour {
 	TEAL(Util.newColour(0x6CBCB1), Util.newColour(0x439389)),
 	BLUE_LIGHT(Util.newColour(0x99EBFF), Util.newColour(0x00A7D1)),
 	BLUE(Util.newColour(0x05CDFF), Util.newColour(0x00627A)),
+	BLUE_DARK(Util.newColour(0x0090BF), Util.newColour(0x002E43)),
 	BLUE_STEEL(Util.newColour(0xA7B7D2), Util.newColour(0x5671A4)),
 
-	GREY(Util.newColour(0x777777), Util.newColour(0x777777)),
-	
-	BLACK(Util.newColour(0xB3B3B3), Util.newColour(0x1F1F1F));
+	GREY(Util.newColour(0xB3B3B3), Util.newColour(0x777777)),
+	PITCH_BLACK(Util.newColour(0x222222), Util.newColour(0x222222)),
+	BLACK(Util.newColour(0x777777), Util.newColour(0x1F1F1F));
 	
 	private Color colour, lightColour;
 
@@ -82,24 +85,22 @@ public enum BaseColour {
 	public String[] getShades() {
 		String[] shadesString = new String[5];
 		float luminosity = -0.3f;
-		String r = colour.toString().substring(2, 4), g = colour.toString().substring(4, 6), b = colour.toString().substring(6, 8), rgb = "#";
-		int colourValue = Integer.parseInt(r, 16);
+		int red = Integer.parseInt(colour.toString().substring(2, 4), 16);
+		int gre = Integer.parseInt(colour.toString().substring(4, 6), 16);
+		int blu = Integer.parseInt(colour.toString().substring(6, 8), 16);
+		int r, g, b;
 
 		for (int i = 0; i < 5; i++) {
-			colourValue = Integer.parseInt(r, 16);
-			colourValue += (colourValue * (i * 0.15f + luminosity));
-			rgb += String.format("%02X", Math.max(Math.min(colourValue, 255), 0), 16);
+			r = red + (int)(red * (i * 0.15f + luminosity));
+			r = Math.max(Math.min(r, 255), 0);
 
-			colourValue = Integer.parseInt(g, 16);
-			colourValue += (colourValue * (i * 0.15f + luminosity));
-			rgb += String.format("%02X", Math.max(Math.min(colourValue, 255), 0), 16);
+			g = gre + (int)(gre * (i * 0.15f + luminosity));
+			g = Math.max(Math.min(g, 255), 0);
 
-			colourValue = Integer.parseInt(b, 16);
-			colourValue += (colourValue * (i * 0.15f + luminosity));
-			rgb += String.format("%02X", Math.max(Math.min(colourValue, 255), 0), 16);
+			b = blu + (int)(blu * (i * 0.15f + luminosity));
+			b = Math.max(Math.min(b, 255), 0);
 
-			shadesString[i] = rgb;
-			rgb = "#";
+			shadesString[i] = String.format("#%02X%02X%02X", r, g, b);
 		}
 
 		return shadesString;

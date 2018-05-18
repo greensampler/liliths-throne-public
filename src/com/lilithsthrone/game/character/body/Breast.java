@@ -7,14 +7,16 @@ import com.lilithsthrone.game.character.body.types.BreastType;
 import com.lilithsthrone.game.character.body.valueEnums.BreastShape;
 import com.lilithsthrone.game.character.body.valueEnums.Capacity;
 import com.lilithsthrone.game.character.body.valueEnums.CupSize;
+import com.lilithsthrone.game.character.body.valueEnums.FluidRegeneration;
 import com.lilithsthrone.game.character.body.valueEnums.Lactation;
 import com.lilithsthrone.game.character.body.valueEnums.NippleShape;
 import com.lilithsthrone.game.dialogue.utils.UtilText;
+import com.lilithsthrone.utils.Colour;
 import com.lilithsthrone.utils.Util;
 
 /**
  * @since 0.1.0
- * @version 0.1.83
+ * @version 0.2.2
  * @author Innoxia
  */
 public class Breast implements BodyPartInterface, Serializable {
@@ -26,7 +28,12 @@ public class Breast implements BodyPartInterface, Serializable {
 	
 	protected BreastType type;
 	protected BreastShape shape;
-	protected int size, rows, lactation, nippleCountPerBreast;
+	protected int size;
+	protected int rows;
+	protected int milkStorage;
+	protected int milkStored;
+	protected int milkRegeneration;
+	protected int nippleCountPerBreast;
 	
 	protected Nipples nipples;
 	protected FluidMilk milk;
@@ -35,15 +42,17 @@ public class Breast implements BodyPartInterface, Serializable {
 	 * @param size in inches from bust to underbust using the UK system.
 	 * @param lactation in mL.
 	 */
-	public Breast(BreastType type, BreastShape shape, int size, int lactation, int rows, int nippleSize, NippleShape nippleShape, int areolaeSize, int nippleCountPerBreast, float capacity, int elasticity, int plasticity, boolean virgin) {
+	public Breast(BreastType type, BreastShape shape, int size, int milkStorage, int rows, int nippleSize, NippleShape nippleShape, int areolaeSize, int nippleCountPerBreast, float capacity, int elasticity, int plasticity, boolean virgin) {
 		this.type = type;
 		this.shape = shape;
 		this.size = size;
-		this.lactation = lactation;
+		this.milkStorage = milkStorage;
+		milkStored = milkStorage;
+		milkRegeneration = FluidRegeneration.ONE_AVERAGE.getValue();
 		this.rows = rows;
 		this.nippleCountPerBreast = nippleCountPerBreast;
 		
-		nipples = new Nipples(type.getNippleType(), nippleSize, nippleShape, areolaeSize, Lactation.getLactationFromInt(lactation).getAssociatedWetness().getValue(), capacity, elasticity, plasticity, virgin);
+		nipples = new Nipples(type.getNippleType(), nippleSize, nippleShape, areolaeSize, Lactation.getLactationFromInt(milkStorage).getAssociatedWetness().getValue(), capacity, elasticity, plasticity, virgin);
 		
 		milk = new FluidMilk(type.getFluidType());
 	}
@@ -141,14 +150,14 @@ public class Breast implements BodyPartInterface, Serializable {
 		
 	}
 
-	public String getLactationDescription(GameCharacter gc) {
-		if (lactation < Lactation.ZERO_NONE.getMaximumValue()) {
-			return " aren't producing any " + milk.getName(gc);
-		} else {
-			return " are producing " + getLactation().getDescriptor() + " " + milk.getName(gc) + ", averaging about " + lactation + "mL each time you are milked.";
-		}
-	}
-	
+//	public String getLactationDescription(GameCharacter gc) {
+//		if (milkStorage == 0) {
+//			return " aren't producing any " + milk.getName(gc);
+//		} else {
+//			return " are producing " + getLactation().getDescriptor() + " " + milk.getName(gc) + ", totalling " + milkStorage + "mL when your breasts are full.";
+//		}
+//	}
+
 	public boolean hasBreasts() {
 		return size>=CupSize.AA.getMeasurement();
 	}
@@ -218,6 +227,25 @@ public class Breast implements BodyPartInterface, Serializable {
 								+ " The transformation has also left [npc.herHim] with [npc.nipplesFullDescriptionColour]."
 								+ "</br>"
 								+ "[npc.She] now has [style.boldDemon(demonic breasts and [npc.nipples])], and when lactating, [npc.she] will produce [style.boldDemon(demonic milk)]."
+								+ "</p>");
+				}
+				break;
+			case IMP:
+				if (owner.isPlayer()) {
+					UtilText.transformationContentSB.append(
+							" Your nipples and areolae start tingling, and you find yourself panting and sweating as the intense transformation runs its course."
+							+ " After a few moments, the feeling starts to fade away, leaving you with impish breasts, covered in [pc.breastFullDescriptionColour]."
+							+ " The transformation has also left you with [pc.nipplesFullDescriptionColour]."
+							+ "</br>"
+							+ "You now have [style.boldImp(impish breasts and [pc.nipples])], and when lactating, you will produce [style.boldImp(impish milk)]."
+							+ "</p>");
+				} else {
+					UtilText.transformationContentSB.append(
+								" [npc.Her] nipples and areolae start tingling, causing [npc.herHim] to pant and sweat as the intense transformation runs its course."
+								+ " After a few moments, the feeling starts to fade away, leaving [npc.herHim] with impish breasts, covered in [npc.breastFullDescriptionColour]."
+								+ " The transformation has also left [npc.herHim] with [npc.nipplesFullDescriptionColour]."
+								+ "</br>"
+								+ "[npc.She] now has [style.boldImp(impish breasts and [npc.nipples])], and when lactating, [npc.she] will produce [style.boldImp(impish milk)]."
 								+ "</p>");
 				}
 				break;
@@ -316,6 +344,63 @@ public class Breast implements BodyPartInterface, Serializable {
 								+ "</p>");
 				}
 				break;
+			case RAT_MORPH:
+				if (owner.isPlayer()) {
+					UtilText.transformationContentSB.append(
+							" Your nipples and areolae start tingling, and you find yourself panting and sweating as the intense transformation runs its course."
+							+ " After a few moments, the feeling starts to fade away, leaving you with a rat-morph's breasts, covered in [pc.breastFullDescriptionColour]."
+							+ " The transformation has also left you with [pc.nipplesFullDescriptionColour]."
+							+ "</br>"
+							+ "You now have [style.boldRatMorph(rat-morph breasts and [pc.nipples])], and when lactating, you will produce [style.boldRatMorph(rat-morph milk)]."
+							+ "</p>");
+				} else {
+					UtilText.transformationContentSB.append(
+								" [npc.Her] nipples and areolae start tingling, causing [npc.herHim] to pant and sweat as the intense transformation runs its course."
+								+ " After a few moments, the feeling starts to fade away, leaving [npc.herHim] with a rat-morph's breasts, covered in [npc.breastFullDescriptionColour]."
+								+ " The transformation has also left [npc.herHim] with [npc.nipplesFullDescriptionColour]."
+								+ "</br>"
+								+ "[npc.She] now has [style.boldRatMorph(rat-morph breasts and [npc.nipples])], and when lactating, [npc.she] will produce [style.boldRatMorph(rat-morph milk)]."
+								+ "</p>");
+				}
+				break;
+			case RABBIT_MORPH:
+				if (owner.isPlayer()) {
+					UtilText.transformationContentSB.append(
+							" Your nipples and areolae start tingling, and you find yourself panting and sweating as the intense transformation runs its course."
+							+ " After a few moments, the feeling starts to fade away, leaving you with a rabbit-morph's breasts, covered in [pc.breastFullDescriptionColour]."
+							+ " The transformation has also left you with [pc.nipplesFullDescriptionColour]."
+							+ "</br>"
+							+ "You now have [style.boldRabbitMorph(rabbit-morph breasts and [pc.nipples])], and when lactating, you will produce [style.boldRabbitMorph(rabbit-morph milk)]."
+							+ "</p>");
+				} else {
+					UtilText.transformationContentSB.append(
+								" [npc.Her] nipples and areolae start tingling, causing [npc.herHim] to pant and sweat as the intense transformation runs its course."
+								+ " After a few moments, the feeling starts to fade away, leaving [npc.herHim] with a rabbit-morph's breasts, covered in [npc.breastFullDescriptionColour]."
+								+ " The transformation has also left [npc.herHim] with [npc.nipplesFullDescriptionColour]."
+								+ "</br>"
+								+ "[npc.She] now has [style.boldRabbitMorph(rabbit-morph breasts and [npc.nipples])], and when lactating, [npc.she] will produce [style.boldRabbitMorph(rabbit-morph milk)]."
+								+ "</p>");
+				}
+				break;
+			case BAT_MORPH:
+				if (owner.isPlayer()) {
+					UtilText.transformationContentSB.append(
+							" Your nipples and areolae start tingling, and you find yourself panting and sweating as the intense transformation runs its course."
+							+ " After a few moments, the feeling starts to fade away, leaving you with a bat-morph's breasts, covered in [pc.breastFullDescriptionColour]."
+							+ " The transformation has also left you with [pc.nipplesFullDescriptionColour]."
+							+ "</br>"
+							+ "You now have [style.boldBatMorph(bat-morph breasts and [pc.nipples])], and when lactating, you will produce [style.boldBatMorph(bat-morph milk)]."
+							+ "</p>");
+				} else {
+					UtilText.transformationContentSB.append(
+								" [npc.Her] nipples and areolae start tingling, causing [npc.herHim] to pant and sweat as the intense transformation runs its course."
+								+ " After a few moments, the feeling starts to fade away, leaving [npc.herHim] with a bat-morph's breasts, covered in [npc.breastFullDescriptionColour]."
+								+ " The transformation has also left [npc.herHim] with [npc.nipplesFullDescriptionColour]."
+								+ "</br>"
+								+ "[npc.She] now has [style.boldBatMorph(bat-morph breasts and [npc.nipples])], and when lactating, [npc.she] will produce [style.boldBatMorph(bat-morph milk)]."
+								+ "</p>");
+				}
+				break;
 			case ALLIGATOR_MORPH:
 				if (owner.isPlayer()) {
 					UtilText.transformationContentSB.append(
@@ -394,8 +479,6 @@ public class Breast implements BodyPartInterface, Serializable {
 				break;
 			case ANGEL://TODO
 				break;
-			case SLIME://TODO
-				break;
 		}
 		
 		return UtilText.parse(owner, UtilText.transformationContentSB.toString())
@@ -425,8 +508,12 @@ public class Breast implements BodyPartInterface, Serializable {
 		boolean hadBreasts = hasBreasts();
 		
 		int oldSize = this.size;
-		this.size = Math.max(0, Math.min(size, CupSize.MAXIMUM.getMeasurement()));
+		this.size = Math.max(0, Math.min(size, CupSize.getMaximumCupSize().getMeasurement()));
 		int sizeChange = this.size - oldSize;
+		if(owner==null) {
+			this.size = size;
+			return "";
+		}
 		
 		if (sizeChange == 0) {
 			if(owner.isPlayer()) {
@@ -442,7 +529,7 @@ public class Breast implements BodyPartInterface, Serializable {
 				return "</p>"
 							+ "You feel a tingling heat quickly spreading throughout your torso, and you can't help but let out [pc.a_moan+] as your "
 							+ (hadBreasts
-									? "[pc.breasts] swell up and [style.boldGrow(grown larger)].</br>"
+									? "[pc.breasts] swell up and [style.boldGrow(grow larger)].</br>"
 									: "chest swells up, and before you know what's happening, a pair of breasts have [style.boldGrow(grown)] out of your previously-flat torso.</br>")
 							+ "You now have [style.boldSex(" + sizeDescriptor + (getSize().getMeasurement()>CupSize.AA.getMeasurement()?", "+getSize().getCupSizeName()+"-cup":"") + " breasts)]!"
 						+ "</p>";
@@ -451,7 +538,7 @@ public class Breast implements BodyPartInterface, Serializable {
 						"</p>"
 							+ "[npc.Name] feels a tingling heat quickly spreading throughout [npc.her] torso, and [npc.she] can't help but let out [npc.a_moan+] as [npc.her] "
 							+ (hadBreasts
-									? "[npc.breasts] swell up and [style.boldGrow(grown larger)].</br>"
+									? "[npc.breasts] swell up and [style.boldGrow(grow larger)].</br>"
 									: "chest swells up, and before [npc.she] knows what's happening, a pair of breasts have [style.boldGrow(grown)] out of [npc.her] previously-flat torso.</br>")
 							+ "[npc.Name] now has [style.boldSex(" + sizeDescriptor + (getSize().getMeasurement()>CupSize.AA.getMeasurement()?", "+getSize().getCupSizeName()+"-cup":"") + " breasts)]!"
 						+ "</p>");
@@ -478,63 +565,174 @@ public class Breast implements BodyPartInterface, Serializable {
 
 	// Lactation:
 
-	public Lactation getLactation() {
-		return Lactation.getLactationFromInt(lactation);
+	public Lactation getMilkStorage() {
+		return Lactation.getLactationFromInt(milkStorage);
 	}
 
-	public int getRawLactationValue() {
-		return lactation;
+	public int getRawMilkStorageValue() {
+		return milkStorage;
 	}
 
 	/**
-	 * Sets the lactation. Value is bound to >=0 && <=Lactation.SEVEN_MONSTROUS_AMOUNT_POURING.getMaximumValue()
+	 * Sets the milkStorage. Value is bound to >=0 && <=Lactation.SEVEN_MONSTROUS_AMOUNT_POURING.getMaximumValue()
 	 */
-	public String setLactation(GameCharacter owner, int lactation) {
-		int oldLactation = this.lactation;
-		this.lactation = Math.max(0, Math.min(lactation, Lactation.SEVEN_MONSTROUS_AMOUNT_POURING.getMaximumValue()));
-		int lactationChange = this.lactation - oldLactation;
+	public String setMilkStorage(GameCharacter owner, int milkStorage) {
+		int oldLactation = this.milkStorage;
+		this.milkStorage = Math.max(0, Math.min(milkStorage, Lactation.SEVEN_MONSTROUS_AMOUNT_POURING.getMaximumValue()));
+		int lactationChange = this.milkStorage - oldLactation;
 		
 		if (lactationChange == 0) {
 			if(owner.isPlayer()) {
-				return "<p style='text-align:center;'>[style.colourDisabled(The amount of [pc.milk] that you're producing doesn't change...)]</p>";
+				return "<p style='text-align:center;'>[style.colourDisabled(The amount of [pc.milk] that you're able to produce doesn't change...)]</p>";
 			} else {
-				return UtilText.parse(owner, "<p style='text-align:center;'>[style.colourDisabled(The amount of [npc.milk] that [npc.name] is producing doesn't change...)]</p>");
+				return UtilText.parse(owner, "<p style='text-align:center;'>[style.colourDisabled(The amount of [npc.milk] that [npc.name] is able to produce doesn't change...)]</p>");
 			}
 		}
 		
-		String lactationDescriptor = getLactation().getDescriptor();
+		String lactationDescriptor = getMilkStorage().getDescriptor();
 		if (lactationChange > 0) {
 			if (owner.isPlayer()) {
 				return "</p>"
 							+ "You feel a strange bubbling and churning taking place deep within your [pc.breasts], and you can't help but let out [pc.a_moan+] as a few drops of [pc.milk] suddenly leak from your [pc.nipples];"
 								+ " clear evidence that that your [pc.milk] production has [style.boldGrow(increased)].</br>"
-							+ "You are now producing [style.boldSex(" + lactationDescriptor + " [pc.milk])]!"
+							+ "You are now able to produce [style.boldSex(" + lactationDescriptor + " [pc.milk])]!"
 						+ "</p>";
 			} else {
 				return UtilText.parse(owner,
 						"</p>"
 							+ "[npc.Name] feels a strange bubbling and churning taking place deep within [npc.her] [npc.breasts], and [npc.a_moan+] drifts out from between [npc.her] [npc.lips] as a few drops of [npc.milk] suddenly leak"
 								+ " from [npc.her] [npc.nipples]; clear evidence that that [npc.her] [npc.milk] production has [style.boldGrow(increased)].</br>"
-							+ "[npc.Name] is now producing [style.boldSex(" + lactationDescriptor + " [npc.milk])]!"
+							+ "[npc.Name] is now able to produce [style.boldSex(" + lactationDescriptor + " [npc.milk])]!"
 						+ "</p>");
 			}
 		} else {
 			if (owner.isPlayer()) {
 				return "</p>"
 							+ "You feel a strange sucking sensation deep within your [pc.breasts], and you can't help but let out a shocked gasp as you realise that you're feeling your [pc.milk] production [style.boldShrink(drying up)].</br>"
-							+ "You are now producing [style.boldSex(" + lactationDescriptor + " [pc.milk])]."
+							+ "You are now able to produce [style.boldSex(" + lactationDescriptor + " [pc.milk])]."
 						+ "</p>";
 			} else {
 				return UtilText.parse(owner,
 						"</p>"
 							+ "[npc.Name] feels a strange sucking sensation deep within [npc.her] [npc.breasts],"
 								+ " and a frustrated sigh drifts out from between [npc.her] [npc.lips] as [npc.she] realises that [npc.she]'s feeling [npc.her] [npc.milk] production [style.boldShrink(drying up)].</br>"
-							+ "[npc.Name] is now producing [style.boldSex(" + lactationDescriptor + " [npc.milk])]."
+							+ "[npc.Name] is now able to produce [style.boldSex(" + lactationDescriptor + " [npc.milk])]."
+						+ "</p>");
+			}
+		}
+	}
+	
+	// Stored milk:
+
+	public Lactation getStoredMilk() {
+		return Lactation.getLactationFromInt(milkStored);
+	}
+	
+	public int getRawStoredMilkValue() {
+		return milkStored;
+	}
+
+	/**
+	 * Sets the milkStorage. Value is bound to >=0 && <=getRawMilkStorageValue()
+	 */
+	public String setStoredMilk(GameCharacter owner, int milkStored) {
+		int oldStoredMilk = this.milkStored;
+		this.milkStored = Math.max(0, (Math.min(milkStored, getRawMilkStorageValue())));
+		int lactationChange = oldStoredMilk - this.milkStored;
+		
+		if (lactationChange == 0) {
+			return "";
+		} else {
+			if(owner.isPlayer()) {
+				return "<p style='text-align:center;'><i style='color:"+Colour.BASE_YELLOW_LIGHT.toWebHexString()+";'>"
+							+ UtilText.returnStringAtRandom(
+									lactationChange+"ml of your [pc.milk] squirts out of your [pc.nipples+].",
+									lactationChange+"ml of [pc.milk+] leaks out of your [pc.nipples+].",
+									lactationChange+"ml of [pc.milk+] drips out of your [pc.nipples+].")
+						+ "</i>"
+						+ (this.milkStored==0
+							?"</br><i>You now have no more [pc.milk] stored in your breasts!</i>"
+							:"")
+						+ "</p>";
+			} else {
+				return UtilText.parse(owner,
+						"<p style='text-align:center;'><i style='color:"+Colour.BASE_YELLOW_LIGHT.toWebHexString()+";'>"
+								+ UtilText.returnStringAtRandom(
+										lactationChange+"ml of [npc.name]'s [npc.milk] squirts out of [npc.her] [npc.nipples+].",
+										lactationChange+"ml of [npc.milk+] leaks out of [npc.name]'s [npc.nipples+].",
+										lactationChange+"ml of [npc.milk+] drips out of [npc.name]'s [npc.nipples+].")
+						+ "</i>"
+						+ (this.milkStored==0
+							?"</br><i>[npc.Name] now has no more [pc.milk] stored in [npc.her] breasts!</i>"
+							:"")
 						+ "</p>");
 			}
 		}
 	}
 
+	// Regeneration:
+
+	public FluidRegeneration getLactationRegeneration() {
+		return FluidRegeneration.getFluidRegenerationFromInt(milkRegeneration);
+	}
+
+	public int getRawLactationRegenerationValue() {
+		return milkRegeneration;
+	}
+
+	/**
+	 * Sets the milkRegeneration. Value is bound to >=0 && <=FluidRegeneration.FOUR_MAXIMUM.getMaximumValue()
+	 */
+	public String setLactationRegeneration(GameCharacter owner, int milkRegeneration) {
+		int oldRegeneration = this.milkRegeneration;
+		this.milkRegeneration = Math.max(0, Math.min(milkRegeneration, FluidRegeneration.FOUR_MAXIMUM.getValue()));
+		int regenerationChange = this.milkRegeneration - oldRegeneration;
+		
+		if (regenerationChange == 0) {
+			if(owner.isPlayer()) {
+				return "<p style='text-align:center;'>[style.colourDisabled(Your rate of [pc.milk] regeneration doesn't change...)]</p>";
+			} else {
+				return UtilText.parse(owner, "<p style='text-align:center;'>[style.colourDisabled([npc.name]'s rate of [npc.milk] regeneration doesn't change...)]</p>");
+			}
+		}
+		
+		String regenerationDescriptor = getLactationRegeneration().getName();
+		if (regenerationChange > 0) {
+			if (owner.isPlayer()) {
+				return "</p>"
+							+ "You feel an alarming bubbling and churning taking place deep within your [pc.breasts], and you can't help but let out [pc.a_moan+] as a few drops of [pc.milk] suddenly leak from your [pc.nipples];"
+								+ " clear evidence that that your [pc.milk] regeneration has [style.boldGrow(increased)].</br>"
+							+ "Your rate of [pc.milk] regeneration is now [style.boldSex(" + regenerationDescriptor + ")]!"
+						+ "</p>";
+			} else {
+				return UtilText.parse(owner,
+						"</p>"
+							+ "[npc.Name] feels an alarming bubbling and churning taking place deep within [npc.her] [npc.breasts], and [npc.a_moan+] drifts out from between [npc.her] [npc.lips] as a few drops of [npc.milk] suddenly leak"
+								+ " from [npc.her] [npc.nipples]; clear evidence that that [npc.her] [npc.milk] regeneration has [style.boldGrow(increased)].</br>"
+							+ "[npc.Name]'s rate of [npc.milk] regeneration is now [style.boldSex(" + regenerationDescriptor + ")]!"
+						+ "</p>");
+			}
+		} else {
+			if (owner.isPlayer()) {
+				return "</p>"
+							+ "You feel a strange sucking sensation deep within your [pc.breasts], and you can't help but let out a shocked gasp as you realise that you're feeling your [pc.milk] regeneration [style.boldShrink(decreasing)].</br>"
+							+ "Your rate of [pc.milk] regeneration is now [style.boldSex(" + regenerationDescriptor + ")]!"
+						+ "</p>";
+			} else {
+				return UtilText.parse(owner,
+						"</p>"
+							+ "[npc.Name] feels a strange sucking sensation deep within [npc.her] [npc.breasts],"
+								+ " and a frustrated sigh drifts out from between [npc.her] [npc.lips] as [npc.she] realises that [npc.she]'s feeling [npc.her] [npc.milk] regeneration [style.boldShrink(decreasing)].</br>"
+							+ "[npc.Name]'s rate of [npc.milk] regeneration is now [style.boldSex(" + regenerationDescriptor + ")]!"
+						+ "</p>");
+			}
+		}
+	}
+	
+	
+	
+	// Rows:
+	
 	public int getRows() {
 		return rows;
 	}

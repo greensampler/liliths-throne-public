@@ -3,6 +3,7 @@ package com.lilithsthrone.game.sex.sexActions.dominion.zaranix;
 import com.lilithsthrone.game.character.attributes.CorruptionLevel;
 import com.lilithsthrone.game.sex.ArousalIncrease;
 import com.lilithsthrone.game.sex.Sex;
+import com.lilithsthrone.game.sex.SexParticipantType;
 import com.lilithsthrone.game.sex.sexActions.SexAction;
 import com.lilithsthrone.game.sex.sexActions.SexActionPriority;
 import com.lilithsthrone.game.sex.sexActions.SexActionType;
@@ -19,7 +20,8 @@ public class SAAmberDoggyFucked {
 			ArousalIncrease.ONE_MINIMUM,
 			CorruptionLevel.ZERO_PURE,
 			null,
-			null) {
+			null,
+			SexParticipantType.MISC) {
 		@Override
 		public String getActionTitle() {
 			return "";
@@ -32,7 +34,7 @@ public class SAAmberDoggyFucked {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.getNumberOfPartnerOrgasms()>=1;
+			return Sex.getNumberOfOrgasms(Sex.getActivePartner())>=1;
 		}
 		
 		@Override
@@ -43,7 +45,7 @@ public class SAAmberDoggyFucked {
 		@Override
 		public String getDescription() {
 			return "With a satisfied sigh, [npc.name] pulls back, growling,"
-					+ " [amber.speech(Good bitch! I think you've learned your lesson!)]";
+					+ " [npc.speech(Good bitch! I think you've learned your lesson!)]";
 		}
 		
 		@Override

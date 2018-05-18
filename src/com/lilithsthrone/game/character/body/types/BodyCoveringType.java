@@ -4,486 +4,765 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.lilithsthrone.game.character.GameCharacter;
+import com.lilithsthrone.game.character.body.valueEnums.CoveringModifier;
 import com.lilithsthrone.game.character.body.valueEnums.CoveringPattern;
-import com.lilithsthrone.game.character.race.Race;
 import com.lilithsthrone.utils.Colour;
+import com.lilithsthrone.utils.ColourListPresets;
 import com.lilithsthrone.utils.Util;
-import com.lilithsthrone.utils.Util.ListValue;
 
 /**
  * @since 0.1.0
- * @version 0.1.83
+ * @version 0.2.4
  * @author Innoxia
  */
-public enum BodyCoveringType implements BodyPartTypeInterface {
+public enum BodyCoveringType {
 
 	// Skin shades go light->dark
 
-	HUMAN(Race.HUMAN,
-			"a layer of",
+	HUMAN("a layer of",
 			false,
 			"skin",
 			"skin",
-			"normal",
+			Util.newArrayListOfValues(CoveringModifier.SMOOTH),
+			null,
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.NONE)),
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED)),
+					CoveringPattern.NONE,
+					CoveringPattern.FRECKLED),
+			CoveringPattern.allStandardCoveringPatterns,
 			Colour.humanSkinColours,
 			null,
 			Colour.humanSkinColours,
 			null),
 
-	ANGEL(Race.ANGEL,
-			"a layer of",
+	ANGEL("a layer of",
 			false,
 			"skin",
 			"skin",
-			"flawless",
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.NONE)),
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED)),
+			Util.newArrayListOfValues(CoveringModifier.SMOOTH),
+			null,
+			Util.newArrayListOfValues(CoveringPattern.NONE),
+			CoveringPattern.allStandardCoveringPatterns,
 			Colour.humanSkinColours,
 			null,
 			Colour.humanSkinColours,
 			null),
 
-	ANGEL_FEATHER(Race.ANGEL,
-			"a layer of",
+	ANGEL_FEATHER("a layer of",
 			true,
 			"feathers",
 			"feather",
-			"",
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.NONE)),
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED)),
-			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.FEATHERS_BLEACH_BLONDE),
-					new ListValue<Colour>(Colour.FEATHERS_WHITE),
-					new ListValue<Colour>(Colour.FEATHERS_PINK),
-					new ListValue<Colour>(Colour.FEATHERS_YELLOW),
-					new ListValue<Colour>(Colour.FEATHERS_ORANGE),
-					new ListValue<Colour>(Colour.FEATHERS_GINGER),
-					new ListValue<Colour>(Colour.FEATHERS_BLUE),
-					new ListValue<Colour>(Colour.FEATHERS_LILAC),
-					new ListValue<Colour>(Colour.FEATHERS_GREEN),
-					new ListValue<Colour>(Colour.FEATHERS_RED),
-					new ListValue<Colour>(Colour.FEATHERS_BLACK)),
+			Util.newArrayListOfValues(CoveringModifier.SMOOTH),
 			null,
-			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.FEATHERS_BLEACH_BLONDE),
-					new ListValue<Colour>(Colour.FEATHERS_WHITE),
-					new ListValue<Colour>(Colour.FEATHERS_PINK),
-					new ListValue<Colour>(Colour.FEATHERS_YELLOW),
-					new ListValue<Colour>(Colour.FEATHERS_ORANGE),
-					new ListValue<Colour>(Colour.FEATHERS_GINGER),
-					new ListValue<Colour>(Colour.FEATHERS_BLUE),
-					new ListValue<Colour>(Colour.FEATHERS_LILAC),
-					new ListValue<Colour>(Colour.FEATHERS_GREEN),
-					new ListValue<Colour>(Colour.FEATHERS_RED),
-					new ListValue<Colour>(Colour.FEATHERS_BLACK)),
-			null),
+			Util.newArrayListOfValues(CoveringPattern.NONE),
+			CoveringPattern.allHairCoveringPatterns,
+			Util.newArrayListOfValues(Colour.FEATHERS_WHITE),
+			Colour.allFeatherColours,
+			Util.newArrayListOfValues(Colour.FEATHERS_WHITE),
+			Colour.allFeatherColours),
 	
-	DEMON_COMMON(Race.DEMON,
-			"a layer of",
+	DEMON_COMMON("a layer of",
 			false,
 			"skin",
 			"skin",
-			"flawless",
+			Util.newArrayListOfValues(CoveringModifier.SMOOTH),
+			null,
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.NONE)),
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED)),
+					CoveringPattern.NONE),
+			CoveringPattern.allStandardCoveringPatterns,
 			Colour.demonSkinColours,
 			null,
 			Colour.demonSkinColours,
 			null),
 
-	CANINE_FUR(Race.DOG_MORPH,
-			"a layer of",
+	IMP("a layer of",
+			false,
+			"skin",
+			"skin",
+			Util.newArrayListOfValues(CoveringModifier.SMOOTH),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.NONE),
+			CoveringPattern.allStandardCoveringPatterns,
+			Colour.demonSkinColours,
+			null,
+			Colour.demonSkinColours,
+			null),
+
+	BAT_SKIN("a layer of",
+			false,
+			"skin",
+			"skin",
+			Util.newArrayListOfValues(CoveringModifier.SMOOTH),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.NONE),
+			CoveringPattern.allStandardCoveringPatterns,
+			Colour.humanSkinColours,
+			Colour.allSkinColours,
+			null,
+			Colour.allSkinColours),
+	
+	BAT_FUR("a layer of",
 			false,
 			"fur",
 			"fur",
-			"shaggy",
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.NONE),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED)),
+					CoveringModifier.SHORT),
+			null,
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED),
-					new ListValue<CoveringPattern>(CoveringPattern.HIGHLIGHTS)),
+					CoveringPattern.NONE),
+			CoveringPattern.allHairCoveringPatterns,
 			Colour.naturalFurColours,
 			Colour.dyeFurColours,
 			Colour.naturalFurColours,
 			Colour.dyeFurColours),
 	
-	LYCAN_FUR(Race.WOLF_MORPH,
-			"a layer of",
+	CANINE_FUR("a layer of",
 			false,
 			"fur",
 			"fur",
-			"shaggy",
+			Util.newArrayListOfValues(
+					CoveringModifier.FLUFFY,
+					CoveringModifier.SHORT,
+					CoveringModifier.SHAGGY),
 			null,
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED),
-					new ListValue<CoveringPattern>(CoveringPattern.HIGHLIGHTS)),
-			Colour.naturalFurColours,
-			Colour.dyeFurColours,
-			Colour.naturalFurColours,
-			Colour.dyeFurColours),
-
-	FELINE_FUR(Race.CAT_MORPH,
-			"a layer of",
-			false,
-			"fur",
-			"fur",
-			"smooth",
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.NONE),
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED),
-					new ListValue<CoveringPattern>(CoveringPattern.HIGHLIGHTS)),
-			null,
-			Colour.naturalFurColours,
-			Colour.dyeFurColours,
-			Colour.naturalFurColours,
-			Colour.dyeFurColours),
-
-	SQUIRREL_FUR(Race.SQUIRREL_MORPH,
-			"a layer of",
-			false,
-			"fur",
-			"fur",
-			"smooth",
-			null,
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED),
-					new ListValue<CoveringPattern>(CoveringPattern.HIGHLIGHTS)),
+					CoveringPattern.NONE,
+					CoveringPattern.MARKED,
+					CoveringPattern.SPOTTED),
+			CoveringPattern.allHairCoveringPatterns,
 			Colour.naturalFurColours,
 			Colour.dyeFurColours,
 			Colour.naturalFurColours,
 			Colour.dyeFurColours),
 	
-	HORSE_HAIR(Race.HORSE_MORPH,
-			"a layer of",
+	LYCAN_FUR("a layer of",
+			false,
+			"fur",
+			"fur",
+			Util.newArrayListOfValues(
+					CoveringModifier.SHAGGY),
+			null,
+			null,
+			CoveringPattern.allHairCoveringPatterns,
+			Colour.naturalFurColours,
+			Colour.dyeFurColours,
+			Colour.naturalFurColours,
+			Colour.dyeFurColours),
+
+	FELINE_FUR("a layer of",
+			false,
+			"fur",
+			"fur",
+			Util.newArrayListOfValues(
+					CoveringModifier.SMOOTH,
+					CoveringModifier.FLUFFY),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.NONE,
+					CoveringPattern.MOTTLED,
+					CoveringPattern.SPOTTED,
+					CoveringPattern.MARKED,
+					CoveringPattern.STRIPED,
+					CoveringPattern.HIGHLIGHTS),
+			CoveringPattern.allHairCoveringPatterns,
+			Colour.naturalFurColours,
+			Colour.dyeFurColours,
+			Colour.naturalFurColours,
+			Colour.dyeFurColours),
+
+	SQUIRREL_FUR("a layer of",
+			false,
+			"fur",
+			"fur",
+			Util.newArrayListOfValues(
+					CoveringModifier.SMOOTH),
+			null,
+			null,
+			CoveringPattern.allHairCoveringPatterns,
+			Colour.naturalFurColours,
+			Colour.dyeFurColours,
+			Colour.naturalFurColours,
+			Colour.dyeFurColours),
+
+	RAT_SKIN("a layer of",
+			false,
+			"skin",
+			"skin",
+			Util.newArrayListOfValues(CoveringModifier.SMOOTH),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.NONE),
+			CoveringPattern.allStandardCoveringPatterns,
+			Colour.ratSkinColours,
+			Colour.allSkinColours,
+			null,
+			Colour.allSkinColours),
+	
+	RAT_FUR("a layer of",
+			false,
+			"fur",
+			"fur",
+			Util.newArrayListOfValues(
+					CoveringModifier.SMOOTH),
+			null,
+			null,
+			CoveringPattern.allHairCoveringPatterns,
+			Colour.naturalFurColours,
+			Colour.dyeFurColours,
+			Colour.naturalFurColours,
+			Colour.dyeFurColours),
+
+	RABBIT_FUR("a layer of",
+			false,
+			"fur",
+			"fur",
+			Util.newArrayListOfValues(
+					CoveringModifier.SMOOTH),
+			null,
+			null,
+			CoveringPattern.allHairCoveringPatterns,
+			Colour.naturalFurColours,
+			Colour.dyeFurColours,
+			Colour.naturalFurColours,
+			Colour.dyeFurColours),
+	
+	HORSE_HAIR("a layer of",
 			false,
 			"hair",
 			"hair",
-			"",
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.NONE),
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED)),
+					CoveringModifier.SHORT),
+			null,
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.HIGHLIGHTS)),
+					CoveringPattern.NONE,
+					CoveringPattern.MOTTLED,
+					CoveringPattern.SPOTTED,
+					CoveringPattern.MARKED,
+					CoveringPattern.STRIPED),
+			CoveringPattern.allHairCoveringPatterns,
 			Colour.naturalFurColours,
 			Colour.dyeFurColours,
 			Colour.naturalFurColours,
 			Colour.dyeFurColours),
 	
-	REINDEER_FUR(Race.REINDEER_MORPH,
-			"a layer of",
+	REINDEER_FUR("a layer of",
 			false,
 			"fur",
 			"fur",
-			"",
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.NONE)),
+					CoveringModifier.SMOOTH),
+			null,
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED),
-					new ListValue<CoveringPattern>(CoveringPattern.HIGHLIGHTS)),
+					CoveringPattern.NONE),
+			CoveringPattern.allHairCoveringPatterns,
 			Colour.naturalFurColours,
 			Colour.dyeFurColours,
 			Colour.naturalFurColours,
 			Colour.dyeFurColours),
 	
-	BOVINE_FUR(Race.COW_MORPH,
-			"a layer of",
+	BOVINE_FUR("a layer of",
 			false,
 			"fur",
 			"fur",
-			"",
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.NONE),
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED)),
+					CoveringModifier.SHORT,
+					CoveringModifier.SMOOTH),
+			null,
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED),
-					new ListValue<CoveringPattern>(CoveringPattern.HIGHLIGHTS)),
+					CoveringPattern.NONE,
+					CoveringPattern.MOTTLED,
+					CoveringPattern.SPOTTED,
+					CoveringPattern.MARKED),
+			CoveringPattern.allHairCoveringPatterns,
 			Colour.naturalFurColours,
 			Colour.dyeFurColours,
 			Colour.naturalFurColours,
 			Colour.dyeFurColours),
 	
-	PENIS(Race.HUMAN,
-			"a layer of",
+	DILDO("a layer of", // This colour is set in GameCharacter's getCovering method, based on the colour of the dildo equipped.
+			false,
+			"silicone",
+			"silicone",
+			Util.newArrayListOfValues(
+					CoveringModifier.SMOOTH),
+			null,
+			null,
+			null,
+			ColourListPresets.ALL.getPresetColourList(),
+			null,
+			ColourListPresets.ALL.getPresetColourList(),
+			null),
+	
+	PENIS("a layer of",
 			false,
 			"skin",
 			"skin",
-			"soft",
+			Util.newArrayListOfValues(
+					CoveringModifier.SMOOTH),
+			null,
 			null,
 			null,
 			Colour.allSkinColours,
+			null,
+			Util.newArrayListOfValues(
+					Colour.ORIFICE_INTERIOR),
+			Colour.allSkinColours),
+
+	ANUS("a layer of",
+			false,
+			"skin",
+			"skin",
+			Util.newArrayListOfValues(
+					CoveringModifier.SMOOTH),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.ORIFICE_ANUS),
+			null,
+			Colour.allSkinColours,
+			null,
+			Util.newArrayListOfValues(
+					Colour.ORIFICE_INTERIOR),
+			Colour.allSkinColours),
+	
+	MOUTH("a layer of",
+			false,
+			"skin",
+			"skin",
+			Util.newArrayListOfValues(
+					CoveringModifier.SMOOTH),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.ORIFICE_MOUTH),
+			null,
+			Colour.allSkinColours,
+			null,
+			Util.newArrayListOfValues(
+					Colour.ORIFICE_INTERIOR),
+			Colour.allSkinColours),
+	
+	NIPPLES("a layer of",
+			false,
+			"skin",
+			"skin",
+			Util.newArrayListOfValues(
+					CoveringModifier.SMOOTH),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.ORIFICE_NIPPLE),
+			null,
+			Colour.allSkinColours,
+			null,
+			Util.newArrayListOfValues(
+					Colour.ORIFICE_INTERIOR),
+			Colour.allSkinColours),
+	
+	VAGINA("a layer of",
+			false,
+			"skin",
+			"skin",
+			Util.newArrayListOfValues(
+					CoveringModifier.SMOOTH),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.ORIFICE_VAGINA),
+			null,
+			Colour.allSkinColours,
+			null,
+			Util.newArrayListOfValues(
+					Colour.ORIFICE_INTERIOR),
+			Colour.allSkinColours),
+	
+
+	FIRE("",
+			false,
+			"flames",
+			"flames",
+			Util.newArrayListOfValues(
+					CoveringModifier.BLAZING),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.NONE),
+			null,
+			Util.newArrayListOfValues(
+					Colour.COVERING_ORANGE,
+					Colour.COVERING_BLUE_LIGHT),
+			null,
+			null,
+			null),
+	FIRE_HAIR("",
+			false,
+			"flames",
+			"flames",
+			Util.newArrayListOfValues(
+					CoveringModifier.BLAZING),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.NONE),
+			null,
+			Util.newArrayListOfValues(
+					Colour.COVERING_ORANGE,
+					Colour.COVERING_BLUE_LIGHT),
+			null,
+			null,
+			null),
+	
+	WATER("",
+			false,
+			"water",
+			"water",
+			Util.newArrayListOfValues(
+					CoveringModifier.SHIMMERING),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.NONE),
+			null,
+			Util.newArrayListOfValues(
+					Colour.COVERING_BLUE,
+					Colour.COVERING_BLUE_LIGHT),
+			null,
+			null,
+			null),
+	WATER_HAIR("",
+			false,
+			"water",
+			"water",
+			Util.newArrayListOfValues(
+					CoveringModifier.SHIMMERING),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.NONE),
+			null,
+			Util.newArrayListOfValues(
+					Colour.COVERING_BLUE,
+					Colour.COVERING_BLUE_LIGHT),
 			null,
 			null,
 			null),
 
-	ANUS(Race.HUMAN,
-			"a layer of",
+	ICE("",
 			false,
-			"skin",
-			"skin",
-			"soft",
+			"ice",
+			"ice",
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.ORIFICE_ANUS)),
+					CoveringModifier.SHIMMERING),
 			null,
-			Colour.allSkinColours,
+			Util.newArrayListOfValues(
+					CoveringPattern.NONE),
 			null,
-			Colour.orificeInteriors,
+			Util.newArrayListOfValues(
+					Colour.COVERING_BLUE_LIGHT),
+			null,
+			null,
 			null),
-	
-	ANUS_SLIME(Race.SLIME,
-			"a layer of",
+	ICE_HAIR("",
 			false,
-			"slime",
-			"slime",
-			"soft",
+			"ice",
+			"ice",
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.ORIFICE_ANUS)),
+					CoveringModifier.SHIMMERING),
 			null,
 			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.SLIME_PINK),
-					new ListValue<Colour>(Colour.SLIME_BLUE),
-					new ListValue<Colour>(Colour.SLIME_GREEN),
-					new ListValue<Colour>(Colour.SLIME_RED),
-					new ListValue<Colour>(Colour.SLIME_BLACK)),
+					CoveringPattern.NONE),
 			null,
 			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.SLIME_PINK),
-					new ListValue<Colour>(Colour.SLIME_BLUE),
-					new ListValue<Colour>(Colour.SLIME_GREEN),
-					new ListValue<Colour>(Colour.SLIME_RED),
-					new ListValue<Colour>(Colour.SLIME_BLACK)),
-			null),
-	
-	MOUTH(Race.HUMAN,
-			"a layer of",
-			false,
-			"skin",
-			"skin",
-			"soft",
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.ORIFICE_MOUTH)),
-			null,
-			Colour.allSkinColours,
-			null,
-			Colour.orificeInteriors,
-			null),
-	
-	MOUTH_SLIME(Race.SLIME,
-			"a layer of",
-			false,
-			"slime",
-			"slime",
-			"soft",
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.ORIFICE_MOUTH)),
-			null,
-			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.SLIME_PINK),
-					new ListValue<Colour>(Colour.SLIME_BLUE),
-					new ListValue<Colour>(Colour.SLIME_GREEN),
-					new ListValue<Colour>(Colour.SLIME_RED),
-					new ListValue<Colour>(Colour.SLIME_BLACK)),
-			null,
-			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.SLIME_PINK),
-					new ListValue<Colour>(Colour.SLIME_BLUE),
-					new ListValue<Colour>(Colour.SLIME_GREEN),
-					new ListValue<Colour>(Colour.SLIME_RED),
-					new ListValue<Colour>(Colour.SLIME_BLACK)),
-			null),
-	
-	NIPPLES(Race.HUMAN,
-			"a layer of",
-			false,
-			"skin",
-			"skin",
-			"soft",
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.ORIFICE_NIPPLE)),
-			null,
-			Colour.allSkinColours,
-			null,
-			Colour.orificeInteriors,
-			null),
-	
-	NIPPLES_SLIME(Race.SLIME,
-			"a layer of",
-			false,
-			"slime",
-			"slime",
-			"soft",
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.ORIFICE_NIPPLE)),
-			null,
-			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.SLIME_PINK),
-					new ListValue<Colour>(Colour.SLIME_BLUE),
-					new ListValue<Colour>(Colour.SLIME_GREEN),
-					new ListValue<Colour>(Colour.SLIME_RED),
-					new ListValue<Colour>(Colour.SLIME_BLACK)),
-			null,
-			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.SLIME_PINK),
-					new ListValue<Colour>(Colour.SLIME_BLUE),
-					new ListValue<Colour>(Colour.SLIME_GREEN),
-					new ListValue<Colour>(Colour.SLIME_RED),
-					new ListValue<Colour>(Colour.SLIME_BLACK)),
-			null),
-	
-	VAGINA(Race.HUMAN,
-			"a layer of",
-			false,
-			"skin",
-			"skin",
-			"soft",
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.ORIFICE_VAGINA)),
-			null,
-			Colour.allSkinColours,
-			null,
-			Colour.orificeInteriors,
-			null),
-	
-	VAGINA_SLIME(Race.SLIME,
-			"a layer of",
-			false,
-			"slime",
-			"slime",
-			"soft",
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.ORIFICE_VAGINA)),
-			null,
-			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.SLIME_PINK),
-					new ListValue<Colour>(Colour.SLIME_BLUE),
-					new ListValue<Colour>(Colour.SLIME_GREEN),
-					new ListValue<Colour>(Colour.SLIME_RED),
-					new ListValue<Colour>(Colour.SLIME_BLACK)),
-			null,
-			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.SLIME_PINK),
-					new ListValue<Colour>(Colour.SLIME_BLUE),
-					new ListValue<Colour>(Colour.SLIME_GREEN),
-					new ListValue<Colour>(Colour.SLIME_RED),
-					new ListValue<Colour>(Colour.SLIME_BLACK)),
-			null),
-
-	SLIME(Race.SLIME,
-			"a layer of",
-			false,
-			"slime",
-			"slime",
-			"gooey",
-			null,
-			null,
-			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.SLIME_PINK),
-					new ListValue<Colour>(Colour.SLIME_BLUE),
-					new ListValue<Colour>(Colour.SLIME_GREEN),
-					new ListValue<Colour>(Colour.SLIME_RED),
-					new ListValue<Colour>(Colour.SLIME_BLACK)),
+					Colour.COVERING_BLUE_LIGHT),
 			null,
 			null,
 			null),
 
-	FEATHERS(Race.HARPY,
-			"a layer of",
+	AIR("",
+			false,
+			"vapours",
+			"vapours",
+			Util.newArrayListOfValues(
+					CoveringModifier.SWIRLING),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.NONE),
+			null,
+			Util.newArrayListOfValues(
+					Colour.COVERING_BLUE_LIGHT),
+			null,
+			null,
+			null),
+	AIR_HAIR("",
+			false,
+			"vapours",
+			"vapours",
+			Util.newArrayListOfValues(
+					CoveringModifier.SWIRLING),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.NONE),
+			null,
+			Util.newArrayListOfValues(
+					Colour.COVERING_BLUE_LIGHT),
+			null,
+			null,
+			null),
+
+	STONE("",
+			false,
+			"stone",
+			"stone",
+			Util.newArrayListOfValues(
+					CoveringModifier.MATTE),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.NONE),
+			null,
+			Util.newArrayListOfValues(
+					Colour.COVERING_GREY),
+			null,
+			null,
+			null),
+	STONE_HAIR("",
+			false,
+			"stone",
+			"stone",
+			Util.newArrayListOfValues(
+					CoveringModifier.MATTE),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.NONE),
+			null,
+			Util.newArrayListOfValues(
+					Colour.COVERING_GREY),
+			null,
+			null,
+			null),
+
+	RUBBER("",
+			false,
+			"rubber",
+			"rubber",
+			Util.newArrayListOfValues(
+					CoveringModifier.GLOSSY),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.NONE),
+			null,
+			Util.newArrayListOfValues(
+					Colour.COVERING_BLACK),
+			null,
+			null,
+			null),
+	RUBBER_HAIR("",
+			false,
+			"rubber",
+			"rubber",
+			Util.newArrayListOfValues(
+					CoveringModifier.GLOSSY),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.NONE),
+			null,
+			Util.newArrayListOfValues(
+					Colour.COVERING_BLACK),
+			null,
+			null,
+			null),
+
+	ARCANE("",
+			false,
+			"energy",
+			"energy",
+			Util.newArrayListOfValues(
+					CoveringModifier.SWIRLING),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.NONE),
+			null,
+			Util.newArrayListOfValues(
+					Colour.COVERING_PINK),
+			null,
+			null,
+			null),
+	ARCANE_HAIR("",
+			false,
+			"energy",
+			"energy",
+			Util.newArrayListOfValues(
+					CoveringModifier.SWIRLING),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.NONE),
+			null,
+			Util.newArrayListOfValues(
+					Colour.COVERING_PINK),
+			null,
+			null,
+			null),
+	
+	
+	SLIME("a layer of",
+			false,
+			"slime",
+			"slime",
+			Util.newArrayListOfValues(
+					CoveringModifier.GOOEY),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.NONE),
+			CoveringPattern.allStandardCoveringPatterns,
+			Colour.allSlimeColours,
+			null,
+			Colour.allSlimeColours,
+			null),
+
+	SLIME_EYE("a layer of",
+			false,
+			"slime",
+			"slime",
+			Util.newArrayListOfValues(
+					CoveringModifier.GOOEY),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_IRISES),
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_IRISES_HETEROCHROMATIC),
+			Colour.allSlimeColours,
+			null,
+			Colour.allSlimeColours,
+			null),
+	
+	SLIME_PUPILS("a layer of",
+			false,
+			"slime",
+			"slime",
+			Util.newArrayListOfValues(
+					CoveringModifier.GOOEY),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_PUPILS),
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_PUPILS_HETEROCHROMATIC),
+			Colour.allSlimeColours,
+			null,
+			Colour.allSlimeColours,
+			null),
+	
+	SLIME_SCLERA("a layer of",
+			false,
+			"slime",
+			"slime",
+			Util.newArrayListOfValues(
+					CoveringModifier.GOOEY),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_SCLERA),
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_SCLERA_HETEROCHROMATIC),
+			Colour.allSlimeColours,
+			null,
+			Colour.allSlimeColours,
+			null),
+	
+	SLIME_HAIR("a layer of",
+			false,
+			"slime",
+			"slime",
+			Util.newArrayListOfValues(
+					CoveringModifier.GOOEY),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.NONE),
+			CoveringPattern.allHairCoveringPatterns,
+			Colour.allSlimeColours,
+			null,
+			Colour.allSlimeColours,
+			null),
+	
+	SLIME_ANUS("a layer of",
+			false,
+			"slime",
+			"slime",
+			Util.newArrayListOfValues(
+					CoveringModifier.GOOEY),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.ORIFICE_ANUS),
+			null,
+			Colour.allSlimeColours,
+			null,
+			Colour.allSlimeColours,
+			null),
+	
+	SLIME_MOUTH("a layer of",
+			false,
+			"slime",
+			"slime",
+			Util.newArrayListOfValues(
+					CoveringModifier.GOOEY),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.ORIFICE_MOUTH),
+			null,
+			Colour.allSlimeColours,
+			null,
+			Colour.allSlimeColours,
+			null),
+	
+	SLIME_NIPPLES("a layer of",
+			false,
+			"slime",
+			"slime",
+			Util.newArrayListOfValues(
+					CoveringModifier.GOOEY),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.ORIFICE_NIPPLE),
+			null,
+			Colour.allSlimeColours,
+			null,
+			Colour.allSlimeColours,
+			null),
+	
+	SLIME_VAGINA("a layer of",
+			false,
+			"slime",
+			"slime",
+			Util.newArrayListOfValues(
+					CoveringModifier.GOOEY),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.ORIFICE_VAGINA),
+			null,
+			Colour.allSlimeColours,
+			null,
+			Colour.allSlimeColours,
+			null),
+
+	FEATHERS("a layer of",
 			true,
 			"feathers",
 			"feather",
-			"",
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.NONE),
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED)),
+					CoveringModifier.SMOOTH),
 			null,
 			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.FEATHERS_BLEACH_BLONDE),
-					new ListValue<Colour>(Colour.FEATHERS_WHITE),
-					new ListValue<Colour>(Colour.FEATHERS_PINK),
-					new ListValue<Colour>(Colour.FEATHERS_YELLOW),
-					new ListValue<Colour>(Colour.FEATHERS_ORANGE),
-					new ListValue<Colour>(Colour.FEATHERS_GINGER),
-					new ListValue<Colour>(Colour.FEATHERS_BLUE),
-					new ListValue<Colour>(Colour.FEATHERS_LILAC),
-					new ListValue<Colour>(Colour.FEATHERS_GREEN),
-					new ListValue<Colour>(Colour.FEATHERS_RED),
-					new ListValue<Colour>(Colour.FEATHERS_BLACK)),
+					CoveringPattern.NONE,
+					CoveringPattern.MOTTLED,
+					CoveringPattern.SPOTTED,
+					CoveringPattern.MARKED,
+					CoveringPattern.STRIPED),
+			CoveringPattern.allHairCoveringPatterns,
+			Colour.allFeatherColours,
 			null,
-			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.FEATHERS_BLEACH_BLONDE),
-					new ListValue<Colour>(Colour.FEATHERS_WHITE),
-					new ListValue<Colour>(Colour.FEATHERS_PINK),
-					new ListValue<Colour>(Colour.FEATHERS_YELLOW),
-					new ListValue<Colour>(Colour.FEATHERS_ORANGE),
-					new ListValue<Colour>(Colour.FEATHERS_GINGER),
-					new ListValue<Colour>(Colour.FEATHERS_BLUE),
-					new ListValue<Colour>(Colour.FEATHERS_LILAC),
-					new ListValue<Colour>(Colour.FEATHERS_GREEN),
-					new ListValue<Colour>(Colour.FEATHERS_RED),
-					new ListValue<Colour>(Colour.FEATHERS_BLACK)),
+			Colour.allFeatherColours,
 			null),
 
-	ALLIGATOR_SCALES(Race.ALLIGATOR_MORPH,
-			"a layer of",
+	ALLIGATOR_SCALES("a layer of",
 			true,
 			"scales",
 			"scale",
-			"",
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.NONE)),
+					CoveringModifier.SMOOTH),
+			null,
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED)),
-			Colour.naturalScaleColours,
-			Colour.dyeScaleColours,
-			Colour.naturalScaleColours,
-			Colour.dyeScaleColours),
-	
-	HAIR_SCALES_ALLIGATOR(Race.ALLIGATOR_MORPH,
-			"a layer of",
-			true,
-			"scales",
-			"scale",
-			"",
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.NONE)),
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED)),
+					CoveringPattern.NONE),
+			CoveringPattern.allScalesCoveringPatterns,
 			Colour.naturalScaleColours,
 			Colour.dyeScaleColours,
 			Colour.naturalScaleColours,
@@ -491,526 +770,513 @@ public enum BodyCoveringType implements BodyPartTypeInterface {
 
 	// MISC:
 	
-	HORN(Race.HUMAN,
-			"a layer of",
+	HORN("a layer of",
 			false,
 			"keratin",
 			"keratin",
-			"hard",
+			Util.newArrayListOfValues(
+					CoveringModifier.SMOOTH),
 			null,
 			null,
-			Util.newArrayListOfValues(new ListValue<Colour>(Colour.HORN_WHITE)),
-			null,
+			CoveringPattern.allScalesCoveringPatterns,
 			Colour.hornColours,
-			null),
+			Colour.dyeHornColours,
+			Colour.hornColours,
+			Colour.dyeHornColours),
 
-	ANTLER_REINDEER(Race.REINDEER_MORPH,
-			"a layer of",
+	ANTLER_REINDEER("a layer of",
 			false,
 			"velvet",
 			"velvet",
-			"hard",
+			Util.newArrayListOfValues(
+					CoveringModifier.SMOOTH),
 			null,
 			null,
-			Util.newArrayListOfValues(new ListValue<Colour>(Colour.ANTLER_TAN)),
-			null,
-			Colour.hornColours,
-			null),
+			CoveringPattern.allScalesCoveringPatterns,
+			Colour.antlerColours,
+			Colour.dyeAntlerColours,
+			Colour.antlerColours,
+			Colour.dyeAntlerColours),
 
-	TONGUE(Race.HUMAN,
-			"a layer of",
+	TONGUE("a layer of",
 			false,
 			"skin",
 			"skin",
-			"fleshy",
+			Util.newArrayListOfValues(
+					CoveringModifier.SMOOTH),
 			null,
 			null,
-			Util.newArrayListOfValues(new ListValue<Colour>(Colour.ORIFICE_INTERIOR)),
-			null,
-			Colour.orificeInteriors,
-			null),
+			CoveringPattern.allStandardCoveringPatterns,
+			Util.newArrayListOfValues(
+					Colour.ORIFICE_INTERIOR),
+			Colour.allSkinColours,
+			Util.newArrayListOfValues(
+					Colour.ORIFICE_INTERIOR),
+			Colour.allSkinColours),
 
 	// HAIR:
 
-	HAIR_HUMAN(Race.HUMAN,
-			"a head of",
+	HAIR_HUMAN("a head of",
 			false,
 			"hair",
 			"hair",
-			"",
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.NONE)),
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.HIGHLIGHTS),
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED)),
-			Colour.naturalHairColours,
-			Colour.dyeHairColours,
-			Colour.naturalHairColours,
-			Colour.dyeHairColours),
-
-	HAIR_ANGEL(Race.ANGEL,
-			"a head of",
-			false,
-			"hair",
-			"hair",
-			"silken",
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.NONE)),
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.HIGHLIGHTS),
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED)),
-			Colour.naturalHairColours,
-			Colour.dyeHairColours,
-			Colour.naturalHairColours,
-			Colour.dyeHairColours),
-
-	HAIR_DEMON(Race.DEMON,
-			"a head of",
-			false,
-			"hair",
-			"hair",
-			"silken",
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.NONE)),
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.HIGHLIGHTS),
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED)),
-			Colour.naturalHairColours,
-			Colour.dyeHairColours,
-			Colour.naturalHairColours,
-			Colour.dyeHairColours),
-
-	HAIR_CANINE_FUR(Race.DOG_MORPH,
-			"a layer of",
-			false,
-			"hair",
-			"hair",
-			"fur-like",
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.NONE)),
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.HIGHLIGHTS),
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED)),
-			Colour.naturalHairColours,
-			Colour.dyeHairColours,
-			Colour.naturalHairColours,
-			Colour.dyeHairColours),
-
-	HAIR_LYCAN_FUR(Race.WOLF_MORPH,
-			"a layer of",
-			false,
-			"hair",
-			"hair",
-			"fur-like",
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.NONE)),
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.HIGHLIGHTS),
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED)),
-			Colour.naturalHairColours,
-			Colour.dyeHairColours,
-			Colour.naturalHairColours,
-			Colour.dyeHairColours),
-
-	HAIR_FELINE_FUR(Race.CAT_MORPH,
-			"a layer of",
-			false,
-			"hair",
-			"hair",
-			"fur-like",
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.NONE)),
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.HIGHLIGHTS),
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED)),
-			Colour.naturalHairColours,
-			Colour.dyeHairColours,
-			Colour.naturalHairColours,
-			Colour.dyeHairColours),
-
-	HAIR_HORSE_HAIR(Race.HORSE_MORPH,
-			"a layer of",
-			false,
-			"hair",
-			"hair",
-			"coarse",
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.NONE)),
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.HIGHLIGHTS),
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED)),
-			Colour.naturalHairColours,
-			Colour.dyeHairColours,
-			Colour.naturalHairColours,
-			Colour.dyeHairColours),
-
-	HAIR_REINDEER_FUR(Race.REINDEER_MORPH,
-			"a layer of",
-			false,
-			"hair",
-			"hair",
-			"coarse",
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.NONE)),
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.HIGHLIGHTS),
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED)),
-			Colour.naturalHairColours,
-			Colour.dyeHairColours,
-			Colour.naturalHairColours,
-			Colour.dyeHairColours),
-
-	HAIR_BOVINE_FUR(Race.COW_MORPH,
-			"a layer of",
-			false,
-			"hair",
-			"hair",
-			"coarse",
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.NONE)),
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.HIGHLIGHTS),
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED)),
-			Colour.naturalHairColours,
-			Colour.dyeHairColours,
-			Colour.naturalHairColours,
-			Colour.dyeHairColours),
-
-	HAIR_SQUIRREL_FUR(Race.SQUIRREL_MORPH,
-			"a layer of",
-			false,
-			"hair",
-			"hair",
-			"fur-like",
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.NONE)),
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.HIGHLIGHTS),
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED)),
-			Colour.naturalHairColours,
-			Colour.dyeHairColours,
-			Colour.naturalHairColours,
-			Colour.dyeHairColours),
-
-	HAIR_SLIME(Race.SLIME,
-			"a mass of",
-			false,
-			"slime",
-			"slime",
-			"gooey",
-			null,
+					CoveringModifier.SMOOTH),
 			null,
 			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.SLIME_BLACK),
-					new ListValue<Colour>(Colour.SLIME_BLUE),
-					new ListValue<Colour>(Colour.SLIME_GREEN),
-					new ListValue<Colour>(Colour.SLIME_PINK),
-					new ListValue<Colour>(Colour.SLIME_RED)),
-			null,
-			null,
-			null),
+					CoveringPattern.NONE),
+			CoveringPattern.allHairCoveringPatterns,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours),
 
-	HAIR_HARPY(Race.HARPY,
-			"a plume of",
+	HAIR_ANGEL("a head of",
+			false,
+			"hair",
+			"hair",
+			Util.newArrayListOfValues(
+					CoveringModifier.SILKEN),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.NONE),
+			CoveringPattern.allHairCoveringPatterns,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours),
+
+	HAIR_DEMON("a head of",
+			false,
+			"hair",
+			"hair",
+			Util.newArrayListOfValues(
+					CoveringModifier.SILKEN),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.NONE),
+			CoveringPattern.allHairCoveringPatterns,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours),
+
+	HAIR_IMP("a head of",
+			false,
+			"hair",
+			"hair",
+			Util.newArrayListOfValues(
+					CoveringModifier.SILKEN),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.NONE),
+			CoveringPattern.allHairCoveringPatterns,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours),
+	
+	HAIR_CANINE_FUR("a layer of",
+			false,
+			"hair",
+			"hair",
+			Util.newArrayListOfValues(
+					CoveringModifier.FURRY),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.NONE),
+			CoveringPattern.allHairCoveringPatterns,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours),
+
+	HAIR_LYCAN_FUR("a layer of",
+			false,
+			"hair",
+			"hair",
+			Util.newArrayListOfValues(
+					CoveringModifier.FURRY),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.NONE),
+			CoveringPattern.allHairCoveringPatterns,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours),
+
+	HAIR_FELINE_FUR("a layer of",
+			false,
+			"hair",
+			"hair",
+			Util.newArrayListOfValues(
+					CoveringModifier.FURRY),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.NONE),
+			CoveringPattern.allHairCoveringPatterns,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours),
+
+	HAIR_HORSE_HAIR("a layer of",
+			false,
+			"hair",
+			"hair",
+			Util.newArrayListOfValues(
+					CoveringModifier.COARSE),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.NONE),
+			CoveringPattern.allHairCoveringPatterns,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours),
+
+	HAIR_REINDEER_FUR("a layer of",
+			false,
+			"hair",
+			"hair",
+			Util.newArrayListOfValues(
+					CoveringModifier.COARSE),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.NONE),
+			CoveringPattern.allHairCoveringPatterns,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours),
+
+	HAIR_BOVINE_FUR("a layer of",
+			false,
+			"hair",
+			"hair",
+			Util.newArrayListOfValues(
+					CoveringModifier.COARSE),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.NONE),
+			CoveringPattern.allHairCoveringPatterns,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours),
+
+	HAIR_SQUIRREL_FUR("a layer of",
+			false,
+			"hair",
+			"hair",
+			Util.newArrayListOfValues(
+					CoveringModifier.FURRY),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.NONE),
+			CoveringPattern.allHairCoveringPatterns,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours),
+
+	HAIR_RAT_FUR("a layer of",
+			false,
+			"hair",
+			"hair",
+			Util.newArrayListOfValues(
+					CoveringModifier.FURRY),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.NONE),
+			CoveringPattern.allHairCoveringPatterns,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours),
+
+	HAIR_RABBIT_FUR("a layer of",
+			false,
+			"hair",
+			"hair",
+			Util.newArrayListOfValues(
+					CoveringModifier.FURRY),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.NONE),
+			CoveringPattern.allHairCoveringPatterns,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours),
+	
+	HAIR_BAT_FUR("a layer of",
+			false,
+			"hair",
+			"hair",
+			Util.newArrayListOfValues(
+					CoveringModifier.FURRY),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.NONE),
+			CoveringPattern.allHairCoveringPatterns,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours),
+	
+	HAIR_HARPY("a plume of",
 			true,
 			"feathers",
 			"feather",
-			"attractive",
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.NONE),
-					new ListValue<CoveringPattern>(CoveringPattern.HIGHLIGHTS),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED),
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED)),
+					CoveringModifier.SMOOTH),
 			null,
-			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.FEATHERS_BLEACH_BLONDE),
-					new ListValue<Colour>(Colour.FEATHERS_WHITE),
-					new ListValue<Colour>(Colour.FEATHERS_PINK),
-					new ListValue<Colour>(Colour.FEATHERS_YELLOW),
-					new ListValue<Colour>(Colour.FEATHERS_ORANGE),
-					new ListValue<Colour>(Colour.FEATHERS_GINGER),
-					new ListValue<Colour>(Colour.FEATHERS_BLUE),
-					new ListValue<Colour>(Colour.FEATHERS_LILAC),
-					new ListValue<Colour>(Colour.FEATHERS_GREEN),
-					new ListValue<Colour>(Colour.FEATHERS_RED),
-					new ListValue<Colour>(Colour.FEATHERS_BLACK)),
+			CoveringPattern.allHairCoveringPatterns,
 			null,
-			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.FEATHERS_BLEACH_BLONDE),
-					new ListValue<Colour>(Colour.FEATHERS_WHITE),
-					new ListValue<Colour>(Colour.FEATHERS_PINK),
-					new ListValue<Colour>(Colour.FEATHERS_YELLOW),
-					new ListValue<Colour>(Colour.FEATHERS_ORANGE),
-					new ListValue<Colour>(Colour.FEATHERS_GINGER),
-					new ListValue<Colour>(Colour.FEATHERS_BLUE),
-					new ListValue<Colour>(Colour.FEATHERS_LILAC),
-					new ListValue<Colour>(Colour.FEATHERS_GREEN),
-					new ListValue<Colour>(Colour.FEATHERS_RED),
-					new ListValue<Colour>(Colour.FEATHERS_BLACK)),
+			Colour.allFeatherColours,
+			null,
+			Colour.allFeatherColours,
 			null),
+	
+	HAIR_SCALES_ALLIGATOR("a layer of",
+			false,
+			"hair",
+			"hair",
+			Util.newArrayListOfValues(
+					CoveringModifier.COARSE),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.NONE),
+			CoveringPattern.allHairCoveringPatterns,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours),
 	
 	
 	// BODY HAIR:
 	
-	BODY_HAIR_HUMAN(Race.HUMAN,
-			"a layer of",
+	BODY_HAIR_HUMAN("a layer of",
 			false,
 			"hair",
 			"hair",
-			"",
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.NONE),
-					new ListValue<CoveringPattern>(CoveringPattern.HIGHLIGHTS)),
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED)),
+					CoveringModifier.COARSE),
+			null,
+			null,
+			CoveringPattern.allHairCoveringPatterns,
 			Colour.naturalHairColours,
 			Colour.dyeHairColours,
 			Colour.naturalHairColours,
 			Colour.dyeHairColours),
 
-	BODY_HAIR_ANGEL(Race.ANGEL,
-			"a layer of",
+	BODY_HAIR_ANGEL("a layer of",
 			false,
 			"hair",
 			"hair",
-			"silken",
-			null,
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.HIGHLIGHTS),
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED)),
+					CoveringModifier.SILKEN),
+			null,
+			null,
+			CoveringPattern.allHairCoveringPatterns,
 			Colour.naturalHairColours,
 			Colour.dyeHairColours,
 			Colour.naturalHairColours,
 			Colour.dyeHairColours),
 
-	BODY_HAIR_DEMON(Race.DEMON,
-			"a layer of",
+	BODY_HAIR_DEMON("a layer of",
 			false,
 			"hair",
 			"hair",
-			"silken",
-			null,
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.HIGHLIGHTS),
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED)),
+					CoveringModifier.SILKEN),
+			null,
+			null,
+			CoveringPattern.allHairCoveringPatterns,
 			Colour.naturalHairColours,
 			Colour.dyeHairColours,
 			Colour.naturalHairColours,
 			Colour.dyeHairColours),
 
-	BODY_HAIR_CANINE_FUR(Race.DOG_MORPH,
-			"a layer of",
+	BODY_HAIR_IMP("a layer of",
 			false,
 			"hair",
 			"hair",
-			"fur-like",
-			null,
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.HIGHLIGHTS),
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED)),
+					CoveringModifier.SILKEN),
+			null,
+			null,
+			CoveringPattern.allHairCoveringPatterns,
 			Colour.naturalHairColours,
 			Colour.dyeHairColours,
 			Colour.naturalHairColours,
 			Colour.dyeHairColours),
 
-	BODY_HAIR_LYCAN_FUR(Race.WOLF_MORPH,
-			"a layer of",
+	BODY_HAIR_CANINE_FUR("a layer of",
 			false,
 			"hair",
 			"hair",
-			"fur-like",
-			null,
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.HIGHLIGHTS),
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED)),
+					CoveringModifier.FURRY),
+			null,
+			null,
+			CoveringPattern.allHairCoveringPatterns,
 			Colour.naturalHairColours,
 			Colour.dyeHairColours,
 			Colour.naturalHairColours,
 			Colour.dyeHairColours),
 
-	BODY_HAIR_FELINE_FUR(Race.CAT_MORPH,
-			"a layer of",
+	BODY_HAIR_LYCAN_FUR("a layer of",
 			false,
 			"hair",
 			"hair",
-			"fur-like",
-			null,
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.HIGHLIGHTS),
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED)),
+					CoveringModifier.FURRY),
+			null,
+			null,
+			CoveringPattern.allHairCoveringPatterns,
 			Colour.naturalHairColours,
 			Colour.dyeHairColours,
 			Colour.naturalHairColours,
 			Colour.dyeHairColours),
 
-	BODY_HAIR_HORSE_HAIR(Race.HORSE_MORPH,
-			"a layer of",
+	BODY_HAIR_FELINE_FUR("a layer of",
 			false,
 			"hair",
 			"hair",
-			"coarse",
-			null,
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.HIGHLIGHTS),
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED)),
+					CoveringModifier.FURRY),
+			null,
+			null,
+			CoveringPattern.allHairCoveringPatterns,
 			Colour.naturalHairColours,
 			Colour.dyeHairColours,
 			Colour.naturalHairColours,
 			Colour.dyeHairColours),
 
-	BODY_HAIR_REINDEER_HAIR(Race.REINDEER_MORPH,
-			"a layer of",
+	BODY_HAIR_HORSE_HAIR("a layer of",
 			false,
 			"hair",
 			"hair",
-			"coarse",
-			null,
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.HIGHLIGHTS),
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED)),
+					CoveringModifier.COARSE),
+			null,
+			null,
+			CoveringPattern.allHairCoveringPatterns,
 			Colour.naturalHairColours,
 			Colour.dyeHairColours,
 			Colour.naturalHairColours,
 			Colour.dyeHairColours),
 
-	BODY_HAIR_BOVINE_FUR(Race.COW_MORPH,
-			"a layer of",
+	BODY_HAIR_REINDEER_HAIR("a layer of",
 			false,
 			"hair",
 			"hair",
-			"coarse",
-			null,
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.HIGHLIGHTS),
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED)),
+					CoveringModifier.COARSE),
+			null,
+			null,
+			CoveringPattern.allHairCoveringPatterns,
 			Colour.naturalHairColours,
 			Colour.dyeHairColours,
 			Colour.naturalHairColours,
 			Colour.dyeHairColours),
 
-	BODY_HAIR_SQUIRREL_FUR(Race.SQUIRREL_MORPH,
-			"a layer of",
+	BODY_HAIR_BOVINE_FUR("a layer of",
 			false,
 			"hair",
 			"hair",
-			"fur-like",
-			null,
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.HIGHLIGHTS),
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED)),
+					CoveringModifier.COARSE),
+			null,
+			null,
+			CoveringPattern.allHairCoveringPatterns,
 			Colour.naturalHairColours,
 			Colour.dyeHairColours,
 			Colour.naturalHairColours,
 			Colour.dyeHairColours),
 
-	BODY_HAIR_SLIME(Race.SLIME,
-			"a mass of",
+	BODY_HAIR_SQUIRREL_FUR("a layer of",
 			false,
-			"slime",
-			"slime",
-			"gooey",
-			null,
-			null,
+			"hair",
+			"hair",
 			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.SLIME_BLACK),
-					new ListValue<Colour>(Colour.SLIME_BLUE),
-					new ListValue<Colour>(Colour.SLIME_GREEN),
-					new ListValue<Colour>(Colour.SLIME_PINK),
-					new ListValue<Colour>(Colour.SLIME_RED)),
+					CoveringModifier.FURRY),
 			null,
 			null,
-			null),
+			CoveringPattern.allHairCoveringPatterns,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours),
 
-	BODY_HAIR_HARPY(Race.HARPY,
-			"a plume of",
+	BODY_HAIR_RAT_FUR("a layer of",
+			false,
+			"hair",
+			"hair",
+			Util.newArrayListOfValues(
+					CoveringModifier.FURRY),
+			null,
+			null,
+			CoveringPattern.allHairCoveringPatterns,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours),
+
+	BODY_HAIR_RABBIT_FUR("a layer of",
+			false,
+			"hair",
+			"hair",
+			Util.newArrayListOfValues(
+					CoveringModifier.FURRY),
+			null,
+			null,
+			CoveringPattern.allHairCoveringPatterns,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours),
+	
+	BODY_HAIR_BAT_FUR("a layer of",
+			false,
+			"hair",
+			"hair",
+			Util.newArrayListOfValues(
+					CoveringModifier.FURRY),
+			null,
+			null,
+			CoveringPattern.allHairCoveringPatterns,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours,
+			Colour.naturalHairColours,
+			Colour.dyeHairColours),
+	
+	BODY_HAIR_HARPY("a plume of",
 			true,
 			"feathers",
 			"feather",
-			"fluffy",
+			Util.newArrayListOfValues(
+					CoveringModifier.FLUFFY),
 			null,
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED),
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED)),
-			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.FEATHERS_BLEACH_BLONDE),
-					new ListValue<Colour>(Colour.FEATHERS_WHITE),
-					new ListValue<Colour>(Colour.FEATHERS_PINK),
-					new ListValue<Colour>(Colour.FEATHERS_YELLOW),
-					new ListValue<Colour>(Colour.FEATHERS_ORANGE),
-					new ListValue<Colour>(Colour.FEATHERS_GINGER),
-					new ListValue<Colour>(Colour.FEATHERS_BLUE),
-					new ListValue<Colour>(Colour.FEATHERS_LILAC),
-					new ListValue<Colour>(Colour.FEATHERS_GREEN),
-					new ListValue<Colour>(Colour.FEATHERS_RED),
-					new ListValue<Colour>(Colour.FEATHERS_BLACK)),
 			null,
-			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.FEATHERS_BLEACH_BLONDE),
-					new ListValue<Colour>(Colour.FEATHERS_WHITE),
-					new ListValue<Colour>(Colour.FEATHERS_PINK),
-					new ListValue<Colour>(Colour.FEATHERS_YELLOW),
-					new ListValue<Colour>(Colour.FEATHERS_ORANGE),
-					new ListValue<Colour>(Colour.FEATHERS_GINGER),
-					new ListValue<Colour>(Colour.FEATHERS_BLUE),
-					new ListValue<Colour>(Colour.FEATHERS_LILAC),
-					new ListValue<Colour>(Colour.FEATHERS_GREEN),
-					new ListValue<Colour>(Colour.FEATHERS_RED),
-					new ListValue<Colour>(Colour.FEATHERS_BLACK)),
+			CoveringPattern.allHairCoveringPatterns,
+			Colour.allFeatherColours,
+			null,
+			Colour.allFeatherColours,
 			null),
 
-	BODY_HAIR_SCALES_ALLIGATOR(Race.ALLIGATOR_MORPH,
-			"a plume of",
+	BODY_HAIR_SCALES_ALLIGATOR("a plume of",
 			false,
 			"scales",
 			"scale",
-			"",
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.NONE),
-					new ListValue<CoveringPattern>(CoveringPattern.MOTTLED),
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED)),
+					CoveringModifier.SMOOTH),
 			null,
+			null,
+			CoveringPattern.allStandardCoveringPatterns,
 			Colour.naturalScaleColours,
 			Colour.dyeScaleColours,
 			Colour.naturalScaleColours,
@@ -1020,549 +1286,634 @@ public enum BodyCoveringType implements BodyPartTypeInterface {
 	
 	// EYES:
 
-	EYE_HUMAN(Race.HUMAN,
-			"a pair of",
+	EYE_HUMAN("a pair of",
 			true,
 			"eyes",
 			"eye",
-			"human",
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.EYE_IRISES),
-					new ListValue<CoveringPattern>(CoveringPattern.EYE_IRISES_HETEROCHROMATIC)),
+					CoveringModifier.EYE),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_IRISES,
+					CoveringPattern.EYE_IRISES_HETEROCHROMATIC),
 			null,
 			Colour.naturalIrisColours,
 			Colour.dyeIrisColours,
 			Colour.naturalIrisColours,
 			Colour.dyeIrisColours),
 
-	EYE_ANGEL(Race.ANGEL,
-			"a pair of",
+	EYE_ANGEL("a pair of",
 			true,
 			"eyes",
 			"eye",
-			"angelic",
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.EYE_IRISES)),
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.EYE_IRISES_HETEROCHROMATIC)),
-			Colour.naturalIrisColours,
-			Colour.dyeIrisColours,
-			Colour.naturalIrisColours,
-			Colour.dyeIrisColours),
-
-	EYE_DEMON_COMMON(Race.DEMON,
-			"a pair of",
-			true,
-			"eyes",
-			"eye",
-			"alluring",
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.EYE_IRISES)),
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.EYE_IRISES_HETEROCHROMATIC)),
-			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.EYE_BLUE),
-					new ListValue<Colour>(Colour.EYE_BROWN),
-					new ListValue<Colour>(Colour.EYE_GREEN),
-					new ListValue<Colour>(Colour.EYE_YELLOW),
-					new ListValue<Colour>(Colour.EYE_RED),
-					new ListValue<Colour>(Colour.EYE_ORANGE),
-					new ListValue<Colour>(Colour.EYE_AMBER),
-					new ListValue<Colour>(Colour.EYE_PINK),
-					new ListValue<Colour>(Colour.EYE_BLACK)),
+					CoveringModifier.EYE),
 			null,
 			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.EYE_BLUE),
-					new ListValue<Colour>(Colour.EYE_BROWN),
-					new ListValue<Colour>(Colour.EYE_GREEN),
-					new ListValue<Colour>(Colour.EYE_YELLOW),
-					new ListValue<Colour>(Colour.EYE_RED),
-					new ListValue<Colour>(Colour.EYE_ORANGE),
-					new ListValue<Colour>(Colour.EYE_AMBER),
-					new ListValue<Colour>(Colour.EYE_PINK),
-					new ListValue<Colour>(Colour.EYE_BLACK)),
-			null),
-
-	EYE_DOG_MORPH(Race.DOG_MORPH,
-			"a pair of",
-			true,
-			"eyes",
-			"eye",
-			"dog-like",
+					CoveringPattern.EYE_IRISES),
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.EYE_IRISES)),
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.EYE_IRISES_HETEROCHROMATIC)),
+					CoveringPattern.EYE_IRISES_HETEROCHROMATIC),
 			Colour.naturalIrisColours,
 			Colour.dyeIrisColours,
 			Colour.naturalIrisColours,
 			Colour.dyeIrisColours),
 
-	EYE_LYCAN(Race.WOLF_MORPH,
-			"a pair of",
+	EYE_DEMON_COMMON("a pair of",
 			true,
 			"eyes",
 			"eye",
-			"wolf-like",
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.EYE_IRISES)),
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.EYE_IRISES_HETEROCHROMATIC)),
-			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.EYE_BLUE),
-					new ListValue<Colour>(Colour.EYE_BROWN),
-					new ListValue<Colour>(Colour.EYE_GREEN),
-					new ListValue<Colour>(Colour.EYE_AMBER),
-					new ListValue<Colour>(Colour.EYE_YELLOW)),
-			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.EYE_RED),
-					new ListValue<Colour>(Colour.EYE_ORANGE),
-					new ListValue<Colour>(Colour.EYE_PINK),
-					new ListValue<Colour>(Colour.EYE_BLACK)),
-			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.EYE_BLUE),
-					new ListValue<Colour>(Colour.EYE_BROWN),
-					new ListValue<Colour>(Colour.EYE_GREEN),
-					new ListValue<Colour>(Colour.EYE_AMBER),
-					new ListValue<Colour>(Colour.EYE_YELLOW)),
-			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.EYE_RED),
-					new ListValue<Colour>(Colour.EYE_ORANGE),
-					new ListValue<Colour>(Colour.EYE_PINK),
-					new ListValue<Colour>(Colour.EYE_BLACK))),
-
-	EYE_FELINE(Race.CAT_MORPH,
-			"a pair of",
-			true,
-			"eyes",
-			"eye",
-			"cat-like",
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.EYE_IRISES)),
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.EYE_IRISES_HETEROCHROMATIC)),
-			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.EYE_BLUE),
-					new ListValue<Colour>(Colour.EYE_BROWN),
-					new ListValue<Colour>(Colour.EYE_GREEN),
-					new ListValue<Colour>(Colour.EYE_AMBER),
-					new ListValue<Colour>(Colour.EYE_YELLOW)),
-			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.EYE_RED),
-					new ListValue<Colour>(Colour.EYE_ORANGE),
-					new ListValue<Colour>(Colour.EYE_PINK),
-					new ListValue<Colour>(Colour.EYE_BLACK)),
-			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.EYE_BLUE),
-					new ListValue<Colour>(Colour.EYE_BROWN),
-					new ListValue<Colour>(Colour.EYE_GREEN),
-					new ListValue<Colour>(Colour.EYE_AMBER),
-					new ListValue<Colour>(Colour.EYE_YELLOW)),
-			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.EYE_RED),
-					new ListValue<Colour>(Colour.EYE_ORANGE),
-					new ListValue<Colour>(Colour.EYE_PINK),
-					new ListValue<Colour>(Colour.EYE_BLACK))),
-
-	EYE_SQUIRREL(Race.SQUIRREL_MORPH,
-			"a pair of",
-			true,
-			"eyes",
-			"eye",
-			"squirrel-like",
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.EYE_IRISES)),
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.EYE_IRISES_HETEROCHROMATIC)),
-			Colour.naturalIrisColours,
-			Colour.dyeIrisColours,
-			Colour.naturalIrisColours,
-			Colour.dyeIrisColours),
-
-	EYE_ALLIGATOR_MORPH(Race.ALLIGATOR_MORPH,
-			"a pair of",
-			true,
-			"eyes",
-			"eye",
-			"reptile-like",
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.EYE_IRISES)),
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.EYE_IRISES_HETEROCHROMATIC)),
-			Colour.naturalIrisColours,
-			Colour.dyeIrisColours,
-			Colour.naturalIrisColours,
-			Colour.dyeIrisColours),
-
-	EYE_HORSE_MORPH(Race.HORSE_MORPH,
-			"a pair of",
-			true,
-			"eyes",
-			"eye",
-			"horse-like",
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.EYE_IRISES)),
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.EYE_IRISES_HETEROCHROMATIC)),
-			Colour.naturalIrisColours,
-			Colour.dyeIrisColours,
-			Colour.naturalIrisColours,
-			Colour.dyeIrisColours),
-
-	EYE_REINDEER_MORPH(Race.REINDEER_MORPH,
-			"a pair of",
-			true,
-			"eyes",
-			"eye",
-			"reindeer-like",
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.EYE_IRISES)),
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.EYE_IRISES_HETEROCHROMATIC)),
-			Colour.naturalIrisColours,
-			Colour.dyeIrisColours,
-			Colour.naturalIrisColours,
-			Colour.dyeIrisColours),
-
-	EYE_COW_MORPH(Race.COW_MORPH,
-			"a pair of",
-			true,
-			"eyes",
-			"eye",
-			"cow-like",
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.EYE_IRISES)),
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.EYE_IRISES_HETEROCHROMATIC)),
-			Colour.naturalIrisColours,
-			Colour.dyeIrisColours,
-			Colour.naturalIrisColours,
-			Colour.dyeIrisColours),
-
-	EYE_HARPY(Race.HARPY,
-			"a pair of",
-			true,
-			"eyes",
-			"eye",
-			"avian",
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.EYE_IRISES)),
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.EYE_IRISES_HETEROCHROMATIC)),
-			Colour.naturalIrisColours,
-			Colour.dyeIrisColours,
-			Colour.naturalIrisColours,
-			Colour.dyeIrisColours),
-
-	EYE_SLIME(Race.SLIME,
-			"a pair of",
-			true,
-			"eyes",
-			"eye",
-			"slime",
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.EYE_IRISES)),
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.EYE_IRISES_HETEROCHROMATIC)),
-			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.SLIME_PINK),
-					new ListValue<Colour>(Colour.SLIME_BLUE),
-					new ListValue<Colour>(Colour.SLIME_GREEN),
-					new ListValue<Colour>(Colour.SLIME_RED),
-					new ListValue<Colour>(Colour.SLIME_BLACK)),
+					CoveringModifier.EYE),
 			null,
 			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.SLIME_PINK),
-					new ListValue<Colour>(Colour.SLIME_BLUE),
-					new ListValue<Colour>(Colour.SLIME_GREEN),
-					new ListValue<Colour>(Colour.SLIME_RED),
-					new ListValue<Colour>(Colour.SLIME_BLACK)),
-			null),
+					CoveringPattern.EYE_IRISES),
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_IRISES_HETEROCHROMATIC),
+			Colour.naturalDemonIrisColours,
+			Colour.dyeDemonIrisColours,
+			Colour.naturalDemonIrisColours,
+			Colour.dyeDemonIrisColours),
+
+	EYE_IMP("a pair of",
+			true,
+			"eyes",
+			"eye",
+			Util.newArrayListOfValues(
+					CoveringModifier.EYE),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_IRISES),
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_IRISES_HETEROCHROMATIC),
+			Colour.naturalDemonIrisColours,
+			Colour.dyeDemonIrisColours,
+			Colour.naturalDemonIrisColours,
+			Colour.dyeDemonIrisColours),
 	
-	EYE_PUPILS(Race.HUMAN,
-			"a pair of",
+	EYE_DOG_MORPH("a pair of",
+			true,
+			"eyes",
+			"eye",
+			Util.newArrayListOfValues(
+					CoveringModifier.EYE),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_IRISES),
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_IRISES_HETEROCHROMATIC),
+			Colour.naturalIrisColours,
+			Colour.dyeIrisColours,
+			Colour.naturalIrisColours,
+			Colour.dyeIrisColours),
+
+	EYE_LYCAN("a pair of",
+			true,
+			"eyes",
+			"eye",
+			Util.newArrayListOfValues(
+					CoveringModifier.EYE),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_IRISES),
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_IRISES_HETEROCHROMATIC),
+			Colour.naturalPredatorIrisColours,
+			Colour.dyePredatorIrisColours,
+			Colour.naturalPredatorIrisColours,
+			Colour.dyePredatorIrisColours),
+
+	EYE_FELINE("a pair of",
+			true,
+			"eyes",
+			"eye",
+			Util.newArrayListOfValues(
+					CoveringModifier.EYE),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_IRISES),
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_IRISES_HETEROCHROMATIC),
+			Colour.naturalPredatorIrisColours,
+			Colour.dyePredatorIrisColours,
+			Colour.naturalPredatorIrisColours,
+			Colour.dyePredatorIrisColours),
+
+	EYE_SQUIRREL("a pair of",
+			true,
+			"eyes",
+			"eye",
+			Util.newArrayListOfValues(
+					CoveringModifier.EYE),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_IRISES),
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_IRISES_HETEROCHROMATIC),
+			Colour.naturalIrisColours,
+			Colour.dyeIrisColours,
+			Colour.naturalIrisColours,
+			Colour.dyeIrisColours),
+
+	EYE_RAT("a pair of",
+			true,
+			"eyes",
+			"eye",
+			Util.newArrayListOfValues(
+					CoveringModifier.EYE),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_IRISES),
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_IRISES_HETEROCHROMATIC),
+			Colour.naturalIrisColours,
+			Colour.dyeIrisColours,
+			Colour.naturalIrisColours,
+			Colour.dyeIrisColours),
+
+	EYE_RABBIT("a pair of",
+			true,
+			"eyes",
+			"eye",
+			Util.newArrayListOfValues(
+					CoveringModifier.EYE),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_IRISES),
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_IRISES_HETEROCHROMATIC),
+			Colour.naturalIrisColours,
+			Colour.dyeIrisColours,
+			Colour.naturalIrisColours,
+			Colour.dyeIrisColours),
+	
+	EYE_BAT("a pair of",
+			true,
+			"eyes",
+			"eye",
+			Util.newArrayListOfValues(
+					CoveringModifier.EYE),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_IRISES),
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_IRISES_HETEROCHROMATIC),
+			Colour.naturalIrisColours,
+			Colour.dyeIrisColours,
+			Colour.naturalIrisColours,
+			Colour.dyeIrisColours),
+	
+	EYE_ALLIGATOR_MORPH("a pair of",
+			true,
+			"eyes",
+			"eye",
+			Util.newArrayListOfValues(
+					CoveringModifier.EYE),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_IRISES),
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_IRISES_HETEROCHROMATIC),
+			Colour.naturalIrisColours,
+			Colour.dyeIrisColours,
+			Colour.naturalIrisColours,
+			Colour.dyeIrisColours),
+
+	EYE_HORSE_MORPH("a pair of",
+			true,
+			"eyes",
+			"eye",
+			Util.newArrayListOfValues(
+					CoveringModifier.EYE),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_IRISES),
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_IRISES_HETEROCHROMATIC),
+			Colour.naturalIrisColours,
+			Colour.dyeIrisColours,
+			Colour.naturalIrisColours,
+			Colour.dyeIrisColours),
+
+	EYE_REINDEER_MORPH("a pair of",
+			true,
+			"eyes",
+			"eye",
+			Util.newArrayListOfValues(
+					CoveringModifier.EYE),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_IRISES),
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_IRISES_HETEROCHROMATIC),
+			Colour.naturalIrisColours,
+			Colour.dyeIrisColours,
+			Colour.naturalIrisColours,
+			Colour.dyeIrisColours),
+
+	EYE_COW_MORPH("a pair of",
+			true,
+			"eyes",
+			"eye",
+			Util.newArrayListOfValues(
+					CoveringModifier.EYE),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_IRISES),
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_IRISES_HETEROCHROMATIC),
+			Colour.naturalIrisColours,
+			Colour.dyeIrisColours,
+			Colour.naturalIrisColours,
+			Colour.dyeIrisColours),
+
+	EYE_HARPY("a pair of",
+			true,
+			"eyes",
+			"eye",
+			Util.newArrayListOfValues(
+					CoveringModifier.EYE),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_IRISES),
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_IRISES_HETEROCHROMATIC),
+			Colour.naturalIrisColours,
+			Colour.dyeIrisColours,
+			Colour.naturalIrisColours,
+			Colour.dyeIrisColours),
+
+	EYE_PUPILS("a pair of",
 			true,
 			"pupils",
 			"pupil",
-			"",
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.EYE_PUPILS)),
+					CoveringModifier.EYE),
+			null,
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.EYE_PUPILS_HETEROCHROMATIC)),
+					CoveringPattern.EYE_PUPILS),
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_PUPILS_HETEROCHROMATIC),
 			Colour.naturalPupilColours,
 			Colour.dyePupilColours,
 			Colour.naturalPupilColours,
 			Colour.dyePupilColours),
+
+	EYE_SCLERA("a pair of",
+			true,
+			"sclerae",
+			"sclera",
+			Util.newArrayListOfValues(
+					CoveringModifier.EYE),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_SCLERA),
+			Util.newArrayListOfValues(
+					CoveringPattern.EYE_SCLERA_HETEROCHROMATIC),
+			Colour.naturalScleraColours,
+			Colour.dyeScleraColours,
+			Colour.naturalScleraColours,
+			Colour.dyeScleraColours),
 	
 	// Fluids:
 	
-	CUM(Race.HUMAN,
-			"",
+	CUM("",
 			false,
 			"cum",
 			"cum",
-			"",
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.FLUID)),
+					CoveringModifier.FLUID),
 			null,
 			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.COVERING_WHITE)),
-			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.COVERING_CLEAR),
-					new ListValue<Colour>(Colour.COVERING_BROWN),
-					new ListValue<Colour>(Colour.COVERING_BLACK),
-					new ListValue<Colour>(Colour.COVERING_RED),
-					new ListValue<Colour>(Colour.COVERING_BLUE),
-					new ListValue<Colour>(Colour.FEATHERS_BLUE),
-					new ListValue<Colour>(Colour.COVERING_PURPLE),
-					new ListValue<Colour>(Colour.COVERING_GREEN)),
-			null,
-			null),
-	
-	GIRL_CUM(Race.HUMAN,
-			"",
-			false,
-			"girlcum",
-			"girlcum",
-			"",
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.FLUID)),
+					CoveringPattern.FLUID),
 			null,
 			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.COVERING_CLEAR)),
+					Colour.COVERING_WHITE),
 			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.COVERING_WHITE),
-					new ListValue<Colour>(Colour.COVERING_BROWN),
-					new ListValue<Colour>(Colour.COVERING_BLACK),
-					new ListValue<Colour>(Colour.COVERING_RED),
-					new ListValue<Colour>(Colour.COVERING_BLUE),
-					new ListValue<Colour>(Colour.FEATHERS_BLUE),
-					new ListValue<Colour>(Colour.COVERING_PURPLE),
-					new ListValue<Colour>(Colour.COVERING_GREEN)),
+					Colour.COVERING_CLEAR,
+					Colour.COVERING_BROWN,
+					Colour.COVERING_BLACK,
+					Colour.COVERING_RED,
+					Colour.COVERING_BLUE,
+					Colour.COVERING_PURPLE,
+					Colour.COVERING_GREEN),
 			null,
 			null),
 	
-	MILK(Race.HUMAN,
-			"",
+	GIRL_CUM("",
+			false,
+			"girlcum",
+			"girlcum",
+			Util.newArrayListOfValues(
+					CoveringModifier.FLUID),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.FLUID),
+			null,
+			Util.newArrayListOfValues(
+					Colour.COVERING_CLEAR),
+			Util.newArrayListOfValues(
+					Colour.COVERING_WHITE,
+					Colour.COVERING_BROWN,
+					Colour.COVERING_BLACK,
+					Colour.COVERING_RED,
+					Colour.COVERING_BLUE,
+					Colour.COVERING_PURPLE,
+					Colour.COVERING_GREEN),
+			null,
+			null),
+	
+	MILK("",
 			false,
 			"milk",
 			"milk",
-			"",
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.FLUID)),
+					CoveringModifier.FLUID),
 			null,
 			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.COVERING_WHITE)),
+					CoveringPattern.FLUID),
+			null,
 			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.COVERING_CLEAR),
-					new ListValue<Colour>(Colour.COVERING_BROWN),
-					new ListValue<Colour>(Colour.COVERING_BLACK),
-					new ListValue<Colour>(Colour.COVERING_RED),
-					new ListValue<Colour>(Colour.COVERING_BLUE),
-					new ListValue<Colour>(Colour.FEATHERS_BLUE),
-					new ListValue<Colour>(Colour.COVERING_PURPLE),
-					new ListValue<Colour>(Colour.COVERING_GREEN)),
+					Colour.COVERING_WHITE),
+			Util.newArrayListOfValues(
+					Colour.COVERING_CLEAR,
+					Colour.COVERING_BROWN,
+					Colour.COVERING_BLACK,
+					Colour.COVERING_RED,
+					Colour.COVERING_BLUE,
+					Colour.COVERING_PURPLE,
+					Colour.COVERING_GREEN),
 			null,
 			null),
 	
 	// Makeup:
 	
-	MAKEUP_BLUSHER(Race.HUMAN,
-			"a layer of",
+	MAKEUP_BLUSHER("a layer of",
 			false,
 			"blusher",
 			"blusher",
-			"",
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.NONE)),
+					CoveringModifier.MAKEUP),
 			null,
 			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.COVERING_NONE)),
-			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.COVERING_RED),
-					new ListValue<Colour>(Colour.COVERING_PINK),
-					new ListValue<Colour>(Colour.COVERING_PURPLE),
-					new ListValue<Colour>(Colour.COVERING_BLUE),
-					new ListValue<Colour>(Colour.COVERING_WHITE),
-					new ListValue<Colour>(Colour.COVERING_GREEN),
-					new ListValue<Colour>(Colour.COVERING_BROWN),
-					new ListValue<Colour>(Colour.COVERING_ORANGE),
-					new ListValue<Colour>(Colour.COVERING_BLACK)),
-			null,
-			null),
-	
-	MAKEUP_EYE_LINER(Race.HUMAN,
-			"a layer of",
-			false,
-			"eye liner",
-			"eye liner",
-			"",
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.NONE)),
+					CoveringPattern.NONE),
 			null,
 			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.COVERING_NONE)),
+					Colour.COVERING_NONE),
 			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.COVERING_RED),
-					new ListValue<Colour>(Colour.COVERING_PINK),
-					new ListValue<Colour>(Colour.COVERING_PURPLE),
-					new ListValue<Colour>(Colour.COVERING_BLUE),
-					new ListValue<Colour>(Colour.COVERING_WHITE),
-					new ListValue<Colour>(Colour.COVERING_GREEN),
-					new ListValue<Colour>(Colour.COVERING_BROWN),
-					new ListValue<Colour>(Colour.COVERING_ORANGE),
-					new ListValue<Colour>(Colour.COVERING_BLACK)),
+					Colour.COVERING_RED,
+					Colour.COVERING_RED_DARK,
+					Colour.COVERING_ORANGE,
+					Colour.COVERING_BROWN,
+					Colour.COVERING_GREEN,
+					Colour.COVERING_GREEN_DARK,
+					Colour.COVERING_BLUE,
+					Colour.COVERING_BLUE_DARK,
+					Colour.COVERING_PURPLE,
+					Colour.COVERING_PURPLE_DARK,
+					Colour.COVERING_PINK,
+					Colour.COVERING_PINK_DARK,
+					Colour.COVERING_WHITE,
+					Colour.COVERING_SILVER,
+					Colour.COVERING_BLACK),
 			null,
 			null),
 	
-	MAKEUP_EYE_SHADOW(Race.HUMAN,
-			"a layer of",
+	MAKEUP_EYE_LINER("a layer of",
+			false,
+			"eye liner",
+			"eye liner",
+			Util.newArrayListOfValues(
+					CoveringModifier.MAKEUP),
+			null,
+			Util.newArrayListOfValues(
+					CoveringPattern.NONE),
+			null,
+			Util.newArrayListOfValues(
+					Colour.COVERING_NONE),
+			Util.newArrayListOfValues(
+					Colour.COVERING_RED,
+					Colour.COVERING_RED_DARK,
+					Colour.COVERING_ORANGE,
+					Colour.COVERING_BROWN,
+					Colour.COVERING_GREEN,
+					Colour.COVERING_GREEN_DARK,
+					Colour.COVERING_BLUE,
+					Colour.COVERING_BLUE_DARK,
+					Colour.COVERING_PURPLE,
+					Colour.COVERING_PURPLE_DARK,
+					Colour.COVERING_PINK,
+					Colour.COVERING_PINK_DARK,
+					Colour.COVERING_WHITE,
+					Colour.COVERING_SILVER,
+					Colour.COVERING_BLACK),
+			null,
+			null),
+	
+	MAKEUP_EYE_SHADOW("a layer of",
 			false,
 			"eye shadow",
 			"eye shadow",
-			"",
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.NONE)),
+					CoveringModifier.MATTE,
+					CoveringModifier.SPARKLY,
+					CoveringModifier.METALLIC),
 			null,
 			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.COVERING_NONE)),
+					CoveringPattern.NONE),
+			null,
 			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.COVERING_RED),
-					new ListValue<Colour>(Colour.COVERING_PINK),
-					new ListValue<Colour>(Colour.COVERING_PURPLE),
-					new ListValue<Colour>(Colour.COVERING_BLUE),
-					new ListValue<Colour>(Colour.COVERING_WHITE),
-					new ListValue<Colour>(Colour.COVERING_GREEN),
-					new ListValue<Colour>(Colour.COVERING_BROWN),
-					new ListValue<Colour>(Colour.COVERING_ORANGE),
-					new ListValue<Colour>(Colour.COVERING_BLACK)),
+					Colour.COVERING_NONE),
+			Util.newArrayListOfValues(
+					Colour.COVERING_RED,
+					Colour.COVERING_RED_DARK,
+					Colour.COVERING_ORANGE,
+					Colour.COVERING_BROWN,
+					Colour.COVERING_GREEN,
+					Colour.COVERING_GREEN_DARK,
+					Colour.COVERING_BLUE,
+					Colour.COVERING_BLUE_DARK,
+					Colour.COVERING_PURPLE,
+					Colour.COVERING_PURPLE_DARK,
+					Colour.COVERING_PINK,
+					Colour.COVERING_PINK_DARK,
+					Colour.COVERING_WHITE,
+					Colour.COVERING_SILVER,
+					Colour.COVERING_BLACK),
 			null,
 			null),
 
-	MAKEUP_LIPSTICK(Race.HUMAN,
-			"a layer of",
+	MAKEUP_LIPSTICK("a layer of",
 			false,
 			"lipstick",
 			"lipstick",
-			"",
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.NONE)),
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED)),
-			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.COVERING_NONE)),
-			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.COVERING_CLEAR),
-					new ListValue<Colour>(Colour.COVERING_RED),
-					new ListValue<Colour>(Colour.COVERING_PINK),
-					new ListValue<Colour>(Colour.COVERING_PURPLE),
-					new ListValue<Colour>(Colour.COVERING_BLUE),
-					new ListValue<Colour>(Colour.COVERING_WHITE),
-					new ListValue<Colour>(Colour.COVERING_GREEN),
-					new ListValue<Colour>(Colour.COVERING_BROWN),
-					new ListValue<Colour>(Colour.COVERING_ORANGE),
-					new ListValue<Colour>(Colour.COVERING_BLACK)),
+					CoveringModifier.GLOSSY,
+					CoveringModifier.MATTE,
+					CoveringModifier.SPARKLY,
+					CoveringModifier.METALLIC),
 			null,
 			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.COVERING_CLEAR),
-					new ListValue<Colour>(Colour.COVERING_RED),
-					new ListValue<Colour>(Colour.COVERING_PINK),
-					new ListValue<Colour>(Colour.COVERING_PURPLE),
-					new ListValue<Colour>(Colour.COVERING_BLUE),
-					new ListValue<Colour>(Colour.COVERING_WHITE),
-					new ListValue<Colour>(Colour.COVERING_GREEN),
-					new ListValue<Colour>(Colour.COVERING_BROWN),
-					new ListValue<Colour>(Colour.COVERING_ORANGE),
-					new ListValue<Colour>(Colour.COVERING_BLACK))),
+					CoveringPattern.NONE),
+			Util.newArrayListOfValues(
+					CoveringPattern.SPOTTED,
+					CoveringPattern.STRIPED),
+			Util.newArrayListOfValues(
+					Colour.COVERING_NONE),
+			Util.newArrayListOfValues(
+					Colour.COVERING_CLEAR,
+					Colour.COVERING_RED,
+					Colour.COVERING_RED_DARK,
+					Colour.COVERING_ORANGE,
+					Colour.COVERING_BROWN,
+					Colour.COVERING_GREEN,
+					Colour.COVERING_GREEN_DARK,
+					Colour.COVERING_BLUE,
+					Colour.COVERING_BLUE_DARK,
+					Colour.COVERING_PURPLE,
+					Colour.COVERING_PURPLE_DARK,
+					Colour.COVERING_PINK,
+					Colour.COVERING_PINK_DARK,
+					Colour.COVERING_WHITE,
+					Colour.COVERING_SILVER,
+					Colour.COVERING_BLACK),
+			null,
+			Util.newArrayListOfValues(
+					Colour.COVERING_CLEAR,
+					Colour.COVERING_RED,
+					Colour.COVERING_RED_DARK,
+					Colour.COVERING_ORANGE,
+					Colour.COVERING_BROWN,
+					Colour.COVERING_GREEN,
+					Colour.COVERING_GREEN_DARK,
+					Colour.COVERING_BLUE,
+					Colour.COVERING_BLUE_DARK,
+					Colour.COVERING_PURPLE,
+					Colour.COVERING_PURPLE_DARK,
+					Colour.COVERING_PINK,
+					Colour.COVERING_PINK_DARK,
+					Colour.COVERING_WHITE,
+					Colour.COVERING_SILVER,
+					Colour.COVERING_BLACK)),
 	
-	MAKEUP_NAIL_POLISH_HANDS(Race.HUMAN,
-			"a layer of",
+	MAKEUP_NAIL_POLISH_HANDS("a layer of",
 			false,
 			"nail polish",
 			"nail polish",
-			"smooth",
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.NONE)),
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED)),
-			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.COVERING_NONE)),
-			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.COVERING_CLEAR),
-					new ListValue<Colour>(Colour.COVERING_RED),
-					new ListValue<Colour>(Colour.COVERING_PINK),
-					new ListValue<Colour>(Colour.COVERING_PURPLE),
-					new ListValue<Colour>(Colour.COVERING_BLUE),
-					new ListValue<Colour>(Colour.COVERING_WHITE),
-					new ListValue<Colour>(Colour.COVERING_GREEN),
-					new ListValue<Colour>(Colour.COVERING_BROWN),
-					new ListValue<Colour>(Colour.COVERING_ORANGE),
-					new ListValue<Colour>(Colour.COVERING_BLACK)),
+					CoveringModifier.SMOOTH,
+					CoveringModifier.SPARKLY,
+					CoveringModifier.METALLIC),
 			null,
 			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.COVERING_CLEAR),
-					new ListValue<Colour>(Colour.COVERING_RED),
-					new ListValue<Colour>(Colour.COVERING_PINK),
-					new ListValue<Colour>(Colour.COVERING_PURPLE),
-					new ListValue<Colour>(Colour.COVERING_BLUE),
-					new ListValue<Colour>(Colour.COVERING_WHITE),
-					new ListValue<Colour>(Colour.COVERING_GREEN),
-					new ListValue<Colour>(Colour.COVERING_BROWN),
-					new ListValue<Colour>(Colour.COVERING_ORANGE),
-					new ListValue<Colour>(Colour.COVERING_BLACK))),
+					CoveringPattern.NONE),
+			Util.newArrayListOfValues(
+					CoveringPattern.SPOTTED,
+					CoveringPattern.STRIPED),
+			Util.newArrayListOfValues(
+					Colour.COVERING_NONE),
+			Util.newArrayListOfValues(
+					Colour.COVERING_CLEAR,
+					Colour.COVERING_RED,
+					Colour.COVERING_RED_DARK,
+					Colour.COVERING_ORANGE,
+					Colour.COVERING_BROWN,
+					Colour.COVERING_GREEN,
+					Colour.COVERING_GREEN_DARK,
+					Colour.COVERING_BLUE,
+					Colour.COVERING_BLUE_DARK,
+					Colour.COVERING_PURPLE,
+					Colour.COVERING_PURPLE_DARK,
+					Colour.COVERING_PINK,
+					Colour.COVERING_PINK_DARK,
+					Colour.COVERING_WHITE,
+					Colour.COVERING_SILVER,
+					Colour.COVERING_BLACK),
+			null,
+			Util.newArrayListOfValues(
+					Colour.COVERING_CLEAR,
+					Colour.COVERING_RED,
+					Colour.COVERING_RED_DARK,
+					Colour.COVERING_ORANGE,
+					Colour.COVERING_BROWN,
+					Colour.COVERING_GREEN,
+					Colour.COVERING_GREEN_DARK,
+					Colour.COVERING_BLUE,
+					Colour.COVERING_BLUE_DARK,
+					Colour.COVERING_PURPLE,
+					Colour.COVERING_PURPLE_DARK,
+					Colour.COVERING_PINK,
+					Colour.COVERING_PINK_DARK,
+					Colour.COVERING_WHITE,
+					Colour.COVERING_SILVER,
+					Colour.COVERING_BLACK)),
 	
-	MAKEUP_NAIL_POLISH_FEET(Race.HUMAN,
-			"a layer of",
+	MAKEUP_NAIL_POLISH_FEET("a layer of",
 			false,
 			"nail polish",
 			"nail polish",
-			"smooth",
 			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.NONE)),
-			Util.newArrayListOfValues(
-					new ListValue<CoveringPattern>(CoveringPattern.SPOTTED),
-					new ListValue<CoveringPattern>(CoveringPattern.STRIPED)),
-			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.COVERING_NONE)),
-			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.COVERING_CLEAR),
-					new ListValue<Colour>(Colour.COVERING_RED),
-					new ListValue<Colour>(Colour.COVERING_PINK),
-					new ListValue<Colour>(Colour.COVERING_PURPLE),
-					new ListValue<Colour>(Colour.COVERING_BLUE),
-					new ListValue<Colour>(Colour.COVERING_WHITE),
-					new ListValue<Colour>(Colour.COVERING_GREEN),
-					new ListValue<Colour>(Colour.COVERING_BROWN),
-					new ListValue<Colour>(Colour.COVERING_ORANGE),
-					new ListValue<Colour>(Colour.COVERING_BLACK)),
+					CoveringModifier.SMOOTH,
+					CoveringModifier.SPARKLY,
+					CoveringModifier.METALLIC),
 			null,
 			Util.newArrayListOfValues(
-					new ListValue<Colour>(Colour.COVERING_CLEAR),
-					new ListValue<Colour>(Colour.COVERING_RED),
-					new ListValue<Colour>(Colour.COVERING_PINK),
-					new ListValue<Colour>(Colour.COVERING_PURPLE),
-					new ListValue<Colour>(Colour.COVERING_BLUE),
-					new ListValue<Colour>(Colour.COVERING_WHITE),
-					new ListValue<Colour>(Colour.COVERING_GREEN),
-					new ListValue<Colour>(Colour.COVERING_BROWN),
-					new ListValue<Colour>(Colour.COVERING_ORANGE),
-					new ListValue<Colour>(Colour.COVERING_BLACK)));
+					CoveringPattern.NONE),
+			Util.newArrayListOfValues(
+					CoveringPattern.SPOTTED,
+					CoveringPattern.STRIPED),
+			Util.newArrayListOfValues(
+					Colour.COVERING_NONE),
+			Util.newArrayListOfValues(
+					Colour.COVERING_CLEAR,
+					Colour.COVERING_RED,
+					Colour.COVERING_RED_DARK,
+					Colour.COVERING_ORANGE,
+					Colour.COVERING_AMBER,
+					Colour.COVERING_BROWN,
+					Colour.COVERING_GREEN,
+					Colour.COVERING_GREEN_DARK,
+					Colour.COVERING_BLUE,
+					Colour.COVERING_BLUE_DARK,
+					Colour.COVERING_PURPLE,
+					Colour.COVERING_PURPLE_DARK,
+					Colour.COVERING_PINK,
+					Colour.COVERING_PINK_DARK,
+					Colour.COVERING_WHITE,
+					Colour.COVERING_SILVER,
+					Colour.COVERING_BLACK),
+			null,
+			Util.newArrayListOfValues(
+					Colour.COVERING_CLEAR,
+					Colour.COVERING_RED,
+					Colour.COVERING_RED_DARK,
+					Colour.COVERING_ORANGE,
+					Colour.COVERING_AMBER,
+					Colour.COVERING_BROWN,
+					Colour.COVERING_GREEN,
+					Colour.COVERING_GREEN_DARK,
+					Colour.COVERING_BLUE,
+					Colour.COVERING_BLUE_DARK,
+					Colour.COVERING_PURPLE,
+					Colour.COVERING_PURPLE_DARK,
+					Colour.COVERING_PINK,
+					Colour.COVERING_PINK_DARK,
+					Colour.COVERING_WHITE,
+					Colour.COVERING_SILVER,
+					Colour.COVERING_BLACK));
 	
-	private String determiner, namePlural, nameSingular, descriptor;
+	private String determiner, namePlural, nameSingular;
+	private List<CoveringModifier> naturalModifiers, extraModifiers;
 	private List<Colour> naturalColoursPrimary, dyeColoursPrimary, naturalColoursSecondary, dyeColoursSecondary, allColours, allPrimaryColours, allSecondaryColours;
 	private List<CoveringPattern> naturalPatterns, dyePatterns, allPatterns;
-	private Race race;
 	private boolean isDefaultPlural;
 
 	private BodyCoveringType(
-			Race race,
 			String determiner,
 			boolean isDefaultPlural,
 			String namePlural,
 			String nameSingular,
-			String descriptor,
+			List<CoveringModifier> naturalModifiers,
+			List<CoveringModifier> extraModifiers,
 			List<CoveringPattern> naturalPatterns,
 			List<CoveringPattern> dyePatterns,
 			List<Colour> naturalColoursPrimary,
@@ -1573,8 +1924,19 @@ public enum BodyCoveringType implements BodyPartTypeInterface {
 		this.determiner = determiner;
 		this.namePlural = namePlural;
 		this.nameSingular=nameSingular;
-		this.descriptor = descriptor;
 		this.isDefaultPlural = isDefaultPlural;
+		
+		if(naturalModifiers == null) {
+			this.naturalModifiers = new ArrayList<>();
+		} else {
+			this.naturalModifiers = naturalModifiers;
+		}
+		
+		if(extraModifiers == null) {
+			this.extraModifiers = new ArrayList<>();
+		} else {
+			this.extraModifiers = extraModifiers;
+		}
 		
 		if(naturalPatterns == null) {
 			this.naturalPatterns = new ArrayList<>();
@@ -1582,26 +1944,22 @@ public enum BodyCoveringType implements BodyPartTypeInterface {
 		} else {
 			this.naturalPatterns = naturalPatterns;
 		}
-		
-		if(dyePatterns == null) {
-			this.dyePatterns = new ArrayList<>();
-		} else {
-			this.dyePatterns = dyePatterns;
+
+		this.dyePatterns = new ArrayList<>();
+		if(dyePatterns != null) {
+			this.dyePatterns.addAll(dyePatterns);
+			this.dyePatterns.removeAll(this.naturalPatterns);
 		}
 		
 		allPatterns = new ArrayList<>();
 		if(naturalPatterns == null) {
 			allPatterns.add(CoveringPattern.NONE);
 		} else {
-			for(CoveringPattern pattern : naturalPatterns) {
-				allPatterns.add(pattern);
-			}
+			allPatterns.addAll(this.naturalPatterns);
 		}
 		
 		if(dyePatterns != null) {
-			for(CoveringPattern pattern : dyePatterns) {
-				allPatterns.add(pattern);
-			}
+			allPatterns.addAll(this.dyePatterns);
 		}
 		
 		
@@ -1633,6 +1991,7 @@ public enum BodyCoveringType implements BodyPartTypeInterface {
 		for(Colour c : this.naturalColoursPrimary) {
 			allColours.add(c);
 			allPrimaryColours.add(c);
+//			this.dyeColoursPrimary.remove(c);
 		}
 		for(Colour c : this.dyeColoursPrimary) {
 			allColours.add(c);
@@ -1641,38 +2000,36 @@ public enum BodyCoveringType implements BodyPartTypeInterface {
 		for(Colour c : this.naturalColoursSecondary) {
 			allColours.add(c);
 			allSecondaryColours.add(c);
+//			this.dyeColoursSecondary.remove(c);
 		}
 		for(Colour c : this.dyeColoursSecondary) {
 			allColours.add(c);
 			allSecondaryColours.add(c);
 		}
-		
-		this.race = race;
 	}
 
-	@Override
 	public String getDeterminer(GameCharacter gc) {
 		return determiner;
 	}
 
-	@Override
 	public boolean isDefaultPlural() {
 		return isDefaultPlural;
 	}
 	
-	@Override
 	public String getNameSingular(GameCharacter gc) {
 		return nameSingular;
 	}
 	
-	@Override
 	public String getNamePlural(GameCharacter gc) {
 		return namePlural;
 	}
-
-	@Override
-	public String getDescriptor(GameCharacter gc) {
-		return descriptor;
+	
+	public String getName(GameCharacter gc){
+		if(isDefaultPlural()) {
+			return getNamePlural(gc);
+		} else {
+			return getNameSingular(gc);
+		}
 	}
 	
 	public List<CoveringPattern> getNaturalPatterns() {
@@ -1719,8 +2076,11 @@ public enum BodyCoveringType implements BodyPartTypeInterface {
 		return this;
 	}
 
-	@Override
-	public Race getRace() {
-		return race;
+	public List<CoveringModifier> getNaturalModifiers() {
+		return naturalModifiers;
+	}
+
+	public List<CoveringModifier> getExtraModifiers() {
+		return extraModifiers;
 	}
 }

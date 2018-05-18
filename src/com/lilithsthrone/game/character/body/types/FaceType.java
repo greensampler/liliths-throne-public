@@ -1,12 +1,18 @@
 package com.lilithsthrone.game.character.body.types;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.lilithsthrone.game.character.GameCharacter;
+import com.lilithsthrone.game.character.body.Body;
 import com.lilithsthrone.game.character.race.Race;
 import com.lilithsthrone.game.dialogue.utils.UtilText;
 
 /**
  * @since 0.1.0
- * @version 0.1.69.9
+ * @version 0.2.2
  * @author Innoxia
  */
 public enum FaceType implements BodyPartTypeInterface {
@@ -16,6 +22,8 @@ public enum FaceType implements BodyPartTypeInterface {
 
 	DEMON_COMMON(BodyCoveringType.DEMON_COMMON, MouthType.DEMON_COMMON, TongueType.DEMON_COMMON, Race.DEMON),
 
+	IMP(BodyCoveringType.IMP, MouthType.IMP, TongueType.IMP, Race.IMP),
+	
 	DOG_MORPH(BodyCoveringType.CANINE_FUR, MouthType.DOG_MORPH, TongueType.DOG_MORPH, Race.DOG_MORPH),
 	
 	LYCAN(BodyCoveringType.LYCAN_FUR, MouthType.WOLF_MORPH, TongueType.WOLF_MORPH, Race.WOLF_MORPH),
@@ -26,13 +34,17 @@ public enum FaceType implements BodyPartTypeInterface {
 
 	SQUIRREL_MORPH(BodyCoveringType.SQUIRREL_FUR, MouthType.SQUIRREL_MORPH, TongueType.SQUIRREL_MORPH, Race.SQUIRREL_MORPH),
 
+	RAT_MORPH(BodyCoveringType.RAT_FUR, MouthType.RAT_MORPH, TongueType.RAT_MORPH, Race.RAT_MORPH),
+
+	RABBIT_MORPH(BodyCoveringType.RABBIT_FUR, MouthType.RABBIT_MORPH, TongueType.RABBIT_MORPH, Race.RABBIT_MORPH),
+
+	BAT_MORPH(BodyCoveringType.BAT_FUR, MouthType.BAT_MORPH, TongueType.BAT_MORPH, Race.BAT_MORPH),
+
 	ALLIGATOR_MORPH(BodyCoveringType.ALLIGATOR_SCALES, MouthType.ALLIGATOR_MORPH, TongueType.ALLIGATOR_MORPH, Race.ALLIGATOR_MORPH),
 
 	HORSE_MORPH(BodyCoveringType.HORSE_HAIR, MouthType.HORSE_MORPH, TongueType.HORSE_MORPH, Race.HORSE_MORPH),
 
 	REINDEER_MORPH(BodyCoveringType.REINDEER_FUR, MouthType.REINDEER_MORPH, TongueType.REINDEER_MORPH, Race.REINDEER_MORPH),
-
-	SLIME(BodyCoveringType.SLIME, MouthType.SLIME, TongueType.SLIME, Race.SLIME),
 
 	HARPY(BodyCoveringType.FEATHERS, MouthType.HARPY, TongueType.TENGU, Race.HARPY);
 
@@ -61,33 +73,55 @@ public enum FaceType implements BodyPartTypeInterface {
 	@Override
 	public String getNameSingular(GameCharacter gc) {
 		switch(this){
+			case ALLIGATOR_MORPH:
+				return UtilText.returnStringAtRandom("snout", "face");
+			case ANGEL:
+			case DEMON_COMMON:
+			case HARPY:
+			case HORSE_MORPH:
+			case HUMAN:
+			case IMP:
+				return UtilText.returnStringAtRandom("face");
+			case RAT_MORPH:
+			case RABBIT_MORPH:
+			case REINDEER_MORPH:
+			case SQUIRREL_MORPH:
+			case BAT_MORPH:
 			case CAT_MORPH:
-				return UtilText.returnStringAtRandom("muzzle", "face");
 			case COW_MORPH:
-				return UtilText.returnStringAtRandom("muzzle", "face");
 			case DOG_MORPH:
-				return UtilText.returnStringAtRandom("muzzle", "face");
 			case LYCAN:
 				return UtilText.returnStringAtRandom("muzzle", "face");
-			default:
-				return UtilText.returnStringAtRandom("face");
 		}
+		
+		return "";
 	}
 	
 	@Override
 	public String getNamePlural(GameCharacter gc) {
 		switch(this){
+			case ALLIGATOR_MORPH:
+				return UtilText.returnStringAtRandom("snouts", "faces");
+			case ANGEL:
+			case DEMON_COMMON:
+			case HARPY:
+			case HORSE_MORPH:
+			case HUMAN:
+			case IMP:
+				return UtilText.returnStringAtRandom("faces");
+			case RAT_MORPH:
+			case RABBIT_MORPH:
+			case REINDEER_MORPH:
+			case SQUIRREL_MORPH:
+			case BAT_MORPH:
 			case CAT_MORPH:
-				return UtilText.returnStringAtRandom("muzzles", "faces");
 			case COW_MORPH:
-				return UtilText.returnStringAtRandom("muzzles", "faces");
 			case DOG_MORPH:
-				return UtilText.returnStringAtRandom("muzzles", "faces");
 			case LYCAN:
 				return UtilText.returnStringAtRandom("muzzles", "faces");
-			default:
-				return UtilText.returnStringAtRandom("faces");
 		}
+		
+		return "";
 	}
 
 	@Override
@@ -101,12 +135,14 @@ public enum FaceType implements BodyPartTypeInterface {
 				return UtilText.returnStringAtRandom("anthropomorphic cow-like", "cow-like", "bovine");
 			case DEMON_COMMON:
 				return UtilText.returnStringAtRandom("perfect", "flawless", "demonic");
+			case IMP:
+				return UtilText.returnStringAtRandom("mischievous", "impish");
 			case DOG_MORPH:
 				return UtilText.returnStringAtRandom("anthropomorphic dog-like", "dog-like", "canine");
 			case SQUIRREL_MORPH:
 				return UtilText.returnStringAtRandom("anthropomorphic squirrel-like", "squirrel-like", "rodent");
 			case ALLIGATOR_MORPH:
-				return UtilText.returnStringAtRandom("anthropomorphic alligator-like", "gator-like", "reptile");
+				return UtilText.returnStringAtRandom("anthropomorphic alligator-like", "alligator-like", "reptile");
 			case HARPY:
 				return UtilText.returnStringAtRandom("anthropomorphic bird-like", "bird-like");
 			case HORSE_MORPH:
@@ -117,11 +153,14 @@ public enum FaceType implements BodyPartTypeInterface {
 				return UtilText.returnStringAtRandom("");
 			case LYCAN:
 				return UtilText.returnStringAtRandom("anthropomorphic wolf-like", "wolf-like");
-			case SLIME:
-				return UtilText.returnStringAtRandom("slimy");
-			default:
-				return UtilText.returnStringAtRandom("");
+			case RAT_MORPH:
+				return UtilText.returnStringAtRandom("anthropomorphic rat-like", "rat-like", "rodent");
+			case BAT_MORPH:
+				return UtilText.returnStringAtRandom("anthropomorphic bat-like", "bat-like");
+			case RABBIT_MORPH:
+				return UtilText.returnStringAtRandom("anthropomorphic rabbit-like", "rabbit-like");
 		}
+		return "";
 	}
 
 	public String getTransformName() {
@@ -132,6 +171,8 @@ public enum FaceType implements BodyPartTypeInterface {
 				return "feline";
 			case DEMON_COMMON:
 				return "demonic";
+			case IMP:
+				return "impish";
 			case DOG_MORPH:
 				return "canine";
 			case COW_MORPH:
@@ -150,14 +191,18 @@ public enum FaceType implements BodyPartTypeInterface {
 				return "human";
 			case LYCAN:
 				return "lupine";
-			case SLIME:
-				return "slimy";
+			case BAT_MORPH:
+				return "bat";
+			case RAT_MORPH:
+				return "rat";
+			case RABBIT_MORPH:
+				return "rabbit";
 		}
 		return "";
 	}
 	
 	@Override
-	public BodyCoveringType getBodyCoveringType() {
+	public BodyCoveringType getBodyCoveringType(Body body) {
 		return skinType;
 	}
 	
@@ -173,7 +218,20 @@ public enum FaceType implements BodyPartTypeInterface {
 	public TongueType getTongueType() {
 		return tongueType;
 	}
-	
-	
 
+	private static Map<Race, List<FaceType>> typesMap = new HashMap<>();
+	public static List<FaceType> getFaceTypes(Race r) {
+		if(typesMap.containsKey(r)) {
+			return typesMap.get(r);
+		}
+		
+		List<FaceType> types = new ArrayList<>();
+		for(FaceType type : FaceType.values()) {
+			if(type.getRace()==r) {
+				types.add(type);
+			}
+		}
+		typesMap.put(r, types);
+		return types;
+	}
 }

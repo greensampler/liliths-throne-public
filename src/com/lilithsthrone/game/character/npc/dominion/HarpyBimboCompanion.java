@@ -3,8 +3,8 @@ package com.lilithsthrone.game.character.npc.dominion;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.lilithsthrone.game.character.NameTriplet;
-import com.lilithsthrone.game.character.SexualOrientation;
+import com.lilithsthrone.game.PropertyValue;
+import com.lilithsthrone.game.character.CharacterImportSetting;
 import com.lilithsthrone.game.character.body.Covering;
 import com.lilithsthrone.game.character.body.types.BodyCoveringType;
 import com.lilithsthrone.game.character.body.valueEnums.AssSize;
@@ -12,22 +12,25 @@ import com.lilithsthrone.game.character.body.valueEnums.Capacity;
 import com.lilithsthrone.game.character.body.valueEnums.CupSize;
 import com.lilithsthrone.game.character.body.valueEnums.HipSize;
 import com.lilithsthrone.game.character.body.valueEnums.Wetness;
-import com.lilithsthrone.game.character.effects.Fetish;
+import com.lilithsthrone.game.character.fetishes.Fetish;
 import com.lilithsthrone.game.character.gender.Gender;
 import com.lilithsthrone.game.character.npc.NPC;
+import com.lilithsthrone.game.character.persona.NameTriplet;
+import com.lilithsthrone.game.character.persona.PersonalityTrait;
+import com.lilithsthrone.game.character.persona.PersonalityWeight;
+import com.lilithsthrone.game.character.persona.SexualOrientation;
 import com.lilithsthrone.game.character.race.RaceStage;
 import com.lilithsthrone.game.character.race.RacialBody;
-import com.lilithsthrone.game.combat.Attack;
 import com.lilithsthrone.game.dialogue.DialogueNodeOld;
 import com.lilithsthrone.game.dialogue.places.dominion.harpyNests.HarpyNestBimbo;
 import com.lilithsthrone.game.dialogue.responses.Response;
-import com.lilithsthrone.game.dialogue.utils.UtilText;
 import com.lilithsthrone.game.inventory.CharacterInventory;
 import com.lilithsthrone.game.inventory.clothing.AbstractClothingType;
 import com.lilithsthrone.game.inventory.clothing.ClothingType;
 import com.lilithsthrone.main.Main;
 import com.lilithsthrone.utils.Colour;
 import com.lilithsthrone.utils.Util;
+import com.lilithsthrone.utils.Util.Value;
 import com.lilithsthrone.world.WorldType;
 import com.lilithsthrone.world.places.PlaceType;
 
@@ -51,6 +54,13 @@ public class HarpyBimboCompanion extends NPC {
 				5, Gender.F_V_B_FEMALE, RacialBody.HARPY, RaceStage.LESSER,
 				new CharacterInventory(30), WorldType.HARPY_NEST, PlaceType.HARPY_NESTS_HARPY_NEST_YELLOW, true);
 
+		this.setPersonality(Util.newHashMapOfValues(
+				new Value<>(PersonalityTrait.AGREEABLENESS, PersonalityWeight.HIGH),
+				new Value<>(PersonalityTrait.CONSCIENTIOUSNESS, PersonalityWeight.LOW),
+				new Value<>(PersonalityTrait.EXTROVERSION, PersonalityWeight.HIGH),
+				new Value<>(PersonalityTrait.NEUROTICISM, PersonalityWeight.HIGH),
+				new Value<>(PersonalityTrait.ADVENTUROUSNESS, PersonalityWeight.HIGH)));
+		
 		if(!isImported) {
 			this.setSexualOrientation(SexualOrientation.GYNEPHILIC);
 	
@@ -90,12 +100,8 @@ public class HarpyBimboCompanion extends NPC {
 	}
 	
 	@Override
-	public HarpyBimboCompanion loadFromXML(Element parentElement, Document doc) {
-		HarpyBimboCompanion npc = new HarpyBimboCompanion(true);
-
-		loadNPCVariablesFromXML(npc, null, parentElement, doc);
-		
-		return npc;
+	public void loadFromXML(Element parentElement, Document doc, CharacterImportSetting... settings) {
+		loadNPCVariablesFromXML(this, null, parentElement, doc, settings);
 	}
 
 	@Override
@@ -105,7 +111,7 @@ public class HarpyBimboCompanion extends NPC {
 	
 	@Override
 	public String getSpeechColour() {
-		if(Main.getProperties().lightTheme) {
+		if(Main.getProperties().hasValue(PropertyValue.lightTheme)) {
 			return "#BE09A3";
 			
 		} else {
@@ -130,104 +136,6 @@ public class HarpyBimboCompanion extends NPC {
 	
 	public int getEscapeChance() {
 		return 0;
-	}
-	
-	@Override
-	public Attack attackType() {
-		if(!getSpecialAttacks().isEmpty()) {
-			if (Math.random() < 0.4) {
-				return Attack.MAIN;
-			} else if (Math.random() < 0.8) {
-				return Attack.SEDUCTION;
-			} else {
-				return Attack.SPECIAL_ATTACK;
-			}
-			
-		} else {
-			if (Math.random() < 0.5) {
-				return Attack.MAIN;
-			} else {
-				return Attack.SEDUCTION;
-			}
-		}
-	}
-
-	@Override
-	public String getCombatDescription() {
-		return UtilText.parse(this,
-				"[npc.Name] is eager to do [bimboHarpy.name]'s bidding, and under the watchful eyes of the rest of the flock, she moves forwards to attack you.");
-	}
-
-	@Override
-	public String getAttackDescription(Attack attackType, boolean isHit) {
-
-		if (attackType == Attack.MAIN) {
-			switch (Util.random.nextInt(3)) {
-			case 0:
-				return UtilText.parse(this,
-						"<p>"
-							+ "[npc.Name] feints a punch, and as you dodge away, [npc.she] tries to deliver a kick aimed at your legs."
-							+ (isHit ? "" : " You see [npc.her] kick coming and jump backwards out of harm's way.")
-						+ "</p>");
-			case 1:
-				return UtilText.parse(this,
-						"<p>"
-							+ "[npc.Name] jumps forwards, trying to deliver a punch to your upper torso."
-							+ (isHit ? "" : " You manage to twist to one side, narrowly avoiding [npc.her] attack.")
-						+ "</p>");
-			default:
-				return UtilText.parse(this,
-						"<p>"
-							+ "[npc.Name] darts forwards, throwing a punch at your torso."
-							+ (isHit ? "" : " You manage to dodge [npc.her] attack by leaping to one side.")
-						+ "</p>");
-			}
-		} else {
-			if(isFeminine()) {
-				switch (Util.random.nextInt(3)) {
-					case 0:
-						return UtilText.parse(this,
-								"<p>"
-									+ "[npc.Name] erotically runs [npc.her] hands down [npc.her] legs and bends forwards as [npc.she] teases you, "
-									+ "[npc.speech(Come on baby, I can show you a good time!)]"
-								+ "</p>");
-					case 1:
-						return UtilText.parse(this,
-								"<p>"
-									+ "[npc.Name] pushes out [npc.her] chest and lets out an erotic moan, "
-									+ "[npc.speech(Come play with me!)]"
-								+ "</p>");
-					default:
-						return UtilText.parse(this,
-								"<p>"
-									+ "[npc.Name] slowly runs [npc.her] hands down between [npc.her] thighs, "
-									+ "[npc.speech(You know you want it!)]"
-								+ "</p>");
-				}
-			} else {
-				switch (Util.random.nextInt(3)) {
-					case 0:
-						return UtilText.parse(this,
-								"<p>"
-									+ "[npc.Name] winks at you and flexes [npc.his] muscles, "
-									+ "[npc.speech(My body's aching for your touch!)]"
-								+ "</p>");
-					case 1:
-						return UtilText.parse(this,
-								"<p>"
-									+ "[npc.Name] strikes a heroic pose before blowing a kiss your way, "
-									+ "[npc.speech(Come on, I can show you a good time!)]"
-								+ "</p>");
-					default:
-						return UtilText.parse(this,
-								"<p>"
-									+ "[npc.Name] grins at you as [npc.he] reaches down and grabs [npc.his] crotch, "
-									+ "[npc.speech(You know you want a taste of this!)]"
-								+ "</p>");
-				}
-
-			}
-		}
 	}
 	
 	@Override

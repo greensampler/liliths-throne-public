@@ -10,7 +10,7 @@ import com.lilithsthrone.game.dialogue.utils.UtilText;
 
 /**
  * @since 0.1.0
- * @version 0.1.83
+ * @version 0.2.2
  * @author Innoxia
  */
 public class Ass implements BodyPartInterface, Serializable {
@@ -111,6 +111,19 @@ public class Ass implements BodyPartInterface, Serializable {
 							+ "</p>");
 				}
 				break;
+			case ANGEL:
+				if (owner.isPlayer()) {
+					UtilText.transformationContentSB.append(
+							"You now have an [style.boldAngel(angelic ass)], covered in [pc.assFullDescription].</br>"
+							+ "You have also been left with [style.boldAngel(an angelic)] [pc.assholeFullDescription]."
+							+ "</p>");
+				} else {
+					UtilText.transformationContentSB.append(
+							"[npc.She] now has a [style.boldAngel(angelic ass)], covered in [npc.assFullDescription].</br>"
+							+ "[npc.She] has also been left with [style.boldAngel(an angelic)] [npc.assholeFullDescription]."
+							+ "</p>");
+				}
+				break;
 			case DEMON_COMMON:
 				if (owner.isPlayer()) {
 					UtilText.transformationContentSB.append(
@@ -121,6 +134,19 @@ public class Ass implements BodyPartInterface, Serializable {
 					UtilText.transformationContentSB.append(
 							"[npc.She] now has a [style.boldDemon(demonic ass)], covered in [npc.assFullDescription].</br>"
 							+ "[npc.She] has also been left with [style.boldDemon(a demonic)] [npc.assholeFullDescription]."
+							+ "</p>");
+				}
+				break;
+			case IMP:
+				if (owner.isPlayer()) {
+					UtilText.transformationContentSB.append(
+							"You now have an [style.boldImp(impish ass)], covered in [pc.assFullDescription].</br>"
+							+ "You have also been left with [style.boldImp(an impish)] [pc.assholeFullDescription]."
+							+ "</p>");
+				} else {
+					UtilText.transformationContentSB.append(
+							"[npc.She] now has an [style.boldImp(impish ass)], covered in [npc.assFullDescription].</br>"
+							+ "[npc.She] has also been left with [style.boldImp(an impish)] [npc.assholeFullDescription]."
 							+ "</p>");
 				}
 				break;
@@ -215,6 +241,45 @@ public class Ass implements BodyPartInterface, Serializable {
 							+ "</p>");
 				}
 				break;
+			case RAT_MORPH:
+				if (owner.isPlayer()) {
+					UtilText.transformationContentSB.append(
+							"You now have a [style.boldRatMorph(rat-morph ass)], covered in [pc.assFullDescription].</br>"
+							+ "You have also been left with [style.boldRatMorph(a rat-morph)] [pc.assholeFullDescription]."
+							+ "</p>");
+				} else {
+					UtilText.transformationContentSB.append(
+							"[npc.She] now has a [style.boldRatMorph(rat-morph ass)], covered in [npc.assFullDescription].</br>"
+							+ "[npc.She] has also been left with [style.boldRatMorph(a rat-morph)] [npc.assholeFullDescription]."
+							+ "</p>");
+				}
+				break;
+			case RABBIT_MORPH:
+				if (owner.isPlayer()) {
+					UtilText.transformationContentSB.append(
+							"You now have a [style.boldRabbitMorph(rabbit-morph ass)], covered in [pc.assFullDescription].</br>"
+							+ "You have also been left with [style.boldRabbitMorph(a rabbit-morph)] [pc.assholeFullDescription]."
+							+ "</p>");
+				} else {
+					UtilText.transformationContentSB.append(
+							"[npc.She] now has a [style.boldRabbitMorph(rabbit-morph ass)], covered in [npc.assFullDescription].</br>"
+							+ "[npc.She] has also been left with [style.boldRabbitMorph(a rabbit-morph)] [npc.assholeFullDescription]."
+							+ "</p>");
+				}
+				break;
+			case BAT_MORPH:
+				if (owner.isPlayer()) {
+					UtilText.transformationContentSB.append(
+							"You now have a [style.boldBatMorph(bat-morph ass)], covered in [pc.assFullDescription].</br>"
+							+ "You have also been left with [style.boldBatMorph(a bat-morph)] [pc.assholeFullDescription]."
+							+ "</p>");
+				} else {
+					UtilText.transformationContentSB.append(
+							"[npc.She] now has a [style.boldBatMorph(bat-morph ass)], covered in [npc.assFullDescription].</br>"
+							+ "[npc.She] has also been left with [style.boldBatMorph(a bat-morph)] [npc.assholeFullDescription]."
+							+ "</p>");
+				}
+				break;
 			case ALLIGATOR_MORPH:
 				if (owner.isPlayer()) {
 					UtilText.transformationContentSB.append(
@@ -241,18 +306,18 @@ public class Ass implements BodyPartInterface, Serializable {
 							+ "</p>");
 				}
 				break;
-			default:
-				if (owner.isPlayer()) {
-					UtilText.transformationContentSB.append("You discover that your ass has shifted shape and transformed.</br>"
-							+ "You now have an [style.boldSex("+type.getRace().getName()+" asshole)]."
-							+ "</p>");
-				} else {
-					UtilText.transformationContentSB.append(
-							"[npc.She] soon discovers that [npc.her] ass has shifted shape and transformed.</br>"
-							+ "[npc.She] now has an [style.boldHarpy("+type.getRace().getName()+" asshole)]."
-							+ "</p>");
-				}
-				break;
+//			default:
+//				if (owner.isPlayer()) {
+//					UtilText.transformationContentSB.append("You discover that your ass has shifted shape and transformed.</br>"
+//							+ "You now have an [style.boldSex("+type.getRace().getName()+" asshole)]."
+//							+ "</p>");
+//				} else {
+//					UtilText.transformationContentSB.append(
+//							"[npc.She] soon discovers that [npc.her] ass has shifted shape and transformed.</br>"
+//							+ "[npc.She] now has an [style.boldHarpy("+type.getRace().getName()+" asshole)]."
+//							+ "</p>");
+//				}
+//				break;
 		}
 		
 		return UtilText.parse(owner, UtilText.transformationContentSB.toString())

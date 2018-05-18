@@ -7,6 +7,7 @@ import com.lilithsthrone.game.sex.OrificeType;
 import com.lilithsthrone.game.sex.PenetrationType;
 import com.lilithsthrone.game.sex.Sex;
 import com.lilithsthrone.game.sex.SexPace;
+import com.lilithsthrone.game.sex.SexParticipantType;
 import com.lilithsthrone.game.sex.sexActions.SexAction;
 import com.lilithsthrone.game.sex.sexActions.SexActionType;
 import com.lilithsthrone.main.Main;
@@ -23,8 +24,9 @@ public class PlayerPenisNipple {
 			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.THREE_NORMAL,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.NIPPLE_PARTNER) {
+			PenetrationType.PENIS,
+			OrificeType.NIPPLE,
+			SexParticipantType.PITCHER) {
 		@Override
 		public String getActionTitle() {
 			return "Tease [npc.her] nipple";
@@ -37,7 +39,7 @@ public class PlayerPenisNipple {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return (Sex.isPlayerDom() ||Sex.isConsensual()) && Sex.getPartner().isBreastFuckableNipplePenetration();
+			return (Sex.isDom(Main.game.getPlayer()) ||Sex.isConsensual()) && Sex.getActivePartner().isBreastFuckableNipplePenetration();
 		}
 
 		@Override
@@ -45,7 +47,7 @@ public class PlayerPenisNipple {
 				
 			UtilText.nodeContentSB.setLength(0);
 			
-			switch(Sex.getSexPacePlayer()) {
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Positioning your [pc.cock+] over one of [npc.name]'s [npc.breasts+], you start slowly teasing the [pc.cockHead+] up and down over [npc.her] [npc.nipple+], ready to penetrate [npc.herHim] at any moment.",
@@ -65,7 +67,7 @@ public class PlayerPenisNipple {
 							"Eagerly sliding the [pc.cockHead+] of your [pc.cock] up and down over [npc.name]'s [npc.nipple+], you let out [pc.a_moan+] at the thought of being able to penetrate [npc.herHim] whenever you feel like it."));
 					break;
 			}
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case SUB_EAGER:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" [npc.A_moan+] bursts out from between [npc.name]'s [npc.lips+], [npc.speech(Please! Fuck me! I need your cock inside of me!)]",
@@ -73,7 +75,7 @@ public class PlayerPenisNipple {
 							" [npc.Name] [npc.moansVerb] in delight as [npc.she] begs, [npc.speech(Yes! Fuck my tits! I need you inside of me!)]"));
 					break;
 				case SUB_RESISTING:
-					if(Sex.getPartner().isNippleVirgin()) {
+					if(Sex.getActivePartner().isNippleVirgin()) {
 						UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 								" [npc.A_sob+] bursts out from between [npc.name]'s [npc.lips+], [npc.speech(No! Don't! Please! I-I've never done this before! You can't do this!)]",
 								" [npc.Name] lets out a desperate [npc.sob], before pleading, [npc.speech(Please! Don't do this! I've never done this before!)]",
@@ -100,7 +102,7 @@ public class PlayerPenisNipple {
 		
 		@Override
 		public void applyEffects() {
-			Sex.transferLubrication(Main.game.getPlayer(), Sex.getPartner(), PenetrationType.PENIS_PLAYER, OrificeType.NIPPLE_PARTNER);
+			Sex.transferLubrication(Main.game.getPlayer(), Sex.getActivePartner(), PenetrationType.PENIS, OrificeType.NIPPLE);
 		}
 		
 	};
@@ -110,8 +112,9 @@ public class PlayerPenisNipple {
 			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.THREE_NORMAL,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.NIPPLE_PARTNER) {
+			PenetrationType.PENIS,
+			OrificeType.NIPPLE,
+			SexParticipantType.CATCHER) {
 		@Override
 		public String getActionTitle() {
 			return "Tease [pc.her] cock";
@@ -124,7 +127,7 @@ public class PlayerPenisNipple {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return (!Sex.isPlayerDom() ||Sex.isConsensual()) && Sex.getPartner().isBreastFuckableNipplePenetration();
+			return (!Sex.isDom(Main.game.getPlayer()) ||Sex.isConsensual()) && Sex.getActivePartner().isBreastFuckableNipplePenetration();
 		}
 
 		@Override
@@ -132,7 +135,7 @@ public class PlayerPenisNipple {
 				
 			UtilText.nodeContentSB.setLength(0);
 			
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Repositioning [npc.her] [npc.breasts], [npc.name] lines your [pc.cock+] up to one of [npc.her] [npc.nipples+],"
@@ -158,7 +161,7 @@ public class PlayerPenisNipple {
 									+ " letting out [npc.a_moan+] as [npc.she] teases you with the promise of penetration."));
 					break;
 			}
-			switch(Sex.getSexPacePlayer()) {
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
 				case SUB_EAGER:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" [pc.A_moan+] bursts out from between your [pc.lips+], [pc.speech(Please! Let me fuck you already!)]",
@@ -185,7 +188,7 @@ public class PlayerPenisNipple {
 		
 		@Override
 		public void applyEffects() {
-			Sex.transferLubrication(Sex.getPartner(), Main.game.getPlayer(), PenetrationType.PENIS_PLAYER, OrificeType.NIPPLE_PARTNER);
+			Sex.transferLubrication(Main.game.getPlayer(), Sex.getActivePartner(), PenetrationType.PENIS, OrificeType.NIPPLE);
 		}
 		
 	};
@@ -196,8 +199,9 @@ public class PlayerPenisNipple {
 			ArousalIncrease.FOUR_HIGH,
 			ArousalIncrease.FOUR_HIGH,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.NIPPLE_PARTNER) {
+			PenetrationType.PENIS,
+			OrificeType.NIPPLE,
+			SexParticipantType.PITCHER) {
 		
 		@Override
 		public String getActionTitle() {
@@ -214,7 +218,7 @@ public class PlayerPenisNipple {
 			
 			UtilText.nodeContentSB.setLength(0);
 			
-			switch(Sex.getSexPacePlayer()) {
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Slowly teasing the [pc.cockHead+] of your [pc.cock] over [npc.name]'s [npc.breast+], you let out a little [pc.moan] before slowly pushing your [pc.hips] forwards,"
@@ -245,7 +249,7 @@ public class PlayerPenisNipple {
 				default:
 					break;
 			}
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" [npc.She] lets out a soft [npc.moan] as you enter [npc.herHim], gently pushing [npc.her] chest back against you as [npc.she] helps to sink your [pc.cock+] even deeper into [npc.her] [npc.nipple+].",
@@ -290,8 +294,9 @@ public class PlayerPenisNipple {
 			ArousalIncrease.FOUR_HIGH,
 			ArousalIncrease.FOUR_HIGH,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.NIPPLE_PARTNER,
+			PenetrationType.PENIS,
+			OrificeType.NIPPLE,
+			SexParticipantType.PITCHER,
 			SexPace.DOM_GENTLE,
 			null) {
 		@Override
@@ -306,7 +311,7 @@ public class PlayerPenisNipple {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isPlayerDom();
+			return Sex.isDom(Main.game.getPlayer());
 		}
 
 		@Override
@@ -319,7 +324,7 @@ public class PlayerPenisNipple {
 					"Slowly pushing your [pc.cock+] into [npc.name]'s [npc.nipple+], you gently thrust your [pc.hips] against [npc.her] [npc.breast+], letting out a little [pc.moan] as you nipple-fuck [npc.herHim].",
 					"Sliding your [pc.cock+] into [npc.name]'s [npc.nipple+], you let out a little [pc.moan] before starting to gently buck your [pc.hips], breathing in [npc.her] [npc.scent] as you slowly nipple-fuck [npc.herHim]."));
 			
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case SUB_EAGER:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" [npc.Name] eagerly thrusts [npc.her] chest against you, letting out [npc.a_moan+] as [npc.she] enthusiastically helps to sink your [pc.cock+] deep into [npc.her] [npc.nipple+].",
@@ -351,8 +356,9 @@ public class PlayerPenisNipple {
 			ArousalIncrease.FOUR_HIGH,
 			ArousalIncrease.FOUR_HIGH,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.NIPPLE_PARTNER,
+			PenetrationType.PENIS,
+			OrificeType.NIPPLE,
+			SexParticipantType.PITCHER,
 			SexPace.DOM_NORMAL,
 			null) {
 		@Override
@@ -367,7 +373,7 @@ public class PlayerPenisNipple {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isPlayerDom();
+			return Sex.isDom(Main.game.getPlayer());
 		}
 
 		@Override
@@ -380,7 +386,7 @@ public class PlayerPenisNipple {
 					"Eagerly pushing your [pc.cock+] into [npc.name]'s [npc.nipple+], you start thrusting your [pc.hips] into [npc.her] [npc.breast+], letting out [pc.a_moan+] as you nipple-fuck [npc.herHim].",
 					"Eagerly thrusting your [pc.cock+] into [npc.name]'s [npc.nipple+], you let out [pc.a_moan+] as you start frantically bucking your [pc.hips], breathing in [npc.her] [npc.scent] as you nipple-fuck [npc.herHim]."));
 			
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case SUB_EAGER:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" [npc.Name] eagerly thrusts [npc.her] chest against you, letting out [npc.a_moan+] as [npc.she] enthusiastically helps to sink your [pc.cock+] deep into [npc.her] [npc.nipple+].",
@@ -412,8 +418,9 @@ public class PlayerPenisNipple {
 			ArousalIncrease.FOUR_HIGH,
 			ArousalIncrease.FOUR_HIGH,
 			CorruptionLevel.TWO_HORNY,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.NIPPLE_PARTNER,
+			PenetrationType.PENIS,
+			OrificeType.NIPPLE,
+			SexParticipantType.PITCHER,
 			SexPace.DOM_ROUGH,
 			null) {
 		@Override
@@ -428,7 +435,7 @@ public class PlayerPenisNipple {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isPlayerDom();
+			return Sex.isDom(Main.game.getPlayer());
 		}
 
 
@@ -442,7 +449,7 @@ public class PlayerPenisNipple {
 					"Violently thrusting your [pc.cock+] deep into [npc.name]'s [npc.nipple+], you start slamming your [pc.hips] into [npc.her] [npc.breast+], letting out [pc.a_moan+] as you roughly nipple-fuck [npc.herHim].",
 					"Ruthlessly slamming your [pc.cock+] deep into [npc.name]'s [npc.nipple+], you let out [pc.a_moan+] as you start violently thrusting your [pc.hips], breathing in [npc.her] [npc.scent] as you roughly nipple-fuck [npc.herHim]."));
 			
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case SUB_EAGER:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" [npc.Name] eagerly thrusts [npc.her] chest against you, letting out [npc.a_moan+] as [npc.she] enthusiastically helps to sink your [pc.cock+] deep into [npc.her] [npc.nipple+].",
@@ -475,8 +482,9 @@ public class PlayerPenisNipple {
 			ArousalIncrease.FOUR_HIGH,
 			ArousalIncrease.FOUR_HIGH,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.NIPPLE_PARTNER,
+			PenetrationType.PENIS,
+			OrificeType.NIPPLE,
+			SexParticipantType.PITCHER,
 			SexPace.SUB_NORMAL,
 			null) {
 		@Override
@@ -491,7 +499,7 @@ public class PlayerPenisNipple {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return !Sex.isPlayerDom();
+			return !Sex.isDom(Main.game.getPlayer());
 		}
 
 		@Override
@@ -504,7 +512,7 @@ public class PlayerPenisNipple {
 					"Pushing your [pc.cock+] into [npc.name]'s [npc.nipple+], you start thrusting your [pc.hips] into [npc.her] [npc.breast+], letting out [pc.a_moan+] as you nipple-fuck [npc.herHim].",
 					"Thrusting your [pc.cock+] into [npc.name]'s [npc.nipple+], you let out [pc.a_moan+] as you start bucking your [pc.hips], breathing in [npc.her] [npc.scent] as you nipple-fuck [npc.herHim]."));
 			
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" [npc.She] slowly thrusts [npc.her] chest out in response, letting out a soft [npc.moan] as [npc.she] starts gently imploring you to continue fucking [npc.herHim].",
@@ -535,8 +543,9 @@ public class PlayerPenisNipple {
 			ArousalIncrease.FOUR_HIGH,
 			ArousalIncrease.FOUR_HIGH,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.NIPPLE_PARTNER,
+			PenetrationType.PENIS,
+			OrificeType.NIPPLE,
+			SexParticipantType.PITCHER,
 			SexPace.SUB_EAGER,
 			null) {
 		@Override
@@ -551,7 +560,7 @@ public class PlayerPenisNipple {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return !Sex.isPlayerDom();
+			return !Sex.isDom(Main.game.getPlayer());
 		}
 
 		@Override
@@ -564,7 +573,7 @@ public class PlayerPenisNipple {
 					"Eagerly pushing your [pc.cock+] into [npc.name]'s [npc.nipple+], you start thrusting your [pc.hips] into [npc.her] [npc.breast+], letting out [pc.a_moan+] as you nipple-fuck [npc.herHim].",
 					"Eagerly thrusting your [pc.cock+] into [npc.name]'s [npc.nipple+], you let out [pc.a_moan+] as you start frantically bucking your [pc.hips], breathing in [npc.her] [npc.scent] as you nipple-fuck [npc.herHim]."));
 			
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" [npc.She] slowly thrusts [npc.her] chest out in response, letting out a soft [npc.moan] as [npc.she] starts gently imploring you to continue fucking [npc.herHim].",
@@ -595,8 +604,9 @@ public class PlayerPenisNipple {
 			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.FOUR_HIGH,
 			CorruptionLevel.ZERO_PURE,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.NIPPLE_PARTNER,
+			PenetrationType.PENIS,
+			OrificeType.NIPPLE,
+			SexParticipantType.PITCHER,
 			SexPace.SUB_RESISTING,
 			null) {
 		@Override
@@ -611,7 +621,7 @@ public class PlayerPenisNipple {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return !Sex.isPlayerDom();
+			return !Sex.isDom(Main.game.getPlayer());
 		}
 
 		@Override
@@ -624,7 +634,7 @@ public class PlayerPenisNipple {
 					" [pc.A_sob+] bursts out from between your [pc.lips] as you weakly try to push [npc.name] away, pleading for [npc.herHim] to let you go.",
 					" [pc.Sobbing] in distress, you weakly struggle against [npc.name], pleading for [npc.herHim] to let go of your [pc.cock]."));
 			
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" Ignoring your protests, [npc.she] slowly thrusts [npc.her] chest out against you, letting out a soft [npc.moan] as [npc.she] continues gently fucking [npc.her] [npc.nipple+] on your [pc.cock+].",
@@ -659,12 +669,13 @@ public class PlayerPenisNipple {
 			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.ZERO_PURE,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.NIPPLE_PARTNER) {
+			PenetrationType.PENIS,
+			OrificeType.NIPPLE,
+			SexParticipantType.PITCHER) {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isPlayerDom() ||Sex.isConsensual(); // Player can only stop if they're in charge (otherwise, this is the partner fucking themselves on the player's cock).
+			return Sex.isDom(Main.game.getPlayer()) ||Sex.isConsensual(); // Player can only stop if they're in charge (otherwise, this is the partner fucking themselves on the player's cock).
 		}
 		
 		@Override
@@ -682,7 +693,7 @@ public class PlayerPenisNipple {
 			
 			UtilText.nodeContentSB.setLength(0);
 			
-			switch(Sex.getSexPacePlayer()) {
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
 				case DOM_ROUGH:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Roughly yanking your [pc.cock+] out of [npc.name]'s [npc.breast+], you dominantly slide your [pc.cockHead] up and down over [npc.her] [npc.nipple+] one last time before pulling your [pc.hips] back.",
@@ -695,7 +706,7 @@ public class PlayerPenisNipple {
 					break;
 			}
 			
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case SUB_RESISTING:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" [npc.Name] [npc.sobsVerb+] as you pull out of [npc.her] [npc.nipple], and continues to cry as [npc.she] weakly struggles against you.",
@@ -720,8 +731,9 @@ public class PlayerPenisNipple {
 			ArousalIncrease.FOUR_HIGH,
 			ArousalIncrease.FOUR_HIGH,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.NIPPLE_PARTNER) {
+			PenetrationType.PENIS,
+			OrificeType.NIPPLE,
+			SexParticipantType.CATCHER) {
 
 		@Override
 		public String getActionTitle() {
@@ -738,7 +750,7 @@ public class PlayerPenisNipple {
 			
 			UtilText.nodeContentSB.setLength(0);
 			
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Pressing [npc.herself] against you, [npc.name] slowly slides your [pc.cock+] over one of [npc.her] [npc.breasts+],"
@@ -778,7 +790,7 @@ public class PlayerPenisNipple {
 					break;
 			}
 			
-			switch(Sex.getSexPacePlayer()) {
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" You let out a soft [pc.moan] as you enter [npc.herHim], gently bucking your [pc.hips] as you start to fuck [npc.her] [npc.nipple+].",
@@ -823,14 +835,15 @@ public class PlayerPenisNipple {
 			ArousalIncrease.FOUR_HIGH,
 			ArousalIncrease.FOUR_HIGH,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.NIPPLE_PARTNER,
+			PenetrationType.PENIS,
+			OrificeType.NIPPLE,
+			SexParticipantType.CATCHER,
 			null,
 			SexPace.DOM_GENTLE) {
 		
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return !Sex.isPlayerDom();
+			return !Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
@@ -862,14 +875,15 @@ public class PlayerPenisNipple {
 			ArousalIncrease.FOUR_HIGH,
 			ArousalIncrease.FOUR_HIGH,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.NIPPLE_PARTNER,
+			PenetrationType.PENIS,
+			OrificeType.NIPPLE,
+			SexParticipantType.CATCHER,
 			null,
 			SexPace.DOM_NORMAL) {
 		
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return !Sex.isPlayerDom();
+			return !Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
@@ -902,14 +916,15 @@ public class PlayerPenisNipple {
 			ArousalIncrease.FOUR_HIGH,
 			ArousalIncrease.FOUR_HIGH,
 			CorruptionLevel.TWO_HORNY,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.NIPPLE_PARTNER,
+			PenetrationType.PENIS,
+			OrificeType.NIPPLE,
+			SexParticipantType.CATCHER,
 			null,
 			SexPace.DOM_ROUGH) {
 		
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return !Sex.isPlayerDom();
+			return !Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
@@ -941,14 +956,15 @@ public class PlayerPenisNipple {
 			ArousalIncrease.FOUR_HIGH,
 			ArousalIncrease.FOUR_HIGH,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.NIPPLE_PARTNER,
+			PenetrationType.PENIS,
+			OrificeType.NIPPLE,
+			SexParticipantType.CATCHER,
 			null,
 			SexPace.SUB_NORMAL) {
 		
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isPlayerDom();
+			return Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
@@ -980,14 +996,15 @@ public class PlayerPenisNipple {
 			ArousalIncrease.FOUR_HIGH,
 			ArousalIncrease.FOUR_HIGH,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.NIPPLE_PARTNER,
+			PenetrationType.PENIS,
+			OrificeType.NIPPLE,
+			SexParticipantType.CATCHER,
 			null,
 			SexPace.SUB_EAGER) {
 		
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isPlayerDom();
+			return Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
@@ -1017,17 +1034,18 @@ public class PlayerPenisNipple {
 	
 	public static final SexAction PARTNER_FUCKED_SUB_RESIST = new SexAction(
 			SexActionType.PARTNER,
-			ArousalIncrease.FOUR_HIGH,
 			ArousalIncrease.TWO_LOW,
+			ArousalIncrease.FOUR_HIGH,
 			CorruptionLevel.ZERO_PURE,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.NIPPLE_PARTNER,
+			PenetrationType.PENIS,
+			OrificeType.NIPPLE,
+			SexParticipantType.CATCHER,
 			null,
 			SexPace.SUB_RESISTING) {
 		
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isPlayerDom();
+			return Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
@@ -1045,7 +1063,7 @@ public class PlayerPenisNipple {
 
 			UtilText.nodeContentSB.setLength(0);
 			
-			switch(Sex.getSexPacePlayer()) {
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Tears start to well up in [npc.name]'s [npc.eyes], before [npc.she] suddenly lets out [npc.a_sob+], weakly trying to pull your [pc.cock] out of [npc.her] [npc.nipple+] as you continue gently fucking [npc.herHim].",
@@ -1081,12 +1099,13 @@ public class PlayerPenisNipple {
 			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.ZERO_PURE,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.NIPPLE_PARTNER) {
+			PenetrationType.PENIS,
+			OrificeType.NIPPLE,
+			SexParticipantType.CATCHER) {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isConsensual() || !Sex.isPlayerDom(); // Partner can only stop in consensual sex or if they're the dom.
+			return Sex.isConsensual() || !Sex.isDom(Main.game.getPlayer()); // Partner can only stop in consensual sex or if they're the dom.
 		}
 		
 		@Override
@@ -1104,7 +1123,7 @@ public class PlayerPenisNipple {
 			
 			UtilText.nodeContentSB.setLength(0);
 			
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case DOM_ROUGH:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Yanking your [pc.cock] out of [npc.her] [npc.breast+], [npc.name] growls at you as [npc.she] commands you to stop fucking [npc.her] [npc.nipple+].",
@@ -1117,7 +1136,7 @@ public class PlayerPenisNipple {
 					break;
 			}
 			
-			switch(Sex.getSexPacePlayer()) {
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
 				case SUB_RESISTING:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" You let out a relieved sigh, which soon turns into [pc.a_sob+] as you realise that [npc.she] isn't finished with you yet.",

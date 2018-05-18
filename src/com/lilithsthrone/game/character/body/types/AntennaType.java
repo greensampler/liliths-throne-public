@@ -1,17 +1,25 @@
 package com.lilithsthrone.game.character.body.types;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.lilithsthrone.game.character.GameCharacter;
+import com.lilithsthrone.game.character.body.Body;
 import com.lilithsthrone.game.character.race.Race;
 import com.lilithsthrone.game.dialogue.utils.UtilText;
 
 /**
  * @since 0.1.83
- * @version 0.1.83
+ * @version 0.1.99
  * @author Innoxia
  */
 public enum AntennaType implements BodyPartTypeInterface {
 	NONE("", null, null);
-
+	
+	
+	
 	private BodyCoveringType skinType;
 	private Race race;
 	
@@ -57,12 +65,36 @@ public enum AntennaType implements BodyPartTypeInterface {
 	}
 
 	@Override
-	public BodyCoveringType getBodyCoveringType() {
+	public BodyCoveringType getBodyCoveringType(Body body) {
 		return skinType;
 	}
 
 	@Override
 	public Race getRace() {
 		return race;
+	}
+	
+	public String getTransformName() {
+		switch(this){
+			case NONE:
+				return "none";
+		}
+		return "";
+	}
+	
+	private static Map<Race, List<AntennaType>> typesMap = new HashMap<>();
+	public static List<AntennaType> getAntennaTypes(Race r) {
+		if(typesMap.containsKey(r)) {
+			return typesMap.get(r);
+		}
+		
+		List<AntennaType> types = new ArrayList<>();
+		for(AntennaType type : AntennaType.values()) {
+			if(type.getRace()==r) {
+				types.add(type);
+			}
+		}
+		typesMap.put(r, types);
+		return types;
 	}
 }

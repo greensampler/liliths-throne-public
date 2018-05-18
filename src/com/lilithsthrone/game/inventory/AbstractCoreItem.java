@@ -1,25 +1,28 @@
 package com.lilithsthrone.game.inventory;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.lilithsthrone.game.character.attributes.Attribute;
+import com.lilithsthrone.game.inventory.enchanting.AbstractItemEffectType;
+import com.lilithsthrone.game.inventory.enchanting.ItemEffect;
 import com.lilithsthrone.game.inventory.enchanting.TFEssence;
 import com.lilithsthrone.game.inventory.enchanting.TFModifier;
-import com.lilithsthrone.game.inventory.item.ItemEffect;
-import com.lilithsthrone.game.inventory.item.ItemEffectType;
 import com.lilithsthrone.utils.Colour;
 import com.lilithsthrone.utils.XMLSaving;
 
 /**
  * @since 0.1.0
- * @version 0.1.89
+ * @version 0.2.4
  * @author Innoxia
  */
 public abstract class AbstractCoreItem implements Serializable, XMLSaving {
@@ -32,8 +35,31 @@ public abstract class AbstractCoreItem implements Serializable, XMLSaving {
 
 	protected Map<Attribute, Integer> attributeModifiers;
 	protected TFEssence relatedEssence;
+	
+	protected Set<ItemTag> itemTags;
 
-	public AbstractCoreItem(String name, String namePlural, String SVGString, Colour colour, Rarity rarity, Map<Attribute, Integer> attributeModifiers) {
+	public AbstractCoreItem(String name,
+			String namePlural,
+			String SVGString,
+			Colour colour,
+			Rarity rarity,
+			Map<Attribute, Integer> attributeModifiers) {
+		this(name,
+				namePlural,
+				SVGString,
+				colour,
+				rarity,
+				attributeModifiers,
+				new HashSet<>());
+	}
+	
+	public AbstractCoreItem(String name,
+			String namePlural,
+			String SVGString,
+			Colour colour,
+			Rarity rarity,
+			Map<Attribute, Integer> attributeModifiers,
+			Set<ItemTag> itemTags) {
 		super();
 		this.name = name;
 		this.namePlural = namePlural;
@@ -42,13 +68,19 @@ public abstract class AbstractCoreItem implements Serializable, XMLSaving {
 		this.SVGString = SVGString;
 
 		this.attributeModifiers = new EnumMap<>(Attribute.class);
+		this.itemTags = new HashSet<>();
 		
 		relatedEssence = null;
 
-		if (attributeModifiers != null)
-			for (Entry<Attribute, Integer> e : attributeModifiers.entrySet())
+		if (attributeModifiers != null) {
+			for (Entry<Attribute, Integer> e : attributeModifiers.entrySet()) {
 				this.attributeModifiers.put(e.getKey(), e.getValue());
-
+			}
+		}
+		
+		if(itemTags != null) {
+			this.itemTags.addAll(itemTags);
+		}
 	}
 	
 	public Element saveAsXML(Element parentElement, Document doc) {
@@ -72,7 +104,7 @@ public abstract class AbstractCoreItem implements Serializable, XMLSaving {
 		return 100;
 	}
 	
-	public ItemEffectType getEnchantmentEffect() {
+	public AbstractItemEffectType getEnchantmentEffect() {
 		return null;
 	}
 	
@@ -100,13 +132,14 @@ public abstract class AbstractCoreItem implements Serializable, XMLSaving {
 	@Override
 	public boolean equals (Object o) {
 		if(o instanceof AbstractCoreItem){
-			if(((AbstractCoreItem)o).getName().equals(name)
-				&& ((AbstractCoreItem)o).getColour() == colourShade
-				&& ((AbstractCoreItem)o).getRarity() == rarity
-				&& ((AbstractCoreItem)o).getAttributeModifiers().equals(attributeModifiers)
+			if(((AbstractCoreItem)o).getName().equals(this.getName())
+				&& ((AbstractCoreItem)o).getColour() == this.getColour()
+				&& ((AbstractCoreItem)o).getRarity() == this.getRarity()
+				&& ((AbstractCoreItem)o).getAttributeModifiers().equals(this.getAttributeModifiers())
 				&& ((AbstractCoreItem)o).getEnchantmentEffect() == getEnchantmentEffect()
 				&& ((AbstractCoreItem)o).getEnchantmentItemType(null) == getEnchantmentItemType(null)
-				&& ((AbstractCoreItem)o).getRelatedEssence() == getRelatedEssence()){
+				&& ((AbstractCoreItem)o).getRelatedEssence() == getRelatedEssence()
+				&& ((AbstractCoreItem)o).getItemTags().equals(getItemTags())){
 					return true;
 			}
 		}
@@ -116,16 +149,22 @@ public abstract class AbstractCoreItem implements Serializable, XMLSaving {
 	@Override
 	public int hashCode() {
 		int result = 17;
-		result = 31 * result + name.hashCode();
-		result = 31 * result + colourShade.hashCode();
-		result = 31 * result + rarity.hashCode();
-		result = 31 * result + attributeModifiers.hashCode();
-		if(getEnchantmentEffect()!=null)
+		result = 31 * result + this.getName().hashCode();
+		result = 31 * result + this.getColour().hashCode();
+		result = 31 * result + this.getRarity().hashCode();
+		result = 31 * result + this.getAttributeModifiers().hashCode();
+		if(getEnchantmentEffect()!=null) {
 			result = 31 * result + getEnchantmentEffect().hashCode();
-		if(getEnchantmentItemType(null)!=null)
-		result = 31 * result + getEnchantmentItemType(null).hashCode();
-		if(getRelatedEssence()!=null)
+		}
+		if(getEnchantmentItemType(null)!=null) {
+			result = 31 * result + getEnchantmentItemType(null).hashCode();
+		}
+		if(getRelatedEssence()!=null) {
 			result = 31 * result + getRelatedEssence().hashCode();
+		}
+		if(getItemTags()!=null) {
+			result = 31 * result + getItemTags().hashCode();
+		}
 		return result;
 	}
 	
@@ -157,6 +196,10 @@ public abstract class AbstractCoreItem implements Serializable, XMLSaving {
 		return (int) (getValue() * modifier);
 	}
 
+	public void setRarity(Rarity rarity) {
+		this.rarity = rarity;
+	}
+
 	public Rarity getRarity() {
 		return rarity;
 	}
@@ -165,7 +208,7 @@ public abstract class AbstractCoreItem implements Serializable, XMLSaving {
 	 * @return the name of a css class to use as a displayed rarity in inventory screens
 	 */
 	public String getDisplayRarity() {
-		return rarity.getName();
+		return getRarity().getName();
 	}
 
 	public Colour getColour() {
@@ -183,5 +226,12 @@ public abstract class AbstractCoreItem implements Serializable, XMLSaving {
 	public void setAttributeModifiers(Map<Attribute, Integer> attributeModifiers) {
 		this.attributeModifiers = attributeModifiers;
 	}
+	
+	public List<ItemEffect> getEffects() {
+		return new ArrayList<ItemEffect>();
+	}
 
+	public Set<ItemTag> getItemTags() {
+		return itemTags;
+	}
 }

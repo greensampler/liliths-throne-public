@@ -7,8 +7,10 @@ import com.lilithsthrone.game.sex.OrificeType;
 import com.lilithsthrone.game.sex.PenetrationType;
 import com.lilithsthrone.game.sex.Sex;
 import com.lilithsthrone.game.sex.SexPace;
+import com.lilithsthrone.game.sex.SexParticipantType;
 import com.lilithsthrone.game.sex.sexActions.SexAction;
 import com.lilithsthrone.game.sex.sexActions.SexActionType;
+import com.lilithsthrone.main.Main;
 
 /**
  * @since 0.1.79
@@ -19,11 +21,12 @@ public class PartnerFingerAnus {
 	
 	public static final SexAction PARTNER_ANAL_FINGERING_START = new SexAction(
 			SexActionType.PARTNER_PENETRATION,
-			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.TWO_LOW,
+			ArousalIncrease.THREE_NORMAL,
 			CorruptionLevel.TWO_HORNY,
-			PenetrationType.FINGER_PARTNER,
-			OrificeType.ANUS_PLAYER) {
+			PenetrationType.FINGER,
+			OrificeType.ANUS,
+			SexParticipantType.PITCHER) {
 		@Override
 		public String getActionTitle() {
 			return "Finger [pc.her] ass";
@@ -39,7 +42,7 @@ public class PartnerFingerAnus {
 			
 			UtilText.nodeContentSB.setLength(0);
 			
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Slowly teasing [npc.her] [npc.fingers+] over your [pc.ass], [npc.name] lets out a little [npc.moan] before slowly sinking [npc.her] digits into your [pc.asshole+].",
@@ -68,7 +71,7 @@ public class PartnerFingerAnus {
 				default:
 					break;
 			}
-			switch(Sex.getSexPacePlayer()) {
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" You let out a soft [pc.moan] as [npc.her] [npc.fingers] enter you, gently bucking your [pc.ass] back against [npc.her] [npc.hand] as you help to sink [npc.her] [npc.fingers] even deeper into your [pc.asshole+].",
@@ -112,11 +115,12 @@ public class PartnerFingerAnus {
 	
 	public static final SexAction PARTNER_ANAL_FINGERING_DOM_GENTLE = new SexAction(
 			SexActionType.PARTNER,
-			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.TWO_LOW,
+			ArousalIncrease.THREE_NORMAL,
 			CorruptionLevel.TWO_HORNY,
-			PenetrationType.FINGER_PARTNER,
-			OrificeType.ANUS_PLAYER,
+			PenetrationType.FINGER,
+			OrificeType.ANUS,
+			SexParticipantType.PITCHER,
 			null,
 			SexPace.DOM_GENTLE) {
 		@Override
@@ -131,7 +135,7 @@ public class PartnerFingerAnus {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return !Sex.isPlayerDom();
+			return !Sex.isDom(Main.game.getPlayer());
 		}
 
 		@Override
@@ -139,7 +143,7 @@ public class PartnerFingerAnus {
 
 			UtilText.nodeContentSB.setLength(0);
 			
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case SUB_EAGER:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Gently sinking [npc.her] [npc.fingers+] into your [pc.asshole+], [npc.name] starts slowly sliding [npc.her] digits in and out,"
@@ -174,11 +178,12 @@ public class PartnerFingerAnus {
 	
 	public static final SexAction PARTNER_ANAL_FINGERING_DOM_NORMAL = new SexAction(
 			SexActionType.PARTNER,
-			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.TWO_LOW,
+			ArousalIncrease.THREE_NORMAL,
 			CorruptionLevel.TWO_HORNY,
-			PenetrationType.FINGER_PARTNER,
-			OrificeType.ANUS_PLAYER,
+			PenetrationType.FINGER,
+			OrificeType.ANUS,
+			SexParticipantType.PITCHER,
 			null,
 			SexPace.DOM_NORMAL) {
 		@Override
@@ -188,12 +193,12 @@ public class PartnerFingerAnus {
 
 		@Override
 		public String getActionDescription() {
-			return "Continue fingering [pc.name]'s [pc.pussy+].";
+			return "Continue fingering [pc.name]'s [pc.asshole+].";
 		}
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return !Sex.isPlayerDom();
+			return !Sex.isDom(Main.game.getPlayer());
 		}
 
 		@Override
@@ -201,7 +206,7 @@ public class PartnerFingerAnus {
 
 			UtilText.nodeContentSB.setLength(0);
 
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case SUB_EAGER:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Eagerly sinking [npc.her] [npc.fingers+] deep into your [pc.asshole+], [npc.name] starts enthusiastically sliding [npc.her] digits in and out,"
@@ -240,8 +245,9 @@ public class PartnerFingerAnus {
 			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.THREE_DIRTY,
-			PenetrationType.FINGER_PARTNER,
-			OrificeType.ANUS_PLAYER,
+			PenetrationType.FINGER,
+			OrificeType.ANUS,
+			SexParticipantType.PITCHER,
 			null,
 			SexPace.DOM_ROUGH) {
 		@Override
@@ -256,7 +262,7 @@ public class PartnerFingerAnus {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return !Sex.isPlayerDom();
+			return !Sex.isDom(Main.game.getPlayer());
 		}
 
 		@Override
@@ -264,7 +270,7 @@ public class PartnerFingerAnus {
 
 			UtilText.nodeContentSB.setLength(0);
 			
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case SUB_EAGER:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Greedily thrusting [npc.her] [npc.fingers+] deep into your [pc.asshole+], [npc.name] starts roughly slamming [npc.her] digits in and out,"
@@ -300,11 +306,12 @@ public class PartnerFingerAnus {
 	
 	public static final SexAction PARTNER_ANAL_FINGERING_SUB_NORMAL = new SexAction(
 			SexActionType.PARTNER,
-			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.TWO_LOW,
+			ArousalIncrease.THREE_NORMAL,
 			CorruptionLevel.TWO_HORNY,
-			PenetrationType.FINGER_PARTNER,
-			OrificeType.ANUS_PLAYER,
+			PenetrationType.FINGER,
+			OrificeType.ANUS,
+			SexParticipantType.PITCHER,
 			null,
 			SexPace.SUB_NORMAL) {
 		@Override
@@ -319,7 +326,7 @@ public class PartnerFingerAnus {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isPlayerDom();
+			return Sex.isDom(Main.game.getPlayer());
 		}
 
 		@Override
@@ -327,7 +334,7 @@ public class PartnerFingerAnus {
 
 			UtilText.nodeContentSB.setLength(0);
 			
-			switch(Sex.getSexPacePlayer()) {
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Sinking [npc.her] [npc.fingers+] into your [pc.asshole+], [npc.name] starts sliding [npc.her] digits in and out,"
@@ -364,11 +371,12 @@ public class PartnerFingerAnus {
 	
 	public static final SexAction PARTNER_ANAL_FINGERING_SUB_EAGER = new SexAction(
 			SexActionType.PARTNER,
-			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.TWO_LOW,
+			ArousalIncrease.THREE_NORMAL,
 			CorruptionLevel.TWO_HORNY,
-			PenetrationType.FINGER_PARTNER,
-			OrificeType.ANUS_PLAYER,
+			PenetrationType.FINGER,
+			OrificeType.ANUS,
+			SexParticipantType.PITCHER,
 			null,
 			SexPace.SUB_EAGER) {
 		@Override
@@ -383,7 +391,7 @@ public class PartnerFingerAnus {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isPlayerDom();
+			return Sex.isDom(Main.game.getPlayer());
 		}
 
 		@Override
@@ -391,7 +399,7 @@ public class PartnerFingerAnus {
 
 			UtilText.nodeContentSB.setLength(0);
 			
-			switch(Sex.getSexPacePlayer()) {
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Eagerly sinking [npc.her] [npc.fingers+] deep into your [pc.asshole+], [npc.name] starts rapidly sliding [npc.her] digits in and out,"
@@ -431,8 +439,9 @@ public class PartnerFingerAnus {
 			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.ZERO_PURE,
-			PenetrationType.FINGER_PARTNER,
-			OrificeType.ANUS_PLAYER) {
+			PenetrationType.FINGER,
+			OrificeType.ANUS,
+			SexParticipantType.PITCHER) {
 		@Override
 		public String getActionTitle() {
 			return "Stop anal fingering";
@@ -448,7 +457,7 @@ public class PartnerFingerAnus {
 			
 			UtilText.nodeContentSB.setLength(0);
 			
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case DOM_ROUGH:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Roughly yanking [npc.her] [npc.fingers] out of your [pc.asshole+], [npc.name] quickly takes [npc.her] [npc.hand] away from your [pc.ass].",
@@ -461,7 +470,7 @@ public class PartnerFingerAnus {
 					break;
 			}
 			
-			switch(Sex.getSexPacePlayer()) {
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
 				case SUB_RESISTING:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" You gasp as [npc.name] withdraws from your [pc.asshole], before letting out [pc.a_sob+] as you continue to struggle against [npc.herHim].",
@@ -486,12 +495,13 @@ public class PartnerFingerAnus {
 			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.TWO_HORNY,
-			PenetrationType.FINGER_PARTNER,
-			OrificeType.ANUS_PLAYER) {
+			PenetrationType.FINGER,
+			OrificeType.ANUS,
+			SexParticipantType.CATCHER) {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isConsensual() || Sex.isPlayerDom(); // Player can only start fingering in consensual sex or if they're the dom.
+			return Sex.isConsensual() || Sex.isDom(Main.game.getPlayer()); // Player can only start fingering in consensual sex or if they're the dom.
 		}
 		
 		@Override
@@ -509,7 +519,7 @@ public class PartnerFingerAnus {
 			
 			UtilText.nodeContentSB.setLength(0);
 			
-			switch(Sex.getSexPacePlayer()) {
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Taking a gentle, but firm, grip on [npc.her] [npc.hand], you slowly guide [npc.name]'s [npc.fingers] over your [pc.ass], letting out a little [pc.moan] before pushing [npc.her] digits into your [pc.asshole+].",
@@ -539,7 +549,7 @@ public class PartnerFingerAnus {
 					break;
 			}
 			
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" [npc.She] lets out a soft [npc.moan] as [npc.she] enters you, curling [npc.her] [npc.fingers] up before gently starting to finger your [pc.asshole+].",
@@ -584,14 +594,15 @@ public class PartnerFingerAnus {
 			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.TWO_HORNY,
-			PenetrationType.FINGER_PARTNER,
-			OrificeType.ANUS_PLAYER,
+			PenetrationType.FINGER,
+			OrificeType.ANUS,
+			SexParticipantType.CATCHER,
 			SexPace.DOM_GENTLE,
 			null) {
 		
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isPlayerDom();
+			return Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
@@ -623,14 +634,15 @@ public class PartnerFingerAnus {
 			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.TWO_HORNY,
-			PenetrationType.FINGER_PARTNER,
-			OrificeType.ANUS_PLAYER,
+			PenetrationType.FINGER,
+			OrificeType.ANUS,
+			SexParticipantType.CATCHER,
 			SexPace.DOM_NORMAL,
 			null) {
 		
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isPlayerDom();
+			return Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
@@ -662,14 +674,15 @@ public class PartnerFingerAnus {
 			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.THREE_DIRTY,
-			PenetrationType.FINGER_PARTNER,
-			OrificeType.ANUS_PLAYER,
+			PenetrationType.FINGER,
+			OrificeType.ANUS,
+			SexParticipantType.CATCHER,
 			SexPace.DOM_ROUGH,
 			null) {
 		
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isPlayerDom();
+			return Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
@@ -701,14 +714,15 @@ public class PartnerFingerAnus {
 			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.TWO_HORNY,
-			PenetrationType.FINGER_PARTNER,
-			OrificeType.ANUS_PLAYER,
+			PenetrationType.FINGER,
+			OrificeType.ANUS,
+			SexParticipantType.CATCHER,
 			SexPace.SUB_NORMAL,
 			null) {
 		
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return !Sex.isPlayerDom();
+			return !Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
@@ -740,14 +754,15 @@ public class PartnerFingerAnus {
 			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.TWO_HORNY,
-			PenetrationType.FINGER_PARTNER,
-			OrificeType.ANUS_PLAYER,
+			PenetrationType.FINGER,
+			OrificeType.ANUS,
+			SexParticipantType.CATCHER,
 			SexPace.SUB_EAGER,
 			null) {
 		
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return !Sex.isPlayerDom();
+			return !Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
@@ -779,8 +794,9 @@ public class PartnerFingerAnus {
 			ArousalIncrease.ONE_MINIMUM,
 			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.ZERO_PURE,
-			PenetrationType.FINGER_PARTNER,
-			OrificeType.ANUS_PLAYER,
+			PenetrationType.FINGER,
+			OrificeType.ANUS,
+			SexParticipantType.CATCHER,
 			SexPace.SUB_RESISTING,
 			null) {
 		@Override
@@ -795,7 +811,7 @@ public class PartnerFingerAnus {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return !Sex.isPlayerDom();
+			return !Sex.isDom(Main.game.getPlayer());
 		}
 
 		@Override
@@ -803,7 +819,7 @@ public class PartnerFingerAnus {
 
 			UtilText.nodeContentSB.setLength(0);
 			
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"You feel tears starting to well up in your [pc.eyes], and, unable to keep it in any longer, [pc.a_sob+] bursts out from your mouth as you weakly try to pull [npc.name]'s [npc.fingers] out of your [pc.asshole+].",
@@ -840,12 +856,13 @@ public class PartnerFingerAnus {
 			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.ZERO_PURE,
-			PenetrationType.FINGER_PARTNER,
-			OrificeType.ANUS_PLAYER) {
+			PenetrationType.FINGER,
+			OrificeType.ANUS,
+			SexParticipantType.CATCHER) {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isConsensual() || Sex.isPlayerDom(); // Player can only stop in consensual sex or if they're the dom.
+			return Sex.isConsensual() || Sex.isDom(Main.game.getPlayer()); // Player can only stop in consensual sex or if they're the dom.
 		}
 		
 		@Override
@@ -863,7 +880,7 @@ public class PartnerFingerAnus {
 			
 			UtilText.nodeContentSB.setLength(0);
 			
-			switch(Sex.getSexPacePlayer()) {
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
 				case DOM_ROUGH:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Yanking [npc.her] [npc.fingers] out of your [pc.asshole+], you growl at [npc.name] as you command [npc.herHim] to stop fingering you.",
@@ -876,7 +893,7 @@ public class PartnerFingerAnus {
 					break;
 			}
 			
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case SUB_RESISTING:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" [npc.Name] lets out a relieved sigh, which soon turns into [npc.a_sob+] as [npc.she] realises that you aren't finished with [npc.herHim] yet.",

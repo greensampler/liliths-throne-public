@@ -2,19 +2,27 @@ package com.lilithsthrone.game.sex;
 
 import java.io.Serializable;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import com.lilithsthrone.game.character.CharacterUtils;
+import com.lilithsthrone.utils.XMLSaving;
+
 /**
  * @since 0.1.53
- * @version 0.1.78
+ * @version 0.2.5
  * @author Innoxia
  */
-public class SexType implements Serializable {
+public class SexType implements Serializable, XMLSaving {
 	
 	private static final long serialVersionUID = 1L;
 	
+	private SexParticipantType asParticipant;
 	private PenetrationType penetrationType;
 	private OrificeType orificeType;
 
-	public SexType(PenetrationType penetrationType, OrificeType orificeType) {
+	public SexType(SexParticipantType asParticipant, PenetrationType penetrationType, OrificeType orificeType) {
+		this.asParticipant = asParticipant;
 		this.penetrationType=penetrationType;
 		this.orificeType = orificeType;
 	}
@@ -22,7 +30,8 @@ public class SexType implements Serializable {
 	@Override
 	public boolean equals (Object o) {
 		if(o instanceof SexType){
-			if(((SexType)o).getPenetrationType().equals(getPenetrationType())
+			if(((SexType)o).getAsParticipant().equals(getAsParticipant())
+				&& ((SexType)o).getPenetrationType().equals(getPenetrationType())
 				&& ((SexType)o).getOrificeType().equals(getOrificeType())){
 					return true;
 			}
@@ -38,8 +47,30 @@ public class SexType implements Serializable {
 		return result;
 	}
 	
+	public Element saveAsXML(Element parentElement, Document doc) {
+		Element effect = doc.createElement("sexType");
+		parentElement.appendChild(effect);
+
+		CharacterUtils.addAttribute(doc, effect, "SexParticipantType", asParticipant.toString());
+		CharacterUtils.addAttribute(doc, effect, "penetrationType", penetrationType.toString());
+		CharacterUtils.addAttribute(doc, effect, "orificeType", orificeType.toString());
+		
+		return effect;
+	}
+	
+	public static SexType loadFromXML(Element parentElement, Document doc) {
+		return new SexType(
+				SexParticipantType.valueOf(parentElement.getAttribute("SexParticipantType")),
+				PenetrationType.valueOf(parentElement.getAttribute("penetrationType")),
+				OrificeType.valueOf(parentElement.getAttribute("orificeType")));
+	}
+	
 	public String getName() {
 		return "";
+	}
+
+	public SexParticipantType getAsParticipant() {
+		return asParticipant;
 	}
 
 	public PenetrationType getPenetrationType() {

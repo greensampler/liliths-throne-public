@@ -1,16 +1,18 @@
 package com.lilithsthrone.game.character.body.types;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.lilithsthrone.game.character.GameCharacter;
+import com.lilithsthrone.game.character.body.Body;
 import com.lilithsthrone.game.character.body.valueEnums.OrificeModifier;
 import com.lilithsthrone.game.character.race.Race;
 import com.lilithsthrone.game.dialogue.utils.UtilText;
 
 /**
  * @since 0.1.83
- * @version 0.1.83
+ * @version 0.2.2
  * @author Innoxia
  */
 public enum AnusType implements BodyPartTypeInterface {
@@ -20,11 +22,19 @@ public enum AnusType implements BodyPartTypeInterface {
 	
 	DEMON_COMMON(BodyCoveringType.ANUS, Race.DEMON, OrificeModifier.RIBBED, OrificeModifier.TENTACLED, OrificeModifier.MUSCLE_CONTROL),
 	
+	IMP(BodyCoveringType.ANUS, Race.IMP, OrificeModifier.RIBBED, OrificeModifier.TENTACLED, OrificeModifier.MUSCLE_CONTROL),
+	
 	COW_MORPH(BodyCoveringType.ANUS, Race.COW_MORPH),
 	
 	DOG_MORPH(BodyCoveringType.ANUS, Race.DOG_MORPH),
 	
 	SQUIRREL_MORPH(BodyCoveringType.ANUS, Race.SQUIRREL_MORPH),
+	
+	RAT_MORPH(BodyCoveringType.ANUS, Race.RAT_MORPH),
+	
+	RABBIT_MORPH(BodyCoveringType.ANUS, Race.RABBIT_MORPH),
+	
+	BAT_MORPH(BodyCoveringType.ANUS, Race.BAT_MORPH),
 	
 	WOLF_MORPH(BodyCoveringType.ANUS, Race.WOLF_MORPH),
 	
@@ -36,9 +46,7 @@ public enum AnusType implements BodyPartTypeInterface {
 	
 	ALLIGATOR_MORPH(BodyCoveringType.ANUS, Race.ALLIGATOR_MORPH),
 	
-	HARPY(BodyCoveringType.ANUS, Race.HARPY),
-	
-	SLIME(BodyCoveringType.ANUS_SLIME, Race.SLIME, OrificeModifier.RIBBED, OrificeModifier.TENTACLED, OrificeModifier.MUSCLE_CONTROL);
+	HARPY(BodyCoveringType.ANUS, Race.HARPY);
 
 	private BodyCoveringType skinType;
 	private Race race;
@@ -48,9 +56,7 @@ public enum AnusType implements BodyPartTypeInterface {
 		this.skinType = skinType;
 		this.race = race;
 		this.defaultRacialOrificeModifiers = new ArrayList<>();
-		for(OrificeModifier om : defaultRacialOrificeModifiers) {
-			this.defaultRacialOrificeModifiers.add(om);
-		}
+		Collections.addAll(this.defaultRacialOrificeModifiers, defaultRacialOrificeModifiers);
 	}
 	
 	@Override
@@ -95,15 +101,13 @@ public enum AnusType implements BodyPartTypeInterface {
 				return UtilText.returnStringAtRandom("horse-like", "equine");
 			case COW_MORPH:
 				return UtilText.returnStringAtRandom("cow-like", "bovine");
-			case SLIME:
-				return UtilText.returnStringAtRandom("gooey", "slimy");
 			default:
 				return UtilText.returnStringAtRandom("");
 		}
 	}
 
 	@Override
-	public BodyCoveringType getBodyCoveringType() {
+	public BodyCoveringType getBodyCoveringType(Body body) {
 		return skinType;
 	}
 

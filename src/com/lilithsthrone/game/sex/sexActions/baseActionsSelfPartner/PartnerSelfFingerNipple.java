@@ -7,8 +7,10 @@ import com.lilithsthrone.game.sex.OrificeType;
 import com.lilithsthrone.game.sex.PenetrationType;
 import com.lilithsthrone.game.sex.Sex;
 import com.lilithsthrone.game.sex.SexPace;
+import com.lilithsthrone.game.sex.SexParticipantType;
 import com.lilithsthrone.game.sex.sexActions.SexAction;
 import com.lilithsthrone.game.sex.sexActions.SexActionType;
+import com.lilithsthrone.main.Main;
 
 /**
  * @since 0.1.79
@@ -20,11 +22,12 @@ public class PartnerSelfFingerNipple {
 	
 	public static final SexAction PARTNER_PINCH_NIPPLES = new SexAction(
 			SexActionType.PARTNER_REQUIRES_NO_PENETRATION_AND_EXPOSED,
-			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.ONE_MINIMUM,
+			ArousalIncrease.THREE_NORMAL,
 			CorruptionLevel.ZERO_PURE,
-			PenetrationType.FINGER_PARTNER,
-			OrificeType.NIPPLE_PARTNER) {
+			PenetrationType.FINGER,
+			OrificeType.NIPPLE,
+			SexParticipantType.SELF) {
 		@Override
 		public String getActionTitle() {
 			return "Pinch nipples";
@@ -48,7 +51,7 @@ public class PartnerSelfFingerNipple {
 					
 					"With [npc.a_moan+], [npc.name] reaches up to [npc.her] [npc.nipples+], pinching and flicking them as [npc.she] continues to cry out in delight."));
 			
-			switch (Sex.getPartner().getBreastLactation()) {
+			switch (Sex.getActivePartner().getBreastStoredMilk()) {
 				case ONE_TRICKLE:
 					UtilText.nodeContentSB.append(" A small trickle of [npc.milk] leaks out around [npc.her] fingertips.");
 					break;
@@ -76,17 +79,23 @@ public class PartnerSelfFingerNipple {
 
 			return UtilText.nodeContentSB.toString();
 		}
+		
+		@Override
+		public String applyEffectsString() {
+			return Sex.getActivePartner().incrementBreastStoredMilk(-10);
+		}
 
 	};
 	
 	
 	public static final SexAction PARTNER_SELF_FINGER_NIPPLE_PENETRATION = new SexAction(
 			SexActionType.PARTNER_PENETRATION,
-			ArousalIncrease.ONE_MINIMUM,
 			ArousalIncrease.THREE_NORMAL,
+			ArousalIncrease.ONE_MINIMUM,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.FINGER_PARTNER,
-			OrificeType.NIPPLE_PARTNER) {
+			PenetrationType.FINGER,
+			OrificeType.NIPPLE,
+			SexParticipantType.SELF) {
 		@Override
 		public String getActionTitle() {
 			return "Finger nipples (self)";
@@ -111,7 +120,7 @@ public class PartnerSelfFingerNipple {
 					"With a lewd cry, [npc.name] sinks [npc.her] digits into [npc.her] inviting nipple-cunts, panting heavily as [npc.she] start eagerly fingering [npc.herself]."));
 			
 		
-			switch (Sex.getPartner().getBreastLactation()) {
+			switch (Sex.getActivePartner().getBreastStoredMilk()) {
 				case ONE_TRICKLE:
 					UtilText.nodeContentSB.append(" A small trickle of [npc.milk] leaks out around [npc.her] fingertips.");
 					break;
@@ -140,21 +149,27 @@ public class PartnerSelfFingerNipple {
 			return UtilText.nodeContentSB.toString();
 		}
 		
+		@Override
+		public String applyEffectsString() {
+			return Sex.getActivePartner().incrementBreastStoredMilk(-10);
+		}
+		
 	};
 	
 	public static final SexAction DOM_PARTNER_SELF_FINGER_NIPPLE_GENTLE = new SexAction(
 			SexActionType.PARTNER,
-			ArousalIncrease.ONE_MINIMUM,
 			ArousalIncrease.THREE_NORMAL,
+			ArousalIncrease.ONE_MINIMUM,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.FINGER_PARTNER,
-			OrificeType.NIPPLE_PARTNER,
+			PenetrationType.FINGER,
+			OrificeType.NIPPLE,
+			SexParticipantType.SELF,
 			null,
 			SexPace.DOM_GENTLE) {
 		
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return !Sex.isPlayerDom();
+			return !Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
@@ -183,17 +198,18 @@ public class PartnerSelfFingerNipple {
 	
 	public static final SexAction DOM_PARTNER_SELF_FINGER_NIPPLE_NORMAL = new SexAction(
 			SexActionType.PARTNER,
-			ArousalIncrease.ONE_MINIMUM,
 			ArousalIncrease.THREE_NORMAL,
+			ArousalIncrease.ONE_MINIMUM,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.FINGER_PARTNER,
-			OrificeType.NIPPLE_PARTNER,
+			PenetrationType.FINGER,
+			OrificeType.NIPPLE,
+			SexParticipantType.SELF,
 			null,
 			SexPace.DOM_NORMAL) {
 		
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return !Sex.isPlayerDom();
+			return !Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
@@ -222,17 +238,18 @@ public class PartnerSelfFingerNipple {
 	
 	public static final SexAction DOM_PARTNER_SELF_FINGER_NIPPLE_ROUGH = new SexAction(
 			SexActionType.PARTNER,
-			ArousalIncrease.ONE_MINIMUM,
 			ArousalIncrease.THREE_NORMAL,
+			ArousalIncrease.ONE_MINIMUM,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.FINGER_PARTNER,
-			OrificeType.NIPPLE_PARTNER,
+			PenetrationType.FINGER,
+			OrificeType.NIPPLE,
+			SexParticipantType.SELF,
 			null,
 			SexPace.DOM_ROUGH) {
 		
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return !Sex.isPlayerDom();
+			return !Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
@@ -261,17 +278,18 @@ public class PartnerSelfFingerNipple {
 	
 	public static final SexAction SUB_PARTNER_SELF_FINGER_NIPPLE_NORMAL = new SexAction(
 			SexActionType.PARTNER,
-			ArousalIncrease.ONE_MINIMUM,
 			ArousalIncrease.THREE_NORMAL,
+			ArousalIncrease.ONE_MINIMUM,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.FINGER_PARTNER,
-			OrificeType.NIPPLE_PARTNER,
+			PenetrationType.FINGER,
+			OrificeType.NIPPLE,
+			SexParticipantType.SELF,
 			null,
 			SexPace.SUB_NORMAL) {
 		
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isPlayerDom();
+			return Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
@@ -300,17 +318,18 @@ public class PartnerSelfFingerNipple {
 	
 	public static final SexAction SUB_PARTNER_SELF_FINGER_NIPPLE_EAGER = new SexAction(
 			SexActionType.PARTNER,
-			ArousalIncrease.ONE_MINIMUM,
 			ArousalIncrease.THREE_NORMAL,
+			ArousalIncrease.ONE_MINIMUM,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.FINGER_PARTNER,
-			OrificeType.NIPPLE_PARTNER,
+			PenetrationType.FINGER,
+			OrificeType.NIPPLE,
+			SexParticipantType.SELF,
 			null,
 			SexPace.SUB_EAGER) {
 		
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isPlayerDom();
+			return Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
@@ -342,8 +361,9 @@ public class PartnerSelfFingerNipple {
 			ArousalIncrease.ONE_MINIMUM,
 			ArousalIncrease.ONE_MINIMUM,
 			CorruptionLevel.ZERO_PURE,
-			PenetrationType.FINGER_PARTNER,
-			OrificeType.NIPPLE_PARTNER) {
+			PenetrationType.FINGER,
+			OrificeType.NIPPLE,
+			SexParticipantType.SELF) {
 		
 		@Override
 		public String getActionTitle() {

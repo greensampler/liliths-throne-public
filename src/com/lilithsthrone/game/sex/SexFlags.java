@@ -2,10 +2,9 @@ package com.lilithsthrone.game.sex;
 
 import java.io.Serializable;
 
-
 /**
  * @since 0.1.69.1
- * @version 0.1.8
+ * @version 0.2.0
  * @author Innoxia
  */
 public class SexFlags implements Serializable {
@@ -22,6 +21,7 @@ public class SexFlags implements Serializable {
 	// Generic:
 	mutualOrgasmsAllowed,
 	playerPreparedForOrgasm,
+	playerGrewDemonicCock,
 	
 	// Position requests:
 	requestedCowgirl,
@@ -34,6 +34,8 @@ public class SexFlags implements Serializable {
 	requestedFaceToWall,
 	requestedKneeling,
 	requestedSelfKneeling,
+	requestedMissionary,
+	requestedMissionaryOnBack,
 	
 	// Brax: TODO Temporary awaiting Brax rewrite
 	braxCumOnChest,
@@ -69,6 +71,8 @@ public class SexFlags implements Serializable {
 		mutualOrgasmsAllowed = true;
 		playerPreparedForOrgasm = false;
 		
+		playerGrewDemonicCock = false;
+		
 		resetRequests();
 		
 		// Brax:
@@ -96,6 +100,8 @@ public class SexFlags implements Serializable {
 		requestedFaceToWall = false;
 		requestedKneeling = false;
 		requestedSelfKneeling = false;
+		requestedMissionary = false;
+		requestedMissionaryOnBack = false;
 	}
 
 }

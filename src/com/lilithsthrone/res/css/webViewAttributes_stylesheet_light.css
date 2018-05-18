@@ -1,6 +1,6 @@
 html {
 	background: #fcfcfc;
-    font-family:Calibri;
+	font-family:Calibri,Carlito;
 	font-size:11pt;
 	font-size:7vw; /*font-size:2vw;*/
 	color: #262626;
@@ -151,8 +151,6 @@ h6{
 	box-sizing: border-box;
 }
 
-
-
 .icon {
 	position:relative;
 	float:left;
@@ -165,7 +163,10 @@ h6{
 	box-sizing: border-box;
 }
 .icon.small {
-	width:12%;
+	width:10%;
+}
+.icon.effect {
+	width:10.5%;
 }
 .icon-content {
 	position: absolute;
@@ -225,6 +226,7 @@ h6{
 /*EVENT LOG*/
 
 .event-log {
+	word-wrap: break-word;
 	box-sizing:border-box;
 	display: flex;
 	flex-flow: column;
@@ -243,7 +245,7 @@ h6{
 	box-sizing:border-box;
 	border-radius: 5px;
 	background: #ddd;
-    font-family:Calibri;
+	font-family:Calibri,Carlito;
 	font-size:11pt;
 	width:100%;
 	overflow-y: scroll;
@@ -406,10 +408,9 @@ h6{
 	float:left;
 	display:inline-block;
 	background-color:#F0F0F0;
-	width:100%;
+	width:66.666%;
 	margin:0;
 	padding:0;
-	bottom:8px;
 	border-radius:5px;
 	-webkit-user-select: none;
 }
@@ -425,13 +426,25 @@ h6{
 	position:relative;
 	float:left;
 	border-radius: 5px;
-	width:18%;
+	width:23%;
 	margin:1%;
 	-webkit-box-sizing: border-box;
 }
+
+.inventory-equipped.accessories{
+	float:left;
+	background-color:#ccc;
+	text-align: center;
+	width:33.333%;
+	margin:0;
+	padding:0;
+	border-radius:5px;
+	-webkit-user-select: none;
+}
+
 .inventory-item-slot.piercing{
-	width:23%;
-	margin:1%;
+	width:40%;
+	margin:5%;
 }
 .inventory-item-slot.weapon{
 	width:46%;
@@ -446,7 +459,7 @@ h6{
 	display: block;
 	padding-bottom: 100%;
 }
-.inventory-item-slot.disabled{
+.inventory-item-slot.disabled, .inventory-item-slot.piercing.disabled {
 	background: repeating-linear-gradient(
 	  135deg,
 	  #555,
@@ -454,6 +467,9 @@ h6{
 	  #ddd 10px,
 	  #ddd 20px
 	);
+}
+.inventory-item-slot.concealed, .inventory-item-slot.piercing.concealed {
+	background: #555;
 }
 .inventory-icon-content {
 	position: absolute;
@@ -499,6 +515,14 @@ h6{
 	height:40%;
 	left:0;
 	bottom:0;
+	pointer-events: none;
+	-webkit-user-select: none;
+}
+.concealedIcon{
+	position:absolute;
+	width:40%;
+	height:40%;
+	right:0;
 	pointer-events: none;
 	-webkit-user-select: none;
 }

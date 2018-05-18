@@ -7,8 +7,10 @@ import com.lilithsthrone.game.sex.OrificeType;
 import com.lilithsthrone.game.sex.PenetrationType;
 import com.lilithsthrone.game.sex.Sex;
 import com.lilithsthrone.game.sex.SexPace;
+import com.lilithsthrone.game.sex.SexParticipantType;
 import com.lilithsthrone.game.sex.sexActions.SexAction;
 import com.lilithsthrone.game.sex.sexActions.SexActionType;
+import com.lilithsthrone.main.Main;
 
 /**
  * @since 0.1.79
@@ -22,8 +24,9 @@ public class PlayerSelfTailVagina {
 			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.ONE_MINIMUM,
 			CorruptionLevel.ZERO_PURE,
-			PenetrationType.TAIL_PLAYER,
-			OrificeType.VAGINA_PLAYER) {
+			PenetrationType.TAIL,
+			OrificeType.VAGINA,
+			SexParticipantType.SELF) {
 		
 		@Override
 		public String getActionTitle() {
@@ -54,14 +57,15 @@ public class PlayerSelfTailVagina {
 			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.ONE_MINIMUM,
 			CorruptionLevel.ZERO_PURE,
-			PenetrationType.TAIL_PLAYER,
-			OrificeType.VAGINA_PLAYER,
+			PenetrationType.TAIL,
+			OrificeType.VAGINA,
+			SexParticipantType.SELF,
 			SexPace.DOM_GENTLE,
 			null) {
 		
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isPlayerDom();
+			return Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
@@ -93,14 +97,15 @@ public class PlayerSelfTailVagina {
 			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.ONE_MINIMUM,
 			CorruptionLevel.ZERO_PURE,
-			PenetrationType.TAIL_PLAYER,
-			OrificeType.VAGINA_PLAYER,
+			PenetrationType.TAIL,
+			OrificeType.VAGINA,
+			SexParticipantType.SELF,
 			SexPace.DOM_NORMAL,
 			null) {
 		
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isPlayerDom();
+			return Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
@@ -132,14 +137,15 @@ public class PlayerSelfTailVagina {
 			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.ONE_MINIMUM,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.TAIL_PLAYER,
-			OrificeType.VAGINA_PLAYER,
+			PenetrationType.TAIL,
+			OrificeType.VAGINA,
+			SexParticipantType.SELF,
 			SexPace.DOM_ROUGH,
 			null) {
 		
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isPlayerDom();
+			return Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
@@ -171,14 +177,15 @@ public class PlayerSelfTailVagina {
 			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.ONE_MINIMUM,
 			CorruptionLevel.ZERO_PURE,
-			PenetrationType.TAIL_PLAYER,
-			OrificeType.VAGINA_PLAYER,
+			PenetrationType.TAIL,
+			OrificeType.VAGINA,
+			SexParticipantType.SELF,
 			SexPace.SUB_NORMAL,
 			null) {
 		
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return !Sex.isPlayerDom();
+			return !Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
@@ -210,14 +217,15 @@ public class PlayerSelfTailVagina {
 			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.ONE_MINIMUM,
 			CorruptionLevel.ZERO_PURE,
-			PenetrationType.TAIL_PLAYER,
-			OrificeType.VAGINA_PLAYER,
+			PenetrationType.TAIL,
+			OrificeType.VAGINA,
+			SexParticipantType.SELF,
 			SexPace.SUB_EAGER,
 			null) {
 		
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return !Sex.isPlayerDom();
+			return !Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
@@ -249,8 +257,9 @@ public class PlayerSelfTailVagina {
 			ArousalIncrease.ONE_MINIMUM,
 			ArousalIncrease.ONE_MINIMUM,
 			CorruptionLevel.ZERO_PURE,
-			PenetrationType.TAIL_PLAYER,
-			OrificeType.VAGINA_PLAYER) {
+			PenetrationType.TAIL,
+			OrificeType.VAGINA,
+			SexParticipantType.SELF) {
 		
 		@Override
 		public String getActionTitle() {

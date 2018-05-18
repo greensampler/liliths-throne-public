@@ -2,27 +2,28 @@ package com.lilithsthrone.game.character.npc.dominion;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.lilithsthrone.game.character.CharacterImportSetting;
 import com.lilithsthrone.game.character.CharacterUtils;
 import com.lilithsthrone.game.character.GameCharacter;
-import com.lilithsthrone.game.character.Name;
 import com.lilithsthrone.game.character.attributes.Attribute;
-import com.lilithsthrone.game.character.body.CoverableArea;
-import com.lilithsthrone.game.character.effects.Fetish;
 import com.lilithsthrone.game.character.effects.StatusEffect;
+import com.lilithsthrone.game.character.fetishes.Fetish;
+import com.lilithsthrone.game.character.fetishes.FetishDesire;
 import com.lilithsthrone.game.character.gender.Gender;
 import com.lilithsthrone.game.character.gender.GenderPreference;
 import com.lilithsthrone.game.character.npc.NPC;
+import com.lilithsthrone.game.character.persona.Name;
 import com.lilithsthrone.game.character.race.Race;
 import com.lilithsthrone.game.character.race.RaceStage;
 import com.lilithsthrone.game.character.race.RacialBody;
-import com.lilithsthrone.game.combat.Attack;
+import com.lilithsthrone.game.combat.Spell;
+import com.lilithsthrone.game.combat.SpellUpgrade;
 import com.lilithsthrone.game.dialogue.DialogueNodeOld;
-import com.lilithsthrone.game.dialogue.npcDialogue.DominionSuccubusDialogue;
+import com.lilithsthrone.game.dialogue.npcDialogue.dominion.DominionSuccubusDialogue;
 import com.lilithsthrone.game.dialogue.responses.Response;
 import com.lilithsthrone.game.dialogue.utils.UtilText;
 import com.lilithsthrone.game.inventory.CharacterInventory;
@@ -33,8 +34,7 @@ import com.lilithsthrone.game.inventory.item.ItemType;
 import com.lilithsthrone.game.sex.OrificeType;
 import com.lilithsthrone.game.sex.PenetrationType;
 import com.lilithsthrone.game.sex.Sex;
-import com.lilithsthrone.game.sex.SexPosition;
-import com.lilithsthrone.game.sex.SexType;
+import com.lilithsthrone.game.sex.SexPace;
 import com.lilithsthrone.main.Main;
 import com.lilithsthrone.utils.Colour;
 import com.lilithsthrone.utils.Util;
@@ -44,7 +44,7 @@ import com.lilithsthrone.world.places.PlaceType;
 
 /**
  * @since 0.1.69
- * @version 0.1.95
+ * @version 0.2.2
  * @author Innoxia
  */
 public class DominionSuccubusAttacker extends NPC {
@@ -55,15 +55,11 @@ public class DominionSuccubusAttacker extends NPC {
 		this(false);
 	}
 	
-	private DominionSuccubusAttacker(boolean isImported) {
+	public DominionSuccubusAttacker(boolean isImported) {
 		super(null, "", 5, Gender.F_V_B_FEMALE, RacialBody.DEMON, RaceStage.GREATER,
 				new CharacterInventory(10), WorldType.DOMINION, PlaceType.DOMINION_BACK_ALLEYS, false);
 
 		if(!isImported) {
-			setAttribute(Attribute.STRENGTH, (int)(this.getAttributeValue(Attribute.STRENGTH) * (0.75f + (Math.random()/2))));
-			setAttribute(Attribute.INTELLIGENCE, (int)(this.getAttributeValue(Attribute.INTELLIGENCE) * (0.75f + (Math.random()/2))));
-			setAttribute(Attribute.FITNESS, (int)(this.getAttributeValue(Attribute.FITNESS) * (0.75f + (Math.random()/2))));
-			setAttribute(Attribute.CORRUPTION, 100);
 			
 			this.setWorldLocation(Main.game.getPlayer().getWorldLocation());
 			this.setLocation(new Vector2i(Main.game.getPlayer().getLocation().getX(), Main.game.getPlayer().getLocation().getY()));
@@ -71,6 +67,7 @@ public class DominionSuccubusAttacker extends NPC {
 			// BODY RANDOMISATION:
 			addFetish(Fetish.FETISH_DEFLOWERING);
 			addFetish(Fetish.FETISH_DOMINANT);
+			CharacterUtils.addFetishes(this);
 			
 			if(!GenderPreference.getGenderFromUserPreferences().isFeminine()) {
 				this.setBody(Gender.M_P_MALE, RacialBody.DEMON, RaceStage.GREATER);
@@ -93,6 +90,7 @@ public class DominionSuccubusAttacker extends NPC {
 			// Set random inventory & weapons:
 			resetInventory();
 			inventory.setMoney(50);
+			CharacterUtils.generateItemsInInventory(this);
 			
 			// CLOTHING:
 			
@@ -100,21 +98,23 @@ public class DominionSuccubusAttacker extends NPC {
 			
 			CharacterUtils.applyMakeup(this, true);
 			
+			this.addSpell(Spell.ARCANE_AROUSAL);
+			this.addSpell(Spell.TELEPATHIC_COMMUNICATION);
+			this.addSpellUpgrade(SpellUpgrade.TELEPATHIC_COMMUNICATION_1);
+			
 			setMana(getAttributeValue(Attribute.MANA_MAXIMUM));
 			setHealth(getAttributeValue(Attribute.HEALTH_MAXIMUM));
-			setStamina(getAttributeValue(Attribute.STAMINA_MAXIMUM));
 		}
 
 		this.setEnslavementDialogue(DominionSuccubusDialogue.ENSLAVEMENT_DIALOGUE);
 	}
 	
 	@Override
-	public DominionSuccubusAttacker loadFromXML(Element parentElement, Document doc) {
-		DominionSuccubusAttacker npc = new  DominionSuccubusAttacker(true);
-
-		loadNPCVariablesFromXML(npc, null, parentElement, doc);
-		
-		return npc;
+	public void loadFromXML(Element parentElement, Document doc, CharacterImportSetting... settings) {
+		loadNPCVariablesFromXML(this, null, parentElement, doc, settings);
+		if(this.getFetishDesire(Fetish.FETISH_NON_CON_DOM)==FetishDesire.ONE_DISLIKE || this.getFetishDesire(Fetish.FETISH_NON_CON_DOM)==FetishDesire.ZERO_HATE) {
+			this.setFetishDesire(Fetish.FETISH_NON_CON_DOM, FetishDesire.TWO_NEUTRAL);
+		}
 	}
 	
 	@Override
@@ -169,25 +169,6 @@ public class DominionSuccubusAttacker extends NPC {
 
 	// Combat:
 
-	@Override
-	public String getCombatDescription() {
-		return UtilText.parse(this,
-				"Although strong enough to easily overpower most solitary travellers, this horny [npc.race] is finding it difficult to focus on harnessing [npc.her] arcane aura, resulting in [npc.herHim] being far weaker than a normal demon.");
-	}
-	
-	@Override
-	public Attack attackType() {
-		double rnd = Math.random();
-		
-		if (rnd < 0.1) {
-			return Attack.MAIN;
-		} else if (rnd < 0.5) {
-			return Attack.SPECIAL_ATTACK;
-		} else {
-			return Attack.SEDUCTION;
-		}
-	}
-
 	public String getItemUseEffects(AbstractItem item, GameCharacter user, GameCharacter target){
 		// Player is using an item:
 		if(user.isPlayer()){
@@ -200,7 +181,7 @@ public class DominionSuccubusAttacker extends NPC {
 				if(item.getItemType().equals(ItemType.PROMISCUITY_PILL)) {
 					
 						Main.game.getPlayer().useItem(item, target, false);
-						if(Sex.isPlayerDom()) {
+						if(Sex.isDom(Main.game.getPlayer())) {
 							return "<p>"
 									+ "Holding out a 'Promiscuity pill' to [npc.name], you tell [npc.her] to swallow it so that you don't have to worry about any unexpected pregnancies."
 									+ " Letting out a reluctant sigh, [npc.she] nevertheless takes the pill out of your hand, and, popping it out of its wrapping, [npc.she] whines at you,"
@@ -217,7 +198,7 @@ public class DominionSuccubusAttacker extends NPC {
 				} else if(item.getItemType().equals(ItemType.VIXENS_VIRILITY)) {
 
 						Main.game.getPlayer().useItem(item, target, false);
-						if(Sex.isPlayerDom()) {
+						if(Sex.isDom(Main.game.getPlayer())) {
 							return "<p>"
 									+ "Holding out a 'Vixen's Virility' pill to [npc.name], you tell [npc.her] to swallow it."
 									+ " Letting out a reluctant sigh, [npc.she] nevertheless takes the pill out of your hand, and, popping it out of its wrapping, [npc.she] whines at you,"
@@ -233,7 +214,7 @@ public class DominionSuccubusAttacker extends NPC {
 						
 				} else if(item.getItemType().equals(ItemType.POTION) || item.getItemType().equals(ItemType.ELIXIR)) {
 					
-						if(Sex.isPlayerDom()) {
+						if(Sex.isDom(Main.game.getPlayer())) {
 							Main.game.getPlayer().removeItem(item);
 							return "<p>"
 										+ "Taking your "+item.getName()+" out from your inventory, you hold it out to [npc.name]."
@@ -255,7 +236,7 @@ public class DominionSuccubusAttacker extends NPC {
 						
 				} else if(item.getItemType().equals(ItemType.FETISH_UNREFINED) || item.getItemType().equals(ItemType.FETISH_REFINED)) {
 					
-					if(Sex.isPlayerDom()) {
+					if(Sex.isDom(Main.game.getPlayer())) {
 						Main.game.getPlayer().removeItem(item);
 						return "<p>"
 									+ "Taking your "+item.getName()+" out from your inventory, you hold it out to [npc.name]."
@@ -277,7 +258,7 @@ public class DominionSuccubusAttacker extends NPC {
 					}
 					
 				} else if(item.getItemType().equals(ItemType.EGGPLANT)) {
-						if(Sex.isPlayerDom()) {
+						if(Sex.isDom(Main.game.getPlayer())) {
 							return "<p>"
 										+ "Taking the eggplant from your inventory, you hold it out to [npc.name]."
 										+ " Seeing what you're offering [npc.herHim], [npc.she] shifts about uncomfortably, "
@@ -304,63 +285,24 @@ public class DominionSuccubusAttacker extends NPC {
 			
 		// NPC is using an item:
 		}else{
-			return Sex.getPartner().useItem(item, target, false);
+			return Sex.getActivePartner().useItem(item, target, false);
 		}
 	}
-	
-	@Override
-	public String getAttackDescription(Attack attackType, boolean isHit) {
 
-		if (attackType == Attack.MAIN) {
-			if(this.isFeminine()) {
-				return UtilText.parse(this,
-						UtilText.returnStringAtRandom(
-								"[npc.Name] looks annoyed that you're trying to put up a fight, and leaps forwards to deliver a stinging slap across your face.",
-								"With an angry little click of her tongue, [npc.Name] slaps you across the face.",
-								"With a frustrated whine, [npc.Name] kicks out at your shins."));
-			} else {
-				return UtilText.parse(this,
-						UtilText.returnStringAtRandom(
-								"[npc.Name] looks annoyed that you're trying to put up a fight, and leaps forwards to deliver a solid punch to your [pc.arm].",
-								"With an angry shout, [npc.Name] darts forwards and punches you right in the chest!",
-								"With a frustrated cry, [npc.Name] kicks out at your shins."));
-			}
-			
+	@Override
+	public String getMainAttackDescription(boolean isHit) {
+		if(this.isFeminine()) {
+			return UtilText.parse(this,
+					UtilText.returnStringAtRandom(
+							"[npc.Name] looks annoyed that you're trying to put up a fight, and leaps forwards to deliver a stinging slap across your face.",
+							"With an angry little click of her tongue, [npc.Name] slaps you across the face.",
+							"With a frustrated whine, [npc.Name] kicks out at your shins."));
 		} else {
-			if(this.isFeminine()) {
-				return UtilText.parse(this,
-						UtilText.returnStringAtRandom(
-								"[npc.Name] puts on a smouldering look, and as her eyes meet yours, you hear an extremely lewd moan echoing around in your head, [npc.thought(~Aaah!~ "
-										+(this.hasVagina()
-												?"You're making me so wet!"
-												:this.hasPenis()
-													?"You're getting me so hard!"
-													:"You're turning me on so much!")+")]",
-								"[npc.Name] locks her big, innocent-looking eyes with yours, and as she pouts, you hear an echoing moan deep within your mind, [npc.thought("+
-										(this.hasVagina()
-												?"~Mmm!~ Fuck me! ~Aaa!~ My pussy's wet and ready for you!"
-												:this.hasPenis()
-													?"~Mmm!~ I can't wait to fuck you! ~Aaa!~ You're going to love my cock!"
-													:"~Mmm!~ Fuck me! ~Aaa!~ I need you so badly!")+")]",
-								"[npc.Name] pouts innocently at you, before blowing you a wet kiss. As she straightens back up, you feel a ghostly pair of wet lips press against your cheek."));
-			} else {
-				return UtilText.parse(this,
-						UtilText.returnStringAtRandom(
-								"[npc.Name] puts on a confident look, and as his eyes meet yours, you hear an extremely lewd groan echoing around in your head, [npc.thought(~Mmm!~ "
-										+(this.hasVagina()
-												?"You're making me so wet!"
-												:this.hasPenis()
-													?"You're getting me so hard!"
-													:"You're turning me on so much!")+")]",
-								"[npc.Name] locks his eyes with yours, and as he throws you a charming smile, you hear an echoing groan deep within your mind, [npc.thought("+
-										(this.hasVagina()
-												?"~Mmm!~ Fuck me! ~Aaa!~ My pussy's wet and ready for you!"
-												:this.hasPenis()
-													?"~Mmm!~ I can't wait to fuck you! You're going to love my cock!"
-													:"~Mmm!~ I cna't wait to have some fun with you!")+")]",
-								"[npc.Name] throws you a charming smile, before winking at you and striking a heroic pose. As he straightens back up, you feel a ghostly pair of arms pulling you into a strong, confident embrace."));
-			}
-			
+			return UtilText.parse(this,
+					UtilText.returnStringAtRandom(
+							"[npc.Name] looks annoyed that you're trying to put up a fight, and leaps forwards to deliver a solid punch to your [pc.arm].",
+							"With an angry shout, [npc.Name] darts forwards and punches you right in the chest!",
+							"With a frustrated cry, [npc.Name] kicks out at your shins."));
 		}
 	}
 
@@ -376,69 +318,69 @@ public class DominionSuccubusAttacker extends NPC {
 	
 	// ****************** Sex & Dirty talk: ***************************
 	
-	@Override
-	public SexType getForeplayPreference() {
-		if(Main.game.getPlayer().hasVagina() && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.VAGINA, true)) {
-			return new SexType(PenetrationType.FINGER_PARTNER, OrificeType.VAGINA_PLAYER);
-			
-		} else if(Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.ANUS, true)) {
-			return new SexType(PenetrationType.FINGER_PARTNER, OrificeType.ANUS_PLAYER);
-		}
-		
-		return foreplayPreference;
-	}
-	
-	@Override
-	public SexType getMainSexPreference() {
-		if(Main.game.getPlayer().hasVagina() && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.VAGINA, true)) {
-			return new SexType(PenetrationType.PENIS_PARTNER, OrificeType.VAGINA_PLAYER);
-			
-		} else if(Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.ANUS, true)) {
-			return new SexType(PenetrationType.PENIS_PARTNER, OrificeType.ANUS_PLAYER);
-		}
-		
-		return mainSexPreference;
-	}
-	
-	public Set<SexPosition> getSexPositionPreferences() {
-		sexPositionPreferences.clear();
-		
-		if(Sex.isInForeplay()) {
-			if(Main.game.getPlayer().hasVagina() && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.VAGINA, true)) {
-				sexPositionPreferences.add(SexPosition.BACK_TO_WALL_PLAYER);
-				sexPositionPreferences.add(SexPosition.DOGGY_PLAYER_ON_ALL_FOURS);
-				sexPositionPreferences.add(SexPosition.FACING_WALL_PLAYER);
-				
-			} else if(Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.ANUS, true)) {
-				sexPositionPreferences.add(SexPosition.DOGGY_PLAYER_ON_ALL_FOURS);
-				sexPositionPreferences.add(SexPosition.FACING_WALL_PLAYER);
-				
-			} else {
-				return super.getSexPositionPreferences();
-			}
-			
-		} else {
-			if(Main.game.getPlayer().hasVagina() && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.VAGINA, true)) {
-				sexPositionPreferences.add(SexPosition.BACK_TO_WALL_PLAYER);
-				sexPositionPreferences.add(SexPosition.DOGGY_PLAYER_ON_ALL_FOURS);
-				sexPositionPreferences.add(SexPosition.FACING_WALL_PLAYER);
-				
-			} else if(Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.ANUS, true)) {
-				sexPositionPreferences.add(SexPosition.DOGGY_PLAYER_ON_ALL_FOURS);
-				sexPositionPreferences.add(SexPosition.FACING_WALL_PLAYER);
-				
-			} else {
-				return super.getSexPositionPreferences();
-			}
-		}
-		
-		return sexPositionPreferences;
-	}
+//	@Override
+//	public SexType getForeplayPreference() {
+//		if(Main.game.getPlayer().hasVagina() && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.VAGINA, true)) {
+//			return new SexType(SexParticipantType.PITCHER, PenetrationType.FINGER, OrificeType.VAGINA);
+//			
+//		} else if(Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.ANUS, true)) {
+//			return new SexType(SexParticipantType.PITCHER, PenetrationType.FINGER, OrificeType.ANUS);
+//		}
+//		
+//		return foreplayPreference;
+//	}
+//	
+//	@Override
+//	public SexType getMainSexPreference() {
+//		if(Main.game.getPlayer().hasVagina() && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.VAGINA, true)) {
+//			return new SexType(SexParticipantType.PITCHER, PenetrationType.PENIS, OrificeType.VAGINA);
+//			
+//		} else if(Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.ANUS, true)) {
+//			return new SexType(SexParticipantType.PITCHER, PenetrationType.PENIS, OrificeType.ANUS);
+//		}
+//		
+//		return mainSexPreference;
+//	}
+//	
+//	public Set<SexPositionSlot> getSexPositionPreferences() {
+//		sexPositionPreferences.clear();
+//		
+//		if(Sex.isInForeplay()) {
+//			if(Main.game.getPlayer().hasVagina() && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.VAGINA, true)) {
+//				sexPositionPreferences.add(SexPositionSlot.BACK_TO_WALL_FACING_TARGET);
+//				sexPositionPreferences.add(SexPositionSlot.DOGGY_BEHIND);
+//				sexPositionPreferences.add(SexPositionSlot.FACE_TO_WALL_FACING_TARGET);
+//				
+//			} else if(Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.ANUS, true)) {
+//				sexPositionPreferences.add(SexPositionSlot.DOGGY_BEHIND);
+//				sexPositionPreferences.add(SexPositionSlot.FACE_TO_WALL_FACING_TARGET);
+//				
+//			} else {
+//				return super.getSexPositionPreferences();
+//			}
+//			
+//		} else {
+//			if(Main.game.getPlayer().hasVagina() && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.VAGINA, true)) {
+//				sexPositionPreferences.add(SexPositionSlot.BACK_TO_WALL_FACING_TARGET);
+//				sexPositionPreferences.add(SexPositionSlot.DOGGY_BEHIND);
+//				sexPositionPreferences.add(SexPositionSlot.FACE_TO_WALL_FACING_TARGET);
+//				
+//			} else if(Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.ANUS, true)) {
+//				sexPositionPreferences.add(SexPositionSlot.DOGGY_BEHIND);
+//				sexPositionPreferences.add(SexPositionSlot.FACE_TO_WALL_FACING_TARGET);
+//				
+//			} else {
+//				return super.getSexPositionPreferences();
+//			}
+//		}
+//		
+//		return sexPositionPreferences;
+//	}
 	
 	@Override
 	public String getCondomEquipEffects(GameCharacter equipper, GameCharacter target, boolean rough) {
 		if(Main.game.isInSex()) {
-			if((Sex.isPlayerDom() || Sex.isSubHasEqualControl()) && !target.isPlayer()) {
+			if((Sex.isDom(Main.game.getPlayer()) || Sex.isSubHasEqualControl()) && !target.isPlayer()) {
 				return "<p>"
 							+ "Holding out a condom to [npc.name], you force [npc.herHim] to take it and put it on."
 							+ " Quickly ripping it out of its little foil wrapper, [npc.she] rolls it down the length of [npc.her] [npc.cock+] as [npc.she] whines at you,"
@@ -459,14 +401,15 @@ public class DominionSuccubusAttacker extends NPC {
 				"You tear open the packet and forcefully roll the condom down the length [npc.name]'s [npc.penis].",
 				"[npc.Name] tears open the packet and rolls the condom down the length of [npc.her] [npc.penis].",
 				"[npc.Name] tears open the packet and rolls the condom down the length of your [pc.penis].",
-				"[npc.Name] tears open the packet and forcefully rolls the condom down the length of your [pc.penis].");
+				"[npc.Name] tears open the packet and forcefully rolls the condom down the length of your [pc.penis].", null, null);
 	}
 	
 	// Losing virginity:
 	private static StringBuilder StringBuilderSB;
-	public String getPlayerVaginaVirginityLossDescription(PenetrationType penetration){
-		if(penetration!=PenetrationType.PENIS_PARTNER) {
-			return super.getPlayerVaginaVirginityLossDescription(penetration);
+	@Override
+	public String getVirginityLossOrificeDescription(GameCharacter characterPenetrating, PenetrationType penetrationType, GameCharacter characterPenetrated, OrificeType orifice){
+		if(!characterPenetrated.isPlayer() || penetrationType!=PenetrationType.PENIS || orifice!=OrificeType.VAGINA || !characterPenetrating.equals(this)) {
+			return super.getVirginityLossOrificeDescription(characterPenetrating, penetrationType, characterPenetrated, orifice);
 		}
 		
 		StringBuilderSB = new StringBuilder();
@@ -597,26 +540,28 @@ public class DominionSuccubusAttacker extends NPC {
 					+ " <b style='color:"+StatusEffect.FETISH_BROKEN_VIRGIN.getColour().toWebHexString()+";'>broken virgin</b>..."
 				+ "</p>");
 		
-		return UtilText.parse(Sex.getPartner(),
+		return UtilText.parse(Sex.getActivePartner(),
 				StringBuilderSB.toString());
 	}
 	
 	// Dirty talk:
 	
 	@Override
-	public String getDirtyTalkNoPenetration(boolean isPlayerDom){
+	public String getDirtyTalkNoPenetration(GameCharacter target, boolean isPlayerDom){
 		List<String> speech = new ArrayList<>();
 		
-		if(isPlayerDom){
+		if(isPlayerDom && Sex.getSexPace(this)!=SexPace.SUB_RESISTING){
 			speech.add("Come on, fuck me already!");
 			speech.add("Come on! What's taking so long?!");
 			speech.add("Fuck me already!");
 			speech.add("Let's get started! Come on!");
-		} else {
+		} else if(!isPlayerDom) {
 			speech.add("I'm gonna turn you into a slut for demon cock!");
 			speech.add("You ever been fucked by a demon?");
 			speech.add("You're going to be begging for my cum before the end!");
 			speech.add("You're going to be a good little bitch!");
+		} else {
+			return super.getDirtyTalkNoPenetration(target, isPlayerDom);
 		}
 		
 		return speech.get(Util.random.nextInt(speech.size()));

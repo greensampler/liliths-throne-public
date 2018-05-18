@@ -10,9 +10,12 @@ import com.lilithsthrone.game.character.body.types.VaginaType;
 import com.lilithsthrone.game.character.body.valueEnums.BodyHair;
 import com.lilithsthrone.game.character.body.valueEnums.ClitorisSize;
 import com.lilithsthrone.game.character.body.valueEnums.LabiaSize;
+import com.lilithsthrone.game.character.body.valueEnums.OrificeElasticity;
 import com.lilithsthrone.game.character.body.valueEnums.OrificeModifier;
-import com.lilithsthrone.game.character.effects.Fetish;
+import com.lilithsthrone.game.character.body.valueEnums.OrificePlasticity;
+import com.lilithsthrone.game.character.body.valueEnums.Wetness;
 import com.lilithsthrone.game.character.effects.StatusEffect;
+import com.lilithsthrone.game.character.fetishes.Fetish;
 import com.lilithsthrone.game.dialogue.utils.UtilText;
 import com.lilithsthrone.game.sex.OrificeType;
 import com.lilithsthrone.game.sex.Sex;
@@ -21,7 +24,7 @@ import com.lilithsthrone.utils.Util;
 
 /**
  * @since 0.1.0
- * @version 0.1.83
+ * @version 0.2.2
  * @author Innoxia
  */
 public class Vagina implements BodyPartInterface, Serializable {
@@ -35,6 +38,7 @@ public class Vagina implements BodyPartInterface, Serializable {
 	
 	protected OrificeVagina orificeVagina;
 	protected FluidGirlCum girlcum;
+	protected OrificeVaginaUrethra orificeUrethra;
 
 	public Vagina(VaginaType type, int labiaSize, int clitSize, int wetness, float capacity, int elasticity, int plasticity, boolean virgin) {
 		this.type = type;
@@ -43,6 +47,8 @@ public class Vagina implements BodyPartInterface, Serializable {
 		pierced = false;
 		
 		orificeVagina = new OrificeVagina(wetness, capacity, elasticity, plasticity, virgin, type.getDefaultRacialOrificeModifiers());
+
+		orificeUrethra = new OrificeVaginaUrethra(Wetness.TWO_MOIST.getValue(), 0, OrificeElasticity.ZERO_UNYIELDING.getValue(), OrificePlasticity.THREE_RESILIENT.getValue(), true, new ArrayList<>());
 		
 		girlcum = new FluidGirlCum(type.getFluidType());
 	}
@@ -53,6 +59,10 @@ public class Vagina implements BodyPartInterface, Serializable {
 
 	public FluidGirlCum getGirlcum() {
 		return girlcum;
+	}
+	
+	public OrificeVaginaUrethra getOrificeUrethra() {
+		return orificeUrethra;
 	}
 
 	@Override
@@ -90,18 +100,30 @@ public class Vagina implements BodyPartInterface, Serializable {
 		
 		String wetnessDescriptor = orificeVagina.getWetness(owner).getDescriptor();
 		if(Main.game.isInSex()) {
-			if(owner.isPlayer() && !Sex.getWetOrificeTypes().get(OrificeType.VAGINA_PLAYER).isEmpty()) {
-				wetnessDescriptor = "wet";
-			} else if(!owner.isPlayer() && !Sex.getWetOrificeTypes().get(OrificeType.VAGINA_PARTNER).isEmpty()) {
+			if(!Sex.getWetOrificeTypes(owner).get(OrificeType.VAGINA).isEmpty()) {
 				wetnessDescriptor = "wet";
 			}
 		}
 		descriptorList.add(wetnessDescriptor);
-		if((owner.getPubicHair()==BodyHair.SIX_BUSHY || owner.getPubicHair()==BodyHair.FIVE_UNKEMPT) && Main.game.isBodyHairEnabled()) {
+		if((owner.getPubicHair()==BodyHair.SIX_BUSHY || owner.getPubicHair()==BodyHair.FIVE_UNKEMPT) && Main.game.isPubicHairEnabled()) {
 			descriptorList.add("hairy");
 		}
 		descriptorList.add(type.getDescriptor(owner));
 		descriptorList.add(orificeVagina.getCapacity().getDescriptor());
+		
+		return UtilText.returnStringAtRandom(descriptorList.toArray(new String[]{}));
+	}
+	
+	public String getUrethraDescriptor(GameCharacter owner) {
+		List<String> descriptorList = new ArrayList<>();
+		
+		for(OrificeModifier om : orificeUrethra.getOrificeModifiers()) {
+			descriptorList.add(om.getName());
+		}
+		
+		descriptorList.add(type.getDescriptor(owner));
+		
+		descriptorList.add(orificeUrethra.getCapacity().getDescriptor());
 		
 		return UtilText.returnStringAtRandom(descriptorList.toArray(new String[]{}));
 	}
@@ -329,6 +351,7 @@ public class Vagina implements BodyPartInterface, Serializable {
 				}
 				
 				owner.setVaginaVirgin(true);
+				orificeUrethra.setVirgin(true);
 				owner.setPiercedVagina(false);
 				break;
 			case HUMAN:
@@ -388,12 +411,49 @@ public class Vagina implements BodyPartInterface, Serializable {
 							+ "</p>"));
 				}
 				break;
+			case IMP:
+				if(owner.isPlayer()) {
+					UtilText.transformationContentSB.append(
+								" You let out a squeal of excitement as a wave of pleasure runs up from your groin, and you feel your slit shifting and contracting with a mind of its own."
+								+ " A strange, bubbling sensation starts running down deep into your cunt, and you let out a lewd moan as you feel rows of little wriggling tentacles grow out to line your inner vaginal walls."
+								+ " Gasping for breath, you feel a new set of muscles forming within your pussy, and with an experimental squeeze, you discover that you have an incredible amount of control over your pussy's new additions."
+								+ " With one last shiver of pleasure, your pussy reshapes its exterior into the most perfect-looking vagina you've ever seen."
+							+ "</p>"
+							+ "<p>"
+								+ "Just as you think that the transformation has come to an end, your pussy's new tentacles and muscles involuntarily clench down,"
+									+ " and a desperate squeal escapes from between your [pc.lips+] as a warm, tingling feeling spreads up through your lower abdomen."
+								+ " Images of fat impish cocks slamming deep into your new pussy flash before your eyes, and your squeal turns into a satisfied moan as you imagine them pumping their tainted seed deep into your impish womb."
+								+ " Just as quickly as they came, the images fade from your mind, and as one last wave of tingling pleasure washes through your body, you feel your female reproductive organs finishing their transformation."
+								+ "</br>"
+								+ "You now have an [style.boldImp(impish vagina)], with [pc.pussyColourPrimary(true)] labia and [pc.pussyColourSecondary(true)] internal walls."
+							+ "</p>");
+				} else {
+					UtilText.transformationContentSB.append(UtilText.parse(owner,
+								" [npc.She] lets out a squeal of excitement as a wave of pleasure runs up through [npc.her] groin, and as [npc.she] feels [npc.her] slit shifting and contracting with a mind of its own,"
+										+ " [npc.she] desperately clamps [npc.her] [npc.legs] shut."
+								+ " A strange, bubbling sensation starts running down deep into [npc.her] cunt, and [npc.she] lets out a lewd moan as [npc.she] feels rows of little wriggling tentacles grow out to line [npc.her] inner vaginal walls."
+								+ " Gasping for breath, [npc.she] feels a new set of muscles forming within [npc.her] pussy, and with an experimental squeeze,"
+									+ " [npc.she] discovers that [npc.she] has an incredible amount of control over [npc.her] pussy's new additions."
+								+ " With one last shiver of pleasure, [npc.her] pussy reshapes its exterior into an absolutely perfect-looking vagina."
+							+ "</p>"
+							+ "<p>"
+								+ "Just as [npc.she] starts think that the transformation has come to an end, [npc.her] pussy's new tentacles and muscles involuntarily clench down,"
+									+ " and a desperate squeal escapes from between [npc.her] [npc.lips+] as a warm, tingling feeling spreads up through [npc.her] lower abdomen."
+								+ " Images of fat impish cocks slamming deep into [npc.her] new pussy flash before [npc.her] eyes,"
+									+ " and [npc.her] squeal turns into a satisfied moan as [npc.she] imagines them pumping their tainted seed deep into [npc.her] impish womb."
+								+ " Just as quickly as they came, the images fade from [npc.her] mind, and as one last wave of tingling pleasure washes through [npc.her] body,"
+									+ " [npc.she] feels [npc.her] female reproductive organs finishing their transformation."
+								+ "</br>"
+								+ "[npc.Name] now has an [style.boldImp(impish vagina)], with [npc.pussyColourPrimary(true)] labia and [npc.pussyColourSecondary(true)] internal walls."
+							+ "</p>"));
+				}
+				break;
 			case DOG_MORPH:
 				if(owner.isPlayer()) {
 					UtilText.transformationContentSB.append(
 							" You let out a squeal of excitement as a wave of pleasure runs up from your groin, and you feel your slit shifting and contracting with a mind of its own."
 							+ " Within moments, the feeling fades away, and you discover that your pussy has shaped itself into a that of a dog-morph."
-							+ " Although it looks like a normal human pussy, a short layer of soft "+owner.getCovering(type.getBodyCoveringType()).getColourDescriptor(false, false)
+							+ " Although it looks like a normal human pussy, a short layer of soft "+owner.getCovering(type.getBodyCoveringType(owner)).getColourDescriptor(owner, false, false)
 								+" fur has grown around it, giving your feminine sex a rather animalistic appearance."
 						+ "</p>"
 						+ "<p>"
@@ -409,7 +469,7 @@ public class Vagina implements BodyPartInterface, Serializable {
 							" [npc.She] lets out a squeal of excitement as a wave of pleasure runs up through [npc.her] groin, and as [npc.she] feels [npc.her] slit shifting and contracting with a mind of its own,"
 									+ " [npc.she] desperately clamps [npc.her] [npc.legs] shut."
 							+ " Within moments, the feeling fades away, and [npc.she] discovers that [npc.her] pussy has shaped itself into a that of a dog-morph."
-							+ " Although it looks like a normal human pussy, a short layer of soft "+owner.getCovering(type.getBodyCoveringType()).getColourDescriptor(false, false)
+							+ " Although it looks like a normal human pussy, a short layer of soft "+owner.getCovering(type.getBodyCoveringType(owner)).getColourDescriptor(owner, false, false)
 								+" fur has grown around it, giving [npc.her] feminine sex a rather animalistic appearance."
 						+ "</p>"
 						+ "<p>"
@@ -429,7 +489,7 @@ public class Vagina implements BodyPartInterface, Serializable {
 					UtilText.transformationContentSB.append(
 							" You let out a squeal of excitement as a wave of pleasure runs up from your groin, and you feel your slit shifting and contracting with a mind of its own."
 							+ " Within moments, the feeling fades away, and you discover that your pussy has shaped itself into a that of a wolf-morph."
-							+ " Although it looks like a normal human pussy, a short layer of soft "+owner.getCovering(type.getBodyCoveringType()).getColourDescriptor(false, false)
+							+ " Although it looks like a normal human pussy, a short layer of soft "+owner.getCovering(type.getBodyCoveringType(owner)).getColourDescriptor(owner, false, false)
 								+" fur has grown around it, giving your feminine sex a rather animalistic appearance."
 						+ "</p>"
 						+ "<p>"
@@ -445,7 +505,7 @@ public class Vagina implements BodyPartInterface, Serializable {
 							" [npc.She] lets out a squeal of excitement as a wave of pleasure runs up through [npc.her] groin, and as [npc.she] feels [npc.her] slit shifting and contracting with a mind of its own,"
 									+ " [npc.she] desperately clamps [npc.her] [npc.legs] shut."
 							+ " Within moments, the feeling fades away, and [npc.she] discovers that [npc.her] pussy has shaped itself into a that of a wolf-morph."
-							+ " Although it looks like a normal human pussy, a short layer of soft "+owner.getCovering(type.getBodyCoveringType()).getColourDescriptor(false, false)
+							+ " Although it looks like a normal human pussy, a short layer of soft "+owner.getCovering(type.getBodyCoveringType(owner)).getColourDescriptor(owner, false, false)
 								+" fur has grown around it, giving [npc.her] feminine sex a rather animalistic appearance."
 						+ "</p>"
 						+ "<p>"
@@ -465,7 +525,7 @@ public class Vagina implements BodyPartInterface, Serializable {
 					UtilText.transformationContentSB.append(
 							" You let out a squeal of excitement as a wave of pleasure runs up from your groin, and you feel your slit shifting and contracting with a mind of its own."
 							+ " Within moments, the feeling fades away, and you discover that your pussy has shaped itself into a that of a cat-morph."
-							+ " Although it looks like a normal human pussy, a short layer of soft "+owner.getCovering(type.getBodyCoveringType()).getColourDescriptor(false, false)
+							+ " Although it looks like a normal human pussy, a short layer of soft "+owner.getCovering(type.getBodyCoveringType(owner)).getColourDescriptor(owner, false, false)
 								+" fur has grown around it, giving your feminine sex a rather animalistic appearance."
 						+ "</p>"
 						+ "<p>"
@@ -481,7 +541,7 @@ public class Vagina implements BodyPartInterface, Serializable {
 							" [npc.She] lets out a squeal of excitement as a wave of pleasure runs up through [npc.her] groin, and as [npc.she] feels [npc.her] slit shifting and contracting with a mind of its own,"
 									+ " [npc.she] desperately clamps [npc.her] [npc.legs] shut."
 							+ " Within moments, the feeling fades away, and [npc.she] discovers that [npc.her] pussy has shaped itself into a that of a cat-morph."
-							+ " Although it looks like a normal human pussy, a short layer of soft "+owner.getCovering(type.getBodyCoveringType()).getColourDescriptor(false, false)
+							+ " Although it looks like a normal human pussy, a short layer of soft "+owner.getCovering(type.getBodyCoveringType(owner)).getColourDescriptor(owner, false, false)
 								+" fur has grown around it, giving [npc.her] feminine sex a rather animalistic appearance."
 						+ "</p>"
 						+ "<p>"
@@ -501,7 +561,7 @@ public class Vagina implements BodyPartInterface, Serializable {
 					UtilText.transformationContentSB.append(
 							" You let out a squeal of excitement as a wave of pleasure runs up from your groin, and you feel your slit shifting and contracting with a mind of its own."
 							+ " Within moments, the feeling fades away, and you discover that your pussy has shaped itself into a that of a squirrel-morph."
-							+ " Although it looks like a normal human pussy, a short layer of soft "+owner.getCovering(type.getBodyCoveringType()).getColourDescriptor(false, false)
+							+ " Although it looks like a normal human pussy, a short layer of soft "+owner.getCovering(type.getBodyCoveringType(owner)).getColourDescriptor(owner, false, false)
 								+" fur has grown around it, giving your feminine sex a rather animalistic appearance."
 						+ "</p>"
 						+ "<p>"
@@ -517,7 +577,7 @@ public class Vagina implements BodyPartInterface, Serializable {
 							" [npc.She] lets out a squeal of excitement as a wave of pleasure runs up through [npc.her] groin, and as [npc.she] feels [npc.her] slit shifting and contracting with a mind of its own,"
 									+ " [npc.she] desperately clamps [npc.her] [npc.legs] shut."
 							+ " Within moments, the feeling fades away, and [npc.she] discovers that [npc.her] pussy has shaped itself into a that of a squirrel-morph."
-							+ " Although it looks like a normal human pussy, a short layer of soft "+owner.getCovering(type.getBodyCoveringType()).getColourDescriptor(false, false)
+							+ " Although it looks like a normal human pussy, a short layer of soft "+owner.getCovering(type.getBodyCoveringType(owner)).getColourDescriptor(owner, false, false)
 								+" fur has grown around it, giving [npc.her] feminine sex a rather animalistic appearance."
 						+ "</p>"
 						+ "<p>"
@@ -529,6 +589,114 @@ public class Vagina implements BodyPartInterface, Serializable {
 								+ " [npc.she] feels [npc.her] female reproductive organs finishing their transformation."
 							+ "</br>"
 							+ "[npc.Name] now has a [style.boldSquirrelMorph(squirrel-morph's vagina)], with [npc.pussyColourPrimary(true)] labia and [npc.pussyColourSecondary(true)] internal walls."
+						+ "</p>"));
+				}
+				break;
+			case RAT_MORPH:
+				if(owner.isPlayer()) {
+					UtilText.transformationContentSB.append(
+							" You let out a squeal of excitement as a wave of pleasure runs up from your groin, and you feel your slit shifting and contracting with a mind of its own."
+							+ " Within moments, the feeling fades away, and you discover that your pussy has shaped itself into a that of a rat-morph."
+							+ " Although it looks like a normal human pussy, a short layer of soft "+owner.getCovering(type.getBodyCoveringType(owner)).getColourDescriptor(owner, false, false)
+								+" fur has grown around it, giving your feminine sex a rather animalistic appearance."
+						+ "</p>"
+						+ "<p>"
+							+ "Just as you think that the transformation has come to an end, your pussy involuntarily clenches down,"
+								+ " and a desperate squeal escapes from between your [pc.lips+] as a warm, tingling feeling spreads up through your lower abdomen."
+							+ " Images of rat-like cocks slamming deep into your new pussy flash before your eyes, and your squeal turns into a satisfied moan as you imagine them pumping their potent seed deep into your rodent womb."
+							+ " Just as quickly as they came, the images fade from your mind, and as one last wave of tingling pleasure washes through your body, you feel your female reproductive organs finishing their transformation."
+							+ "</br>"
+							+ "You now have a [style.boldRatMorph(rat-morph's vagina)], with [pc.pussyColourPrimary(true)] labia and [pc.pussyColourSecondary(true)] internal walls."
+						+ "</p>");
+				} else {
+					UtilText.transformationContentSB.append(UtilText.parse(owner, 
+							" [npc.She] lets out a squeal of excitement as a wave of pleasure runs up through [npc.her] groin, and as [npc.she] feels [npc.her] slit shifting and contracting with a mind of its own,"
+									+ " [npc.she] desperately clamps [npc.her] [npc.legs] shut."
+							+ " Within moments, the feeling fades away, and [npc.she] discovers that [npc.her] pussy has shaped itself into a that of a rat-morph."
+							+ " Although it looks like a normal human pussy, a short layer of soft "+owner.getCovering(type.getBodyCoveringType(owner)).getColourDescriptor(owner, false, false)
+								+" fur has grown around it, giving [npc.her] feminine sex a rather animalistic appearance."
+						+ "</p>"
+						+ "<p>"
+							+ "Just as [npc.she] starts think that the transformation has come to an end, [npc.her] pussy involuntarily clenches down,"
+								+ " and a desperate squeal escapes from between [npc.her] [npc.lips+] as a warm, tingling feeling spreads up through [npc.her] lower abdomen."
+							+ " Images of rat-like cocks slamming deep into [npc.her] new pussy flash before [npc.her] eyes,"
+								+ " and [npc.her] squeal turns into a satisfied moan as [npc.she] imagines them pumping their potent seed deep into [npc.her] rodent womb."
+							+ " Just as quickly as they came, the images fade from [npc.her] mind, and as one last wave of tingling pleasure washes through [npc.her] body,"
+								+ " [npc.she] feels [npc.her] female reproductive organs finishing their transformation."
+							+ "</br>"
+							+ "[npc.Name] now has a [style.boldRatMorph(rat-morph's vagina)], with [npc.pussyColourPrimary(true)] labia and [npc.pussyColourSecondary(true)] internal walls."
+						+ "</p>"));
+				}
+				break;
+			case RABBIT_MORPH:
+				if(owner.isPlayer()) {
+					UtilText.transformationContentSB.append(
+							" You let out a squeal of excitement as a wave of pleasure runs up from your groin, and you feel your slit shifting and contracting with a mind of its own."
+							+ " Within moments, the feeling fades away, and you discover that your pussy has shaped itself into a that of a rabbit-morph."
+							+ " Although it looks like a normal human pussy, a short layer of soft "+owner.getCovering(type.getBodyCoveringType(owner)).getColourDescriptor(owner, false, false)
+								+" fur has grown around it, giving your feminine sex a rather animalistic appearance."
+						+ "</p>"
+						+ "<p>"
+							+ "Just as you think that the transformation has come to an end, your pussy involuntarily clenches down,"
+								+ " and a desperate squeal escapes from between your [pc.lips+] as a warm, tingling feeling spreads up through your lower abdomen."
+							+ " Images of rabbit-like cocks slamming deep into your new pussy flash before your eyes, and your squeal turns into a satisfied moan as you imagine them pumping their potent seed deep into your fertile womb."
+							+ " Just as quickly as they came, the images fade from your mind, and as one last wave of tingling pleasure washes through your body, you feel your female reproductive organs finishing their transformation."
+							+ "</br>"
+							+ "You now have a [style.boldRabbitMorph(rabbit-morph's vagina)], with [pc.pussyColourPrimary(true)] labia and [pc.pussyColourSecondary(true)] internal walls."
+						+ "</p>");
+				} else {
+					UtilText.transformationContentSB.append(UtilText.parse(owner, 
+							" [npc.She] lets out a squeal of excitement as a wave of pleasure runs up through [npc.her] groin, and as [npc.she] feels [npc.her] slit shifting and contracting with a mind of its own,"
+									+ " [npc.she] desperately clamps [npc.her] [npc.legs] shut."
+							+ " Within moments, the feeling fades away, and [npc.she] discovers that [npc.her] pussy has shaped itself into a that of a rabbit-morph."
+							+ " Although it looks like a normal human pussy, a short layer of soft "+owner.getCovering(type.getBodyCoveringType(owner)).getColourDescriptor(owner, false, false)
+								+" fur has grown around it, giving [npc.her] feminine sex a rather animalistic appearance."
+						+ "</p>"
+						+ "<p>"
+							+ "Just as [npc.she] starts think that the transformation has come to an end, [npc.her] pussy involuntarily clenches down,"
+								+ " and a desperate squeal escapes from between [npc.her] [npc.lips+] as a warm, tingling feeling spreads up through [npc.her] lower abdomen."
+							+ " Images of rabbit-like cocks slamming deep into [npc.her] new pussy flash before [npc.her] eyes,"
+								+ " and [npc.her] squeal turns into a satisfied moan as [npc.she] imagines them pumping their potent seed deep into [npc.her] fertile womb."
+							+ " Just as quickly as they came, the images fade from [npc.her] mind, and as one last wave of tingling pleasure washes through [npc.her] body,"
+								+ " [npc.she] feels [npc.her] female reproductive organs finishing their transformation."
+							+ "</br>"
+							+ "[npc.Name] now has a [style.boldRabbitMorph(rabbit-morph's vagina)], with [npc.pussyColourPrimary(true)] labia and [npc.pussyColourSecondary(true)] internal walls."
+						+ "</p>"));
+				}
+				break;
+			case BAT_MORPH:
+				if(owner.isPlayer()) {
+					UtilText.transformationContentSB.append(
+							" You let out a squeal of excitement as a wave of pleasure runs up from your groin, and you feel your slit shifting and contracting with a mind of its own."
+							+ " Within moments, the feeling fades away, and you discover that your pussy has shaped itself into a that of a bat-morph."
+							+ " Although it looks like a normal human pussy, a short layer of soft "+owner.getCovering(type.getBodyCoveringType(owner)).getColourDescriptor(owner, false, false)
+								+" fur has grown around it, giving your feminine sex a rather animalistic appearance."
+						+ "</p>"
+						+ "<p>"
+							+ "Just as you think that the transformation has come to an end, your pussy involuntarily clenches down,"
+								+ " and a desperate squeal escapes from between your [pc.lips+] as a warm, tingling feeling spreads up through your lower abdomen."
+							+ " Images of bat-like cocks slamming deep into your new pussy flash before your eyes, and your squeal turns into a satisfied moan as you imagine them pumping their potent seed deep into your womb."
+							+ " Just as quickly as they came, the images fade from your mind, and as one last wave of tingling pleasure washes through your body, you feel your female reproductive organs finishing their transformation."
+							+ "</br>"
+							+ "You now have a [style.boldBatMorph(bat-morph's vagina)], with [pc.pussyColourPrimary(true)] labia and [pc.pussyColourSecondary(true)] internal walls."
+						+ "</p>");
+				} else {
+					UtilText.transformationContentSB.append(UtilText.parse(owner, 
+							" [npc.She] lets out a squeal of excitement as a wave of pleasure runs up through [npc.her] groin, and as [npc.she] feels [npc.her] slit shifting and contracting with a mind of its own,"
+									+ " [npc.she] desperately clamps [npc.her] [npc.legs] shut."
+							+ " Within moments, the feeling fades away, and [npc.she] discovers that [npc.her] pussy has shaped itself into a that of a bat-morph."
+							+ " Although it looks like a normal human pussy, a short layer of soft "+owner.getCovering(type.getBodyCoveringType(owner)).getColourDescriptor(owner, false, false)
+								+" fur has grown around it, giving [npc.her] feminine sex a rather animalistic appearance."
+						+ "</p>"
+						+ "<p>"
+							+ "Just as [npc.she] starts think that the transformation has come to an end, [npc.her] pussy involuntarily clenches down,"
+								+ " and a desperate squeal escapes from between [npc.her] [npc.lips+] as a warm, tingling feeling spreads up through [npc.her] lower abdomen."
+							+ " Images of bat-like cocks slamming deep into [npc.her] new pussy flash before [npc.her] eyes,"
+								+ " and [npc.her] squeal turns into a satisfied moan as [npc.she] imagines them pumping their potent seed deep into [npc.her] womb."
+							+ " Just as quickly as they came, the images fade from [npc.her] mind, and as one last wave of tingling pleasure washes through [npc.her] body,"
+								+ " [npc.she] feels [npc.her] female reproductive organs finishing their transformation."
+							+ "</br>"
+							+ "[npc.Name] now has a [style.boldBatMorph(bat-morph's vagina)], with [npc.pussyColourPrimary(true)] labia and [npc.pussyColourSecondary(true)] internal walls."
 						+ "</p>"));
 				}
 				break;
@@ -633,7 +801,7 @@ public class Vagina implements BodyPartInterface, Serializable {
 					UtilText.transformationContentSB.append(
 							" You let out a squeal of excitement as a wave of pleasure runs up from your groin, and you feel your slit shifting and contracting with a mind of its own."
 							+ " Within moments, the feeling fades away, and you discover that your pussy has transformed into that of an alligator-morph's."
-							+ " Although the shape and structure remains similar to a normal human's pussy, a short layer of soft "+owner.getCovering(type.getBodyCoveringType()).getColourDescriptor(false, false)
+							+ " Although the shape and structure remains similar to a normal human's pussy, a short layer of soft "+owner.getCovering(type.getBodyCoveringType(owner)).getColourDescriptor(owner, false, false)
 								+" scales have grown around it, giving your feminine sex a rather reptilian appearance."
 						+ "</p>"
 						+ "<p>"
@@ -650,7 +818,7 @@ public class Vagina implements BodyPartInterface, Serializable {
 							" [npc.She] lets out a squeal of excitement as a wave of pleasure runs up through [npc.her] groin, and as [npc.she] feels [npc.her] slit shifting and contracting with a mind of its own,"
 									+ " [npc.she] desperately clamps [npc.her] [npc.legs] shut."
 							+ " Within moments, the feeling fades away, and [npc.she] discovers that [npc.her] pussy has transformed into that of an alligator-morph's."
-							+ " Although the shape and structure remains similar to a normal human's pussy, a short layer of soft "+owner.getCovering(type.getBodyCoveringType()).getColourDescriptor(false, false)
+							+ " Although the shape and structure remains similar to a normal human's pussy, a short layer of soft "+owner.getCovering(type.getBodyCoveringType(owner)).getColourDescriptor(owner, false, false)
 								+" scales have grown around it, giving [npc.her] feminine sex a rather reptilian appearance."
 						+ "</p>"
 						+ "<p>"
@@ -670,7 +838,7 @@ public class Vagina implements BodyPartInterface, Serializable {
 					UtilText.transformationContentSB.append(
 							" You let out a squeal of excitement as a wave of pleasure runs up from your groin, and you feel your slit shifting and contracting with a mind of its own."
 							+ " Within moments, the feeling fades away, and you discover that your pussy has shaped itself into a that of a harpy."
-							+ " Although it looks like a normal human pussy, a short layer of soft "+owner.getCovering(type.getBodyCoveringType()).getColourDescriptor(false, false)
+							+ " Although it looks like a normal human pussy, a short layer of soft "+owner.getCovering(type.getBodyCoveringType(owner)).getColourDescriptor(owner, false, false)
 								+" feathers have grown around it, giving your feminine sex a rather avian appearance."
 						+ "</p>"
 						+ "<p>"
@@ -686,7 +854,7 @@ public class Vagina implements BodyPartInterface, Serializable {
 							" [npc.She] lets out a squeal of excitement as a wave of pleasure runs up through [npc.her] groin, and as [npc.she] feels [npc.her] slit shifting and contracting with a mind of its own,"
 									+ " [npc.she] desperately clamps [npc.her] [npc.legs] shut."
 							+ " Within moments, the feeling fades away, and [npc.she] discovers that [npc.her] pussy has shaped itself into a that of a harpy."
-							+ " Although it looks like a normal human pussy, a short layer of soft "+owner.getCovering(type.getBodyCoveringType()).getColourDescriptor(false, false)
+							+ " Although it looks like a normal human pussy, a short layer of soft "+owner.getCovering(type.getBodyCoveringType(owner)).getColourDescriptor(owner, false, false)
 								+" feathers have grown around it, giving [npc.her] feminine sex a rather avian appearance."
 						+ "</p>"
 						+ "<p>"
@@ -701,22 +869,6 @@ public class Vagina implements BodyPartInterface, Serializable {
 						+ "</p>"));
 				}
 				break;
-			case SLIME://TODO
-				if(owner.isPlayer()) {
-					UtilText.transformationContentSB.append(
-							" You let out a squeal of excitement as a wave of pleasure runs up from your groin, and you feel your slit shifting and contracting with a mind of its own."
-							+ "</br>"
-							+ "You now have an [style.boldSlime(slime vagina)], with [pc.pussyColourPrimary(true)] labia and [pc.pussyColourSecondary(true)] internal walls."
-						+ "</p>");
-				} else {
-					UtilText.transformationContentSB.append(UtilText.parse(owner, 
-							" [npc.She] lets out a squeal of excitement as a wave of pleasure runs up through [npc.her] groin, and as [npc.she] feels [npc.her] slit shifting and contracting with a mind of its own,"
-									+ " [npc.she] desperately clamps [npc.her] [npc.legs] shut."
-							+ "</br>"
-							+ "[npc.Name] now has an [style.boldSlime(slime vagina)], with [npc.pussyColourPrimary(true)] labia and [npc.pussyColourSecondary(true)] internal walls."
-						+ "</p>"));
-				}
-				break;
 			case ANGEL://TODO
 				break;
 		}
@@ -728,11 +880,11 @@ public class Vagina implements BodyPartInterface, Serializable {
 
 		if (owner.isPlayer()) {
 			UtilText.transformationContentSB.append(
-					"</br>"
+					"<p>"
 					+ "Any old modifiers that your pussy might have had have [style.boldShrink(transformed away)]!");
 		} else {
 			UtilText.transformationContentSB.append(
-					"</br>"
+					"<p>"
 					+ "Any old modifiers that [npc.her] pussy might have had have [style.boldShrink(transformed away)]!");
 		}
 		

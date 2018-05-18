@@ -1,19 +1,24 @@
 package com.lilithsthrone.game.dialogue.places.dominion.lilayashome;
 
 import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Map.Entry;
+import java.util.Set;
 
-import com.lilithsthrone.game.character.SexualOrientation;
 import com.lilithsthrone.game.character.attributes.Attribute;
 import com.lilithsthrone.game.character.attributes.CorruptionLevel;
 import com.lilithsthrone.game.character.attributes.IntelligenceLevel;
+import com.lilithsthrone.game.character.effects.Perk;
 import com.lilithsthrone.game.character.effects.StatusEffect;
+import com.lilithsthrone.game.character.persona.SexualOrientation;
 import com.lilithsthrone.game.dialogue.DialogueFlagValue;
 import com.lilithsthrone.game.dialogue.DialogueNodeOld;
+import com.lilithsthrone.game.dialogue.SlaveryManagementDialogue;
 import com.lilithsthrone.game.dialogue.responses.Response;
 import com.lilithsthrone.game.dialogue.responses.ResponseEffectsOnly;
 import com.lilithsthrone.game.dialogue.utils.UtilText;
-import com.lilithsthrone.game.inventory.clothing.AbstractClothing;
+import com.lilithsthrone.game.sex.OrificeType;
 import com.lilithsthrone.main.Main;
 import com.lilithsthrone.utils.Colour;
 import com.lilithsthrone.utils.Util;
@@ -22,7 +27,7 @@ import com.lilithsthrone.world.places.PlaceType;
 
 /**
  * @since 0.1.75
- * @version 0.1.8
+ * @version 0.1.98
  * @author Innoxia
  */
 public class RoomPlayer {
@@ -37,13 +42,17 @@ public class RoomPlayer {
 				: (int) ((60 * (minutesPassed<(60*7)?7:31)) - minutesPassed));
 
 		if (index == 1) {
-			return new Response("Rest", "Rest for four hours. As well as replenishing your health, willpower and stamina, you will also get the 'Well Rested' status effect.", AUNT_HOME_PLAYERS_ROOM_SLEEP){
+			return new Response("Rest", "Rest for four hours. As well as replenishing your energy and aura, you will also get the 'Well Rested' status effect.", AUNT_HOME_PLAYERS_ROOM_SLEEP){
 				@Override
 				public void effects() {
 					Main.game.getPlayer().setHealth(Main.game.getPlayer().getAttributeValue(Attribute.HEALTH_MAXIMUM));
 					Main.game.getPlayer().setMana(Main.game.getPlayer().getAttributeValue(Attribute.MANA_MAXIMUM));
-					Main.game.getPlayer().setStamina(Main.game.getPlayer().getAttributeValue(Attribute.STAMINA_MAXIMUM));
-					Main.game.getPlayer().addStatusEffect(StatusEffect.WELL_RESTED, (6 * 60) + 240);
+					Main.game.getPlayer().setLust(0);
+					if(Main.game.getPlayer().hasTrait(Perk.JOB_UNEMPLOYED, true)) {
+						Main.game.getPlayer().addStatusEffect(StatusEffect.WELL_RESTED_BOOSTED, (8 * 60) + 240);
+					} else {
+						Main.game.getPlayer().addStatusEffect(StatusEffect.WELL_RESTED, (6 * 60) + 240);
+					}
 				}
 			};
 
@@ -52,16 +61,17 @@ public class RoomPlayer {
 					"Rest for " + (sleepTimer >= 60 ? sleepTimer / 60 + " hours " : " ")
 					+ (sleepTimer % 60 != 0 ? sleepTimer % 60 + " minutes" : "")
 					+ " until " + (Main.game.isDayTime() ? "evening (21:00)." : "morning (07:00).")
-					+ " As well as replenishing your health, willpower and stamina, you will also get the 'Well Rested' status effect.", AUNT_HOME_PLAYERS_ROOM_SLEEP_LONG){
+					+ " As well as replenishing your energy and aura, you will also get the 'Well Rested' status effect.", AUNT_HOME_PLAYERS_ROOM_SLEEP_LONG){
 				@Override
 				public void effects() {
 					Main.game.getPlayer().setHealth(Main.game.getPlayer().getAttributeValue(Attribute.HEALTH_MAXIMUM));
 					Main.game.getPlayer().setMana(Main.game.getPlayer().getAttributeValue(Attribute.MANA_MAXIMUM));
-					Main.game.getPlayer().setStamina(Main.game.getPlayer().getAttributeValue(Attribute.STAMINA_MAXIMUM));
-
-					Main.game.getPlayer().addStatusEffect(StatusEffect.WELL_RESTED, (6
-							* 60)
-							+ sleepTimer);
+					Main.game.getPlayer().setLust(0);
+					if(Main.game.getPlayer().hasTrait(Perk.JOB_UNEMPLOYED, true)) {
+						Main.game.getPlayer().addStatusEffect(StatusEffect.WELL_RESTED_BOOSTED, (8 * 60) + sleepTimer);
+					} else {
+						Main.game.getPlayer().addStatusEffect(StatusEffect.WELL_RESTED, (6 * 60) + sleepTimer);
+					}
 				}
 			};
 
@@ -71,14 +81,90 @@ public class RoomPlayer {
 				public void effects() {
 					Main.game.getPlayer().setHealth(Main.game.getPlayer().getAttributeValue(Attribute.HEALTH_MAXIMUM));
 					Main.game.getPlayer().setMana(Main.game.getPlayer().getAttributeValue(Attribute.MANA_MAXIMUM));
-					Main.game.getPlayer().setStamina(Main.game.getPlayer().getAttributeValue(Attribute.STAMINA_MAXIMUM));
-					for (AbstractClothing c : Main.game.getPlayer().getClothingCurrentlyEquipped())
-						c.setDirty(false);
+					
+					Set<OrificeType> dirtyOrifices = new HashSet<>();
+					for(Entry<OrificeType, Integer> entry : Main.game.getPlayer().getCummedInAreaMap().entrySet()) {
+						if(entry.getValue()>0) {
+							dirtyOrifices.add(entry.getKey());
+						}
+					}
+					
+					Main.game.getPlayer().washAllOrifices();
+					Main.game.getPlayer().calculateStatusEffects(0);
+					Main.game.getPlayer().cleanAllDirtySlots();
 					Main.game.getPlayer().cleanAllClothing();
-					Main.game.getPlayer().removeStatusEffect(StatusEffect.CREAMPIE_ANUS);
-					Main.game.getPlayer().removeStatusEffect(StatusEffect.CREAMPIE_NIPPLES);
-					Main.game.getPlayer().removeStatusEffect(StatusEffect.CREAMPIE_PENIS);
-					Main.game.getPlayer().removeStatusEffect(StatusEffect.CREAMPIE_VAGINA);
+					
+					for(OrificeType orifice : OrificeType.values()) {
+						if(dirtyOrifices.contains(orifice)) {
+							switch(orifice) {
+								case ANUS:
+									if(Main.game.getPlayer().getCummedInAreaMap().get(orifice)>0) {
+										Main.game.getTextEndStringBuilder().append(formatWashingArea(false, "You wash as much of the cum out of your [pc.asshole] as you can, but there's so much in there that you're unable to fully clean it all out!"));
+									} else {
+										Main.game.getTextEndStringBuilder().append(formatWashingArea(true, "You wash all of the cum out of your [pc.asshole]."));
+									}
+									break;
+								case ASS:
+									if(Main.game.getPlayer().getCummedInAreaMap().get(orifice)>0) {
+										Main.game.getTextEndStringBuilder().append(formatWashingArea(false, "You wash as much of the cum off of your [pc.ass] as you can, but there's so much that's covering it, that you're unable to fully clean yourself!"));
+									} else {
+										Main.game.getTextEndStringBuilder().append(formatWashingArea(true, "You wash all of the cum off of your [pc.ass]."));
+									}
+									break;
+								case BREAST:
+									if(Main.game.getPlayer().getCummedInAreaMap().get(orifice)>0) {
+										Main.game.getTextEndStringBuilder().append(formatWashingArea(false, "You wash as much of the cum off of your [pc.breasts] as you can, but there's so much that's covering it, that you're unable to fully clean yourself!"));
+									} else {
+										Main.game.getTextEndStringBuilder().append(formatWashingArea(true, "You wash all of the cum off of your [pc.breasts]."));
+									}
+									break;
+								case MOUTH:
+									if(Main.game.getPlayer().getCummedInAreaMap().get(orifice)>0) {
+										Main.game.getTextEndStringBuilder().append(formatWashingArea(false, "The shower does nothing to clean the cum out of your stomach!"));
+									}
+									break;
+								case NIPPLE:
+									if(Main.game.getPlayer().getCummedInAreaMap().get(orifice)>0) {
+										Main.game.getTextEndStringBuilder().append(formatWashingArea(false, "You wash as much of the cum out of your [pc.nipples] as you can, but there's so much in there that you're unable to fully clean it all out!"));
+									} else {
+										Main.game.getTextEndStringBuilder().append(formatWashingArea(true, "You wash all of the cum out of your [pc.nipples]."));
+									}
+									break;
+								case THIGHS:
+									if(Main.game.getPlayer().getCummedInAreaMap().get(orifice)>0) {
+										Main.game.getTextEndStringBuilder().append(formatWashingArea(false, "You wash as much of the cum off of your [pc.thighs] as you can, but there's so much that's covering it, that you're unable to fully clean yourself!"));
+									} else {
+										Main.game.getTextEndStringBuilder().append(formatWashingArea(true, "You wash all of the cum off of your [pc.thighs]."));
+									}
+									break;
+								case URETHRA_PENIS:
+									if(Main.game.getPlayer().getCummedInAreaMap().get(orifice)>0) {
+										Main.game.getTextEndStringBuilder().append(formatWashingArea(false, "You wash as much of the cum out of your cock's urethra as you can, but there's so much in there that you're unable to fully clean it all out!"));
+									} else {
+										Main.game.getTextEndStringBuilder().append(formatWashingArea(true, "You wash all of the cum out of your cock's urethra."));
+									}
+									break;
+								case URETHRA_VAGINA:
+									if(Main.game.getPlayer().getCummedInAreaMap().get(orifice)>0) {
+										Main.game.getTextEndStringBuilder().append(formatWashingArea(false, "You wash as much of the cum out of your vagina's urethra as you can, but there's so much in there that you're unable to fully clean it all out!"));
+									} else {
+										Main.game.getTextEndStringBuilder().append(formatWashingArea(true, "You wash all of the cum out of your vagina's urethra."));
+									}
+									break;
+								case VAGINA:
+									if(Main.game.getPlayer().getCummedInAreaMap().get(orifice)>0) {
+										Main.game.getTextEndStringBuilder().append(formatWashingArea(false, "You wash as much of the cum out of your [pc.pussy] as you can, but there's so much in there that you're unable to fully clean it all out!"));
+									} else {
+										Main.game.getTextEndStringBuilder().append(formatWashingArea(true, "You wash all of the cum out of your [pc.pussy]."));
+									}
+									break;
+							}
+						}
+					}
+					
+					Main.game.getTextEndStringBuilder().append("<p>"
+								+ "<b style='color:"+ Colour.GENERIC_GOOD.toWebHexString()+ ";'>Your clothes have been cleaned, and you feel refreshed!</b>"
+							+ "</p>");
 				}
 			};
 
@@ -87,6 +173,18 @@ public class RoomPlayer {
 				return new Response("Calendar", "Take another look at the enchanted calendar that's pinned up on one wall.", AUNT_HOME_PLAYERS_ROOM_CALENDAR);
 			} else {
 				return new Response("<span style='color:"+Colour.GENERIC_EXCELLENT.toWebHexString()+";'>Calendar</span>", "There's a calendar pinned up on one wall. Take a closer look at it.", AUNT_HOME_PLAYERS_ROOM_CALENDAR);
+			}
+			
+		} else if(index == 5) {
+			if(Main.game.getPlayer().isHasSlaverLicense()) {
+				return new Response("Slavery Overview", "Open the slave management screen.",  ROOM) {
+					@Override
+					public DialogueNodeOld getNextDialogue() {
+						return SlaveryManagementDialogue.getSlaveryOverviewDialogue();
+					}
+				};
+			} else {
+				return new Response("Slavery Overview", "You'll need a slaver license before you can access this menu!",  null);
 			}
 			
 		} else if (index == 6) {
@@ -108,6 +206,12 @@ public class RoomPlayer {
 		} else {
 			return null;
 		}
+	}
+	
+	private static String formatWashingArea(boolean isFullyCleaned, String input) {
+		return "<p style='color:"+(isFullyCleaned?Colour.GENERIC_GOOD.toWebHexString():Colour.CUM.toWebHexString())+";'><i>"
+					+ input
+				+ "</i></p>";
 	}
 
 	public static final DialogueNodeOld ROOM = new DialogueNodeOld("Your room", "", false) {
@@ -221,12 +325,12 @@ public class RoomPlayer {
 
 		@Override
 		public String getContent() {
-			return "<p>"
+			UtilText.nodeContentSB.setLength(0);
+			UtilText.nodeContentSB.append("<p>"
 						+ "You step into the en-suite, marvelling at its extravagant design. Leaving your dirty clothes on the other side of the door, you take a long, relaxing shower."
-					+ "</p>"
-					+ "<p>"
-						+ "<b style='color:"+ Colour.GENERIC_GOOD.toWebHexString()+ ";'>Your clothes have been cleaned, and you feel refreshed!</b>"
-					+ "</p>";
+					+ "</p>");
+			
+			return UtilText.nodeContentSB.toString();
 		}
 
 
@@ -281,7 +385,7 @@ public class RoomPlayer {
 						+ Main.game.getDateNow().format(DateTimeFormatter.ofPattern("MMMM", Locale.ENGLISH))
 						+ ", "
 						+ Main.game.getDateNow().format(DateTimeFormatter.ofPattern("yyyy", Locale.ENGLISH))
-					+"</b>. From a quick calculation "+(Main.game.getPlayer().getAttributeValue(Attribute.INTELLIGENCE)<IntelligenceLevel.ONE_AVERAGE.getMaximumValue()?"(with some help from your phone's calculator)":"")
+					+"</b>. From a quick calculation "+(Main.game.getPlayer().getAttributeValue(Attribute.MAJOR_ARCANE)<IntelligenceLevel.ONE_AVERAGE.getMaximumValue()?"(with some help from your phone's calculator)":"")
 					+ ", you figure out that it's been <b style='color:"+Colour.GENERIC_EXCELLENT.toWebHexString()+";'>"+Main.game.getDayNumber()+" day"+(Main.game.getDayNumber()>1?"s":"")+"</b> since you appeared in this world."
 					+ "</p>");
 			
@@ -293,7 +397,6 @@ public class RoomPlayer {
 			
 			UtilText.nodeContentSB.append("<p>"
 					+ "You notice that on each page of the calendar, there's a few paragraphs detailing the events that occur during that month."
-					+ " Although there doesn't seem to be anything interesting for any of the other months, October's entry appears to be quite detailed."
 					+ "</p>");
 			
 			// TODO probably not the best place to put it?

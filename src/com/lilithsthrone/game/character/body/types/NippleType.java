@@ -1,16 +1,18 @@
 package com.lilithsthrone.game.character.body.types;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.lilithsthrone.game.character.GameCharacter;
+import com.lilithsthrone.game.character.body.Body;
 import com.lilithsthrone.game.character.body.valueEnums.OrificeModifier;
 import com.lilithsthrone.game.character.race.Race;
 import com.lilithsthrone.utils.Util;
 
 /**
  * @since 0.1.83
- * @version 0.1.83
+ * @version 0.2.2
  * @author Innoxia
  */
 public enum NippleType implements BodyPartTypeInterface {
@@ -20,6 +22,8 @@ public enum NippleType implements BodyPartTypeInterface {
 	ANGEL(BodyCoveringType.NIPPLES, Race.ANGEL),
 
 	DEMON_COMMON(BodyCoveringType.NIPPLES, Race.DEMON),
+
+	IMP(BodyCoveringType.NIPPLES, Race.IMP),
 
 	DOG_MORPH(BodyCoveringType.NIPPLES, Race.DOG_MORPH),
 	
@@ -31,15 +35,19 @@ public enum NippleType implements BodyPartTypeInterface {
 	
 	SQUIRREL_MORPH(BodyCoveringType.NIPPLES, Race.SQUIRREL_MORPH),
 	
+	RAT_MORPH(BodyCoveringType.NIPPLES, Race.RAT_MORPH),
+	
+	BAT_MORPH(BodyCoveringType.NIPPLES, Race.BAT_MORPH),
+	
+	RABBIT_MORPH(BodyCoveringType.NIPPLES, Race.RABBIT_MORPH),
+	
 	ALLIGATOR_MORPH(BodyCoveringType.NIPPLES, Race.ALLIGATOR_MORPH),
 	
 	HORSE_MORPH(BodyCoveringType.NIPPLES, Race.HORSE_MORPH),
 	
 	REINDEER_MORPH(BodyCoveringType.NIPPLES, Race.REINDEER_MORPH),
 	
-	HARPY(BodyCoveringType.NIPPLES, Race.HARPY),
-
-	SLIME(BodyCoveringType.NIPPLES_SLIME, Race.SLIME);
+	HARPY(BodyCoveringType.NIPPLES, Race.HARPY);
 
 	
 	private BodyCoveringType skinType;
@@ -50,9 +58,7 @@ public enum NippleType implements BodyPartTypeInterface {
 		this.skinType = skinType;
 		this.race = race;
 		this.defaultRacialOrificeModifiers = new ArrayList<>();
-		for(OrificeModifier om : defaultRacialOrificeModifiers) {
-			this.defaultRacialOrificeModifiers.add(om);
-		}
+		Collections.addAll(this.defaultRacialOrificeModifiers, defaultRacialOrificeModifiers);
 	}
 
 	@Override
@@ -107,9 +113,6 @@ public enum NippleType implements BodyPartTypeInterface {
 			case HUMAN:
 				descriptor = new String[] { "" };
 				break;
-			case SLIME:
-				descriptor = new String[] { "gooey" };
-				break;
 			default:
 				descriptor = new String[] { "" };
 				break;
@@ -119,7 +122,7 @@ public enum NippleType implements BodyPartTypeInterface {
 	}
 	
 	@Override
-	public BodyCoveringType getBodyCoveringType() {
+	public BodyCoveringType getBodyCoveringType(Body body) {
 		return skinType;
 	}
 

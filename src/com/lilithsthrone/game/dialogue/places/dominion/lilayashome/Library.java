@@ -5,6 +5,7 @@ import java.util.List;
 import com.lilithsthrone.game.character.attributes.Attribute;
 import com.lilithsthrone.game.character.npc.NPC;
 import com.lilithsthrone.game.character.race.Race;
+import com.lilithsthrone.game.combat.Spell;
 import com.lilithsthrone.game.dialogue.DialogueFlagValue;
 import com.lilithsthrone.game.dialogue.DialogueNodeOld;
 import com.lilithsthrone.game.dialogue.npcDialogue.SlaveDialogue;
@@ -12,11 +13,16 @@ import com.lilithsthrone.game.dialogue.responses.Response;
 import com.lilithsthrone.game.dialogue.utils.UtilText;
 import com.lilithsthrone.game.inventory.item.AbstractItemType;
 import com.lilithsthrone.game.inventory.item.ItemType;
+import com.lilithsthrone.game.slavery.SlaveJob;
+import com.lilithsthrone.game.slavery.SlavePermissionSetting;
 import com.lilithsthrone.main.Main;
+import com.lilithsthrone.rendering.RenderingEngine;
+import com.lilithsthrone.world.Cell;
+import com.lilithsthrone.world.WorldType;
 
 /**
  * @since 0.1.78
- * @version 0.1.87
+ * @version 0.2.2
  * @author Innoxia, Rfpnj
  */
 public class Library {
@@ -32,7 +38,7 @@ public class Library {
 		@Override
 		public String getContent() {
 			UtilText.nodeContentSB.setLength(0);
-			List<NPC> charactersPresent = Main.game.getCharactersPresent();
+			List<NPC> charactersPresent = Main.game.getNonCompanionCharactersPresent();
 			
 			UtilText.nodeContentSB.append("<p>"
 					+ "Pushing open the heavy wooden door, you find yourself walking into Lilaya's library."
@@ -46,37 +52,44 @@ public class Library {
 						+ "</p>");
 			} else {
 				for(NPC slave : charactersPresent) {
+					UtilText.nodeContentSB.append(UtilText.parse(slave,
+							"<p>"
+								+ "Having been assigned to work as a "+(SlaveJob.LIBRARY.getName(slave))+", <b style='color:"+slave.getFemininity().getColour().toWebHexString()+";'>[npc.name]</b> is present in this area."));
+					
+					if(slave.hasSlavePermissionSetting(SlavePermissionSetting.GENERAL_CRAWLING)) {
+						UtilText.nodeContentSB.append(UtilText.parse(slave,
+								" As you've instructed [npc.herHim] to crawl, [npc.she]'s down on all fours, and "));
+					} else {
+						UtilText.nodeContentSB.append(UtilText.parse(slave,
+								" [npc.She] "));
+					}
+					
 					switch(slave.getObedience()) {
-					case NEGATIVE_FIVE_REBELLIOUS: case NEGATIVE_FOUR_DEFIANT: case NEGATIVE_THREE_STRONG_INSUBORDINATE:
-						UtilText.nodeContentSB.append(UtilText.parse(slave,
-								"<p>"
-									+ "Although <b style='color:"+slave.getFemininity().getColour().toWebHexString()+";'>[npc.name]</b> is here, [npc.she]'s not even bothering to pretend that [npc.she]'s working."
-								+ "</p>"));
-						break;
-					case NEGATIVE_ONE_DISOBEDIENT:  case NEGATIVE_TWO_UNRULY:
-						UtilText.nodeContentSB.append(UtilText.parse(slave,
-								"<p>"
-									+ "<b style='color:"+slave.getFemininity().getColour().toWebHexString()+";'>[npc.Name]</b> appears to be half-heartedly ordering some books."
-								+ "</p>"));
-						break;
-					case ZERO_FREE_WILLED:
-						UtilText.nodeContentSB.append(UtilText.parse(slave,
-								"<p>"
-									+ "<b style='color:"+slave.getFemininity().getColour().toWebHexString()+";'>[npc.Name]</b> is dusting the shelves and making sure that everything is in order."
-								+ "</p>"));
-						break;
-					case POSITIVE_ONE_AGREEABLE: case POSITIVE_TWO_OBEDIENT:
-						UtilText.nodeContentSB.append(UtilText.parse(slave,
-								"<p>"
-									+ "<b style='color:"+slave.getFemininity().getColour().toWebHexString()+";'>[npc.Name]</b> is reorganising one of the shelves."
-								+ "</p>"));
-						break;
-					case POSITIVE_THREE_DISCIPLINED: case POSITIVE_FOUR_DUTIFUL: case POSITIVE_FIVE_SUBSERVIENT:
-						UtilText.nodeContentSB.append(UtilText.parse(slave,
-								"<p>"
-									+ "<b style='color:"+slave.getFemininity().getColour().toWebHexString()+";'>[npc.Name]</b> is dutifully making a catalogue of all the books available in the library."
-								+ "</p>"));
-						break;
+						case NEGATIVE_FIVE_REBELLIOUS: case NEGATIVE_FOUR_DEFIANT: case NEGATIVE_THREE_STRONG_INSUBORDINATE:
+							UtilText.nodeContentSB.append(UtilText.parse(slave,
+										" is not even bothering to pretend that [npc.she]'s working."
+									+ "</p>"));
+							break;
+						case NEGATIVE_ONE_DISOBEDIENT:  case NEGATIVE_TWO_UNRULY:
+							UtilText.nodeContentSB.append(UtilText.parse(slave,
+										" appears to be half-heartedly ordering some books."
+									+ "</p>"));
+							break;
+						case ZERO_FREE_WILLED:
+							UtilText.nodeContentSB.append(UtilText.parse(slave,
+										" is currently dusting the shelves and making sure that everything is in order."
+									+ "</p>"));
+							break;
+						case POSITIVE_ONE_AGREEABLE: case POSITIVE_TWO_OBEDIENT:
+							UtilText.nodeContentSB.append(UtilText.parse(slave,
+										" is currently reorganising one of the shelves."
+									+ "</p>"));
+							break;
+						case POSITIVE_THREE_DISCIPLINED: case POSITIVE_FOUR_DUTIFUL: case POSITIVE_FIVE_SUBSERVIENT:
+							UtilText.nodeContentSB.append(UtilText.parse(slave,
+										" is dutifully making a catalogue of all the books available in the library."
+									+ "</p>"));
+							break;
 					}
 				}
 			}
@@ -108,8 +121,6 @@ public class Library {
 	
 
 	public static final DialogueNodeOld BROWSE_BOOKS = new DialogueNodeOld("", "", false) {
-		/**
-		 */
 		private static final long serialVersionUID = 1L;
 
 		@Override
@@ -133,25 +144,36 @@ public class Library {
 			if (books == 1) {
 				return new Response("General Knowledge", "A section of the library dedicated to books on common subjects.", LORE_BOOKS);
 
-			}  else if (books == 2) {
-				return new Response("Races of Dominion", "A section of the library dedicated to books concerning the predominate races within the city.", DOMINION_RACES) {
+			} else if (books == 2) {
+				return new Response("City Map", "A large, framed map of Dominion hangs on one wall. Take a closer look.", DOMINION_MAP) {
+					@Override
+					public void effects() {
+						Cell[][] grid = Main.game.getWorlds().get(WorldType.DOMINION).getGrid();
+						for(int i=0; i<grid.length; i++) {
+							for(int j=0; j<grid[0].length; j++) {
+								grid[i][j].setDiscovered(true);
+							}
+						}
+					}
 				};
 
-			} else if (books == 3) {
-				return new Response("The Fields", "A section of the library dedicated to books about the area known as the Foloi Fields.", FIELDS_BOOKS) {
-				};
-//
-//			} else if (books == 4) {
-//				return new Response("The Seas", "A section of the library dedicated to books on the area known as the Endless Sea.", SEA_BOOKS) {
-//				};
-//
-//			} else if (books == 5) {
-//				return new Response("The Jungle", "A section of the library dedicated to books on the area known as the Jungle.", JUNGLE_BOOKS) {
-//				};
-//
-//			} else if (books == 6) {
-//				return new Response("The Desert", "A section of the library dedicated to books on the area known as the Desert.", DESERT_BOOKS) {
-//				};
+			}  else if (books == 3) {
+				return new Response("Races of Dominion", "A section of the library dedicated to books concerning the predominate races within the city.", DOMINION_RACES);
+
+			}else if (books == 4) {
+				return new Response("Foloi Fields", "A section of the library dedicated to books about the area known as the Foloi Fields.", FIELDS_BOOKS);
+
+			} else if (books == 5) {
+				return new Response("Endless Sea", "A section of the library dedicated to books on the area known as the Endless Sea. (Not yet implemented.)", null);
+
+			} else if (books == 6) {
+				return new Response("The Jungle", "A section of the library dedicated to books on the area known as the Jungle. (Not yet implemented.)", null);
+
+			} else if (books == 7) {
+				return new Response("The Desert", "A section of the library dedicated to books on the area known as the Desert. (Not yet implemented.)", null);
+
+			} else if (books == 8) {
+				return new Response("Spells", "A section of the library dedicated to spell books.", SPELL_BOOKS);
 
 			} else if (books == 0) {
 				return new Response("Back", "Return to the main library menu.", LIBRARY);
@@ -194,7 +216,7 @@ public class Library {
 					@Override
 					public void effects() {
 						if(!Main.game.getDialogueFlags().values.contains(DialogueFlagValue.readBook1)) {
-							Main.game.getPlayer().incrementAttribute(Attribute.INTELLIGENCE, 0.5f);
+							Main.game.getPlayer().incrementAttribute(Attribute.MAJOR_ARCANE, 0.5f);
 							Main.game.getDialogueFlags().values.add(DialogueFlagValue.readBook1);
 						}
 					}
@@ -205,7 +227,7 @@ public class Library {
 					@Override
 					public void effects() {
 						if(!Main.game.getDialogueFlags().values.contains(DialogueFlagValue.readBook2)) {
-							Main.game.getPlayer().incrementAttribute(Attribute.INTELLIGENCE, 0.5f);
+							Main.game.getPlayer().incrementAttribute(Attribute.MAJOR_ARCANE, 0.5f);
 							Main.game.getDialogueFlags().values.add(DialogueFlagValue.readBook2);
 						}
 					}
@@ -221,7 +243,18 @@ public class Library {
 					}
 				};
 
-			} else if (lore == 0) {
+			} else if (lore == 4) {
+				return new Response("Knocked Up", "A small paperback book which contains all the information you'd ever need concerning pregnancies in this world.", PREGNANCY_INFO) {
+					@Override
+					public void effects() {
+						if(!Main.game.getDialogueFlags().values.contains(DialogueFlagValue.readBook4)) {
+							Main.game.getPlayer().incrementAttribute(Attribute.MAJOR_ARCANE, 0.5f);
+							Main.game.getDialogueFlags().values.add(DialogueFlagValue.readBook4);
+						}
+					}
+				};
+
+			}  else if (lore == 0) {
 				return new Response("Back", "Return to browsing the shelves.", BROWSE_BOOKS);
 
 			} else {
@@ -230,9 +263,9 @@ public class Library {
 		}
 	
 	};
+	
+	
 	public static final DialogueNodeOld ARCANE_AROUSAL = new DialogueNodeOld("", "", false) {
-		/**
-		 */
 		private static final long serialVersionUID = 1L;
 
 		@Override
@@ -249,7 +282,7 @@ public class Library {
 					+ "</p>"
 					+ "<p>"
 						+ "For one, it seems as though arcane power is found all throughout this world, and although it's mostly concentrated in people's arcane auras, you discover that there are some places out in the wilderness"
-						+ " where the arcane condenses into little micro-storms of activity."
+							+ " where the arcane condenses into little micro-storms of activity."
 						+ " These places allow even the most novice of arcane users to harness its power, but for the most part, a person can only use arcane spells if they train their aura to become strong enough."
 						+ " This training process appears to take several years, and you realise how fortunate you are to have an aura with demon-like strength."
 					+ "</p>"
@@ -259,10 +292,6 @@ public class Library {
 						+ " It appears as though the arcane is some kind of primal force that feeds on a person's sexual energy."
 						+ " Although a person may normally be able to easily resist their aura's influence, when they get fatigued, their own aura will amplify their sexual desires, causing them to become obsessed with sex."
 						+ " This is the power that's behind the arcane storms that often erupt over Dominion, and you once again reflect on how lucky you are to have an aura powerful enough to cancel out the storm's potent effects."
-					+ "</p>"
-					+ "<p>"
-						+ "The last section of the book covers some of the social impacts of the arcane."
-						+ " The most notable of these is that while under the arcane's influence, a person's sexuality will shift to being bi-sexual."
 					+ "</p>";
 		}
 
@@ -318,8 +347,6 @@ public class Library {
 	};
 	
 	public static final DialogueNodeOld DOMINION_HISTORY = new DialogueNodeOld("", "", false) {
-		/**
-		 */
 		private static final long serialVersionUID = 1L;
 
 		@Override
@@ -336,10 +363,10 @@ public class Library {
 					+ "</p>"
 					+ "<p>"
 						+ "There isn't really much useful information inside, and you quickly finish the book from cover to cover."
-						+ " There's an interesting passage about the construction of Dominion by Lilith and the demons many centuries ago, but it doesn't really go into much detail."
+						+ " There's an interesting passage about the construction of Dominion by Lilith and the demons many centuries ago, but it doesn't really go into any detail."
 						+ " Apart from that, the only other part of the book that piques your interest is a small section justifying the practice of slavery as a necessary evil."
-						+ " The passage explains how it's customary for a new slave to be kissed one last time by their new owner before their enslavement."
-						+ " It seems as though it's quite taboo for a slave to be kissed."
+						+ " The passage explains how demons are the only race not commonly subjected to enslavement."
+						+ " Apparently, a demonic slave being owned by a non-demon is considered completely unacceptable in Dominion's society..."
 					+ "</p>"
 					+ "<p>"
 						+ "Other than that snippet of trivia, the book doesn't contain anything useful."
@@ -356,6 +383,75 @@ public class Library {
 			return LIBRARY.getResponse(0, lore);
 		}
 	};
+	
+	public static final DialogueNodeOld PREGNANCY_INFO = new DialogueNodeOld("", "", false) {
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public String getLabel() {
+			return "Library";
+		}
+
+		@Override
+		public String getContent() {
+			return "<p>"
+						+ "You slide the small paperback book out from the shelf, and, turning it over in your [pc.hands], you take a look at the front cover."
+						+ " On it, the title 'Knocked Up' is displayed in bold pink lettering, and beneath that, there's a picture of a heavily-pregnant rabbit-girl cradling her swollen belly."
+						+ " A little speech-bubble is drawn coming from her mouth, and in it, you read the words 'All you need to know about being a parent!'."
+					+ "</p>"
+					+ "<p>"
+						+ "Opening its pages, you find that the information contained within the book is laid out in a very neat and easy-to-read format, and it only takes you a few minutes to read through the entire thing."
+						+ " One of the most striking facts is that in this world, the full cycle of pregnancy only last for a few weeks."
+						+ " What's more, once the mother is ready to give birth, she's able to stay in that state indefinitely, until such time as she feels comfortable giving birth."
+					+ "<p>"
+					+ "<p>"
+						+ "The second alarming fact contained within these pages is related to the development of children."
+						+ " It only takes a few minutes for new-borns to develop and mature into adults, and will inherit all of the common knowledge held by their parents."
+						+ " This doesn't include specific memories, so, for example, if a child's mother knows how to read and write, they will too, but they won't have the memory of their mother learning this information."
+					+ "</p>"
+					+ "<p>"
+						+ "After reaching full maturity within a matter of hours, the vast majority of children will immediately leave their parents in order to strike out for themselves and become fully independent."
+						+ " Despite this almost-immediate separation, a parent will always share special maternal or paternal bonds with their children, and, whether due to the arcane or some natural intuition,"
+							+ " a parent and child, as well as siblings, will always recognise each other at first sight."
+					+ "</p>";
+		}
+
+		@Override
+		public Response getResponse(int responseTab, int lore) {
+			return LIBRARY.getResponse(0, lore);
+		}
+	};
+	
+	public static final DialogueNodeOld DOMINION_MAP = new DialogueNodeOld("", "", false) {
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public String getLabel() {
+			return "Library";
+		}
+
+		@Override
+		public String getContent() {
+			UtilText.nodeContentSB.setLength(0);
+			UtilText.nodeContentSB.append("<p>"
+						+ "Hanging on one of the walls of the library, a huge map of Dominion is displayed in a wooden frame."
+						+ " Using your phone, you take a picture of it for future reference."
+					+ "</p>"
+					+ "<p style='text-align:center;'>"
+						+ "[style.italicsExcellent(Dominion Map fully revealed!)]"
+					+ "</p>"
+					+ RenderingEngine.ENGINE.getFullMap(WorldType.DOMINION));
+			
+			return UtilText.nodeContentSB.toString();
+		}
+
+		@Override
+		public Response getResponse(int responseTab, int index) {
+			return LIBRARY.getResponse(0, index);
+		}
+		
+	};
+	
 	public static final DialogueNodeOld DOMINION_RACES = new DialogueNodeOld("", "", false) {
 		/**
 		 */
@@ -369,10 +465,17 @@ public class Library {
 		@Override
 		public String getContent() {
 			return "<p>"
-
 						+ "Walking down one of the aisles, you find yourself surrounded by heavy wooden shelves, fastened together by prominent beams of iron and steel."
 						+ " A lot of the books here seem to be about local history of Dominion's many districts, and, while fascinating for a historian, they don't offer much use to you."
-						+ " Despite most of the books not being worth your time, there are a few here and there that detail the many races found within the city, and you wonder if you should give them a read..."
+					+ "</p>"
+					+ "<p>"
+						+ "You notice that a couple of the shelves look a little different from the others."
+						+ " The top-most shelf seems to be decorated to make it look as though it's crafted from twigs, just like a bird's nest."
+						+ " The shelf nearest to the floor has a very smooth surface, almost like the wood as been transmuted into stone."
+						+ " It looks like it would be moist to the touch."
+					+ "</p>"
+					+ "<p>"
+						+ "Despite most of these books not being worth your time, there are a few here and there that detail the many races found within the city, and you wonder if you should give them a read..."
 					+ "</p>";
 							
 		}
@@ -380,7 +483,7 @@ public class Library {
 		@Override
 		public Response getResponse(int responseTab, int city) {
 			if (city == 1) {
-				return bookResponse(ItemType.BOOK_CAT_MORPH, Race.CAT_MORPH);
+				return bookResponse(ItemType.BOOK_HARPY, Race.HARPY);
 
 			} else if (city == 2) {
 				return bookResponse(ItemType.BOOK_DEMON, Race.DEMON);
@@ -389,19 +492,31 @@ public class Library {
 				return bookResponse(ItemType.BOOK_DOG_MORPH, Race.DOG_MORPH);
 
 			} else if (city == 4) {
-				return bookResponse(ItemType.BOOK_HARPY, Race.HARPY);
+				return bookResponse(ItemType.BOOK_CAT_MORPH, Race.CAT_MORPH);
 
 			} else if (city == 5) {
 				return bookResponse(ItemType.BOOK_HORSE_MORPH, Race.HORSE_MORPH);
 
 			} else if (city == 6) {
-				return bookResponse(ItemType.BOOK_HUMAN, Race.HUMAN);
+				return bookResponse(ItemType.BOOK_WOLF_MORPH, Race.WOLF_MORPH);
 
 			} else if (city == 7) {
-				return bookResponse(ItemType.BOOK_WOLF_MORPH, Race.WOLF_MORPH);
+				return bookResponse(ItemType.BOOK_HUMAN, Race.HUMAN);
 
 			} else if (city == 8) {
 				return bookResponse(ItemType.BOOK_ALLIGATOR_MORPH, Race.ALLIGATOR_MORPH);
+
+			} else if (city == 9) {
+				return bookResponse(ItemType.BOOK_BAT_MORPH, Race.BAT_MORPH);
+
+			} else if (city == 10) {
+				return bookResponse(ItemType.BOOK_IMP, Race.IMP);
+
+			} else if (city == 11) {
+				return bookResponse(ItemType.BOOK_SLIME, Race.SLIME);
+
+			} else if (city == 12) {
+				return bookResponse(ItemType.BOOK_RAT_MORPH, Race.RAT_MORPH);
 
 			} else if (city == 0) {
 				return new Response("Back", "Return to browsing the shelves.", BROWSE_BOOKS);
@@ -413,8 +528,6 @@ public class Library {
 	};
 	
 	public static final DialogueNodeOld FIELDS_BOOKS = new DialogueNodeOld("", "", false) {
-		/**
-		 */
 		private static final long serialVersionUID = 1L;
 
 		@Override
@@ -430,6 +543,7 @@ public class Library {
 					+ "</p>"
 					+ "<p>"
 						+ "At first glance, they look to be crafted from blocks of sod, but upon closer inspection, you see that it's actually masterfully-engraved pieces of wood."
+						+ " One shelf looks like the sod is covered in snow, you can feel the cold wafting off of it"
 						+ " The books that they hold all seem to be related to the Foloi Fields and the many races found there, which would explain the pastoral scent and appearance of this particular section."
 					+ "</p>";
 							
@@ -444,15 +558,56 @@ public class Library {
 				return bookResponse(ItemType.BOOK_COW_MORPH, Race.COW_MORPH);
 
 			} else if (field == 3) {
+				return bookResponse(ItemType.BOOK_RABBIT_MORPH, Race.RABBIT_MORPH);
+
+			} else if (field == 4) {
 				return bookResponse(ItemType.BOOK_REINDEER_MORPH, Race.REINDEER_MORPH);
 
-			}  else if (field == 0) {
+			} else if (field == 0) {
 				return new Response("Back to the shelves", "Return to strolling the shelves.", BROWSE_BOOKS);
 
 
 			} else {
 				return null;
 			}
+		}
+	
+	};
+	
+	public static final DialogueNodeOld SPELL_BOOKS = new DialogueNodeOld("", "", false) {
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public String getLabel() {
+			return "Library";
+		}
+
+		@Override
+		public String getContent() {
+			return "<p>"
+						+ "One of the library's aisles is dedicated to holding copies of the spell books that you've discovered and read in your travels."
+						+ " As you walk down this aisle, you see that the shelves in this section are fashioned out of shimmering purple energy, and seem to shift and move with a life of their own."
+					+ "</p>";
+							
+		}
+
+		@Override
+		public Response getResponse(int responseTab, int index) {
+			if (index == 0) {
+				return new Response("Back to the shelves", "Return to strolling the shelves.", BROWSE_BOOKS);
+
+			} else if (index-1 < Main.game.getPlayer().getSpells().size()) {
+				Spell s = Main.game.getPlayer().getSpells().get(index-1);
+				return new Response(s.getName(), "Read about the spell '"+s.getName()+"'.", SPELL_BOOKS) {
+					@Override
+					public void effects() {
+						Main.game.getTextEndStringBuilder().append(ItemType.getSpellBookType(s).getEffects().get(0).applyEffect(Main.game.getPlayer(), Main.game.getPlayer(), 0));
+					}
+				};
+				
+			}
+			
+			return null;
 		}
 	
 	};
@@ -574,7 +729,7 @@ public class Library {
 			return new Response(book.getName(false), book.getDescription(), LIBRARY) {
 				@Override
 				public void effects() {
-					Main.game.getTextEndStringBuilder().append(book.getEffects().get(0).applyEffect(Main.game.getPlayer(), Main.game.getPlayer()));
+					Main.game.getTextEndStringBuilder().append(book.getEffects().get(0).applyEffect(Main.game.getPlayer(), Main.game.getPlayer(), 1));
 				}
 			};
 		} else {

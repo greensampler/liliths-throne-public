@@ -2,7 +2,9 @@ package com.lilithsthrone.game.sex.sexActions.universal.dom;
 
 import java.util.List;
 
+import com.lilithsthrone.game.character.GameCharacter;
 import com.lilithsthrone.game.character.attributes.CorruptionLevel;
+import com.lilithsthrone.game.character.body.CoverableArea;
 import com.lilithsthrone.game.character.body.valueEnums.PenisModifier;
 import com.lilithsthrone.game.character.body.valueEnums.PenisSize;
 import com.lilithsthrone.game.dialogue.utils.UtilText;
@@ -11,11 +13,11 @@ import com.lilithsthrone.game.sex.OrificeType;
 import com.lilithsthrone.game.sex.PenetrationType;
 import com.lilithsthrone.game.sex.Sex;
 import com.lilithsthrone.game.sex.SexPace;
+import com.lilithsthrone.game.sex.SexParticipantType;
 import com.lilithsthrone.game.sex.sexActions.SexAction;
 import com.lilithsthrone.game.sex.sexActions.SexActionType;
 import com.lilithsthrone.main.Main;
 import com.lilithsthrone.utils.Util;
-import com.lilithsthrone.utils.Util.ListValue;
 
 /**
  * @since 0.1.69
@@ -26,11 +28,12 @@ public class DomKneeling {
 	
 	public static final SexAction PARTNER_MOUND_SNOG = new SexAction(
 			SexActionType.PARTNER_REQUIRES_NO_PENETRATION_AND_EXPOSED,
-			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.ONE_MINIMUM,
+			ArousalIncrease.THREE_NORMAL,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.TONGUE_PARTNER,
-			OrificeType.VAGINA_PLAYER,
+			PenetrationType.TONGUE,
+			OrificeType.VAGINA,
+			SexParticipantType.PITCHER,
 			null,
 			SexPace.SUB_EAGER) {
 		@Override
@@ -64,11 +67,12 @@ public class DomKneeling {
 	
 	public static final SexAction PARTNER_MOUND_KISSING = new SexAction(
 			SexActionType.PARTNER_REQUIRES_NO_PENETRATION_AND_EXPOSED,
-			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.ONE_MINIMUM,
+			ArousalIncrease.THREE_NORMAL,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.TONGUE_PARTNER,
-			OrificeType.VAGINA_PLAYER,
+			PenetrationType.TONGUE,
+			OrificeType.VAGINA,
+			SexParticipantType.PITCHER,
 			null,
 			SexPace.SUB_NORMAL) {
 		@Override
@@ -107,8 +111,9 @@ public class DomKneeling {
 			ArousalIncrease.FIVE_EXTREME,
 			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.ZERO_PURE,
-			PenetrationType.TONGUE_PARTNER,
-			OrificeType.VAGINA_PLAYER) {
+			PenetrationType.TONGUE,
+			OrificeType.VAGINA,
+			SexParticipantType.CATCHER) {
 		
 		@Override
 		public String getActionTitle() {
@@ -184,11 +189,6 @@ public class DomKneeling {
 			return UtilText.nodeContentSB.toString();
 		}
 		
-		@Override
-		public void applyEffects() {
-			Sex.removePenetration(PenetrationType.TONGUE_PARTNER, OrificeType.VAGINA_PLAYER);
-		}
-		
 	};
 
 	public static final SexAction PLAYER_ORGASM_COCK_DEEPTHROAT = new SexAction(
@@ -196,8 +196,9 @@ public class DomKneeling {
 			ArousalIncrease.FIVE_EXTREME,
 			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.THREE_DIRTY,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.MOUTH_PARTNER) {
+			PenetrationType.PENIS,
+			OrificeType.MOUTH,
+			SexParticipantType.PITCHER) {
 		@Override
 		public String getActionTitle() {
 			return "Deep throat";
@@ -210,7 +211,8 @@ public class DomKneeling {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Main.game.getPlayer().getPenisRawSizeValue() >= PenisSize.TWO_AVERAGE.getMedianValue();
+			return Main.game.getPlayer().getPenisRawSizeValue() >= PenisSize.TWO_AVERAGE.getMedianValue()
+					&& Main.game.getPlayer().hasPenisIgnoreDildo();
 		}
 
 		@Override
@@ -220,7 +222,7 @@ public class DomKneeling {
 			UtilText.nodeContentSB.append("You feel a desperate heat building in your groin, and with a lewd cry, you slam your [pc.cock+] deep down [npc.name]'s throat.");
 			
 			if(Main.game.getPlayer().hasPenisModifier(PenisModifier.KNOTTED)) {
-				UtilText.nodeContentSB.append(" You force the knot at the base of your [pc.cock] past [npc.her] [npc.lips+], and [npc.she] shuffles around on [npc.her] knees as it quickly swells up, locking you both in place");
+				UtilText.nodeContentSB.append(" You force the knot at the base of your [pc.cock] past [npc.her] [npc.lips+], and [npc.she] shuffles around on [npc.her] knees as it quickly swells up, locking you both in place.");
 				
 			} else if(Main.game.getPlayer().hasPenisModifier(PenisModifier.FLARED)) {
 				UtilText.nodeContentSB.append(" You feel it start to twitch and throb, and you reach down to hold [npc.her] head in position as your wide, flared head swells up in [npc.her] throat.");
@@ -268,19 +270,18 @@ public class DomKneeling {
 			}
 			
 			UtilText.nodeContentSB.append("</br></br>"
-					+ "After a moment you recover from your climax, and, as [npc.name] wipes tears from [npc.her] [npc.eyes] and gasps for breath, you slide your softening [pc.cock] out from [npc.her] mouth.");
+					+ "After a few moments, your balls have completely emptied themselves, and you take a moment to catch your breath, grinning down at [npc.name] as you keep your [pc.cock+] hilted down [npc.her] throat.");
 			
 			return UtilText.nodeContentSB.toString();
 		}
 
 		@Override
-		public void applyEffects() {
-			Sex.removePenetration(PenetrationType.PENIS_PLAYER, OrificeType.MOUTH_PARTNER);
-		}
-		
-		@Override
-		public List<OrificeType> getPartnerAreasCummedIn(){
-			return Util.newArrayListOfValues(new ListValue<>(OrificeType.MOUTH_PARTNER));
+		public List<OrificeType> getAreasCummedIn(GameCharacter cumProvider, GameCharacter cumTarget) {
+			if(cumProvider.equals(Main.game.getPlayer()) && cumTarget.equals(Sex.getTargetedPartner(Main.game.getPlayer()))) {
+				return Util.newArrayListOfValues(OrificeType.MOUTH);
+			} else {
+				return null;
+			}
 		}
 		
 	};
@@ -290,8 +291,9 @@ public class DomKneeling {
 			ArousalIncrease.FIVE_EXTREME,
 			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.ZERO_PURE,
-			PenetrationType.PENIS_PLAYER,
-			OrificeType.MOUTH_PARTNER) {
+			PenetrationType.PENIS,
+			OrificeType.MOUTH,
+			SexParticipantType.PITCHER) {
 		@Override
 		public String getActionTitle() {
 			return "Orgasm facial";
@@ -301,7 +303,12 @@ public class DomKneeling {
 		public String getActionDescription() {
 			return "Pull your cock out from [npc.name]'s throat and give [npc.herHim] a facial.";
 		}
-
+		
+		@Override
+		public boolean isBaseRequirementsMet() {
+			return Main.game.getPlayer().hasPenisIgnoreDildo();
+		}
+		
 		@Override
 		public String getDescription() {
 			UtilText.nodeContentSB.setLength(0);
@@ -361,13 +368,18 @@ public class DomKneeling {
 		}
 
 		@Override
-		public void applyEffects() {
-			Sex.removePenetration(PenetrationType.PENIS_PLAYER, OrificeType.MOUTH_PARTNER);
+		public List<CoverableArea> getAreasCummedOn(GameCharacter cumProvider, GameCharacter cumTarget) {
+			if(cumProvider.isPlayer() && cumTarget.equals(Sex.getTargetedPartner(Main.game.getPlayer()))) {
+				return Util.newArrayListOfValues(
+						CoverableArea.MOUTH);
+			}
+			return null; 
 		}
 		
 		@Override
-		public boolean ignorePlayerCondom() {
-			return true;
+		public boolean ignoreCondom(GameCharacter condomWearer) {
+			return condomWearer.equals(Main.game.getPlayer());
+			
 		}
 	};
 }

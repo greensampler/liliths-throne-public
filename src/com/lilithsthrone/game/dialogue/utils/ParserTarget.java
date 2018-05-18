@@ -7,58 +7,74 @@ import com.lilithsthrone.game.combat.Combat;
 import com.lilithsthrone.game.sex.Sex;
 import com.lilithsthrone.main.Main;
 import com.lilithsthrone.utils.Util;
-import com.lilithsthrone.utils.Util.ListValue;
 
 /**
  * @since 0.1.69.9
- * @version 0.1.95
+ * @version 0.2.5
  * @author Innoxia
  */
 public enum ParserTarget {
 	
 	STYLE(Util.newArrayListOfValues(
-			new ListValue<>("style")),
-			"Returns the same as 'pc', but should be used for style methods such as 'bold' or 'italics'.") {
+			"style",
+			"game"),
+			"Returns the same as 'pc', but should be used for style methods such as style.bold or style.italics or conditional methods such as game.isArcaneStorm.") {
 				@Override
-				public GameCharacter getCharacter() {
+				public GameCharacter getCharacter(String tag) {
 					return Main.game.getPlayer();
 				}
 			},
 	
 	PC(Util.newArrayListOfValues(
-			new ListValue<>("pc"),
-			new ListValue<>("player")),
+			"pc",
+			"player"),
 			"The player character.") {
 				@Override
-				public GameCharacter getCharacter() {
+				public GameCharacter getCharacter(String tag) {
 					return Main.game.getPlayer();
 				}
 			},
 	
 	NPC(Util.newArrayListOfValues(
-			new ListValue<>("npc")),
+			"npc",
+			"npc1",
+			"npc2",
+			"npc3",
+			"npc4",
+			"npc5",
+			"npc6"),
 			"The currently 'active' NPC.</br>"
+			+"<b>The tag 'npc' can be extended with a number, starting at 1, to signify which npc in the scene it is referring to!</b> e.g. 'npc1' is the first npc, 'npc2' is the second, etc.</br>"
 			+ "If in <b>combat</b>, it returns your opponent.</br>"
 			+ "If in <b>sex</b>, it returns your partner.</br>"
 			+ "<b>Otherwise</b>, it returns the most important NPC in the scene.") {
 				@Override
-				public GameCharacter getCharacter() {
-					if(UtilText.getSpecialNPC()!=null) {
-						return UtilText.getSpecialNPC();
+				public GameCharacter getCharacter(String tag) {
+					if(!UtilText.getSpecialNPCList().isEmpty()) {
+						if(tag.equalsIgnoreCase("npc")) {
+							return UtilText.getSpecialNPCList().get(0);
+						} else {
+							return UtilText.getSpecialNPCList().get(Math.max(0, Integer.parseInt(tag.substring(3))-1));
+						}
 						
 					} else if(Main.game.isInCombat()) {
-						return Combat.getOpponent();
+						return Combat.getActiveNPC();
 						
 					} else if (Main.game.isInSex()) {
-						return Sex.getPartner();
+						return Sex.getActivePartner();
 						
 					} else if (Main.game.getCurrentDialogueNode()!=null) {
-						if(Main.game.getCurrentDialogueNode()==CharactersPresentDialogue.MENU || Main.game.getCurrentDialogueNode()==PhoneDialogue.CONTACTS) {
+						if(Main.game.getCurrentDialogueNode()==CharactersPresentDialogue.MENU
+								 || Main.game.getCurrentDialogueNode()==PhoneDialogue.CONTACTS
+								 || Main.game.getCurrentDialogueNode()==PhoneDialogue.CONTACTS_CHARACTER) {
 							return CharactersPresentDialogue.characterViewed;
-						} else if (!Main.game.getCharactersPresent().isEmpty()) {
-							return Main.game.getCharactersPresent().get(0);
+							
 						} else if(Main.game.getActiveNPC()!=null) {
 							return Main.game.getActiveNPC();
+							
+						} else if (!Main.game.getCharactersPresent().isEmpty()) {
+							return Main.game.getCharactersPresent().get(0);
+							
 						} else {
 							throw new NullPointerException();
 						}
@@ -69,382 +85,503 @@ public enum ParserTarget {
 				}
 			},
 	
-	PROLOGUE_MALE(Util.newArrayListOfValues(
-			new ListValue<>("prologueMale")), ""){
+	PROLOGUE_MALE(Util.newArrayListOfValues("prologueMale"), "") {
 		public String getDescription() {
 			return Main.game.getPrologueMale().getDescription();
 		}
 
 		@Override
-		public GameCharacter getCharacter() {
+		public GameCharacter getCharacter(String tag) {
 			return Main.game.getPrologueMale();
 		}
 	},
 	
-	PROLOGUE_FEMALE(Util.newArrayListOfValues(
-			new ListValue<>("prologueFemale")), ""){
+	PROLOGUE_FEMALE(Util.newArrayListOfValues("prologueFemale"), "") {
 		public String getDescription() {
 			return Main.game.getPrologueFemale().getDescription();
 		}
 
 		@Override
-		public GameCharacter getCharacter() {
+		public GameCharacter getCharacter(String tag) {
 			return Main.game.getPrologueFemale();
 		}
 	},
 	
 	NPC_MALE(Util.newArrayListOfValues(
-			new ListValue<>("NPCmale"),
-			new ListValue<>("maleNPC")), ""){
+			"NPCmale",
+			"maleNPC",
+			"genericMale",
+			"maleGeneric"), "") {
 		public String getDescription() {
 			return Main.game.getGenericMaleNPC().getDescription();
 		}
 
 		@Override
-		public GameCharacter getCharacter() {
+		public GameCharacter getCharacter(String tag) {
 			return Main.game.getGenericMaleNPC();
 		}
 	},
 	
 	NPC_FEMALE(Util.newArrayListOfValues(
-			new ListValue<>("NPCfemale"),
-			new ListValue<>("femaleNPC")), ""){
+			"NPCfemale",
+			"femaleNPC",
+			"genericFemale",
+			"femaleGeneric"), "") {
 		public String getDescription() {
 			return Main.game.getGenericFemaleNPC().getDescription();
 		}
 
 		@Override
-		public GameCharacter getCharacter() {
+		public GameCharacter getCharacter(String tag) {
 			return Main.game.getGenericFemaleNPC();
 		}
 	},
 	
 	NPC_ANDROGYNOUS(Util.newArrayListOfValues(
-			new ListValue<>("NPCandrogynous"),
-			new ListValue<>("androgynousNPC"),
-			new ListValue<>("NPCambiguous"),
-			new ListValue<>("ambiguousNPC")), ""){
+			"NPCandrogynous",
+			"androgynousNPC",
+			"NPCambiguous",
+			"ambiguousNPC"), "") {
 		public String getDescription() {
 			return Main.game.getGenericAndrogynousNPC().getDescription();
 		}
 
 		@Override
-		public GameCharacter getCharacter() {
+		public GameCharacter getCharacter(String tag) {
 			return Main.game.getGenericAndrogynousNPC();
 		}
 	},
 	
 	TEST_NPC(Util.newArrayListOfValues(
-			new ListValue<>("testNPC"),
-			new ListValue<>("test")), ""){
+			"testNPC",
+			"test"), "") {
 		public String getDescription() {
 			return Main.game.getTestNPC().getDescription();
 		}
 
 		@Override
-		public GameCharacter getCharacter() {
+		public GameCharacter getCharacter(String tag) {
 			return Main.game.getTestNPC();
 		}
 	},
 	
 	LILAYA(Util.newArrayListOfValues(
-			new ListValue<>("lilaya"),
-			new ListValue<>("aunt")), ""){
+			"lilaya",
+			"aunt"), "") {
 		public String getDescription() {
 			return Main.game.getLilaya().getDescription();
 		}
 
 		@Override
-		public GameCharacter getCharacter() {
+		public GameCharacter getCharacter(String tag) {
 			return Main.game.getLilaya();
 		}
 	},
 	
-	ROSE(Util.newArrayListOfValues(
-			new ListValue<>("rose")), ""){
+	ROSE(Util.newArrayListOfValues("rose"), "") {
 		public String getDescription() {
 			return Main.game.getRose().getDescription();
 		}
 
 		@Override
-		public GameCharacter getCharacter() {
+		public GameCharacter getCharacter(String tag) {
 			return Main.game.getRose();
 		}
 	},
 	
-	KATE(Util.newArrayListOfValues(
-			new ListValue<>("kate")), ""){
+	KATE(Util.newArrayListOfValues("kate"), "") {
 		public String getDescription() {
 			return Main.game.getKate().getDescription();
 		}
 
 		@Override
-		public GameCharacter getCharacter() {
+		public GameCharacter getCharacter(String tag) {
 			return Main.game.getKate();
 		}
 	},
 	
-	RALPH(Util.newArrayListOfValues(
-			new ListValue<>("ralph")), ""){
+	RALPH(Util.newArrayListOfValues("ralph"), "") {
 		public String getDescription() {
 			return Main.game.getRalph().getDescription();
 		}
 
 		@Override
-		public GameCharacter getCharacter() {
+		public GameCharacter getCharacter(String tag) {
 			return Main.game.getRalph();
 		}
 	},
 	
-	NYAN(Util.newArrayListOfValues(
-			new ListValue<>("nyan")), ""){
+	NYAN(Util.newArrayListOfValues("nyan"), "") {
 		public String getDescription() {
 			return Main.game.getNyan().getDescription();
 		}
 
 		@Override
-		public GameCharacter getCharacter() {
+		public GameCharacter getCharacter(String tag) {
 			return Main.game.getNyan();
 		}
 	},
 	
-	VICKY(Util.newArrayListOfValues(
-			new ListValue<>("vicky")), ""){
+	VICKY(Util.newArrayListOfValues("vicky"), "") {
 		public String getDescription() {
 			return Main.game.getVicky().getDescription();
 		}
 
 		@Override
-		public GameCharacter getCharacter() {
+		public GameCharacter getCharacter(String tag) {
 			return Main.game.getVicky();
 		}
 	},
 	
-	PIX(Util.newArrayListOfValues(
-			new ListValue<>("pix")), ""){
+	PIX(Util.newArrayListOfValues("pix"), "") {
 		public String getDescription() {
 			return Main.game.getPix().getDescription();
 		}
 
 		@Override
-		public GameCharacter getCharacter() {
+		public GameCharacter getCharacter(String tag) {
 			return Main.game.getPix();
 		}
 	},
 	
-	BRAX(Util.newArrayListOfValues(
-			new ListValue<>("brax")), ""){
+	BRAX(Util.newArrayListOfValues("brax"), "") {
 		public String getDescription() {
 			return Main.game.getBrax().getDescription();
 		}
 
 		@Override
-		public GameCharacter getCharacter() {
+		public GameCharacter getCharacter(String tag) {
 			return Main.game.getBrax();
 		}
 	},
 	
-	CANDI(Util.newArrayListOfValues(
-			new ListValue<>("candi")), ""){
+	CANDI(Util.newArrayListOfValues("candi"), "") {
 		public String getDescription() {
 			return Main.game.getCandi().getDescription();
 		}
 
 		@Override
-		public GameCharacter getCharacter() {
+		public GameCharacter getCharacter(String tag) {
 			return Main.game.getCandi();
 		}
 	},
 	
-	SCARLETT(Util.newArrayListOfValues(
-			new ListValue<>("scarlett")), ""){
+	SCARLETT(Util.newArrayListOfValues("scarlett"), "") {
 		public String getDescription() {
 			return Main.game.getScarlett().getDescription();
 		}
 
 		@Override
-		public GameCharacter getCharacter() {
+		public GameCharacter getCharacter(String tag) {
 			return Main.game.getScarlett();
 		}
 	},
 	
-	ALEXA(Util.newArrayListOfValues(
-			new ListValue<>("alexa")), ""){
+	ALEXA(Util.newArrayListOfValues("alexa"), "") {
 		public String getDescription() {
 			return Main.game.getAlexa().getDescription();
 		}
 
 		@Override
-		public GameCharacter getCharacter() {
+		public GameCharacter getCharacter(String tag) {
 			return Main.game.getAlexa();
 		}
 	},
 	
 	HARPY_BIMBO(Util.newArrayListOfValues(
-			new ListValue<>("brittany"),
-			new ListValue<>("bimboHarpy"),
-			new ListValue<>("harpyBimbo")), ""){
+			"brittany",
+			"bimboHarpy",
+			"harpyBimbo"), "") {
 		public String getDescription() {
 			return Main.game.getHarpyBimbo().getDescription();
 		}
 
 		@Override
-		public GameCharacter getCharacter() {
+		public GameCharacter getCharacter(String tag) {
 			return Main.game.getHarpyBimbo();
 		}
 	},
 	
 	HARPY_BIMBO_COMPANION(Util.newArrayListOfValues(
-			new ListValue<>("lauren"),
-			new ListValue<>("bimboHarpyCompanion"),
-			new ListValue<>("harpyBimboCompanion")), ""){
+			"lauren",
+			"bimboHarpyCompanion",
+			"harpyBimboCompanion"), "") {
 		public String getDescription() {
 			return Main.game.getHarpyBimboCompanion().getDescription();
 		}
 
 		@Override
-		public GameCharacter getCharacter() {
+		public GameCharacter getCharacter(String tag) {
 			return Main.game.getHarpyBimboCompanion();
 		}
 	},
 	
 	HARPY_DOMINANT(Util.newArrayListOfValues(
-			new ListValue<>("diana"),
-			new ListValue<>("dominantHarpy"),
-			new ListValue<>("harpyDominant")), ""){
+			"diana",
+			"dominantHarpy",
+			"harpyDominant"), "") {
 		public String getDescription() {
 			return Main.game.getHarpyDominant().getDescription();
 		}
 
 		@Override
-		public GameCharacter getCharacter() {
+		public GameCharacter getCharacter(String tag) {
 			return Main.game.getHarpyDominant();
 		}
 	},
 	
 	HARPY_DOMINANT_COMPANION(Util.newArrayListOfValues(
-			new ListValue<>("harley"),
-			new ListValue<>("dominantHarpyCompanion"),
-			new ListValue<>("harpyDominantCompanion")), ""){
+			"harley",
+			"dominantHarpyCompanion",
+			"harpyDominantCompanion"), "") {
 		public String getDescription() {
 			return Main.game.getHarpyDominantCompanion().getDescription();
 		}
 
 		@Override
-		public GameCharacter getCharacter() {
+		public GameCharacter getCharacter(String tag) {
 			return Main.game.getHarpyDominantCompanion();
 		}
 	},
 	
 	HARPY_NYMPHO(Util.newArrayListOfValues(
-			new ListValue<>("lexi"),
-			new ListValue<>("nymphoHarpy"),
-			new ListValue<>("harpyNympho")), ""){
+			"lexi",
+			"nymphoHarpy",
+			"harpyNympho"), "") {
 		public String getDescription() {
 			return Main.game.getHarpyNympho().getDescription();
 		}
 
 		@Override
-		public GameCharacter getCharacter() {
+		public GameCharacter getCharacter(String tag) {
 			return Main.game.getHarpyNympho();
 		}
 	},
 	
 	HARPY_NYMPHO_COMPANION(Util.newArrayListOfValues(
-			new ListValue<>("max"),
-			new ListValue<>("nymphoHarpyCompanion"),
-			new ListValue<>("harpyNymphoCompanion")), ""){
+			"max",
+			"nymphoHarpyCompanion",
+			"harpyNymphoCompanion"), "") {
 		public String getDescription() {
 			return Main.game.getHarpyNymphoCompanion().getDescription();
 		}
 
 		@Override
-		public GameCharacter getCharacter() {
+		public GameCharacter getCharacter(String tag) {
 			return Main.game.getHarpyNymphoCompanion();
 		}
 	},
 	
-	PAZU(Util.newArrayListOfValues(
-			new ListValue<>("pazu")), ""){
+	PAZU(Util.newArrayListOfValues("pazu"), "") {
 		public String getDescription() {
 			return Main.game.getPazu().getDescription();
 		}
 
 		@Override
-		public GameCharacter getCharacter() {
+		public GameCharacter getCharacter(String tag) {
 			return Main.game.getPazu();
 		}
 	},
 	
-	FINCH(Util.newArrayListOfValues(
-			new ListValue<>("finch")), ""){
+	FINCH(Util.newArrayListOfValues("finch"), "") {
 		public String getDescription() {
 			return Main.game.getFinch().getDescription();
 		}
 
 		@Override
-		public GameCharacter getCharacter() {
+		public GameCharacter getCharacter(String tag) {
 			return Main.game.getFinch();
 		}
 	},
 	
-	ZARANIX(Util.newArrayListOfValues(
-			new ListValue<>("zaranix")), ""){
+	ZARANIX(Util.newArrayListOfValues("zaranix"), "") {
 		public String getDescription() {
 			return Main.game.getZaranix().getDescription();
 		}
 
 		@Override
-		public GameCharacter getCharacter() {
+		public GameCharacter getCharacter(String tag) {
 			return Main.game.getZaranix();
 		}
 	},
 	
-	AMBER(Util.newArrayListOfValues(
-			new ListValue<>("amber")), ""){
+	AMBER(Util.newArrayListOfValues("amber"), "") {
 		public String getDescription() {
 			return Main.game.getAmber().getDescription();
 		}
 
 		@Override
-		public GameCharacter getCharacter() {
+		public GameCharacter getCharacter(String tag) {
 			return Main.game.getAmber();
 		}
 	},
 	
-	ARTHUR(Util.newArrayListOfValues(
-			new ListValue<>("arthur")), ""){
+	ARTHUR(Util.newArrayListOfValues("arthur"), "") {
 		public String getDescription() {
 			return Main.game.getArthur().getDescription();
 		}
 
 		@Override
-		public GameCharacter getCharacter() {
+		public GameCharacter getCharacter(String tag) {
 			return Main.game.getArthur();
 		}
 	},
 	
-	KELLY(Util.newArrayListOfValues(
-			new ListValue<>("kelly")), ""){
+	KELLY(Util.newArrayListOfValues("kelly"), "") {
 		public String getDescription() {
 			return Main.game.getKelly().getDescription();
 		}
 
 		@Override
-		public GameCharacter getCharacter() {
+		public GameCharacter getCharacter(String tag) {
 			return Main.game.getKelly();
 		}
 	},
 	
-	KATHERINE(Util.newArrayListOfValues(
-			new ListValue<>("katherine")), ""){
+	KATHERINE(Util.newArrayListOfValues("katherine"), "") {
 		public String getDescription() {
 			return Main.game.getKatherine().getDescription();
 		}
 
 		@Override
-		public GameCharacter getCharacter() {
+		public GameCharacter getCharacter(String tag) {
 			return Main.game.getKatherine();
+		}
+	},
+	
+	ASHLEY(Util.newArrayListOfValues("ashley"), "") {
+		public String getDescription() {
+			return Main.game.getAshley().getDescription();
+		}
+
+		@Override
+		public GameCharacter getCharacter(String tag) {
+			return Main.game.getAshley();
+		}
+	},
+	
+	WOLFGANG(Util.newArrayListOfValues(
+			"wolfgang",
+			"supplierLeader"), "") {
+		public String getDescription() {
+			return Main.game.getSupplierLeader().getDescription();
+		}
+
+		@Override
+		public GameCharacter getCharacter(String tag) {
+			return Main.game.getSupplierLeader();
+		}
+	},
+	
+	KARL(Util.newArrayListOfValues(
+			"karl",
+			"supplierPartner"), "") {
+		public String getDescription() {
+			return Main.game.getSupplierPartner().getDescription();
+		}
+
+		@Override
+		public GameCharacter getCharacter(String tag) {
+			return Main.game.getSupplierPartner();
+		}
+	},
+	
+	ANGEL(Util.newArrayListOfValues("angel"), "") {
+		public String getDescription() {
+			return Main.game.getAngel().getDescription();
+		}
+
+		@Override
+		public GameCharacter getCharacter(String tag) {
+			return Main.game.getAngel();
+		}
+	},
+	
+	BUNNY(Util.newArrayListOfValues("bunny"), "") {
+		public String getDescription() {
+			return Main.game.getBunny().getDescription();
+		}
+
+		@Override
+		public GameCharacter getCharacter(String tag) {
+			return Main.game.getBunny();
+		}
+	},
+	
+	LOPPY(Util.newArrayListOfValues("loppy"), "") {
+		public String getDescription() {
+			return Main.game.getLoppy().getDescription();
+		}
+
+		@Override
+		public GameCharacter getCharacter(String tag) {
+			return Main.game.getLoppy();
+		}
+	},
+	
+	LUMI(Util.newArrayListOfValues("lumi"), "") {
+		public String getDescription() {
+			return Main.game.getLumi().getDescription();
+		}
+
+		@Override
+		public GameCharacter getCharacter(String tag) {
+			return Main.game.getLumi();
+		}
+	},
+	
+	CLAIRE(Util.newArrayListOfValues("claire"), "") {
+		public String getDescription() {
+			return Main.game.getClaire().getDescription();
+		}
+
+		@Override
+		public GameCharacter getCharacter(String tag) {
+			return Main.game.getClaire();
+		}
+	},
+	
+	SLIME_QUEEN(Util.newArrayListOfValues("slimeQueen"), "") {
+		public String getDescription() {
+			return Main.game.getSlimeQueen().getDescription();
+		}
+
+		@Override
+		public GameCharacter getCharacter(String tag) {
+			return Main.game.getSlimeQueen();
+		}
+	},
+	
+	SLIME_GUARD_ICE(Util.newArrayListOfValues("slimeGuardIce", "slimeIce"), "") {
+		public String getDescription() {
+			return Main.game.getSlimeGuardIce().getDescription();
+		}
+
+		@Override
+		public GameCharacter getCharacter(String tag) {
+			return Main.game.getSlimeGuardIce();
+		}
+	},
+	
+	SLIME_GUARD_FIRE(Util.newArrayListOfValues("slimeGuardFire", "slimeFire"), "") {
+		public String getDescription() {
+			return Main.game.getSlimeGuardFire().getDescription();
+		}
+
+		@Override
+		public GameCharacter getCharacter(String tag) {
+			return Main.game.getSlimeGuardFire();
+		}
+	},
+	
+	SLIME_ROYAL_GUARD(Util.newArrayListOfValues("slimeRoyalGuard", "royalGuardSlime"), "") {
+		public String getDescription() {
+			return Main.game.getSlimeRoyalGuard().getDescription();
+		}
+
+		@Override
+		public GameCharacter getCharacter(String tag) {
+			return Main.game.getSlimeRoyalGuard();
 		}
 	},
 	;
@@ -466,5 +603,5 @@ public enum ParserTarget {
 		return description;
 	}
 	
-	public abstract GameCharacter getCharacter();
+	public abstract GameCharacter getCharacter(String tag);
 }

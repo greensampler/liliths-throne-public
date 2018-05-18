@@ -1,6 +1,7 @@
 package com.lilithsthrone.game.character.body.types;
 
 import com.lilithsthrone.game.character.GameCharacter;
+import com.lilithsthrone.game.character.body.Body;
 import com.lilithsthrone.game.character.race.Race;
 
 /**
@@ -41,7 +42,7 @@ public interface BodyPartTypeInterface {
 	/** @return The plural name of this body part. */
 	public String getNamePlural(GameCharacter gc);
 
-	/** @return The name of this body part with it's descriptor. */
+	/** @return The name of this body part with its descriptor. */
 	public default String getName(boolean withDescriptor, GameCharacter gc) {
 		return (getDescriptor(gc).length() > 0 ? getDescriptor(gc) + " " : "") + getName(gc);
 	}
@@ -49,8 +50,13 @@ public interface BodyPartTypeInterface {
 	/** A 1-word descriptor that best describes this body part. */
 	public String getDescriptor(GameCharacter gc);
 
-	/** @return The type of skin that is covering this body part. */
-	public BodyCoveringType getBodyCoveringType();
+	/** @param gc TODO
+	 * @return The type of skin that is covering this body part. */
+	public BodyCoveringType getBodyCoveringType(Body body);
+	
+	public default BodyCoveringType getBodyCoveringType(GameCharacter gc) {
+		return getBodyCoveringType(gc.getBody());
+	}
 
 	public Race getRace();
 }

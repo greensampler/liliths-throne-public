@@ -6,7 +6,7 @@ import org.w3c.dom.events.EventListener;
 import com.lilithsthrone.controller.TooltipUpdateThread;
 import com.lilithsthrone.game.character.GameCharacter;
 import com.lilithsthrone.game.dialogue.DialogueFlagValue;
-import com.lilithsthrone.game.dialogue.MapDisplay;
+import com.lilithsthrone.game.dialogue.DialogueNodeType;
 import com.lilithsthrone.game.dialogue.responses.Response;
 import com.lilithsthrone.game.dialogue.utils.InventoryDialogue;
 import com.lilithsthrone.game.inventory.InventorySlot;
@@ -30,13 +30,14 @@ public class InventorySelectedItemEventListener implements EventListener {
 	@Override
 	public void handleEvent(Event event) {
 
-		if (Main.game.getCurrentDialogueNode().getMapDisplay() == MapDisplay.CHARACTERS_PRESENT)
+		if (Main.game.getCurrentDialogueNode().getDialogueNodeType() == DialogueNodeType.CHARACTERS_PRESENT || Main.game.getCurrentDialogueNode().getDialogueNodeType() == DialogueNodeType.PHONE) {
 			return;
+		}
 		
 		TooltipUpdateThread.cancelThreads=true;
 		
 		if (item != null) {
-			if(Main.game.getCurrentDialogueNode().getMapDisplay()!=MapDisplay.INVENTORY) {
+			if(Main.game.getCurrentDialogueNode().getDialogueNodeType()!=DialogueNodeType.INVENTORY) {
 				Main.mainController.openInventory();
 			}
 			if(Main.game.getDialogueFlags().values.contains(DialogueFlagValue.quickTrade)) {
@@ -63,7 +64,7 @@ public class InventorySelectedItemEventListener implements EventListener {
 			}
 			
 		} else if (clothing != null) {
-			if(Main.game.getCurrentDialogueNode().getMapDisplay()!=MapDisplay.INVENTORY) {
+			if(Main.game.getCurrentDialogueNode().getDialogueNodeType()!=DialogueNodeType.INVENTORY) {
 				Main.mainController.openInventory();
 			}
 			InventoryDialogue.setOwner(owner);
@@ -73,7 +74,7 @@ public class InventorySelectedItemEventListener implements EventListener {
 			Main.game.setContent(new Response("", "", InventoryDialogue.CLOTHING_INVENTORY));
 			
 		} else if (weapon != null) {
-			if(Main.game.getCurrentDialogueNode().getMapDisplay()!=MapDisplay.INVENTORY) {
+			if(Main.game.getCurrentDialogueNode().getDialogueNodeType()!=DialogueNodeType.INVENTORY) {
 				Main.mainController.openInventory();
 			}
 			InventoryDialogue.setOwner(owner);
@@ -83,7 +84,7 @@ public class InventorySelectedItemEventListener implements EventListener {
 			Main.game.setContent(new Response("", "", InventoryDialogue.WEAPON_INVENTORY));
 
 		} else if (clothingEquipped != null) {
-			if(Main.game.getCurrentDialogueNode().getMapDisplay()!=MapDisplay.INVENTORY) {
+			if(Main.game.getCurrentDialogueNode().getDialogueNodeType()!=DialogueNodeType.INVENTORY) {
 				Main.mainController.openInventory();
 			}
 			InventoryDialogue.setOwner(owner);
@@ -93,7 +94,7 @@ public class InventorySelectedItemEventListener implements EventListener {
 			Main.game.setContent(new Response("", "", InventoryDialogue.CLOTHING_EQUIPPED));
 
 		} else if (weaponEquipped != null) {
-			if(Main.game.getCurrentDialogueNode().getMapDisplay()!=MapDisplay.INVENTORY) {
+			if(Main.game.getCurrentDialogueNode().getDialogueNodeType()!=DialogueNodeType.INVENTORY) {
 				Main.mainController.openInventory();
 			}
 			InventoryDialogue.setOwner(owner);

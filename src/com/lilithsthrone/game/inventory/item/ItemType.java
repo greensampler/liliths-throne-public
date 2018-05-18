@@ -7,21 +7,33 @@ import java.util.List;
 import java.util.Map;
 
 import com.lilithsthrone.game.character.GameCharacter;
-import com.lilithsthrone.game.character.QuestLine;
+import com.lilithsthrone.game.character.attributes.Attribute;
 import com.lilithsthrone.game.character.attributes.CorruptionLevel;
+import com.lilithsthrone.game.character.attributes.IntelligenceLevel;
+import com.lilithsthrone.game.character.body.CoverableArea;
+import com.lilithsthrone.game.character.quests.QuestLine;
 import com.lilithsthrone.game.character.race.Race;
+import com.lilithsthrone.game.combat.Spell;
+import com.lilithsthrone.game.combat.SpellSchool;
 import com.lilithsthrone.game.dialogue.DialogueFlagValue;
 import com.lilithsthrone.game.dialogue.utils.UtilText;
+import com.lilithsthrone.game.inventory.ItemTag;
 import com.lilithsthrone.game.inventory.Rarity;
+import com.lilithsthrone.game.inventory.enchanting.AbstractItemEffectType;
+import com.lilithsthrone.game.inventory.enchanting.ItemEffect;
+import com.lilithsthrone.game.inventory.enchanting.ItemEffectTimer;
+import com.lilithsthrone.game.inventory.enchanting.ItemEffectType;
 import com.lilithsthrone.game.inventory.enchanting.TFEssence;
+import com.lilithsthrone.game.inventory.enchanting.TFModifier;
+import com.lilithsthrone.game.inventory.enchanting.TFPotency;
 import com.lilithsthrone.main.Main;
 import com.lilithsthrone.utils.Colour;
 import com.lilithsthrone.utils.Util;
-import com.lilithsthrone.utils.Util.ListValue;
+import com.lilithsthrone.world.places.PlaceType;
 
 /**
  * @since 0.1.84
- * @version 0.1.97
+ * @version 0.2.4
  * @author Innoxia
  */
 public class ItemType {
@@ -262,42 +274,6 @@ public class ItemType {
 	// }
 	// },
 	
-//	public static AbstractItemType TEST_ITEM = new AbstractItemType(
-//			"a bottle of",
-//			false,
-//			"testing fluids",
-//			"You shouldn't be able to find this. x_x",
-//			"attributeHorseMorphDrink",
-//			Colour.ATTRIBUTE_STRENGTH,
-//			25,
-//			Rarity.UNCOMMON,
-//			TFEssence.HORSE_MORPH,
-//			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.TESTING, null, null, null, 0)))) {
-//
-//		/**
-//				 * 
-//				 */
-//				private static final long serialVersionUID = 1L;
-//
-//		@Override
-//		public String getUseName() {
-//			return "drink";
-//		}
-//
-//		@Override
-//		public String getUseDescription(GameCharacter user, GameCharacter target) {
-//			if (user!=null && user.isPlayer())
-//				return "<p>"
-//							+ "You drink the testing fluid."
-//						+ "</p>";
-//			else
-//				return UtilText.parse(user,
-//						"<p>"
-//								+ "[npc.Name] drinks the testing fluid."
-//						+ "</p>");
-//		}
-//	};
-	
 	private static String getGenericUseDescription(GameCharacter user, GameCharacter target, String playerUseSelf, String playerUsePartner, String partnerUseSelf, String partnerUsePlayer) {
 		if (user!=null && user.isPlayer()) {
 			if(target!=null) {
@@ -329,7 +305,7 @@ public class ItemType {
 	
 	// Strength ingredients are beer-type alcohol:
 	
-	public static AbstractItemType STR_INGREDIENT_EQUINE_CIDER = new AbstractItemType(
+	public static AbstractItemType STR_INGREDIENT_EQUINE_CIDER = new AbstractItemType(60,
 			"a bottle of",
 			false,
 			"Equine Cider",
@@ -337,17 +313,21 @@ public class ItemType {
 			"The thick glass bottle of 'Equine Cider' appears to contain, much as its name would suggest, a generous helping of some sort of alcoholic cider."
 				+ " On the label, there's an incredibly lewd illustration of a horse-boy slamming his massive cock deep into a girl's eager pussy.",
 			"attributeHorseMorphDrink",
-			Colour.ATTRIBUTE_STRENGTH,
-			30,
+			Colour.ATTRIBUTE_PHYSIQUE,
+			null,
+			null,
 			Rarity.UNCOMMON,
 			TFEssence.ARCANE,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.STR_EQUINE_CIDER, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.STR_EQUINE_CIDER)),
+			Util.newArrayListOfValues(
+					ItemTag.DOMINION_ALLEYWAY_SPAWN,
+					ItemTag.ATTRIBUTE_TF_ITEM)) {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public ItemEffectType getEnchantmentEffect() {
-			return ItemEffectType.ATTRIBUTE_STRENGTH;
+		public AbstractItemEffectType getEnchantmentEffect() {
+			return ItemEffectType.ATTRIBUTE_PHYSIQUE;
 		}
 
 		@Override
@@ -372,24 +352,29 @@ public class ItemType {
 		}
 	};
 	
-	public static AbstractItemType STR_INGREDIENT_BUBBLE_MILK = new AbstractItemType("a bottle of",
+	public static AbstractItemType STR_INGREDIENT_BUBBLE_MILK = new AbstractItemType(20,
+			"a bottle of",
 			false,
 			"Bubble Milk",
 			"Bubble Milks",
 			"The thick glass bottle of 'Bubble Milk' appears to contain, much as its name would suggest, a generous helping of milk."
 				+ " Looking through the glass, you see that there are little bubbles fizzing up in the liquid within, making this milk appear to be carbonated.",
 			"attributeCowMorphDrink",
-			Colour.ATTRIBUTE_STRENGTH,
-			30,
+			Colour.ATTRIBUTE_PHYSIQUE,
+			null,
+			null,
 			Rarity.UNCOMMON,
 			TFEssence.ARCANE,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.STR_BUBBLE_MILK, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.STR_BUBBLE_MILK)), 
+			Util.newArrayListOfValues(
+					ItemTag.DOMINION_ALLEYWAY_SPAWN,
+					ItemTag.ATTRIBUTE_TF_ITEM)) {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public ItemEffectType getEnchantmentEffect() {
-			return ItemEffectType.ATTRIBUTE_STRENGTH;
+		public AbstractItemEffectType getEnchantmentEffect() {
+			return ItemEffectType.ATTRIBUTE_PHYSIQUE;
 		}
 
 		@Override
@@ -414,24 +399,29 @@ public class ItemType {
 		}
 	};
 	
-	public static AbstractItemType STR_INGREDIENT_WOLF_WHISKEY = new AbstractItemType("a bottle of",
+	public static AbstractItemType STR_INGREDIENT_WOLF_WHISKEY = new AbstractItemType(120,
+			"a bottle of",
 			false,
 			"Wolf Whiskey",
 			"Wolf Whiskeys",
 			"Although labelled as a whiskey, the liquid inside the glass bottle looks more like a thick cream."
 					+ " The label on the front shows a greater wolf-boy ejaculating into a bottle just like this one, making it quite clear what this 'whiskey' really is.",
 			"attributeWolfMorphDrink",
-			Colour.ATTRIBUTE_STRENGTH,
-			30,
+			Colour.ATTRIBUTE_PHYSIQUE,
+			null,
+			null,
 			Rarity.UNCOMMON,
 			TFEssence.ARCANE,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.STR_WOLF_WHISKEY, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.STR_WOLF_WHISKEY)), 
+			Util.newArrayListOfValues(
+					ItemTag.DOMINION_ALLEYWAY_SPAWN,
+					ItemTag.ATTRIBUTE_TF_ITEM)) {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public ItemEffectType getEnchantmentEffect() {
-			return ItemEffectType.ATTRIBUTE_STRENGTH;
+		public AbstractItemEffectType getEnchantmentEffect() {
+			return ItemEffectType.ATTRIBUTE_PHYSIQUE;
 		}
 
 		@Override
@@ -456,7 +446,7 @@ public class ItemType {
 		}
 	};
 	
-	public static AbstractItemType STR_INGREDIENT_SWAMP_WATER = new AbstractItemType(
+	public static AbstractItemType STR_INGREDIENT_SWAMP_WATER = new AbstractItemType(40,
 			"a bottle of",
 			false,
 			"Swamp Water",
@@ -464,17 +454,21 @@ public class ItemType {
 			"A glass bottle of what appears to be some kind of moonshine."
 				+ " A label on the front shows an alligator-boy biting the top off a bottle just like this one.",
 			"attributeGatorMorphDrink",
-			Colour.ATTRIBUTE_STRENGTH,
-			30,
+			Colour.ATTRIBUTE_PHYSIQUE,
+			null,
+			null,
 			Rarity.UNCOMMON,
 			TFEssence.ARCANE,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.STR_SWAMP_WATER, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.STR_SWAMP_WATER)), 
+			Util.newArrayListOfValues(
+					ItemTag.SUBMISSION_TUNNEL_SPAWN,
+					ItemTag.ATTRIBUTE_TF_ITEM)) {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public ItemEffectType getEnchantmentEffect() {
-			return ItemEffectType.ATTRIBUTE_STRENGTH;
+		public AbstractItemEffectType getEnchantmentEffect() {
+			return ItemEffectType.ATTRIBUTE_PHYSIQUE;
 		}
 
 		@Override
@@ -501,9 +495,56 @@ public class ItemType {
 		}
 	};
 	
+	public static AbstractItemType STR_INGREDIENT_BLACK_RATS_RUM = new AbstractItemType(200,
+			"a bottle of",
+			false,
+			"Black Rat's Rum",
+			"Black Rat's Rums",
+			"A glass bottle of 'Black Rat's Rum', filled with orange-coloured alcohol."
+				+ " The label on the front shows an image of a black-furred rat-boy, wearing a thief's mask, pinning a rat-girl against a wall as he fucks her from behind.",
+			"attributeRatMorphDrink",
+			Colour.ATTRIBUTE_PHYSIQUE,
+			null,
+			null,
+			Rarity.UNCOMMON,
+			TFEssence.ARCANE,
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.STR_BLACK_RATS_RUM)), 
+			Util.newArrayListOfValues(
+					ItemTag.SUBMISSION_TUNNEL_SPAWN,
+					ItemTag.ATTRIBUTE_TF_ITEM)) {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public AbstractItemEffectType getEnchantmentEffect() {
+			return ItemEffectType.ATTRIBUTE_PHYSIQUE;
+		}
+
+		@Override
+		public AbstractItemType getEnchantmentItemType(List<ItemEffect> effects) {
+			return POTION;
+		}
+
+		@Override
+		public String getUseName() {
+			return "drink";
+		}
+
+		@Override
+		public String getUseDescription(GameCharacter user, GameCharacter target) {
+			return getGenericUseDescription(user, target,
+					"Unscrewing the lid, you bring the bottle of 'Black Rat's Rum' to your lips before tilting your head back and quickly gulping down the golden liquid."
+						+ " As the last few drops slide down your throat, you notice a faint, musky dryness permeating through the alcoholic liquid, which lingers for some time as a slightly unpleasant aftertaste.",
+					"Unscrewing the lid, you bring the bottle of 'Black Rat's Rum' to [npc.name]'s lips, before tilting [npc.her] head back and forcing [npc.herHim] to quickly gulp down the golden liquid.",
+					"[npc.Name] pulls out a bottle of 'Black Rat's Rum', and, after quickly unscrewing the cap, [npc.she] promptly downs the entire bottle.",
+					"[npc.Name] pulls out a bottle of 'Black Rat's Rum', and, after quickly unscrewing the cap, [npc.she] brings it to your lips before tilting your head back and forcing you to quickly gulp down the golden liquid."
+						+ " As the last few drops slide down your throat, you notice a faint, musky dryness permeating through the alcoholic liquid, which lingers for some time as a slightly unpleasant aftertaste.");
+		}
+	};
+	
 	// Intelligence ingredients are cold non-alcoholic drinks:
 	
-	public static AbstractItemType INT_INGREDIENT_FELINE_FANCY = new AbstractItemType(
+	public static AbstractItemType INT_INGREDIENT_FELINE_FANCY = new AbstractItemType(150,
 			"a bottle of",
 			false,
 			"Feline's Fancy",
@@ -511,17 +552,21 @@ public class ItemType {
 			"A delicate glass bottle filled with a thick, cream-like liquid."
 				+ " A label on the front shows a pair of cat-girls lovingly kissing one another, with the dominant partner slipping a hand down between her partner's thighs.",
 			"attributeCatMorphDrink",
-			Colour.ATTRIBUTE_INTELLIGENCE,
-			30,
+			Colour.ATTRIBUTE_ARCANE,
+			null,
+			null,
 			Rarity.UNCOMMON,
 			TFEssence.ARCANE,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.INT_FELINE_FANCY, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.INT_FELINE_FANCY)),
+			Util.newArrayListOfValues(
+					ItemTag.DOMINION_ALLEYWAY_SPAWN,
+					ItemTag.ATTRIBUTE_TF_ITEM)) {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public ItemEffectType getEnchantmentEffect() {
-			return ItemEffectType.ATTRIBUTE_INTELLIGENCE;
+		public AbstractItemEffectType getEnchantmentEffect() {
+			return ItemEffectType.ATTRIBUTE_ARCANE;
 		}
 
 		@Override
@@ -546,7 +591,7 @@ public class ItemType {
 		}
 	};
 	
-	public static AbstractItemType INT_INGREDIENT_VANILLA_WATER = new AbstractItemType(
+	public static AbstractItemType INT_INGREDIENT_VANILLA_WATER = new AbstractItemType(10,
 			"a bottle of",
 			false,
 			"Vanilla Water",
@@ -554,17 +599,22 @@ public class ItemType {
 			"A plastic bottle filled with what appears to be nothing but water."
 				+ " While there's no label on the bottle, there is a slight indentation in its surface, and, holding it up to the light to get a better look, you see that the impression spells the words 'Vanilla Water'.",
 			"attributeHumanDrink",
-			Colour.ATTRIBUTE_INTELLIGENCE,
-			30,
+			Colour.ATTRIBUTE_ARCANE,
+			null,
+			null,
 			Rarity.UNCOMMON,
 			TFEssence.ARCANE,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.INT_VANILLA_WATER, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.INT_VANILLA_WATER)), 
+			Util.newArrayListOfValues(
+					ItemTag.DOMINION_ALLEYWAY_SPAWN,
+					ItemTag.SUBMISSION_TUNNEL_SPAWN,
+					ItemTag.ATTRIBUTE_TF_ITEM)) {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public ItemEffectType getEnchantmentEffect() {
-			return ItemEffectType.ATTRIBUTE_INTELLIGENCE;
+		public AbstractItemEffectType getEnchantmentEffect() {
+			return ItemEffectType.ATTRIBUTE_ARCANE;
 		}
 
 		@Override
@@ -591,7 +641,7 @@ public class ItemType {
 	
 	// Fitness ingredients are energy drinks and coffee:
 	
-	public static AbstractItemType FIT_INGREDIENT_CANINE_CRUSH = new AbstractItemType(
+	public static AbstractItemType FIT_INGREDIENT_CANINE_CRUSH = new AbstractItemType(20,
 			"a bottle of",
 			false,
 			"Canine Crush",
@@ -599,17 +649,21 @@ public class ItemType {
 			"A glass bottle of what looks to be some kind of beer."
 				+ " A label on the front shows a dog-boy lining himself up behind a beautiful girl, who's down on all fours, presenting her naked, dripping pussy to the throbbing dog-cock behind her.",
 			"attributeDogMorphDrink",
-			Colour.ATTRIBUTE_FITNESS,
-			30,
+			Colour.ATTRIBUTE_PHYSIQUE,
+			null,
+			null,
 			Rarity.UNCOMMON,
 			TFEssence.ARCANE,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.FIT_CANINE_CRUSH, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.FIT_CANINE_CRUSH)),
+			Util.newArrayListOfValues(
+					ItemTag.DOMINION_ALLEYWAY_SPAWN,
+					ItemTag.ATTRIBUTE_TF_ITEM)) {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public ItemEffectType getEnchantmentEffect() {
-			return ItemEffectType.ATTRIBUTE_FITNESS;
+		public AbstractItemEffectType getEnchantmentEffect() {
+			return ItemEffectType.ATTRIBUTE_PHYSIQUE;
 		}
 
 		@Override
@@ -636,7 +690,7 @@ public class ItemType {
 		}
 	};
 	
-	public static AbstractItemType FIT_INGREDIENT_SQUIRREL_JAVA = new AbstractItemType(
+	public static AbstractItemType FIT_INGREDIENT_SQUIRREL_JAVA = new AbstractItemType(20,
 			"a bottle of",
 			false,
 			"Squirrel Java",
@@ -644,17 +698,21 @@ public class ItemType {
 			"A glass bottle of what looks to be some kind of coffee."
 				+ " A label on the front shows a squirrel-girl fingering herself over the top of a bottle just like this one; her juices dripping down into the coffee to provide some extra cream.",
 			"attributeSquirrelMorphDrink",
-			Colour.ATTRIBUTE_FITNESS,
-			30,
+			Colour.ATTRIBUTE_PHYSIQUE,
+			null,
+			null,
 			Rarity.UNCOMMON,
 			TFEssence.ARCANE,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.FIT_SQUIRREL_JAVA, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.FIT_SQUIRREL_JAVA)),
+			Util.newArrayListOfValues(
+					ItemTag.DOMINION_ALLEYWAY_SPAWN,
+					ItemTag.ATTRIBUTE_TF_ITEM)) {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public ItemEffectType getEnchantmentEffect() {
-			return ItemEffectType.ATTRIBUTE_FITNESS;
+		public AbstractItemEffectType getEnchantmentEffect() {
+			return ItemEffectType.ATTRIBUTE_PHYSIQUE;
 		}
 
 		@Override
@@ -681,7 +739,55 @@ public class ItemType {
 		}
 	};
 	
-	public static AbstractItemType FIT_INGREDIENT_EGG_NOG = new AbstractItemType(
+	public static AbstractItemType INT_INGREDIENT_FRUIT_BAT_SQUASH = new AbstractItemType(15,
+			"a",
+			false,
+			"Fruit Bat's Juice Box",
+			"Fruit Bat's Juice Boxes",
+			"A small cardboard carton, labelled as 'Fruit Bat's Juice Box'."
+					+ " On one side of the carton, there's an image of a scantily-clad bat-girl squeezing the juice from all sorts of fruit over her breasts.",
+			"attributeBatMorphDrink",
+			Colour.ATTRIBUTE_ARCANE,
+			null,
+			null,
+			Rarity.UNCOMMON,
+			TFEssence.ARCANE,
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.INT_FRUIT_BAT_SQUASH)),
+			Util.newArrayListOfValues(
+					ItemTag.BAT_CAVERNS_SPAWN,
+					ItemTag.ATTRIBUTE_TF_ITEM)) {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public AbstractItemEffectType getEnchantmentEffect() {
+			return ItemEffectType.ATTRIBUTE_ARCANE;
+		}
+
+		@Override
+		public AbstractItemType getEnchantmentItemType(List<ItemEffect> effects) {
+			return POTION;
+		}
+
+		@Override
+		public String getUseName() {
+			return "drink";
+		}
+
+		@Override
+		public String getUseDescription(GameCharacter user, GameCharacter target) {
+			return getGenericUseDescription(user, target,
+					"Tearing the attached straw from the front of the orange-flavoured carton, you use it to pierce the little foil circle on the top, before wrapping your [pc.lips] around it and starting to drink."
+						+ " The liquid that enters your mouth has a very strong orange flavour, and, after quickly finishing it, you drink down the other carton, finding that the taste of apples is every bit as intense as orange one was.",
+					"Tearing the attached straw from the front of the orange-flavoured carton, you use it to pierce the little foil circle on the top, before bringing it to [npc.name]'s lips and forcing [npc.herHim] to quickly gulp down the liquid within."
+						+ " You then do the same with the apple-flavoured one, smiling as [npc.she] gulps down every drop.",
+					"[npc.Name] pulls out a pair of cartons of 'Fruit Bat's Squash', and, using the attached straws on each one, quickly gulps down the liquid within.",
+					"[npc.Name] pulls out a pair of cartons of 'Fruit Bat's Squash', and, using the attached straws on each one, forces you to drink down the contents."
+						+ " The first carton's contents has a very strong orange flavour, and, after quickly finishing it, [npc.name] gets you to drink down the other one, which proves to be apple-flavoured.");
+		}
+	};
+	
+	public static AbstractItemType FIT_INGREDIENT_EGG_NOG = new AbstractItemType(30,
 			"a bottle of",
 			false,
 			"Rudolph's Egg nog",
@@ -689,17 +795,21 @@ public class ItemType {
 			"A carton of 'Rudolph's Egg Nog'."
 				+ " A label on the front shows the drink's namesake, a buff, stark-naked reindeer-boy, drinking a glass of this carton's contents while receiving oral sex from three enraptured reindeer-girls.",
 			"attributeReindeerMorphDrink",
-			Colour.ATTRIBUTE_FITNESS,
-			30,
+			Colour.ATTRIBUTE_PHYSIQUE,
+			null,
+			null,
 			Rarity.UNCOMMON,
 			TFEssence.ARCANE,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.FIT_EGG_NOG, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.FIT_EGG_NOG)),
+			Util.newArrayListOfValues(
+					ItemTag.REINDEER_GIFT,
+					ItemTag.ATTRIBUTE_TF_ITEM)) {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public ItemEffectType getEnchantmentEffect() {
-			return ItemEffectType.ATTRIBUTE_FITNESS;
+		public AbstractItemEffectType getEnchantmentEffect() {
+			return ItemEffectType.ATTRIBUTE_PHYSIQUE;
 		}
 
 		@Override
@@ -726,7 +836,7 @@ public class ItemType {
 		}
 	};
 	
-	public static AbstractItemType SEX_INGREDIENT_HARPY_PERFUME = new AbstractItemType(
+	public static AbstractItemType SEX_INGREDIENT_HARPY_PERFUME = new AbstractItemType(250,
 			"a bottle of",
 			false,
 			"Harpy Perfume",
@@ -735,15 +845,18 @@ public class ItemType {
 				+ " There's a stylised image of a harpy's wings on the front of the bottle.",
 			"attributeHarpyPerfume",
 			Colour.GENERIC_SEX,
-			30,
+			null,
+			null,
 			Rarity.UNCOMMON,
 			TFEssence.ARCANE,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.SEX_HARPY_PERFUME, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.SEX_HARPY_PERFUME)),
+			Util.newArrayListOfValues(
+					ItemTag.ATTRIBUTE_TF_ITEM)) {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public ItemEffectType getEnchantmentEffect() {
+		public AbstractItemEffectType getEnchantmentEffect() {
 			return ItemEffectType.ATTRIBUTE_SEXUAL;
 		}
 
@@ -769,7 +882,102 @@ public class ItemType {
 		}
 	};
 	
-	public static AbstractItemType SEX_INGREDIENT_MINCE_PIE = new AbstractItemType(
+	public static AbstractItemType SEX_INGREDIENT_SLIME_QUENCHER = new AbstractItemType(250,
+			"a bottle of",
+			false,
+			"Slime Quencher",
+			"Slime Quenchers",
+			"A small glass bottle of luminescent, fizzy pop."
+					+ " The label on the front reads 'Slime Quencher', and, to one side, there's a picture of a completely naked slime-girl pressing her breasts together and smiling at you.",
+			"attributeSlimeDrink",
+			Colour.GENERIC_SEX,
+			null,
+			null,
+			Rarity.UNCOMMON,
+			TFEssence.ARCANE,
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.SEX_SLIME_DRINK)),
+			Util.newArrayListOfValues(
+					ItemTag.BAT_CAVERNS_SPAWN,
+					ItemTag.SUBMISSION_TUNNEL_SPAWN,
+					ItemTag.ATTRIBUTE_TF_ITEM)) {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public AbstractItemEffectType getEnchantmentEffect() {
+			return ItemEffectType.ATTRIBUTE_SEXUAL;
+		}
+
+		@Override
+		public AbstractItemType getEnchantmentItemType(List<ItemEffect> effects) {
+			return POTION;
+		}
+
+		@Override
+		public String getUseName() {
+			return "drink";
+		}
+
+		@Override
+		public String getUseDescription(GameCharacter user, GameCharacter target) {
+			return getGenericUseDescription(user, target,
+					"You pop off the cap and start drinking the bottle of 'Slime Quencher'."
+						+ " The recognisable taste of a sugary energy drink fills your mouth, and you greedily gulp down the all of the glowing liquid in a matter of seconds.",
+					"Popping off the cap, you bring the bottle of 'Slime Quencher' to [npc.name]'s lips, before tilting [npc.her] head back and forcing [npc.herHim] to quickly gulp down the liquid.",
+					"[npc.Name] pulls out a bottle of 'Slime Quencher', and, after quickly popping off the cap, [npc.she] promptly downs the entire bottle.",
+					"[npc.Name] pulls out a bottle of 'Slime Quencher', and, after quickly popping off the cap, [npc.she] brings it to your lips before tilting your head back and forcing you to quickly gulp down the contents."
+						+ " The recognisable taste of a sugary energy drink fills your mouth, and, with [npc.name]'s help, you greedily gulp down the all of the glowing liquid in a matter of seconds.");
+		}
+	};
+	
+	public static AbstractItemType SEX_INGREDIENT_BUNNY_JUICE = new AbstractItemType(250,
+			"a bottle of",
+			false,
+			"Bunny Juice",
+			"Bunny Juices",
+			"A small plastic bottle of what appears to be some sort of carrot juice, labelled as 'Bunny Juice'."
+					+ " On the label, there's a rather obscene image of a rabbit-girl stuffing a carrot-shaped dildo into her pussy.",
+			"attributeRabbitMorphDrink",
+			Colour.GENERIC_SEX,
+			null,
+			null,
+			Rarity.UNCOMMON,
+			TFEssence.ARCANE,
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.SEX_RABBIT_MORPH_DRINK)),
+			Util.newArrayListOfValues(
+					ItemTag.DOMINION_ALLEYWAY_SPAWN, //TODO
+					ItemTag.ATTRIBUTE_TF_ITEM)) {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public AbstractItemEffectType getEnchantmentEffect() {
+			return ItemEffectType.ATTRIBUTE_SEXUAL;
+		}
+
+		@Override
+		public AbstractItemType getEnchantmentItemType(List<ItemEffect> effects) {
+			return POTION;
+		}
+
+		@Override
+		public String getUseName() {
+			return "drink";
+		}
+
+		@Override
+		public String getUseDescription(GameCharacter user, GameCharacter target) {
+			return getGenericUseDescription(user, target,
+					"You unscrew the cap and start drinking the bottle of 'Bunny Juice'."
+						+ " An intense taste of carrots instantly fills your mouth, and as you swallow the delicious liquid, you discover that it has an unusually sweet aftertaste.",
+					"Unscrewing the cap, you bring the bottle of 'Bunny Juice' to [npc.name]'s lips, before tilting [npc.her] head back and forcing [npc.herHim] to quickly gulp down the orange liquid.",
+					"[npc.Name] pulls out a bottle of 'Bunny Juice', and, after quickly unscrewing the cap, [npc.she] promptly downs the entire bottle.",
+					"[npc.Name] pulls out a bottle of 'Bunny Juice', and, after quickly unscrewing the cap, [npc.she] brings it to your lips before tilting your head back and forcing you to quickly gulp down the contents."
+						+ " An intense taste of carrots instantly fills your mouth, and as you swallow the delicious liquid, you discover that it has an unusually sweet aftertaste.");
+		}
+	};
+	
+	public static AbstractItemType SEX_INGREDIENT_MINCE_PIE = new AbstractItemType(10,
 			"a",
 			false,
 			"mince pie",
@@ -778,15 +986,19 @@ public class ItemType {
 					+ " Curiously, the pie seems to remain permanently warm to the touch, revealing that an enchantment of some sort must have been placed on it...",
 			"attributeNoRaceMincePie",
 			Colour.GENERIC_SEX,
-			30,
+			null,
+			null,
 			Rarity.UNCOMMON,
 			TFEssence.ARCANE,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.SEX_MINCE_PIE, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.SEX_MINCE_PIE)),
+			Util.newArrayListOfValues(
+					ItemTag.REINDEER_GIFT,
+					ItemTag.ATTRIBUTE_TF_ITEM)) {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public ItemEffectType getEnchantmentEffect() {
+		public AbstractItemEffectType getEnchantmentEffect() {
 			return ItemEffectType.ATTRIBUTE_SEXUAL;
 		}
 
@@ -814,7 +1026,8 @@ public class ItemType {
 	
 	// Corruption ingredients are "mysterious liquids" (cum and milk...):
 	
-	public static AbstractItemType COR_INGREDIENT_LILITHS_GIFT = new AbstractItemType("a bottle of",
+	public static AbstractItemType COR_INGREDIENT_LILITHS_GIFT = new AbstractItemType(1500,
+			"a bottle of",
 			false,
 			"Lilith's Gift",
 			"Lilith's Gifts",
@@ -823,15 +1036,19 @@ public class ItemType {
 					+ " Her delicate hands are reaching down to pull apart her soft ass cheeks, fully exposing her asshole and pussy, both of which are dripping wet from excitement.",
 			"attributeDemonDrink",
 			Colour.ATTRIBUTE_CORRUPTION,
-			50,
+			null,
+			null,
 			Rarity.UNCOMMON,
 			TFEssence.ARCANE,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.COR_LILITHS_GIFT, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.COR_LILITHS_GIFT)),
+			Util.newArrayListOfValues(
+					ItemTag.DOMINION_ALLEYWAY_SPAWN,
+					ItemTag.ATTRIBUTE_TF_ITEM)) {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public ItemEffectType getEnchantmentEffect() {
+		public AbstractItemEffectType getEnchantmentEffect() {
 			return ItemEffectType.ATTRIBUTE_CORRUPTION;
 		}
 
@@ -857,23 +1074,76 @@ public class ItemType {
 		}
 	};
 	
-	public static AbstractItemType FETISH_UNREFINED = new AbstractItemType("a vial of",
+	public static AbstractItemType COR_INGREDIENT_IMPISH_BREW = new AbstractItemType(10,
+			"a bottle of",
 			false,
-			"Mystery Kink",
-			"Mystery Kinks",
-			"A delicate glass bottle, filled with a viscous, glowing-pink liquid."
-					+ " It's quite clear just from its appearance that it carries a potent enchantment, and from the label on one side reading 'Mystery Kink', it's quite safe to assume that it somehow influences the drinker's fetishes.",
-			"fetishDrink",
-			Colour.GENERIC_SEX,
-			500,
-			Rarity.EPIC,
+			"Impish Brew",
+			"Impish Brews",
+			"A cracked and dirty glass bottle, filled with a creamy-yellow liquid."
+					+ " There's no label, but someone's helpfully, albeit crudely, written 'Impish Brew' in black marker pen on one side."
+					+ " You think you can guess what the thick, musky liquid is inside...",
+			"attributeImpDrink",
+			Colour.ATTRIBUTE_CORRUPTION,
+			null,
+			null,
+			Rarity.UNCOMMON,
 			TFEssence.ARCANE,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.MYSTERY_KINK, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.COR_IMPISH_BREW)),
+			Util.newArrayListOfValues(
+					ItemTag.SUBMISSION_TUNNEL_SPAWN,
+					ItemTag.ATTRIBUTE_TF_ITEM)) {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public ItemEffectType getEnchantmentEffect() {
+		public AbstractItemEffectType getEnchantmentEffect() {
+			return ItemEffectType.ATTRIBUTE_CORRUPTION;
+		}
+
+		@Override
+		public AbstractItemType getEnchantmentItemType(List<ItemEffect> effects) {
+			return POTION;
+		}
+
+		@Override
+		public String getUseName() {
+			return "drink";
+		}
+
+		@Override
+		public String getUseDescription(GameCharacter user, GameCharacter target) {
+			return getGenericUseDescription(user, target,
+					"As you unscrew the cap, your senses are immediately assaulted by the musky, potent smell of the liquid within."
+							+ " Bringing the dirty bottle to your lips, you take a tentative sip, discovering that the drink isn't quite as bad you thought it would be.",
+					"You unscrew the cap from the bottle 'Impish Brew', before bringing it to [npc.name]'s lips and forcing [npc.herHim] to drink down the liquid within.",
+					"[npc.Name] pulls out a bottle of 'Impish Brew', and, after quickly unscrewing the cap, [npc.she] promptly downs the entire bottle.",
+					"[npc.Name] pulls out a bottle of 'Impish Brew', and, after quickly after quickly unscrewing the cap, [npc.she] brings it to your lips before tilting your head back and forcing you to quickly gulp down the musky contents.");
+		}
+	};
+	
+	public static AbstractItemType FETISH_UNREFINED = new AbstractItemType(500,
+			"a vial of",
+			false,
+			"Mystery Kink",
+			"Mystery Kinks",
+			"A delicate glass bottle, filled with a viscous, glowing-pink liquid."
+					+ " From the label on one side reading 'Mystery Kink', it's quite safe to assume that this concoction carries a potent enchantment, which somehow influences the drinker's fetishes.",
+			"fetishDrink",
+			Colour.GENERIC_SEX,
+			null,
+			null,
+			Rarity.EPIC,
+			TFEssence.ARCANE,
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.MYSTERY_KINK)),
+			Util.newArrayListOfValues(
+					ItemTag.DOMINION_ALLEYWAY_SPAWN,
+					ItemTag.SUBMISSION_TUNNEL_SPAWN,
+					ItemTag.MISC_TF_ITEM)) {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public AbstractItemEffectType getEnchantmentEffect() {
 			return ItemEffectType.FETISH_ENHANCEMENT;
 		}
 
@@ -898,7 +1168,8 @@ public class ItemType {
 		}
 	};
 	
-	public static AbstractItemType FETISH_REFINED = new AbstractItemType("a vial of",
+	public static AbstractItemType FETISH_REFINED = new AbstractItemType(750,
+			"a vial of",
 			false,
 			"Fetish Endowment",
 			"Fetish Endowments",
@@ -906,15 +1177,16 @@ public class ItemType {
 					+ " Its potent enchantment is far more refined than that of the liquid it was distilled from, and is able to add or remove specific fetishes.",
 			"fetishDrinkRefined",
 			Colour.FETISH,
-			750,
+			null,
+			null,
 			Rarity.LEGENDARY,
 			null,
-			null) {
+			null, null) {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public boolean isTransformative() {
+		public boolean isFetishGiving() {
 			return true;
 		}
 		
@@ -944,7 +1216,8 @@ public class ItemType {
 		}
 	};
 	
-	public static AbstractItemType ADDICTION_REMOVAL = new AbstractItemType("a bottle of",
+	public static AbstractItemType ADDICTION_REMOVAL = new AbstractItemType(750,
+			"a bottle of",
 			false,
 			"Angel's Nectar",
 			"Angel's Nectars",
@@ -952,10 +1225,15 @@ public class ItemType {
 					+ " Engraved into one side are the words 'Angel's Nectar', although you're unsure if this fluid really does have anything to do with them...",
 			"addictionRemoval",
 			Colour.BASE_BLUE_LIGHT,
-			750,
+			null,
+			null,
 			Rarity.LEGENDARY,
 			null,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.ADDICTION_REMOVAL, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.ADDICTION_REMOVAL)),
+			Util.newArrayListOfValues(
+					ItemTag.DOMINION_ALLEYWAY_SPAWN,
+					ItemTag.SUBMISSION_TUNNEL_SPAWN,
+					ItemTag.MISC_TF_ITEM)) {
 
 		private static final long serialVersionUID = 1L;
 
@@ -987,7 +1265,7 @@ public class ItemType {
 	
 	// Racial ingredients:
 	
-	public static AbstractItemType RACE_INGREDIENT_DEMON = new AbstractItemType(
+	public static AbstractItemType RACE_INGREDIENT_DEMON = new AbstractItemType(2500,
 			"a bottle of",
 			false,
 			"Innoxia's Gift",
@@ -996,15 +1274,20 @@ public class ItemType {
 					+ " Someone's stuck a crude little sticker to one side of the bottle, and as you look closer, you see that it reads: 'Temporary item! Demon TFs don't work like this!'",
 			"raceDemonInnoxiasGift",
 			Colour.ATTRIBUTE_CORRUPTION,
-			500,
+			null,
+			null,
 			Rarity.LEGENDARY,
 			TFEssence.ARCANE,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.RACE_INNOXIAS_GIFT, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.RACE_INNOXIAS_GIFT)),
+			Util.newArrayListOfValues(
+					ItemTag.DOMINION_ALLEYWAY_SPAWN,
+					ItemTag.SUBMISSION_TUNNEL_SPAWN,
+					ItemTag.RACIAL_TF_ITEM)) {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public ItemEffectType getEnchantmentEffect() {
+		public AbstractItemEffectType getEnchantmentEffect() {
 			return ItemEffectType.RACE_DEMON;
 		}
 
@@ -1030,7 +1313,7 @@ public class ItemType {
 		}
 	};
 	
-	public static AbstractItemType RACE_INGREDIENT_HUMAN = new AbstractItemType(
+	public static AbstractItemType RACE_INGREDIENT_HUMAN = new AbstractItemType(1000,
 			"a vial of",
 			false,
 			"Angel's Tears",
@@ -1039,15 +1322,20 @@ public class ItemType {
 					+ " There's an image of a weeping angel engraved into the glass, and you see that her tears are falling into a vial just like this one.",
 			"raceHumanAngelsTears",
 			Colour.RACE_HUMAN,
-			75,
+			null,
+			null,
 			Rarity.RARE,
 			TFEssence.ARCANE,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.RACE_ANGELS_TEARS, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.RACE_ANGELS_TEARS)),
+			Util.newArrayListOfValues(
+					ItemTag.DOMINION_ALLEYWAY_SPAWN,
+					ItemTag.SUBMISSION_TUNNEL_SPAWN,
+					ItemTag.RACIAL_TF_ITEM)) {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public ItemEffectType getEnchantmentEffect() {
+		public AbstractItemEffectType getEnchantmentEffect() {
 			return ItemEffectType.RACE_HUMAN;
 		}
 
@@ -1073,7 +1361,7 @@ public class ItemType {
 		}
 	};
 	
-	public static AbstractItemType RACE_INGREDIENT_CAT_MORPH = new AbstractItemType(
+	public static AbstractItemType RACE_INGREDIENT_CAT_MORPH = new AbstractItemType(250,
 			"a",
 			false,
 			"Kitty's Reward",
@@ -1082,15 +1370,19 @@ public class ItemType {
 					+ " A label on the side shows a greater cat-girl devouring a plate of what looks to be this can's contents; some sort of tinned salmon.",
 			"raceCatMorphKittysReward",
 			Colour.RACE_CAT_MORPH,
-			60,
+			null,
+			null,
 			Rarity.RARE,
 			TFEssence.ARCANE,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.RACE_KITTYS_REWARD, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.RACE_KITTYS_REWARD)),
+			Util.newArrayListOfValues(
+					ItemTag.DOMINION_ALLEYWAY_SPAWN,
+					ItemTag.RACIAL_TF_ITEM)) {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public ItemEffectType getEnchantmentEffect() {
+		public AbstractItemEffectType getEnchantmentEffect() {
 			return ItemEffectType.RACE_CAT_MORPH;
 		}
 
@@ -1118,7 +1410,7 @@ public class ItemType {
 	};
 	
 
-	public static AbstractItemType RACE_INGREDIENT_COW_MORPH  = new AbstractItemType(
+	public static AbstractItemType RACE_INGREDIENT_COW_MORPH  = new AbstractItemType(250,
 			"a pot of",
 			false,
 			"Bubble Cream",
@@ -1127,15 +1419,19 @@ public class ItemType {
 					+ " A label on the side declares it to be 'Bubble Cream', which seems to be a little misleading, as there isn't any sort of bubbling going on in the creamy mixture contained within.",
 			"raceCowMorphBubbleCream",
 			Colour.RACE_COW_MORPH,
-			60,
+			null,
+			null,
 			Rarity.RARE,
 			TFEssence.ARCANE,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.RACE_BUBBLE_CREAM, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.RACE_BUBBLE_CREAM)),
+			Util.newArrayListOfValues(
+					ItemTag.DOMINION_ALLEYWAY_SPAWN,
+					ItemTag.RACIAL_TF_ITEM)) {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public ItemEffectType getEnchantmentEffect() {
+		public AbstractItemEffectType getEnchantmentEffect() {
 			return ItemEffectType.RACE_COW_MORPH;
 		}
 
@@ -1166,7 +1462,7 @@ public class ItemType {
 	};
 	
 
-	public static AbstractItemType RACE_INGREDIENT_SQUIRREL_MORPH = new AbstractItemType(
+	public static AbstractItemType RACE_INGREDIENT_SQUIRREL_MORPH = new AbstractItemType(250,
 			"a bag of",
 			false,
 			"Round Nuts",
@@ -1174,15 +1470,19 @@ public class ItemType {
 			"A small bag of round nuts. A label on one side shows a greater squirrel-girl stuffing a handful of nuts into her mouth.",
 			"raceSquirrelMorphRoundNuts",
 			Colour.RACE_SQUIRREL_MORPH,
-			60,
+			null,
+			null,
 			Rarity.RARE,
 			TFEssence.ARCANE,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.RACE_ROUND_NUTS, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.RACE_ROUND_NUTS)),
+			Util.newArrayListOfValues(
+					ItemTag.DOMINION_ALLEYWAY_SPAWN,
+					ItemTag.RACIAL_TF_ITEM)) {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public ItemEffectType getEnchantmentEffect() {
+		public AbstractItemEffectType getEnchantmentEffect() {
 			return ItemEffectType.RACE_SQUIRREL_MORPH;
 		}
 
@@ -1210,23 +1510,171 @@ public class ItemType {
 		}
 	};
 	
-	public static AbstractItemType RACE_INGREDIENT_DOG_MORPH = new AbstractItemType(
+	public static AbstractItemType RACE_INGREDIENT_BAT_MORPH = new AbstractItemType(250,
 			"a",
 			false,
-			"Canine Crunch",
-			"Canine Crunches",
-			"An individually-wrapped biscuit in the shape of a bone.",
-			"raceDogMorphCanineCrunch",
-			Colour.RACE_DOG_MORPH,
-			60,
+			"Fruit Bat's Salad",
+			"Fruit Bat's Salads",
+			"A little plastic pot, containing a delicious-looking fruit salad."
+					+ " Printed into the film lid, there's a little picture of a bat-girl sitting cross-legged as she eats her way through a mountain of fruit.",
+			"raceBatMorphFruitSalad",
+			Colour.RACE_BAT_MORPH,
+			null,
+			null,
 			Rarity.RARE,
 			TFEssence.ARCANE,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.RACE_CANINE_CRUNCH, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.RACE_FRUIT_SALAD)),
+			Util.newArrayListOfValues(
+					ItemTag.BAT_CAVERNS_SPAWN,
+					ItemTag.RACIAL_TF_ITEM)) {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public ItemEffectType getEnchantmentEffect() {
+		public AbstractItemEffectType getEnchantmentEffect() {
+			return ItemEffectType.RACE_BAT_MORPH;
+		}
+
+		@Override
+		public AbstractItemType getEnchantmentItemType(List<ItemEffect> effects) {
+			return ELIXIR;
+		}
+
+		@Override
+		public String getUseName() {
+			return "eat";
+		}
+
+		@Override
+		public String getUseDescription(GameCharacter user, GameCharacter target) {
+			return getGenericUseDescription(user, target,
+					"Peeling off the film lid, you start eating the fruit salad."
+						+ " The slices of orange, mango, and strawberry are all absolutely delicious, and it only takes you a moment to finish off the entire pot.",
+					"Peeling off the film lid, you force [npc.name] to eat the 'Fruit Bat's Salad'.",
+					"[npc.Name] pulls out a pot of 'Fruit Bat's Salad', and, after peeling off the lid, quickly wolfs down the contents.",
+					"[npc.Name] pulls out a pot of 'Fruit Bat's Salad', and, after peeling off the lid, forces you to eat the contents."
+							+ " The slices of orange, mango, and strawberry are all absolutely delicious, and it only takes you a moment to finish off the entire pot.");
+		}
+	};
+	
+	public static AbstractItemType RACE_INGREDIENT_RAT_MORPH = new AbstractItemType(250,
+			"a",
+			false,
+			"Brown Rat's Burger",
+			"Brown Rat's Burgers",
+			"A double-cheeseburger, wrapped up in greaseproof paper."
+					+ " On the wrapper, there's a picture of a brown-furred rat-boy greedily shoving one of these burgers into his mouth.",
+			"raceRatMorphBurger",
+			Colour.RACE_RAT_MORPH,
+			null,
+			null,
+			Rarity.RARE,
+			TFEssence.ARCANE,
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.RACE_BURGER)),
+			Util.newArrayListOfValues(
+					ItemTag.SUBMISSION_TUNNEL_SPAWN,
+					ItemTag.RACIAL_TF_ITEM)) {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public AbstractItemEffectType getEnchantmentEffect() {
+			return ItemEffectType.RACE_RAT_MORPH;
+		}
+
+		@Override
+		public AbstractItemType getEnchantmentItemType(List<ItemEffect> effects) {
+			return ELIXIR;
+		}
+
+		@Override
+		public String getUseName() {
+			return "eat";
+		}
+
+		@Override
+		public String getUseDescription(GameCharacter user, GameCharacter target) {
+			return getGenericUseDescription(user, target,
+					"Unwrapping the paper covering, you quickly reveal the greasy cheeseburger within."
+							+ " Bringing it up to your mouth, you take a big bite, and discover that it's absolutely delicious."
+							+ " Encouraged by the taste, it only takes you a few moments to wolf down the meal.",
+					"Unwrapping the paper covering, you quickly reveal the greasy cheeseburger within."
+							+ " Bringing it up to [npc.name]'s mouth, you force [npc.herHim] to eat the entire burger.",
+					"[npc.Name] pulls out a 'Brown Rat's Burger', and, after peeling off the wrapper, quickly wolfs down the contents.",
+					"[npc.Name] pulls out a 'Brown Rat's Burger', and, after peeling off the wrapper, forces you to eat the contents."
+							+ " You quickly discover that it's absolutely delicious, and it only takes you a moment to finish off the entire burger.");
+		}
+	};
+	
+	public static AbstractItemType RACE_INGREDIENT_RABBIT_MORPH = new AbstractItemType(250,
+			"a",
+			false,
+			"Bunny Carrot-Cake",
+			"Bunny Carrot-Cakes",
+			"An individually-wrapped slice of frosted carrot cake, complete with a decorative icing carrot on the top."
+					+ " On the wrapper, there's a very lewd image of a rabbit-girl being bred by a muscular rabbit-boy.",
+			"raceRabbitMorphCarrotCake",
+			Colour.RACE_RABBIT_MORPH,
+			null,
+			null,
+			Rarity.RARE,
+			TFEssence.ARCANE,
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.RACE_CARROT_CAKE)),
+			Util.newArrayListOfValues(
+					ItemTag.DOMINION_ALLEYWAY_SPAWN, //TODO
+					ItemTag.RACIAL_TF_ITEM)) {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public AbstractItemEffectType getEnchantmentEffect() {
+			return ItemEffectType.RACE_RABBIT_MORPH;
+		}
+
+		@Override
+		public AbstractItemType getEnchantmentItemType(List<ItemEffect> effects) {
+			return ELIXIR;
+		}
+
+		@Override
+		public String getUseName() {
+			return "eat";
+		}
+
+		@Override
+		public String getUseDescription(GameCharacter user, GameCharacter target) {
+			return getGenericUseDescription(user, target,
+					"Tearing off the little plastic wrapper, you pop the small slice of carrot cake into your mouth."
+							+ " The taste is absolutely delicious, and as you swallow down the sweet mess, a delightfully carroty aftertaste lingers on your tongue.",
+					"Unwrapping the little plastic wrapper, you pop the small slice of carrot cake into [npc.name]'s mouth, before making [npc.herHim] swallow it all down.",
+					"[npc.Name] pulls out a 'Bunny Carrot-Cake', and, after tearing off the little plastic wrapper, quickly wolfs down the cake in one go.",
+					"[npc.Name] pulls out a 'Bunny Carrot-Cake', and, after tearing off the little plastic wrapper, forces the small slice of cake into your mouth."
+							+ " The taste is absolutely delicious, and as you swallow down the sweet mess, a delightfully carroty aftertaste lingers on your tongue.");
+		}
+	};
+	
+	public static AbstractItemType RACE_INGREDIENT_DOG_MORPH = new AbstractItemType(250,
+			"a",
+			false,
+			"Canine Crunch",
+			"Canine Crunches",
+			"An individually-wrapped dog-biscuit in the shape of a bone."
+					+ " It's obviously meant as a snack for dog-morphs, but is edible for all races.",
+			"raceDogMorphCanineCrunch",
+			Colour.RACE_DOG_MORPH,
+			null,
+			null,
+			Rarity.RARE,
+			TFEssence.ARCANE,
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.RACE_CANINE_CRUNCH)),
+			Util.newArrayListOfValues(
+					ItemTag.DOMINION_ALLEYWAY_SPAWN,
+					ItemTag.RACIAL_TF_ITEM)) {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public AbstractItemEffectType getEnchantmentEffect() {
 			return ItemEffectType.RACE_DOG_MORPH;
 		}
 
@@ -1252,23 +1700,28 @@ public class ItemType {
 		}
 	};
 
-	public static AbstractItemType RACE_INGREDIENT_HORSE_MORPH = new AbstractItemType(
+	public static AbstractItemType RACE_INGREDIENT_HORSE_MORPH = new AbstractItemType(250,
 			"a",
 			false,
 			"Sugar Carrot Cube",
 			"Sugar Carrot Cubes",
-			"An individually-wrapped sugar cube, which, except for the fact that it's bright orange and smells of carrots, appears to be identical to every other sugar cube you've seen.",
+			"A bright orange sugar cube, which smells of carrots."
+					+ " From the equine icon on the wrapper, this is obviously meant as a snack for horse-morphs, but is edible for all races.",
 			"raceHorseMorphSugarCarrotCube",
 			Colour.RACE_HORSE_MORPH,
-			60,
+			null,
+			null,
 			Rarity.RARE,
 			TFEssence.ARCANE,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.RACE_SUGAR_CARROT_CUBE, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.RACE_SUGAR_CARROT_CUBE)),
+			Util.newArrayListOfValues(
+					ItemTag.DOMINION_ALLEYWAY_SPAWN,
+					ItemTag.RACIAL_TF_ITEM)) {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public ItemEffectType getEnchantmentEffect() {
+		public AbstractItemEffectType getEnchantmentEffect() {
 			return ItemEffectType.RACE_HORSE_MORPH;
 		}
 
@@ -1294,7 +1747,7 @@ public class ItemType {
 		}
 	};
 	
-	public static AbstractItemType RACE_INGREDIENT_REINDEER_MORPH = new AbstractItemType(
+	public static AbstractItemType RACE_INGREDIENT_REINDEER_MORPH = new AbstractItemType(250,
 			"a",
 			false,
 			"Sugar Cookie",
@@ -1302,15 +1755,19 @@ public class ItemType {
 			"An individually-wrapped, icing-and-sprinkles-topped sugar cookie, which looks, rather surprisingly, extremely normal.",
 			"raceReindeerMorphSugarCookie",
 			Colour.RACE_REINDEER_MORPH,
-			60,
+			null,
+			null,
 			Rarity.RARE,
 			TFEssence.ARCANE,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.RACE_SUGAR_COOKIE, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.RACE_SUGAR_COOKIE)),
+			Util.newArrayListOfValues(
+					ItemTag.REINDEER_GIFT,
+					ItemTag.RACIAL_TF_ITEM)) {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public ItemEffectType getEnchantmentEffect() {
+		public AbstractItemEffectType getEnchantmentEffect() {
 			return ItemEffectType.RACE_REINDEER_MORPH;
 		}
 
@@ -1338,7 +1795,7 @@ public class ItemType {
 		}
 	};
 	
-	public static AbstractItemType RACE_INGREDIENT_ALLIGATOR_MORPH = new AbstractItemType(
+	public static AbstractItemType RACE_INGREDIENT_ALLIGATOR_MORPH = new AbstractItemType(250,
 			"a",
 			false,
 			"Gator's Gumbo",
@@ -1347,15 +1804,19 @@ public class ItemType {
 				+ " The contents take the form of a delicious-smelling variety of gumbo, containing meat, okra, and a variety of other mysterious vegetables.",
 			"raceGatorMorphGatorsGumbo",
 			Colour.RACE_ALLIGATOR_MORPH,
-			60,
+			null,
+			null,
 			Rarity.RARE,
 			TFEssence.ARCANE,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.RACE_ALLIGATORS_GUMBO, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.RACE_ALLIGATORS_GUMBO)),
+			Util.newArrayListOfValues(
+					ItemTag.SUBMISSION_TUNNEL_SPAWN,
+					ItemTag.RACIAL_TF_ITEM)) {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public ItemEffectType getEnchantmentEffect() {
+		public AbstractItemEffectType getEnchantmentEffect() {
 			return ItemEffectType.RACE_ALLIGATOR_MORPH;
 		}
 
@@ -1383,7 +1844,7 @@ public class ItemType {
 		}
 	};
 	
-	public static AbstractItemType RACE_INGREDIENT_WOLF_MORPH = new AbstractItemType(
+	public static AbstractItemType RACE_INGREDIENT_WOLF_MORPH = new AbstractItemType(250,
 			"a package of",
 			false,
 			"Meat and Marrow",
@@ -1391,15 +1852,19 @@ public class ItemType {
 			"A package of 'Meat and Marrow', which consists of a slab of some sort of raw meat, wrapped in grease-proof paper and tied up with brown string.",
 			"raceWolfMorphMeatAndMarrow",
 			Colour.RACE_WOLF_MORPH,
-			60,
+			null,
+			null,
 			Rarity.RARE,
 			TFEssence.ARCANE,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.RACE_MEAT_AND_MARROW, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.RACE_MEAT_AND_MARROW)),
+			Util.newArrayListOfValues(
+					ItemTag.DOMINION_ALLEYWAY_SPAWN,
+					ItemTag.RACIAL_TF_ITEM)) {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public ItemEffectType getEnchantmentEffect() {
+		public AbstractItemEffectType getEnchantmentEffect() {
 			return ItemEffectType.RACE_WOLF_MORPH;
 		}
 
@@ -1427,7 +1892,7 @@ public class ItemType {
 		}
 	};
 	
-	public static AbstractItemType RACE_INGREDIENT_HARPY = new AbstractItemType(
+	public static AbstractItemType RACE_INGREDIENT_HARPY = new AbstractItemType(250,
 			"a",
 			false,
 			"Bubblegum Lollipop",
@@ -1436,15 +1901,18 @@ public class ItemType {
 				+ " Although it doesn't look out of the ordinary, it's somewhat unusual in the fact that it has an incredibly strong smell of bubblegum.",
 			"raceHarpyLollipop",
 			Colour.RACE_HARPY,
-			60,
+			null,
+			null,
 			Rarity.RARE,
 			TFEssence.ARCANE,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.RACE_LOLLIPOP, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.RACE_LOLLIPOP)),
+			Util.newArrayListOfValues(
+					ItemTag.RACIAL_TF_ITEM)) {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public ItemEffectType getEnchantmentEffect() {
+		public AbstractItemEffectType getEnchantmentEffect() {
 			return ItemEffectType.RACE_HARPY;
 		}
 
@@ -1472,6 +1940,54 @@ public class ItemType {
 		}
 	};
 	
+	public static AbstractItemType RACE_INGREDIENT_SLIME = new AbstractItemType(5000,
+			"a",
+			false,
+			"Biojuice Canister",
+			"Biojuice Canisters",
+			"A canister of glowing pink liquid, which has a thick, slimy consistency."
+					+ " The warning sign on the front makes it quite clear that drinking this would be a bad idea...",
+			"raceSlimeBiojuice",
+			Colour.RACE_SLIME,
+			null,
+			null,
+			Rarity.LEGENDARY,
+			TFEssence.ARCANE,
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.RACE_BIOJUICE)),
+			Util.newArrayListOfValues(
+					ItemTag.RACIAL_TF_ITEM,
+					ItemTag.NOT_FOR_SALE)) {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public boolean isAbleToBeUsed(GameCharacter target) {
+			return (!Main.game.isInCombat() || target.isPlayer()) && !target.isPregnant();
+		}
+		
+		@Override
+		public String getUnableToBeUsedDescription(GameCharacter target) {
+			return "This item cannot be used on pregnant people!";
+		}
+		
+		@Override
+		public String getUseName() {
+			return "drink";
+		}
+
+		@Override
+		public String getUseDescription(GameCharacter user, GameCharacter target) {
+			return getGenericUseDescription(user, target,
+					"Ignoring the warning on the front, you unseal one end of the canister and bring it up to your [pc.lips]."
+							+ " The glowing pink liquid within gives off a faintly sweet smell, and you tilt your head back and gulp it all down...",
+					"You unseal one end of the canister and bring it up to [npc.name]'s [npc.lips]."
+							+ " Tilting [npc.her] head back, you force [npc.herHim] to drink down all of the glowing pink liquid...",
+					"[npc.Name] pulls out a canister of Biojuice, and, unsealing one end of the canister, [npc.she] brings it up to [npc.her] [npc.lips] and gulps it all down....",
+					"[npc.Name] pulls out a canister of Biojuice, and, unsealing one end of the canister, [npc.she] brings it up to your [pc.lips]."
+							+ " The glowing pink liquid within gives off a faintly sweet smell, and [npc.name] tilts your head back and forces you to gulp it all down....");
+		}
+	};
+	
 	// Essence bottles:
 	
 //	BOTTLED_ESSENCE_ANGEL(
@@ -1485,7 +2001,7 @@ public class ItemType {
 //			50,
 //			Rarity.LEGENDARY,
 //			null,
-//			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.BOTTLED_ESSENCE_ANGEL, null, null, null, 0)))) {
+//			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.BOTTLED_ESSENCE_ANGEL))) {
 //
 //		@Override
 //		public String getUseName() {
@@ -1520,7 +2036,7 @@ public class ItemType {
 											+ " Giving you no time to react, the essence immediately shoots straight towards you, and with a little "+essenceColour.getName()+" flash, it hits your chest and disappears from sight."
 											+ " You think that it would probably be best to go and ask Lilaya about what just happened..."
 										+ "</p>"
-										+(!Main.game.getPlayer().hasQuest(QuestLine.SIDE_ENCHANTMENT_DISCOVERY)?Main.game.getPlayer().incrementQuest(QuestLine.SIDE_ENCHANTMENT_DISCOVERY):"");
+										+(!Main.game.getPlayer().hasQuest(QuestLine.SIDE_ENCHANTMENT_DISCOVERY)?Main.game.getPlayer().startQuest(QuestLine.SIDE_ENCHANTMENT_DISCOVERY):"");
 							} else {
 								return "<p>"
 										+ "Pulling the cork stopper out from the top of the little bottle, you let out a gasp as the swirling light instantly darts out of its glass prison."
@@ -1569,7 +2085,7 @@ public class ItemType {
 											+ " Giving you no time to react, the essence immediately shoots straight towards you, and with a little "+essenceColour.getName()+" flash, it hits your chest and disappears from sight."
 											+ " You think that it would probably be best to go and ask Lilaya about what just happened..."
 										+ "</p>"
-										+(!Main.game.getPlayer().hasQuest(QuestLine.SIDE_ENCHANTMENT_DISCOVERY)?Main.game.getPlayer().incrementQuest(QuestLine.SIDE_ENCHANTMENT_DISCOVERY):""));
+										+(!Main.game.getPlayer().hasQuest(QuestLine.SIDE_ENCHANTMENT_DISCOVERY)?Main.game.getPlayer().startQuest(QuestLine.SIDE_ENCHANTMENT_DISCOVERY):""));
 							} else {
 								return UtilText.parse(user,
 										"<p>"
@@ -1612,7 +2128,7 @@ public class ItemType {
 		
 	}
 	
-	public static AbstractItemType BOTTLED_ESSENCE_ARCANE = new AbstractItemType(
+	public static AbstractItemType BOTTLED_ESSENCE_ARCANE = new AbstractItemType(40,
 			null,
 			false,
 			"Bottled Arcane Essence",
@@ -1621,10 +2137,12 @@ public class ItemType {
 					+ " Inside, the swirling "+Colour.GENERIC_ARCANE.getName()+" glow of an arcane essence flickers and swirls about in a mesmerising, cyclical pattern.",
 			"bottledEssenceArcane",
 			Colour.GENERIC_ARCANE,
-			25,
+			null,
+			null,
 			Rarity.EPIC,
 			null,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.BOTTLED_ESSENCE_ARCANE, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.BOTTLED_ESSENCE_ARCANE)),
+			Util.newArrayListOfValues(ItemTag.ESSENCE)) {
 
 		private static final long serialVersionUID = 1L;
 
@@ -1648,6 +2166,7 @@ public class ItemType {
 	};
 	
 	public static AbstractItemType BOTTLED_ESSENCE_CAT_MORPH = new AbstractItemType(
+			50,
 			null,
 			false,
 			"Bottled Cat-morph Essence",
@@ -1656,10 +2175,12 @@ public class ItemType {
 					+ " Inside, the swirling "+Colour.RACE_CAT_MORPH.getName()+" glow of an arcane essence, imbued with the energy of a cat-morph, flickers and swirls about in a mesmerising, cyclical pattern.",
 			"bottledEssenceCatMorph",
 			Colour.RACE_CAT_MORPH,
-			50,
+			null,
+			null,
 			Rarity.EPIC,
 			null,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.BOTTLED_ESSENCE_CAT_MORPH, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.BOTTLED_ESSENCE_CAT_MORPH)),
+			Util.newArrayListOfValues(ItemTag.ESSENCE)) {
 
 		private static final long serialVersionUID = 1L;
 
@@ -1684,6 +2205,7 @@ public class ItemType {
 	
 
 	public static AbstractItemType BOTTLED_ESSENCE_COW_MORPH = new AbstractItemType(
+			50,
 			null,
 			false,
 			"Bottled Cow-morph Essence",
@@ -1692,10 +2214,12 @@ public class ItemType {
 					+ " Inside, the swirling "+Colour.RACE_COW_MORPH.getName()+" glow of an arcane essence, imbued with the energy of a cow-morph, flickers and swirls about in a mesmerising, cyclical pattern.",
 			"bottledEssenceCowMorph",
 			Colour.RACE_COW_MORPH,
-			50,
+			null,
+			null,
 			Rarity.EPIC,
 			null,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.BOTTLED_ESSENCE_COW_MORPH, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.BOTTLED_ESSENCE_COW_MORPH)),
+			Util.newArrayListOfValues(ItemTag.ESSENCE)) {
 
 		private static final long serialVersionUID = 1L;
 
@@ -1719,7 +2243,7 @@ public class ItemType {
 	};
 	
 	public static AbstractItemType BOTTLED_ESSENCE_DEMON = new AbstractItemType(
-
+			75,
 			null,
 			false,
 			"Bottled Demon Essence",
@@ -1728,10 +2252,12 @@ public class ItemType {
 					+ " Inside, the swirling "+Colour.RACE_DEMON.getName()+" glow of an arcane essence, imbued with the energy of a demon, flickers and swirls about in a mesmerising, cyclical pattern.",
 			"bottledEssenceDemon",
 			Colour.RACE_DEMON,
-			40,
+			null,
+			null,
 			Rarity.EPIC,
 			null,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.BOTTLED_ESSENCE_DEMON, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.BOTTLED_ESSENCE_DEMON)),
+			Util.newArrayListOfValues(ItemTag.ESSENCE)) {
 
 		private static final long serialVersionUID = 1L;
 
@@ -1753,8 +2279,47 @@ public class ItemType {
 			return "Only people with a demonic-strength aura are able to absorb arcane essences!";
 		}
 	};
+
+	public static AbstractItemType BOTTLED_ESSENCE_IMP = new AbstractItemType(
+			40,
+			null,
+			false,
+			"Bottled Imp Essence",
+			"Bottled Imp Essences",
+			"A small glass bottle, with a little cork stopper wedged firmly in the top."
+					+ " Inside, the swirling "+Colour.RACE_IMP.getName()+" glow of an arcane essence, imbued with the energy of an imp, flickers and swirls about in a mesmerising, cyclical pattern.",
+			"bottledEssenceImp",
+			Colour.RACE_IMP,
+			null,
+			null,
+			Rarity.EPIC,
+			null,
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.BOTTLED_ESSENCE_IMP)),
+			Util.newArrayListOfValues(ItemTag.ESSENCE)) {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public String getUseName() {
+			return "absorb";
+		}
+
+		@Override
+		public String getUseDescription(GameCharacter user, GameCharacter target) {
+			return getEssenceAbsorbtionText(Colour.RACE_IMP, user, target);
+		}
+		
+		public boolean isAbleToBeUsed(GameCharacter target) {
+			return target.getRace()==Race.IMP || target.isPlayer();
+		}
+		
+		public String getUnableToBeUsedDescription(GameCharacter target) {
+			return "Only people with a demonic-strength aura are able to absorb arcane essences!";
+		}
+	};
 	
 	public static AbstractItemType BOTTLED_ESSENCE_ALLIGATOR_MORPH = new AbstractItemType(
+			50,
 			null,
 			false,
 			"Bottled Alligator-morph Essence",
@@ -1763,10 +2328,12 @@ public class ItemType {
 					+ " Inside, the swirling "+Colour.RACE_ALLIGATOR_MORPH.getName()+" glow of an alligator-morph essence flickers and swirls about in a mesmerising, cyclical pattern.",
 			"bottledEssenceGatorMorph",
 			Colour.RACE_ALLIGATOR_MORPH,
-			50,
+			null,
+			null,
 			Rarity.EPIC,
 			null,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.BOTTLED_ESSENCE_ALLIGATOR_MORPH, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.BOTTLED_ESSENCE_ALLIGATOR_MORPH)),
+			Util.newArrayListOfValues(ItemTag.ESSENCE)) {
 
 		private static final long serialVersionUID = 1L;
 
@@ -1783,6 +2350,7 @@ public class ItemType {
 	
 
 	public static AbstractItemType BOTTLED_ESSENCE_SQUIRREL_MORPH = new AbstractItemType(
+			50,
 			null,
 			false,
 			"Bottled Squirrel-morph Essence",
@@ -1791,10 +2359,12 @@ public class ItemType {
 					+ " Inside, the swirling "+Colour.RACE_SQUIRREL_MORPH.getName()+" glow of an arcane essence, imbued with the energy of a squirrel-morph, flickers and swirls about in a mesmerising, cyclical pattern.",
 			"bottledEssenceSquirrelMorph",
 			Colour.RACE_SQUIRREL_MORPH,
-			50,
+			null,
+			null,
 			Rarity.EPIC,
 			null,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.BOTTLED_ESSENCE_SQUIRREL_MORPH, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.BOTTLED_ESSENCE_SQUIRREL_MORPH)),
+			Util.newArrayListOfValues(ItemTag.ESSENCE)) {
 
 		private static final long serialVersionUID = 1L;
 
@@ -1817,7 +2387,122 @@ public class ItemType {
 		}
 	};
 	
+	public static AbstractItemType BOTTLED_ESSENCE_RAT_MORPH = new AbstractItemType(
+			50,
+			null,
+			false,
+			"Bottled Rat-morph Essence",
+			"Bottled Rat-morph Essences",
+			"A small glass bottle, with a little cork stopper wedged firmly in the top."
+					+ " Inside, the swirling "+Colour.RACE_RAT_MORPH.getName()+" glow of an arcane essence, imbued with the energy of a rat-morph, flickers and swirls about in a mesmerising, cyclical pattern.",
+			"bottledEssenceRatMorph",
+			Colour.RACE_RAT_MORPH,
+			null,
+			null,
+			Rarity.EPIC,
+			null,
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.BOTTLED_ESSENCE_RAT_MORPH)),
+			Util.newArrayListOfValues(ItemTag.ESSENCE)) {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public String getUseName() {
+			return "absorb";
+		}
+
+		@Override
+		public String getUseDescription(GameCharacter user, GameCharacter target) {
+			return getEssenceAbsorbtionText(Colour.RACE_RAT_MORPH, user, target);
+		}
+		
+		public boolean isAbleToBeUsed(GameCharacter target) {
+			return target.getRace()==Race.DEMON || target.isPlayer();
+		}
+		
+		public String getUnableToBeUsedDescription(GameCharacter target) {
+			return "Only people with a demonic-strength aura are able to absorb arcane essences!";
+		}
+	};
+	
+	public static AbstractItemType BOTTLED_ESSENCE_RABBIT_MORPH = new AbstractItemType(
+			50,
+			null,
+			false,
+			"Bottled Rabbit-morph Essence",
+			"Bottled Rabbit-morph Essences",
+			"A small glass bottle, with a little cork stopper wedged firmly in the top."
+					+ " Inside, the swirling "+Colour.RACE_RABBIT_MORPH.getName()+" glow of an arcane essence, imbued with the energy of a rabbit-morph, flickers and swirls about in a mesmerising, cyclical pattern.",
+			"bottledEssenceRabbitMorph",
+			Colour.RACE_RABBIT_MORPH,
+			null,
+			null,
+			Rarity.EPIC,
+			null,
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.BOTTLED_ESSENCE_RABBIT_MORPH)),
+			Util.newArrayListOfValues(ItemTag.ESSENCE)) {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public String getUseName() {
+			return "absorb";
+		}
+
+		@Override
+		public String getUseDescription(GameCharacter user, GameCharacter target) {
+			return getEssenceAbsorbtionText(Colour.RACE_RABBIT_MORPH, user, target);
+		}
+		
+		public boolean isAbleToBeUsed(GameCharacter target) {
+			return target.getRace()==Race.DEMON || target.isPlayer();
+		}
+		
+		public String getUnableToBeUsedDescription(GameCharacter target) {
+			return "Only people with a demonic-strength aura are able to absorb arcane essences!";
+		}
+	};
+	
+	public static AbstractItemType BOTTLED_ESSENCE_BAT_MORPH = new AbstractItemType(
+			50,
+			null,
+			false,
+			"Bottled Bat-morph Essence",
+			"Bottled Bat-morph Essences",
+			"A small glass bottle, with a little cork stopper wedged firmly in the top."
+					+ " Inside, the swirling "+Colour.RACE_BAT_MORPH.getName()+" glow of an arcane essence, imbued with the energy of a bat-morph, flickers and swirls about in a mesmerising, cyclical pattern.",
+			"bottledEssenceBatMorph",
+			Colour.RACE_BAT_MORPH,
+			null,
+			null,
+			Rarity.EPIC,
+			null,
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.BOTTLED_ESSENCE_BAT_MORPH)),
+			Util.newArrayListOfValues(ItemTag.ESSENCE)) {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public String getUseName() {
+			return "absorb";
+		}
+
+		@Override
+		public String getUseDescription(GameCharacter user, GameCharacter target) {
+			return getEssenceAbsorbtionText(Colour.RACE_BAT_MORPH, user, target);
+		}
+		
+		public boolean isAbleToBeUsed(GameCharacter target) {
+			return target.getRace()==Race.DEMON || target.isPlayer();
+		}
+		
+		public String getUnableToBeUsedDescription(GameCharacter target) {
+			return "Only people with a demonic-strength aura are able to absorb arcane essences!";
+		}
+	};
+	
 	public static AbstractItemType BOTTLED_ESSENCE_DOG_MORPH = new AbstractItemType(
+			50,
 			null,
 			false,
 			"Bottled Dog-morph Essence",
@@ -1826,10 +2511,12 @@ public class ItemType {
 					+ " Inside, the swirling "+Colour.RACE_DOG_MORPH.getName()+" glow of an arcane essence, imbued with the energy of a dog-morph, flickers and swirls about in a mesmerising, cyclical pattern.",
 			"bottledEssenceDogMorph",
 			Colour.RACE_DOG_MORPH,
-			50,
+			null,
+			null,
 			Rarity.EPIC,
 			null,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.BOTTLED_ESSENCE_DOG_MORPH, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.BOTTLED_ESSENCE_DOG_MORPH)),
+			Util.newArrayListOfValues(ItemTag.ESSENCE)) {
 
 		private static final long serialVersionUID = 1L;
 
@@ -1853,6 +2540,7 @@ public class ItemType {
 	};
 	
 	public static AbstractItemType BOTTLED_ESSENCE_HARPY = new AbstractItemType(
+			50,
 			null,
 			false,
 			"Bottled Harpy Essence",
@@ -1861,10 +2549,12 @@ public class ItemType {
 					+ " Inside, the swirling "+Colour.RACE_HARPY.getName()+" glow of an arcane essence, imbued with the energy of a harpy, flickers and swirls about in a mesmerising, cyclical pattern.",
 			"bottledEssenceHarpy",
 			Colour.RACE_HARPY,
-			20,
+			null,
+			null,
 			Rarity.EPIC,
 			null,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.BOTTLED_ESSENCE_HARPY, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.BOTTLED_ESSENCE_HARPY)),
+			Util.newArrayListOfValues(ItemTag.ESSENCE)) {
 
 		private static final long serialVersionUID = 1L;
 
@@ -1888,6 +2578,7 @@ public class ItemType {
 	};
 	
 	public static AbstractItemType BOTTLED_ESSENCE_HORSE_MORPH = new AbstractItemType(
+			50,
 			null,
 			false,
 			"Bottled Horse-morph Essence",
@@ -1896,10 +2587,12 @@ public class ItemType {
 					+ " Inside, the swirling "+Colour.RACE_HORSE_MORPH.getName()+" glow of an arcane essence, imbued with the energy of a horse-morph, flickers and swirls about in a mesmerising, cyclical pattern.",
 			"bottledEssenceHorseMorph",
 			Colour.RACE_HORSE_MORPH,
-			50,
+			null,
+			null,
 			Rarity.EPIC,
 			null,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.BOTTLED_ESSENCE_HORSE_MORPH, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.BOTTLED_ESSENCE_HORSE_MORPH)),
+			Util.newArrayListOfValues(ItemTag.ESSENCE)) {
 
 		private static final long serialVersionUID = 1L;
 
@@ -1923,6 +2616,7 @@ public class ItemType {
 	};
 	
 	public static AbstractItemType BOTTLED_ESSENCE_REINDEER_MORPH = new AbstractItemType(
+			50,
 			null,
 			false,
 			"Bottled Reindeer-morph Essence",
@@ -1931,10 +2625,12 @@ public class ItemType {
 					+ " Inside, the swirling "+Colour.RACE_REINDEER_MORPH.getName()+" glow of an arcane essence, imbued with the energy of a reindeer-morph, flickers and swirls about in a mesmerising, cyclical pattern.",
 			"bottledEssenceReindeerMorph",
 			Colour.RACE_REINDEER_MORPH,
-			50,
+			null,
+			null,
 			Rarity.EPIC,
 			null,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.BOTTLED_ESSENCE_REINDEER_MORPH, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.BOTTLED_ESSENCE_REINDEER_MORPH)),
+			Util.newArrayListOfValues(ItemTag.ESSENCE)) {
 
 		private static final long serialVersionUID = 1L;
 
@@ -1958,6 +2654,7 @@ public class ItemType {
 	};
 	
 	public static AbstractItemType BOTTLED_ESSENCE_HUMAN = new AbstractItemType(
+			50,
 			null,
 			false,
 			"Bottled Human Essence",
@@ -1966,10 +2663,12 @@ public class ItemType {
 					+ " Inside, the swirling "+Colour.RACE_HUMAN.getName()+" glow of an arcane essence, imbued with the energy of a human, flickers and swirls about in a mesmerising, cyclical pattern.",
 			"bottledEssenceHuman",
 			Colour.RACE_HUMAN,
-			50,
+			null,
+			null,
 			Rarity.EPIC,
 			null,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.BOTTLED_ESSENCE_HUMAN, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.BOTTLED_ESSENCE_HUMAN)),
+			Util.newArrayListOfValues(ItemTag.ESSENCE)) {
 
 		private static final long serialVersionUID = 1L;
 
@@ -1993,6 +2692,7 @@ public class ItemType {
 	};
 	
 	public static AbstractItemType BOTTLED_ESSENCE_WOLF_MORPH = new AbstractItemType(
+			50,
 			null,
 			false,
 			"Bottled Wolf-morph Essence",
@@ -2001,10 +2701,12 @@ public class ItemType {
 					+ " Inside, the swirling "+Colour.RACE_WOLF_MORPH.getName()+" glow of an arcane essence, imbued with the energy of a wolf-morph, flickers and swirls about in a mesmerising, cyclical pattern.",
 			"bottledEssenceWolfMorph",
 			Colour.RACE_WOLF_MORPH,
-			50,
+			null,
+			null,
 			Rarity.EPIC,
 			null,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.BOTTLED_ESSENCE_WOLF_MORPH, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.BOTTLED_ESSENCE_WOLF_MORPH)),
+			Util.newArrayListOfValues(ItemTag.ESSENCE)) {
 
 		private static final long serialVersionUID = 1L;
 
@@ -2026,12 +2728,50 @@ public class ItemType {
 			return "Only people with a demonic-strength aura are able to absorb arcane essences!";
 		}
 	};
+
+	public static AbstractItemType BOTTLED_ESSENCE_SLIME = new AbstractItemType(
+			50,
+			null,
+			false,
+			"Bottled Slime Essence",
+			"Bottled Slime Essences",
+			"A small glass bottle, with a little cork stopper wedged firmly in the top."
+					+ " Inside, the swirling "+Colour.RACE_SLIME.getName()+" glow of an arcane essence, imbued with the energy of a slime, flickers and swirls about in a mesmerising, cyclical pattern.",
+			"bottledEssenceSlime",
+			Colour.RACE_SLIME,
+			null,
+			null,
+			Rarity.EPIC,
+			null,
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.BOTTLED_ESSENCE_SLIME)),
+			Util.newArrayListOfValues(ItemTag.ESSENCE)) {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public String getUseName() {
+			return "absorb";
+		}
+
+		@Override
+		public String getUseDescription(GameCharacter user, GameCharacter target) {
+			return getEssenceAbsorbtionText(Colour.RACE_SLIME, user, target);
+		}
+		
+		public boolean isAbleToBeUsed(GameCharacter target) {
+			return target.getRace()==Race.DEMON || target.isPlayer();
+		}
+		
+		public String getUnableToBeUsedDescription(GameCharacter target) {
+			return "Only people with a demonic-strength aura are able to absorb arcane essences!";
+		}
+	};
 	
 	
 	
 	// Specials:
 	
-	public static AbstractItemType HARPY_MATRIARCH_BIMBO_LOLLIPOP = new AbstractItemType(
+	public static AbstractItemType HARPY_MATRIARCH_BIMBO_LOLLIPOP = new AbstractItemType(1250,
 			null,
 			false,
 			"[bimboHarpy.name]'s lollipop",
@@ -2040,10 +2780,14 @@ public class ItemType {
 				+ " Although it doesn't look out of the ordinary, you're pretty sure that eating it would result in a potent transformation...",
 			"bimboLollipop",
 			Colour.RARITY_LEGENDARY,
-			500,
+			null,
+			null,
 			Rarity.LEGENDARY,
 			null,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.BIMBO_LOLLIPOP, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.BIMBO_LOLLIPOP)),
+			Util.newArrayListOfValues(
+					ItemTag.RACIAL_TF_ITEM,
+					ItemTag.NOT_FOR_SALE)) {
 
 		private static final long serialVersionUID = 1L;
 		
@@ -2074,7 +2818,7 @@ public class ItemType {
 		}
 	};
 	
-	public static AbstractItemType HARPY_MATRIARCH_NYMPHO_LOLLIPOP = new AbstractItemType(
+	public static AbstractItemType HARPY_MATRIARCH_NYMPHO_LOLLIPOP = new AbstractItemType(1250,
 			null,
 			false,
 			"[nymphoHarpy.name]'s lollipop",
@@ -2083,10 +2827,14 @@ public class ItemType {
 				+ " Although it looks to be made from regular candy, you're pretty sure that eating it would result in a potent transformation...",
 			"nymphoLollipop",
 			Colour.RARITY_LEGENDARY,
-			500,
+			null,
+			null,
 			Rarity.LEGENDARY,
 			null,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.NYMPHO_LOLLIPOP, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.NYMPHO_LOLLIPOP)),
+			Util.newArrayListOfValues(
+					ItemTag.RACIAL_TF_ITEM,
+					ItemTag.NOT_FOR_SALE)) {
 
 		private static final long serialVersionUID = 1L;
 		
@@ -2116,7 +2864,7 @@ public class ItemType {
 		}
 	};
 	
-	public static AbstractItemType HARPY_MATRIARCH_DOMINANT_PERFUME = new AbstractItemType(
+	public static AbstractItemType HARPY_MATRIARCH_DOMINANT_PERFUME = new AbstractItemType(1250,
 			null,
 			false,
 			"[dominantHarpy.name]'s perfume",
@@ -2125,10 +2873,14 @@ public class ItemType {
 				+ " Although it looks to contain normal perfume, you're pretty sure that using it would result in a potent transformation...",
 			"dominantPerfume",
 			Colour.RARITY_LEGENDARY,
-			500,
+			null,
+			null,
 			Rarity.LEGENDARY,
 			null,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.DOMINANT_PERFUME, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.DOMINANT_PERFUME)),
+			Util.newArrayListOfValues(
+					ItemTag.RACIAL_TF_ITEM,
+					ItemTag.NOT_FOR_SALE)) {
 
 		private static final long serialVersionUID = 1L;
 		
@@ -2165,17 +2917,19 @@ public class ItemType {
 	
 	// Crafting outputs:
 	
-	public static AbstractItemType POTION = new AbstractItemType("",
+	public static AbstractItemType POTION = new AbstractItemType(500,
+			"",
 			false,
 			"potion",
 			"potions",
 			"Refined potion.",
 			"refined_potion_container",
 			Colour.CLOTHING_PINK,
-			25,
+			null,
+			null,
 			Rarity.RARE,
 			null,
-			null) {
+			null, null) {
 
 		private static final long serialVersionUID = 1L;
 
@@ -2206,22 +2960,24 @@ public class ItemType {
 						+ " A sweet smell rises from the opening, and, after gulping down the delicious liquid, you feel a strange tingling feeling spreading throughout your body as the potion's effects start to make themselves known...",
 					"First removing the bottle's stopper, you then bring the potion up to [npc.name]'s waiting lips, before forcing [npc.herHim] to drink it all down.",
 					"[npc.Name] pulls out a potion of some sort, and, after quickly removing the bottle's stopper, [npc.she] promptly gulps downs the contents.",
-					"[npc.Name] pulls out a potion of some sort, and, after quickly removing the bottle's stopper, [npc.she] brings it to your lips, before tilting your head back and forcing you to quickly gulp down the contents."
+					"[npc.Name] brings the potion to your lips, before tilting your head back and forcing you to quickly gulp down the contents."
 						+ " You feel a strange tingling feeling spreading throughout your body as the potion's effects start to make themselves known...");
 		}
 	};
 	
-	public static AbstractItemType ELIXIR = new AbstractItemType("",
+	public static AbstractItemType ELIXIR = new AbstractItemType(1000,
+			"",
 			false,
 			"elixir",
 			"elixirs",
 			"Refined elixir.",
 			"refined_elixir_container",
 			Colour.CLOTHING_PINK,
-			25,
+			null,
+			null,
 			Rarity.EPIC,
 			null,
-			null) {
+			null, null) {
 
 		private static final long serialVersionUID = 1L;
 		
@@ -2252,7 +3008,7 @@ public class ItemType {
 						+ " A sweet smell rises from the opening, and, after gulping down the delicious liquid, you feel a strange tingling feeling spreading throughout your body as the elixir's effects start to make themselves known...",
 					"First removing the bottle's stopper, you then bring the elixir up to [npc.name]'s waiting lips, before forcing [npc.herHim] to drink it all down.",
 					"[npc.Name] pulls out an elixir of some sort, and, after quickly removing the stopper, [npc.she] promptly gulps downs the contents.",
-					"[npc.Name] pulls out an elixir of some sort, and, after quickly removing the bottle's stopper, [npc.she] brings it to your lips, before tilting your head back and forcing you to quickly gulp down the contents."
+					"[npc.Name] brings the elixir to your lips, before tilting your head back and forcing you to quickly gulp down the contents."
 						+ " You feel a strange tingling feeling spreading throughout your body as the elixir's effects start to make themselves known...");
 		}
 	};
@@ -2260,7 +3016,8 @@ public class ItemType {
 	
 	// Non-TF:
 
-	public static AbstractItemType DYE_BRUSH = new AbstractItemType("a",
+	public static AbstractItemType DYE_BRUSH = new AbstractItemType(150,
+			"a",
 			false,
 			"dye-brush",
 			"dye-brushes",
@@ -2268,10 +3025,14 @@ public class ItemType {
 					+ " On closer inspection, you notice a very faint purple glow emanating from the brush's tip, revealing its true nature as an arcane-enchanted dye-brush.",
 			"dyeBrush",
 			Colour.CLOTHING_WHITE,
-			50,
+			null,
+			null,
 			Rarity.EPIC,
 			null,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.DYE_BRUSH, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.DYE_BRUSH)),
+			Util.newArrayListOfValues(
+					ItemTag.DOMINION_ALLEYWAY_SPAWN,
+					ItemTag.SUBMISSION_TUNNEL_SPAWN)) {
 
 		private static final long serialVersionUID = 1L;
 
@@ -2306,17 +3067,21 @@ public class ItemType {
 		}
 	};
 
-	public static AbstractItemType CONDOM_USED = new AbstractItemType("a",
+	public static AbstractItemType CONDOM_USED = new AbstractItemType(1,
+			"a",
 			false,
 			"used condom",
 			"used condoms",
 			"A used condom, tied at the top and filled with someone's cum. You'd have to be pretty dirty-minded to think of a use for this... <b>(Currently not implemented...)</b>",
 			"condomUsed",
 			Colour.CLOTHING_WHITE,
-			0,
+			null,
+			null,
 			Rarity.COMMON,
 			null,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.USED_CONDOM_DRINK, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.USED_CONDOM_DRINK)),
+			Util.newArrayListOfValues(
+					ItemTag.REMOVE_FROM_DEBUG_SPAWNER)) {
 		
 		private static final long serialVersionUID = 1L;
 
@@ -2356,17 +3121,19 @@ public class ItemType {
 		}
 	};
 
-	public static AbstractItemType ARTHURS_PACKAGE = new AbstractItemType("",
+	public static AbstractItemType ARTHURS_PACKAGE = new AbstractItemType(0,
+			"",
 			false,
 			"Arthur's Package",
 			"Arthur's Packages",
 			"A package that you collected from Arcane Arts. You need to deliver this to Arthur.",
 			"arthursPackage",
 			Colour.ANDROGYNOUS,
-			0,
+			null,
+			null,
 			Rarity.LEGENDARY,
 			null,
-			null) {
+			null, null) {
 
 		private static final long serialVersionUID = 1L;
 
@@ -2396,17 +3163,19 @@ public class ItemType {
 
 	};
 	
-	public static AbstractItemType ORIENTATION_HYPNO_WATCH = new AbstractItemType("a",
+	public static AbstractItemType ORIENTATION_HYPNO_WATCH = new AbstractItemType(50000,
+			"a",
 			false,
 			"Hypno-Watch",
 			"Hypno-Watches",
 			"A unique, incredibly-powerful arcane instrument. When enchanted, this Hypno-Watch has the ability to change a person's sexual orientation, at the cost of giving them a huge increase in corruption.",
 			"hypnoClockBase",
 			Colour.ANDROGYNOUS,
-			50000,
+			null,
+			null,
 			Rarity.LEGENDARY,
 			TFEssence.ARCANE,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.ORIENTATION_CHANGE, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.ORIENTATION_CHANGE)), null) {
 
 		private static final long serialVersionUID = 1L;
 
@@ -2421,7 +3190,7 @@ public class ItemType {
 		}
 		
 		@Override
-		public ItemEffectType getEnchantmentEffect() {
+		public AbstractItemEffectType getEnchantmentEffect() {
 			return ItemEffectType.ORIENTATION_CHANGE;
 		}
 
@@ -2453,17 +3222,23 @@ public class ItemType {
 
 	};
 	
-	public static AbstractItemType VIXENS_VIRILITY = new AbstractItemType("a",
+	public static AbstractItemType VIXENS_VIRILITY = new AbstractItemType(20,
+			"a",
 			false,
 			"Vixen's Virility",
 			"Vixen's Virilities",
 			"A small pill, packaged in a little foil and plastic wrapper. On the front of the foil, there's a small stylised picture of a heavily pregnant girl, lying back and smiling as she strokes her swollen belly.",
 			"vixensVirility",
 			Colour.CLOTHING_PINK,
-			5,
+			null,
+			null,
 			Rarity.COMMON,
 			null,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.VIXENS_VIRILITY, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.VIXENS_VIRILITY)),
+			Util.newArrayListOfValues(
+					ItemTag.DOMINION_ALLEYWAY_SPAWN,
+					ItemTag.SUBMISSION_TUNNEL_SPAWN,
+					ItemTag.ATTRIBUTE_TF_ITEM)) {
 
 		private static final long serialVersionUID = 1L;
 
@@ -2483,7 +3258,8 @@ public class ItemType {
 
 	};
 	
-	public static AbstractItemType PROMISCUITY_PILL = new AbstractItemType("a",
+	public static AbstractItemType PROMISCUITY_PILL = new AbstractItemType(20,
+			"a",
 			false,
 			"Promiscuity Pill",
 			"Promiscuity Pills",
@@ -2492,10 +3268,15 @@ public class ItemType {
 					+ " The after image is of the girl showing off her flat stomach as she gives a thumbs up.",
 			"vixensVirility",
 			Colour.CLOTHING_BLUE,
-			5,
+			null,
+			null,
 			Rarity.COMMON,
 			null,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.PROMISCUITY_PILL, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.PROMISCUITY_PILL)),
+			Util.newArrayListOfValues(
+					ItemTag.DOMINION_ALLEYWAY_SPAWN,
+					ItemTag.SUBMISSION_TUNNEL_SPAWN,
+					ItemTag.ATTRIBUTE_TF_ITEM)) {
 
 		private static final long serialVersionUID = 1L;
 
@@ -2514,7 +3295,103 @@ public class ItemType {
 		}
 	};
 	
-	public static AbstractItemType MOTHERS_MILK = new AbstractItemType("a bottle of",
+	public static AbstractItemType MOO_MILKER_EMPTY = new AbstractItemType(50,
+			"a",
+			false,
+			"Moo Milker",
+			"Moo Milkers",
+			"A manual cow-themed breast pump, capable of holding up to 1000ml of liquid in the attached plastic beaker.",
+			"breastPump",
+			Colour.BASE_PURPLE_LIGHT,
+			null,
+			null,
+			Rarity.COMMON,
+			null,
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.MOO_MILKER)),
+			Util.newArrayListOfValues(
+					ItemTag.DOMINION_ALLEYWAY_SPAWN,
+					ItemTag.SUBMISSION_TUNNEL_SPAWN)) {
+
+		private static final long serialVersionUID = 1L;
+		
+		@Override
+		public String getUseName() {
+			return "milk";
+		}
+		
+		@Override
+		public String getUseDescription(GameCharacter user, GameCharacter target) {
+			return getGenericUseDescription(user, target,
+					"Bringing the Moo Milker up to your breast, you place the suction cup over your [pc.nipple], before starting to pump the lever up and down."
+							+ " Your [pc.milk+] starts to squirt out into the attached beaker, and you can't help but let out a deeply satisfied sigh at the delightful sensation of milking yourself.",
+					"Bringing the Moo Milker up to [npc.name]'s breast, you place the suction cup over [npc.her] [npc.nipple], before starting to pump the lever up and down."
+							+ " [npc.Her] [npc.milk+] starts to squirt out into the attached beaker, and [npc.she] can't help but let out a deeply satisfied sigh at the delightful sensation of being milked.",
+					"Bringing a Moo Milker up to [npc.her] breast, [npc.name] places the suction cup over [npc.her] [npc.nipple], before starting to pump the lever up and down."
+							+ " [npc.Her] [npc.milk+] starts to squirt out into the attached beaker, and [npc.she] can't help but let out a deeply satisfied sigh at the delightful sensation of milking [npc.herself].",
+					"Bringing a Moo Milker up to your breast, [npc.name] places the suction cup over your [pc.nipple], before starting to pump the lever up and down."
+							+ " Your [pc.milk+] starts to squirt out into the attached beaker, and you can't help but let out a deeply satisfied sigh at the delightful sensation of being milked.");
+		}
+
+		@Override
+		public boolean isAbleToBeUsed(GameCharacter target) {
+			return target.isAbleToAccessCoverableArea(CoverableArea.NIPPLES, true) && target.getBreastRawMilkStorageValue()>0;
+		}
+
+		@Override
+		public String getUnableToBeUsedDescription(GameCharacter target) {
+			if(target.isPlayer()) {
+				if(!target.isAbleToAccessCoverableArea(CoverableArea.NIPPLES, true)) {
+					return "You need to be able to access your nipples in order to use this!";
+				} else {
+					return "You need to have at least 1ml of milk stored in your breasts in order to use this!";
+				}
+				
+			} else {
+				if(!target.isAbleToAccessCoverableArea(CoverableArea.NIPPLES, true)) {
+					return UtilText.parse(target, "You need to be able to access [npc.name]'s nipples in order to use this!");
+				} else {
+					return UtilText.parse(target, "[npc.Name] needs to have at least 1ml of milk stored in [npc.her] breasts in order to use this!");
+				}
+			}
+		}
+	};
+	
+	public static AbstractItemType MOO_MILKER_FULL = new AbstractItemType(150,
+			"a",
+			false,
+			"Filled Moo Milker",
+			"Filled Moo Milkers",
+			"A manual cow-themed breast pump."
+					+ " The attached plastic beaker has been filled with milk, and, by unscrewing the pumping mechanism on top, you can gain access to the liquid at any time.",
+			"breastPumpFilled",
+			Colour.BASE_PURPLE_LIGHT,
+			null,
+			null,
+			Rarity.COMMON,
+			null,
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.FILLED_MOO_MILKER_DRINK)),
+			Util.newArrayListOfValues(
+					ItemTag.REMOVE_FROM_DEBUG_SPAWNER)) {
+		
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public String getUseName() {
+			return "drink";
+		}
+
+		@Override
+		public String getUseDescription(GameCharacter user, GameCharacter target) {
+			return getGenericUseDescription(user, target,
+					"You unscrew the top of the breast pump, and, bringing it up to your lips, you gulp down the contents.",
+					"You unscrew the top of the breast pump, and, bringing it up to [npc.name]'s [npc.lips], you force [npc.her] to gulp down the contents.",
+					"Unscrewing the top of the breast pump, [npc.name] brings it up to [npc.her] [npc.lips], before swallowing down the contents.",
+					"Unscrewing the top of the breast pump, [npc.name] brings it up to your [pc.lips], before forcing you to gulp down the contents.");
+		}
+	};
+	
+	public static AbstractItemType MOTHERS_MILK = new AbstractItemType(100,
+			"a bottle of",
 			false,
 			"Mother's Milk",
 			"Mother's Milks",
@@ -2522,10 +3399,15 @@ public class ItemType {
 			+ " On the side, a little sticker declares that this drink is able to speed up your pregnancy.",
 			"mothers_milk",
 			Colour.CLOTHING_WHITE,
-			5,
+			null,
+			null,
 			Rarity.COMMON,
 			null,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.MOTHERS_MILK, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.MOTHERS_MILK)),
+			Util.newArrayListOfValues(
+					ItemTag.DOMINION_ALLEYWAY_SPAWN,
+					ItemTag.SUBMISSION_TUNNEL_SPAWN,
+					ItemTag.MISC_TF_ITEM)) {
 
 		private static final long serialVersionUID = 1L;
 
@@ -2544,7 +3426,7 @@ public class ItemType {
 		}
 	};
 	
-	public static AbstractItemType BOOK_CAT_MORPH = new AbstractItemType(
+	public static AbstractItemType BOOK_CAT_MORPH = new AbstractItemType(250,
 			null,
 			false,
 			"Curious Kitties",
@@ -2552,21 +3434,18 @@ public class ItemType {
 			"A book that details cat-morph society.",
 			"book_race_cat_morph",
 			Colour.RACE_CAT_MORPH,
-			10,
+			null,
+			null,
 			Rarity.LEGENDARY,
 			null,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.BOOK_READ_CAT_MORPH, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.BOOK_READ_CAT_MORPH)),
+			Util.newArrayListOfValues(ItemTag.BOOK)) {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public boolean isAbleToBeUsed(GameCharacter target) {
-			return !Main.getProperties().isAdvancedRaceKnowledgeDiscovered(Race.CAT_MORPH);
-		}
-
-		@Override
-		public String getUnableToBeUsedDescription(GameCharacter target) {
-			return "You've already added this book to Lilaya's library! It would be best to just sell it...";
+		public boolean isConsumedOnUse() {
+			return false;
 		}
 		
 		@Override
@@ -2585,7 +3464,7 @@ public class ItemType {
 	};
 	
 
-	public static AbstractItemType BOOK_COW_MORPH = new AbstractItemType(
+	public static AbstractItemType BOOK_COW_MORPH = new AbstractItemType(250,
 			null,
 			false,
 			"Milking Cows",
@@ -2593,21 +3472,18 @@ public class ItemType {
 			"A book that details cow-morph society.",
 			"book_race_cow_morph",
 			Colour.RACE_COW_MORPH,
-			10,
+			null,
+			null,
 			Rarity.LEGENDARY,
 			null,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.BOOK_READ_COW_MORPH, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.BOOK_READ_COW_MORPH)),
+			Util.newArrayListOfValues(ItemTag.BOOK)) {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public boolean isAbleToBeUsed(GameCharacter target) {
-			return !Main.getProperties().isAdvancedRaceKnowledgeDiscovered(Race.COW_MORPH);
-		}
-
-		@Override
-		public String getUnableToBeUsedDescription(GameCharacter target) {
-			return "You've already added this book to Lilaya's library! It would be best to just sell it...";
+		public boolean isConsumedOnUse() {
+			return false;
 		}
 		
 		@Override
@@ -2626,7 +3502,7 @@ public class ItemType {
 	};
 	
 
-	public static AbstractItemType BOOK_DEMON = new AbstractItemType(
+	public static AbstractItemType BOOK_DEMON = new AbstractItemType(250,
 			null,
 			false,
 			"Demonic Origins",
@@ -2634,21 +3510,18 @@ public class ItemType {
 			"A book about demons and where they come from.",
 			"book_race_demon",
 			Colour.RACE_DEMON,
-			10,
+			null,
+			null,
 			Rarity.LEGENDARY,
 			null,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.BOOK_READ_DEMON, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.BOOK_READ_DEMON)),
+			Util.newArrayListOfValues(ItemTag.BOOK)) {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public boolean isAbleToBeUsed(GameCharacter target) {
-			return !Main.getProperties().isAdvancedRaceKnowledgeDiscovered(Race.DEMON);
-		}
-
-		@Override
-		public String getUnableToBeUsedDescription(GameCharacter target) {
-			return "You've already added this book to Lilaya's library! It would be best to just sell it...";
+		public boolean isConsumedOnUse() {
+			return false;
 		}
 		
 		@Override
@@ -2666,7 +3539,44 @@ public class ItemType {
 		}
 	};
 	
-	public static AbstractItemType BOOK_DOG_MORPH = new AbstractItemType(
+	public static AbstractItemType BOOK_IMP = new AbstractItemType(250,
+			null,
+			false,
+			"Impish Fiends",
+			"Impish Fiends'",
+			"A book about imps and where they come from.",
+			"book_race_imp",
+			Colour.RACE_IMP,
+			null,
+			null,
+			Rarity.LEGENDARY,
+			null,
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.BOOK_READ_IMP)),
+			Util.newArrayListOfValues(ItemTag.BOOK)) {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public boolean isConsumedOnUse() {
+			return false;
+		}
+		
+		@Override
+		public String getUseName() {
+			return "read";
+		}
+		
+		@Override
+		public String getUseDescription(GameCharacter user, GameCharacter target) {
+			return getGenericUseDescription(user, target,
+					"Opening the book, you read its contents...",
+					"Opening the book, you force [npc.name] to read its contents...",
+					"[npc.Name] produces a book, titled 'Impish Fiends', which [npc.she] then starts to read...",
+					"[npc.Name] produces a book, titled 'Impish Fiends', which [npc.she] then forces you to read...");
+		}
+	};
+	
+	public static AbstractItemType BOOK_DOG_MORPH = new AbstractItemType(250,
 			null,
 			false,
 			"Canine Culture",
@@ -2674,21 +3584,18 @@ public class ItemType {
 			"A book about dog-morphs and their culture.",
 			"book_race_dog_morph",
 			Colour.RACE_DOG_MORPH,
-			10,
+			null,
+			null,
 			Rarity.LEGENDARY,
 			null,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.BOOK_READ_DOG_MORPH, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.BOOK_READ_DOG_MORPH)),
+			Util.newArrayListOfValues(ItemTag.BOOK)) {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public boolean isAbleToBeUsed(GameCharacter target) {
-			return !Main.getProperties().isAdvancedRaceKnowledgeDiscovered(Race.DOG_MORPH);
-		}
-
-		@Override
-		public String getUnableToBeUsedDescription(GameCharacter target) {
-			return "You've already added this book to Lilaya's library! It would be best to just sell it...";
+		public boolean isConsumedOnUse() {
+			return false;
 		}
 		
 		@Override
@@ -2706,7 +3613,7 @@ public class ItemType {
 		}
 	};
 	
-	public static AbstractItemType BOOK_ALLIGATOR_MORPH = new AbstractItemType(
+	public static AbstractItemType BOOK_ALLIGATOR_MORPH = new AbstractItemType(250,
 			null,
 			false,
 			"Rasselin' Gators",
@@ -2714,21 +3621,18 @@ public class ItemType {
 			"A book all about alligator-morphs, detailing their society and place within Dominion.",
 			"book_race_gator_morph",
 			Colour.RACE_ALLIGATOR_MORPH,
-			10,
+			null,
+			null,
 			Rarity.LEGENDARY,
 			null,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.BOOK_READ_ALLIGATOR_MORPH, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.BOOK_READ_ALLIGATOR_MORPH)),
+			Util.newArrayListOfValues(ItemTag.BOOK)) {
 		
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public boolean isAbleToBeUsed(GameCharacter target) {
-			return !Main.getProperties().isAdvancedRaceKnowledgeDiscovered(Race.ALLIGATOR_MORPH);
-		}
-
-		@Override
-		public String getUnableToBeUsedDescription(GameCharacter target) {
-			return "You've already added this book to Lilaya's library! It would be best to just sell it...";
+		public boolean isConsumedOnUse() {
+			return false;
 		}
 		
 		@Override
@@ -2746,7 +3650,7 @@ public class ItemType {
 		}
 	};
 	
-	public static AbstractItemType BOOK_HARPY = new AbstractItemType(
+	public static AbstractItemType BOOK_HARPY = new AbstractItemType(250,
 			null,
 			false,
 			"All About Harpies",
@@ -2754,21 +3658,18 @@ public class ItemType {
 			"A book all about harpies, detailing their society and place within Dominion.",
 			"book_race_harpy",
 			Colour.RACE_HARPY,
-			10,
+			null,
+			null,
 			Rarity.LEGENDARY,
 			null,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.BOOK_READ_HARPY, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.BOOK_READ_HARPY)),
+			Util.newArrayListOfValues(ItemTag.BOOK)) {
 		
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public boolean isAbleToBeUsed(GameCharacter target) {
-			return !Main.getProperties().isAdvancedRaceKnowledgeDiscovered(Race.HARPY);
-		}
-
-		@Override
-		public String getUnableToBeUsedDescription(GameCharacter target) {
-			return "You've already added this book to Lilaya's library! It would be best to just sell it...";
+		public boolean isConsumedOnUse() {
+			return false;
 		}
 		
 		@Override
@@ -2786,7 +3687,7 @@ public class ItemType {
 		}
 	};
 	
-	public static AbstractItemType BOOK_HORSE_MORPH = new AbstractItemType(
+	public static AbstractItemType BOOK_HORSE_MORPH = new AbstractItemType(250,
 			null,
 			false,
 			"Equine Encyclopedia",
@@ -2794,21 +3695,18 @@ public class ItemType {
 			"A book all about horse-morphs.",
 			"book_race_horse_morph",
 			Colour.RACE_HORSE_MORPH,
-			10,
+			null,
+			null,
 			Rarity.LEGENDARY,
 			null,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.BOOK_READ_HORSE_MORPH, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.BOOK_READ_HORSE_MORPH)),
+			Util.newArrayListOfValues(ItemTag.BOOK)) {
 		
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public boolean isAbleToBeUsed(GameCharacter target) {
-			return !Main.getProperties().isAdvancedRaceKnowledgeDiscovered(Race.HORSE_MORPH);
-		}
-
-		@Override
-		public String getUnableToBeUsedDescription(GameCharacter target) {
-			return "You've already added this book to Lilaya's library! It would be best to just sell it...";
+		public boolean isConsumedOnUse() {
+			return false;
 		}
 		
 		@Override
@@ -2826,7 +3724,7 @@ public class ItemType {
 		}
 	};
 	
-	public static AbstractItemType BOOK_REINDEER_MORPH = new AbstractItemType(
+	public static AbstractItemType BOOK_REINDEER_MORPH = new AbstractItemType(250,
 			null,
 			false,
 			"The Eight",
@@ -2834,21 +3732,18 @@ public class ItemType {
 			"A book all about reindeer-morphs.",
 			"book_race_reindeer_morph",
 			Colour.RACE_REINDEER_MORPH,
-			10,
+			null,
+			null,
 			Rarity.LEGENDARY,
 			null,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.BOOK_READ_REINDEER_MORPH, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.BOOK_READ_REINDEER_MORPH)),
+			Util.newArrayListOfValues(ItemTag.BOOK)) {
 		
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public boolean isAbleToBeUsed(GameCharacter target) {
-			return !Main.getProperties().isAdvancedRaceKnowledgeDiscovered(Race.REINDEER_MORPH);
-		}
-
-		@Override
-		public String getUnableToBeUsedDescription(GameCharacter target) {
-			return "You've already added this book to Lilaya's library! It would be best to just sell it...";
+		public boolean isConsumedOnUse() {
+			return false;
 		}
 		
 		@Override
@@ -2866,7 +3761,7 @@ public class ItemType {
 		}
 	};
 	
-	public static AbstractItemType BOOK_HUMAN = new AbstractItemType(
+	public static AbstractItemType BOOK_HUMAN = new AbstractItemType(250,
 			null,
 			false,
 			"Concerning Humans",
@@ -2874,21 +3769,18 @@ public class ItemType {
 			"A book about humans and their place within Dominion society.",
 			"book_race_human",
 			Colour.RACE_HUMAN,
-			10,
+			null,
+			null,
 			Rarity.LEGENDARY,
 			null,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.BOOK_READ_HUMAN, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.BOOK_READ_HUMAN)),
+			Util.newArrayListOfValues(ItemTag.BOOK)) {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public boolean isAbleToBeUsed(GameCharacter target) {
-			return !Main.getProperties().isAdvancedRaceKnowledgeDiscovered(Race.HUMAN);
-		}
-
-		@Override
-		public String getUnableToBeUsedDescription(GameCharacter target) {
-			return "You've already added this book to Lilaya's library! It would be best to just sell it...";
+		public boolean isConsumedOnUse() {
+			return false;
 		}
 		
 		@Override
@@ -2906,7 +3798,7 @@ public class ItemType {
 		}
 	};
 	
-	public static AbstractItemType BOOK_SQUIRREL_MORPH = new AbstractItemType(
+	public static AbstractItemType BOOK_SQUIRREL_MORPH = new AbstractItemType(250,
 			null,
 			false,
 			"Chasing Squirrels",
@@ -2914,21 +3806,18 @@ public class ItemType {
 			"A book that details squirrel-morph society.",
 			"book_race_squirrel_morph",
 			Colour.RACE_SQUIRREL_MORPH,
-			10,
+			null,
+			null,
 			Rarity.LEGENDARY,
 			null,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.BOOK_READ_SQUIRREL_MORPH, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.BOOK_READ_SQUIRREL_MORPH)),
+			Util.newArrayListOfValues(ItemTag.BOOK)) {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public boolean isAbleToBeUsed(GameCharacter target) {
-			return !Main.getProperties().isAdvancedRaceKnowledgeDiscovered(Race.SQUIRREL_MORPH);
-		}
-
-		@Override
-		public String getUnableToBeUsedDescription(GameCharacter target) {
-			return "You've already added this book to Lilaya's library! It would be best to just sell it...";
+		public boolean isConsumedOnUse() {
+			return false;
 		}
 		
 		@Override
@@ -2946,7 +3835,118 @@ public class ItemType {
 		}
 	};
 	
-	public static AbstractItemType BOOK_WOLF_MORPH = new AbstractItemType(
+	public static AbstractItemType BOOK_RAT_MORPH = new AbstractItemType(250,
+			null,
+			false,
+			"Causing Mischief",
+			"Causing Mischiefs",
+			"A book that details rat-morph society.",
+			"book_race_rat_morph",
+			Colour.RACE_RAT_MORPH,
+			null,
+			null,
+			Rarity.LEGENDARY,
+			null,
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.BOOK_READ_RAT_MORPH)),
+			Util.newArrayListOfValues(ItemTag.BOOK)) {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public boolean isConsumedOnUse() {
+			return false;
+		}
+		
+		@Override
+		public String getUseName() {
+			return "read";
+		}
+		
+		@Override
+		public String getUseDescription(GameCharacter user, GameCharacter target) {
+			return getGenericUseDescription(user, target,
+					"Opening the book, you read its contents...",
+					"Opening the book, you force [npc.name] to read its contents...",
+					"[npc.Name] produces a book, titled 'Causing Mischief', which [npc.she] then starts to read...",
+					"[npc.Name] produces a book, titled 'Causing Mischief', which [npc.she] then forces you to read...");
+		}
+	};
+	
+	public static AbstractItemType BOOK_RABBIT_MORPH = new AbstractItemType(250,
+			null,
+			false,
+			"Bunny Litters",
+			"Bunny Litters'",
+			"A book that details rabbit-morph society.",
+			"book_race_rabbit_morph",
+			Colour.RACE_RABBIT_MORPH,
+			null,
+			null,
+			Rarity.LEGENDARY,
+			null,
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.BOOK_READ_RABBIT_MORPH)),
+			Util.newArrayListOfValues(ItemTag.BOOK)) {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public boolean isConsumedOnUse() {
+			return false;
+		}
+		
+		@Override
+		public String getUseName() {
+			return "read";
+		}
+		
+		@Override
+		public String getUseDescription(GameCharacter user, GameCharacter target) {
+			return getGenericUseDescription(user, target,
+					"Opening the book, you read its contents...",
+					"Opening the book, you force [npc.name] to read its contents...",
+					"[npc.Name] produces a book, titled 'Bunny Litters', which [npc.she] then starts to read...",
+					"[npc.Name] produces a book, titled 'Bunny Litters', which [npc.she] then forces you to read...");
+		}
+	};
+	
+	public static AbstractItemType BOOK_BAT_MORPH = new AbstractItemType(250,
+			null,
+			false,
+			"Flying Foxes",
+			"Flying Foxes'",
+			"A book that details bat-morph society.",
+			"book_race_bat_morph",
+			Colour.RACE_BAT_MORPH,
+			null,
+			null,
+			Rarity.LEGENDARY,
+			null,
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.BOOK_READ_BAT_MORPH)),
+			Util.newArrayListOfValues(ItemTag.BOOK)) {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public boolean isConsumedOnUse() {
+			return false;
+		}
+		
+		@Override
+		public String getUseName() {
+			return "read";
+		}
+		
+		@Override
+		public String getUseDescription(GameCharacter user, GameCharacter target) {
+			return getGenericUseDescription(user, target,
+					"Opening the book, you read its contents...",
+					"Opening the book, you force [npc.name] to read its contents...",
+					"[npc.Name] produces a book, titled 'Flying Foxes', which [npc.she] then starts to read...",
+					"[npc.Name] produces a book, titled 'Flying Foxes', which [npc.she] then forces you to read...");
+		}
+	};
+	
+	public static AbstractItemType BOOK_WOLF_MORPH = new AbstractItemType(250,
 			null,
 			false,
 			"Prowling Lupines",
@@ -2954,21 +3954,18 @@ public class ItemType {
 			"A book all about wolf-morphs.",
 			"book_race_wolf_morph",
 			Colour.RACE_WOLF_MORPH,
-			10,
+			null,
+			null,
 			Rarity.LEGENDARY,
 			null,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.BOOK_READ_WOLF_MORPH, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.BOOK_READ_WOLF_MORPH)),
+			Util.newArrayListOfValues(ItemTag.BOOK)) {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public boolean isAbleToBeUsed(GameCharacter target) {
-			return !Main.getProperties().isAdvancedRaceKnowledgeDiscovered(Race.WOLF_MORPH);
-		}
-
-		@Override
-		public String getUnableToBeUsedDescription(GameCharacter target) {
-			return "You've already added this book to Lilaya's library! It would be best to just sell it...";
+		public boolean isConsumedOnUse() {
+			return false;
 		}
 		
 		@Override
@@ -2986,7 +3983,44 @@ public class ItemType {
 		}
 	};
 	
-	public static AbstractItemType PRESENT = new AbstractItemType(
+	public static AbstractItemType BOOK_SLIME = new AbstractItemType(250,
+			null,
+			false,
+			"Slimy Fun",
+			"Slimy Funs",
+			"A book all about slimes.",
+			"book_race_slime",
+			Colour.RACE_SLIME,
+			null,
+			null,
+			Rarity.LEGENDARY,
+			null,
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.BOOK_READ_SLIME)),
+			Util.newArrayListOfValues(ItemTag.BOOK)) {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public boolean isConsumedOnUse() {
+			return false;
+		}
+		
+		@Override
+		public String getUseName() {
+			return "read";
+		}
+		
+		@Override
+		public String getUseDescription(GameCharacter user, GameCharacter target) {
+			return getGenericUseDescription(user, target,
+					"Opening the book, you read its contents...",
+					"Opening the book, you force [npc.name] to read its contents...",
+					"[npc.Name] produces a book, titled 'Slimy Fun', which [npc.she] then starts to read...",
+					"[npc.Name] produces a book, titled 'Slimy Fun', which [npc.she] then forces you to read...");
+		}
+	};
+	
+	public static AbstractItemType PRESENT = new AbstractItemType(250,
 			"a",
 			false,
 			"Yuletide Gift",
@@ -2994,10 +4028,11 @@ public class ItemType {
 			"A wrapped present, sold by one of the reindeer-morph overseers in Dominion. It contains a random item from their store, and can also be given as a gift to your offspring, slaves, or Lilaya.",
 			"present",
 			Colour.GENERIC_ARCANE,
-			10,
+			null,
+			null,
 			Rarity.RARE,
 			null,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.PRESENT, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.PRESENT)), null) {
 
 		private static final long serialVersionUID = 1L;
 		
@@ -3026,8 +4061,240 @@ public class ItemType {
 		}
 	};
 	
+	public static AbstractItemType GIFT_ROSE = new AbstractItemType(
+			100,
+			null,
+			false,
+			"Rose",
+			"Roses",
+			"A bouquet filled with roses of many colours, it smells pleasant even from a distance."
+				+ " [Ashley.speech(Just in case you're clueless to the point that you don't even know the favourite colour of your intended recipient, every natural colour is included here.)]",
+			//				+ " If their favourite happens to be blue, tough luck; maybe you should try getting acquainted with another species of flower instead of going with what's safe.)] ",
+			"giftRose",
+			Colour.BASE_CRIMSON,
+			Colour.BASE_GREEN_DARK,
+			null,
+			Rarity.UNCOMMON,
+			null,
+			null,
+			Util.newArrayListOfValues(ItemTag.GIFT)) {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public String getDescription() {
+			return "A single, red rose."
+					+ " You imagine that if it were any other colour, it would smell just as sweet.";
+		}
+		
+		@Override
+		public String getUseName() {
+			return "smell";
+		}
+		
+		@Override
+		public String getUseDescription(GameCharacter user, GameCharacter target) {
+			return getGenericUseDescription(user, target,
+					"You take a smell of the delicate perfume given off by the red Rose.",
+					"You take a smell of the delicate perfume given off by the red Rose.",
+					"You take a smell of the delicate perfume given off by the red Rose.",
+					"You take a smell of the delicate perfume given off by the red Rose.");
+		}
+		
+		@Override
+		public boolean isConsumedOnUse() {
+			return false;
+		}
+	};
+	
+	public static AbstractItemType GIFT_ROSE_BOUQUET = new AbstractItemType(
+			500,
+			null,
+			false,
+			"Rose Bouquet",
+			"Rose Bouquets",
+			"A bouquet filled with roses of many colours, it smells pleasant even from a distance."
+				+ " [Ashley.speech(Just in case you're clueless to the point that you don't even know the favourite colour of your intended recipient, every natural colour is included here.)]",
+			//				+ " If their favourite happens to be blue, tough luck; maybe you should try getting acquainted with another species of flower instead of going with what's safe.)] ",
+			"giftRoseBouquet",
+			Colour.BASE_RED,
+			Colour.BASE_ORANGE,
+			Colour.BASE_YELLOW,
+			Rarity.UNCOMMON,
+			null,
+			null,
+			Util.newArrayListOfValues(ItemTag.GIFT)) {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public String getDescription() {
+			if(Main.game.getPlayer().getLocationPlace().getPlaceType()==PlaceType.SHOPPING_ARCADE_ASHLEYS_SHOP) {
+				return "A bouquet filled with roses of many colours, it smells pleasant even from a distance."
+						+ " [Ashley.speech(Just in case you're clueless to the point that you don't even know the favourite colour of your intended recipient, every natural colour is included here.)]";
+			} else {
+				return "A bouquet filled with roses of many colours, it smells pleasant even from a distance.";
+			}
+		}
+		
+		@Override
+		public String getUseName() {
+			return "smell";
+		}
+		
+		@Override
+		public String getUseDescription(GameCharacter user, GameCharacter target) {
+			return getGenericUseDescription(user, target,
+					"You take a smell of the delicate perfume given off by the Rose bouquet.",
+					"You take a smell of the delicate perfume given off by the Rose bouquet.",
+					"You take a smell of the delicate perfume given off by the Rose bouquet.",
+					"You take a smell of the delicate perfume given off by the Rose bouquet.");
+		}
+		
+		@Override
+		public boolean isConsumedOnUse() {
+			return false;
+		}
+	};
+	
+	public static AbstractItemType GIFT_CHOCOLATES = new AbstractItemType(
+			300,
+			"a box of",
+			true,
+			"Chocolates",
+			"Chocolates",
+			"A box filled with various chocolates. [Ashley.speech(Generic, but tasty. Yeah, go ahead and pretend that you're buying this for someone other than yourself.)]",
+			"giftChocolates",
+			Colour.BASE_TAN,
+			Colour.BASE_BROWN_DARK,
+			Colour.BASE_YELLOW,
+			Rarity.UNCOMMON,
+			null,
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.GIFT_CHOCOLATES)),
+			Util.newArrayListOfValues(ItemTag.GIFT)) {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public String getDescription() {
+			if(Main.game.getPlayer().getLocationPlace().getPlaceType()==PlaceType.SHOPPING_ARCADE_ASHLEYS_SHOP) {
+				return "A box filled with various chocolates. [Ashley.speech(Generic, but tasty. Yeah, go ahead and pretend that you're buying this for someone other than yourself.)]";
+			} else {
+				return "A box filled with various chocolates.";
+			}
+		}
+		
+		@Override
+		public String getUseName() {
+			return "eat";
+		}
+		
+		@Override
+		public String getUseDescription(GameCharacter user, GameCharacter target) {
+			return getGenericUseDescription(user, target,
+					"You remove the lid from the box of chocolates, and help yourself to the contents.",
+					"You remove the lid from the box of chocolates, and start feeding the contents to [npc.name].",
+					"[npc.Name] removes the lid from the box of chocolates, and starts eating the contents.",
+					"[npc.Name] removes the lid from the box of chocolates, and starts feeding the contents to you.");
+		}
+	};
+	
+	public static AbstractItemType GIFT_PERFUME = new AbstractItemType(
+			300,
+			"a bottle of",
+			false,
+			"Rose Perfume",
+			"Rose Perfumes",
+			"A small bottle of perfume."
+					+ " [Ashley.speech(A generic scent that most people enjoy. Makes you more attractive to everyone, since nobody likes a stinker!)]",
+			"giftPerfume",
+			Colour.BASE_ROSE,
+			Colour.BASE_PURPLE_LIGHT,
+			null,
+			Rarity.UNCOMMON,
+			TFEssence.ARCANE,
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.GIFT_PERFUME)),
+			Util.newArrayListOfValues(ItemTag.GIFT)) {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public String getDescription() {
+			if(Main.game.getPlayer().getLocationPlace().getPlaceType()==PlaceType.SHOPPING_ARCADE_ASHLEYS_SHOP) {
+				return "A small bottle of perfume."
+						+ " [Ashley.speech(A generic scent that most people enjoy. Makes you more attractive to everyone, since nobody likes a stinker!)]";
+			} else {
+				return "A small bottle of perfume.";
+			}
+		}
+		
+		@Override
+		public String getUseName() {
+			return "spray";
+		}
+
+		@Override
+		public String getUseDescription(GameCharacter user, GameCharacter target) {
+			return getGenericUseDescription(user, target,
+					"You take in a deep breath of the rose-scented fragrance as you spray a little squirt of the 'Rose Perfume' onto your neck.",
+					"You spray a little squirt of the 'Rose Perfume' onto [npc.name]'s neck.",
+					"[npc.Name] pulls out a bottle of 'Rose Perfume', and, after lifting it to [npc.her] neck, [npc.she] promptly sprays a little squirt onto [npc.her] [npc.skin].",
+					"[npc.Name] pulls out a bottle of 'Rose Perfume', and, after lifting it to your neck, [npc.she] sprays a little squirt onto your [pc.skin].");
+		}
+	};
+	
+	public static AbstractItemType GIFT_TEDDY_BEAR = new AbstractItemType(
+			600,
+			null,
+			false,
+			"Teddy Bear",
+			"Teddy Bears",
+			"A cute brown teddy bear, with the words 'Hug me!' sewed onto a little heart that it's holding."
+				+ " [Ashley.speech(Warning, this is an inanimate object; it does not actually yearn for your affection and cannot protect you from monsters hiding under the bed!)]",
+			"giftTeddyBear",
+			Colour.BASE_TAN,
+			null,
+			null,
+			Rarity.UNCOMMON,
+			TFEssence.ARCANE,
+			null,
+			Util.newArrayListOfValues(ItemTag.GIFT)) {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public String getDescription() {
+			if(Main.game.getPlayer().getLocationPlace().getPlaceType()==PlaceType.SHOPPING_ARCADE_ASHLEYS_SHOP) {
+				return "A cute brown teddy bear, with the words 'Hug me!' sewed onto a little heart that it's holding."
+						+ " [Ashley.speech(Warning, this is an inanimate object; it does not actually yearn for your affection and cannot protect you from monsters hiding under the bed!)]";
+			} else {
+				return "A cute brown teddy bear, with the words 'Hug me!' sewed onto a little heart that it's holding.";
+			}
+		}
+		
+		@Override
+		public String getUseName() {
+			return "hug";
+		}
+
+		@Override
+		public String getUseDescription(GameCharacter user, GameCharacter target) {
+			return getGenericUseDescription(user, target,
+					"You hug the teddy bear. It's soft and fluffy...",
+					"You get [npc.name] to hug the teddy bear. [npc.She] remarks on how soft and fluffy it is...",
+					"[npc.Name] hugs the teddy bear. [npc.She] remarks on how soft and fluffy...",
+					"[npc.Name] gets you to hug the teddy bear. It's soft and fluffy...");
+		}
+		
+		@Override
+		public boolean isConsumedOnUse() {
+			return false;
+		}
+	};
+	
 	// Why did I make this?
 	public static AbstractItemType EGGPLANT = new AbstractItemType(
+			25,
 			null,
 			false,
 			"Eggplant",
@@ -3035,10 +4302,11 @@ public class ItemType {
 			"A delicate, tropical perennial often cultivated as a tender or half-hardy annual in temperate climates. Also it kind of looks like a penis if you squint.",
 			"eggplant",
 			Colour.GENERIC_ARCANE,
-			10,
+			null,
+			null,
 			Rarity.LEGENDARY,
 			null,
-			Util.newArrayListOfValues(new ListValue<>(new ItemEffect(ItemEffectType.EGGPLANT, null, null, null, 0)))) {
+			Util.newArrayListOfValues(new ItemEffect(ItemEffectType.EGGPLANT)), null) {
 
 		private static final long serialVersionUID = 1L;
 
@@ -3061,6 +4329,7 @@ public class ItemType {
 					"[npc.Name] produces an eggplant, and then proceeds to force you to eat it. The bitter taste of disappointment overwhelmes you both.");
 		}
 	};
+	
 	
 	
 	// Standard non-racial transformatives:
@@ -3368,13 +4637,39 @@ public class ItemType {
 //	};
 //
 	
-	public static List<AbstractItemType>
-			commonItems = new ArrayList<>(),
-			essences = new ArrayList<>(),
-			allItems = new ArrayList<>();
+
+	public static int getMooMilkerMaxMilk() {
+		return 1000;
+	}
 	
+	public static List<AbstractItemType> dominionAlleywayItems = new ArrayList<>();
+	public static List<AbstractItemType> submissionTunnelItems = new ArrayList<>();
+	public static List<AbstractItemType> batCavernItems = new ArrayList<>();
+	public static List<AbstractItemType> essences = new ArrayList<>();
+	public static List<AbstractItemType> allItems = new ArrayList<>();
+	
+	/**
+	 * If you're looking for spell books, their id is:</br>
+	 * SPELL_BOOK_"+spell.toString()</br>
+	 * If you're looking for spell scrolls, their id is:</br>
+	 * "SPELL_SCROLL_"+spellSchool.toString()
+	 */
 	public static Map<AbstractItemType, String> itemToIdMap = new HashMap<>();
+
+	/**
+	 * If you're looking for spell books, their id is:</br>
+	 * SPELL_BOOK_"+spell.toString()</br>
+	 * If you're looking for spell scrolls, their id is:</br>
+	 * "SPELL_SCROLL_"+spellSchool.toString()
+	 */
 	public static Map<String, AbstractItemType> idToItemMap = new HashMap<>();
+	
+	public static AbstractItemType getSpellBookType(Spell s) {
+		return idToItemMap.get("SPELL_BOOK_"+s);
+	}
+	public static AbstractItemType getSpellScrollType(SpellSchool school) {
+		return idToItemMap.get("SPELL_SCROLL_"+school);
+	}
 	
 	static{
 		
@@ -3394,53 +4689,19 @@ public class ItemType {
 					
 					allItems.add(item);
 					
-					if(item!=ItemType.POTION
-							&& item!=ItemType.ELIXIR
-							&& item!=ItemType.FETISH_REFINED
-							&& item!=ItemType.HARPY_MATRIARCH_BIMBO_LOLLIPOP
-							&& item!=ItemType.HARPY_MATRIARCH_DOMINANT_PERFUME
-							&& item!=ItemType.HARPY_MATRIARCH_NYMPHO_LOLLIPOP
-							&& item!=ItemType.BOOK_CAT_MORPH
-							&& item!=ItemType.BOOK_DEMON
-							&& item!=ItemType.BOOK_DOG_MORPH
-							&& item!=ItemType.BOOK_HARPY
-							&& item!=ItemType.BOOK_HORSE_MORPH
-							&& item!=ItemType.BOOK_HUMAN
-							&& item!=ItemType.BOOK_WOLF_MORPH
-							&& item!=ItemType.BOOK_REINDEER_MORPH
-							&& item!=ItemType.BOOK_ALLIGATOR_MORPH
-							&& item!=ItemType.BOTTLED_ESSENCE_ARCANE
-							&& item!=ItemType.BOTTLED_ESSENCE_CAT_MORPH
-							&& item!=ItemType.BOTTLED_ESSENCE_DEMON
-							&& item!=ItemType.BOTTLED_ESSENCE_REINDEER_MORPH
-							&& item!=ItemType.BOTTLED_ESSENCE_DOG_MORPH
-							&& item!=ItemType.BOTTLED_ESSENCE_HARPY
-							&& item!=ItemType.BOTTLED_ESSENCE_HORSE_MORPH
-							&& item!=ItemType.BOTTLED_ESSENCE_ALLIGATOR_MORPH
-							&& item!=ItemType.BOTTLED_ESSENCE_HUMAN
-							&& item!=ItemType.BOTTLED_ESSENCE_WOLF_MORPH
-							&& item!=ItemType.BOTTLED_ESSENCE_COW_MORPH
-							&& item!=ItemType.BOTTLED_ESSENCE_SQUIRREL_MORPH
-							&& item!=ItemType.EGGPLANT
-							&& item!=ItemType.PRESENT
-							&& item!=ItemType.SEX_INGREDIENT_MINCE_PIE
-							&& item!=ItemType.FIT_INGREDIENT_EGG_NOG
-							&& item!=ItemType.RACE_INGREDIENT_REINDEER_MORPH
-							) {
-						commonItems.add(item);
-						
-					} else if(item==ItemType.BOTTLED_ESSENCE_ARCANE
-							|| item==ItemType.BOTTLED_ESSENCE_CAT_MORPH
-							|| item==ItemType.BOTTLED_ESSENCE_DEMON
-							|| item==ItemType.BOTTLED_ESSENCE_DOG_MORPH
-							|| item==ItemType.BOTTLED_ESSENCE_HARPY
-							|| item==ItemType.BOTTLED_ESSENCE_HORSE_MORPH
-							|| item==ItemType.BOTTLED_ESSENCE_HUMAN
-							|| item==ItemType.BOTTLED_ESSENCE_WOLF_MORPH
-							|| item==ItemType.BOTTLED_ESSENCE_COW_MORPH
-							|| item==ItemType.BOTTLED_ESSENCE_ALLIGATOR_MORPH
-						  	|| item==ItemType.BOTTLED_ESSENCE_REINDEER_MORPH
-						  	|| item==ItemType.BOTTLED_ESSENCE_SQUIRREL_MORPH) {
+					if(item.getItemTags().contains(ItemTag.DOMINION_ALLEYWAY_SPAWN)) {
+						dominionAlleywayItems.add(item);
+					}
+					
+					if(item.getItemTags().contains(ItemTag.SUBMISSION_TUNNEL_SPAWN)) {
+						submissionTunnelItems.add(item);
+					} 
+					
+					if(item.getItemTags().contains(ItemTag.BAT_CAVERNS_SPAWN)) {
+						batCavernItems.add(item);
+					} 
+					
+					if(item.getItemTags().contains(ItemTag.ESSENCE)) {
 						essences.add(item);
 					}
 					
@@ -3448,6 +4709,336 @@ public class ItemType {
 					e.printStackTrace();
 				}
 			}
+		}
+		
+		for(Spell s : Spell.values()) {
+			if(s == Spell.WITCH_CHARM
+					|| s == Spell.WITCH_SEAL) {
+				continue;
+			}
+			
+			List<String> effectsString = Util.newArrayListOfValues(
+					"[style.boldExcellent(Permanently)] gain the spell '<b style='color:"+s.getSpellSchool().getColour().toWebHexString()+";'>"+s.getName()+"</b>'.");
+
+			if(s == Spell.ELEMENTAL_EARTH) {
+				effectsString.add("Adds "+Race.ELEMENTAL_EARTH.getName()+" encyclopedia entry.");
+				effectsString.add("[style.boldExcellent(+5)] <b style='color:"+s.getSpellSchool().getColour()+";'>"+Race.ELEMENTAL_EARTH.getDamageMultiplier().getName()+"</b>");
+				effectsString.add("[style.boldExcellent(+5)] <b style='color:"+s.getSpellSchool().getColour()+";'>"+Race.ELEMENTAL_EARTH.getResistanceMultiplier().getName()+"</b>");
+				
+			} else if(s == Spell.ELEMENTAL_WATER) {
+				effectsString.add("Adds "+Race.ELEMENTAL_WATER.getName()+" encyclopedia entry.");
+				effectsString.add("[style.boldExcellent(+5)] <b style='color:"+s.getSpellSchool().getColour()+";'>"+Race.ELEMENTAL_WATER.getDamageMultiplier().getName()+"</b>");
+				effectsString.add("[style.boldExcellent(+5)] <b style='color:"+s.getSpellSchool().getColour()+";'>"+Race.ELEMENTAL_WATER.getResistanceMultiplier().getName()+"</b>");
+				
+			} else if(s == Spell.ELEMENTAL_AIR) {
+				effectsString.add("Adds "+Race.ELEMENTAL_AIR.getName()+" encyclopedia entry.");
+				effectsString.add("[style.boldExcellent(+5)] <b style='color:"+s.getSpellSchool().getColour()+";'>"+Race.ELEMENTAL_AIR.getDamageMultiplier().getName()+"</b>");
+				effectsString.add("[style.boldExcellent(+5)] <b style='color:"+s.getSpellSchool().getColour()+";'>"+Race.ELEMENTAL_AIR.getResistanceMultiplier().getName()+"</b>");
+				
+			} else if(s == Spell.ELEMENTAL_FIRE) {
+				effectsString.add("Adds "+Race.ELEMENTAL_FIRE.getName()+" encyclopedia entry.");
+				effectsString.add("[style.boldExcellent(+5)] <b style='color:"+s.getSpellSchool().getColour()+";'>"+Race.ELEMENTAL_FIRE.getDamageMultiplier().getName()+"</b>");
+				effectsString.add("[style.boldExcellent(+5)] <b style='color:"+s.getSpellSchool().getColour()+";'>"+Race.ELEMENTAL_FIRE.getResistanceMultiplier().getName()+"</b>");
+				
+			} else if(s == Spell.ELEMENTAL_ARCANE) {
+				effectsString.add("Adds "+Race.ELEMENTAL_ARCANE.getName()+" encyclopedia entry.");
+				effectsString.add("[style.boldExcellent(+5)] <b style='color:"+s.getSpellSchool().getColour()+";'>"+Race.ELEMENTAL_ARCANE.getDamageMultiplier().getName()+"</b>");
+				effectsString.add("[style.boldExcellent(+5)] <b style='color:"+s.getSpellSchool().getColour()+";'>"+Race.ELEMENTAL_ARCANE.getResistanceMultiplier().getName()+"</b>");
+				
+			}
+			
+			
+			AbstractItemEffectType effectType = new AbstractItemEffectType(effectsString, s.getSpellSchool().getColour()) {
+				
+				@Override
+				public String applyEffect(TFModifier primaryModifier, TFModifier secondaryModifier, TFPotency potency, int limit, GameCharacter user, GameCharacter target, ItemEffectTimer timer) {
+					boolean hasSpell = target.hasSpell(s);
+					target.addSpell(s);
+					
+					String raceKnowledgeGained = "";
+					if(target.isPlayer()) {
+						if(s == Spell.ELEMENTAL_EARTH) {
+							raceKnowledgeGained = getBookEffect(Race.ELEMENTAL_EARTH, null);
+							
+						} else if(s == Spell.ELEMENTAL_WATER) {
+							raceKnowledgeGained = getBookEffect(Race.ELEMENTAL_WATER, null);
+							
+						} else if(s == Spell.ELEMENTAL_AIR) {
+							raceKnowledgeGained = getBookEffect(Race.ELEMENTAL_AIR, null);
+							
+						} else if(s == Spell.ELEMENTAL_FIRE) {
+							raceKnowledgeGained = getBookEffect(Race.ELEMENTAL_FIRE, null);
+							
+						} else if(s == Spell.ELEMENTAL_ARCANE) {
+							raceKnowledgeGained = getBookEffect(Race.ELEMENTAL_ARCANE, null);
+							
+						}
+					}
+					
+					if(hasSpell) {
+						if(target.isPlayer()) {
+							return "<p style='text-align:center'>"
+										+"<i><b style='color:"+s.getSpellSchool().getColour().toWebHexString()+";'>"+s.getName()+":</b> "+s.getDescription()+"</i>"
+									+"</p>"
+									+ "<p>"
+										+"Reading through the spell book again, you quickly discover that you've already learned all there is to know about the spell '"+s.getName()+"'."
+										+ " Apart from some well-detailed diagrams of a demon casting this spell, there's nothing within the tome's pages to hold your attention,"
+											+ " and you find yourself closing it after just a couple of minutes, having not learned anything new..."
+									+ "</p>"
+									+raceKnowledgeGained;
+						} else {
+							return "<p style='text-align:center'>"
+										+"<i><b style='color:"+s.getSpellSchool().getColour().toWebHexString()+";'>"+s.getName()+":</b> "+s.getDescription()+"</i>"
+									+"</p>"
+									+ "<p>"
+										+ UtilText.parse(target,
+												"Reading through the spell book again, [npc.name] quickly discovers that [npc.she]'s already learned all there is to know about the spell '"+s.getName()+"'."
+												+ " Apart from some well-detailed diagrams of a demon casting this spell, there's nothing within the tome's pages to hold [npc.her] attention,"
+													+ " and [npc.she] closes it after just a couple of minutes, having not learned anything new...")
+									+ "</p>";
+						}
+						
+					} else {
+						if(target.isPlayer()) {
+							return "<p style='text-align:center'>"
+										+"<i><b style='color:"+s.getSpellSchool().getColour().toWebHexString()+";'>"+s.getName()+":</b> "+s.getDescription()+"</i>"
+									+"</p>"
+									+ "<p>"
+										+ "As you read through the spell book, you discover that most of the pages are dedicated to helping the reader build up their arcane aura to the point where they'd be able to learn this spell."
+										+ " Seeing as your aura is already extremely powerful, these passages are of no use to you, and you quickly flick through to the final chapters,"
+											+ " where it's described exactly how to focus your aura into casting the spell '<i>"+s.getName()+"</i>'."
+										+ " It doesn't take you long to get the general idea of what to do, and after completing the book's practice exercises, you feel confident that you'll be able to cast this spell whenever you'd like."
+									+ "</p>"
+									+ "<p style='text-align:center;'>"
+										+ "You learn the spell <b style='color:"+s.getSpellSchool().getColour().toWebHexString()+";'>"+s.getName()+"</b>!"
+										+ "</br><i>Having served its purpose, the spell book disappears in a flash of purple light!</i>"
+										+ "</br>[style.italicsExcellent(Spell book added to Lilaya's library!)]"
+									+ "</p>"
+									+raceKnowledgeGained;
+							
+						} else {
+							return "<p style='text-align:center'>"
+									+"<i><b style='color:"+s.getSpellSchool().getColour().toWebHexString()+";'>"+s.getName()+":</b> "+s.getDescription()+"</i>"
+								+"</p>"
+								+ "<p>"
+									+ UtilText.parse(target,
+											"As [npc.name] reads through the spell book, [npc.she] discovers that most of the pages are dedicated to helping the reader build up their arcane aura to the point where they'd be able to learn this spell."
+											+ " Seeing as [npc.her] aura is already powerful enough for this, these passages are of no use to [npc.herHim], and [npc.she] quickly flicks through to the final chapters,"
+												+ " where it's described exactly how to focus [npc.her] aura into casting the spell '<i>"+s.getName()+"</i>'."
+											+ " It doesn't take [npc.herHim] long to get the general idea of what to do, and after completing the book's practice exercises,"
+												+ " [npc.she] feels confident that [npc.she]'ll be able to cast this spell whenever [npc.she]'d like.")
+								+ "</p>"
+								+ "<p style='text-align:center;'>"
+									+ UtilText.parse(target, "[npc.Name] learns the spell <b style='color:"+s.getSpellSchool().getColour().toWebHexString()+";'>"+s.getName()+"</b>!")
+									+ "</br><i>Having served its purpose, the spell book disappears in a flash of purple light!</i>"
+								+ "</p>";
+						}
+					}
+				}
+			};
+			
+			ItemEffectType.addAbstractItemEffectToIds("EFFECT_SPELL_"+s, effectType);
+			
+			int value = 2500;
+			switch(s) {
+				// Tier 1:
+				case ARCANE_AROUSAL:
+				case ICE_SHARD:
+				case POISON_VAPOURS:
+				case FIREBALL:
+				case SLAM:
+					break;
+					
+				// Tier 2:
+				case ARCANE_CLOUD:
+				case FLASH:
+				case RAIN_CLOUD:
+				case TELEKENETIC_SHOWER:
+				case TELEPATHIC_COMMUNICATION:
+				case VACUUM:
+					value = 5000;
+					break;
+
+				// Tier 3:
+				case STONE_SHELL:
+				case SOOTHING_WATERS:
+				case PROTECTIVE_GUSTS:
+				case CLOAK_OF_FLAMES:
+				case CLEANSE:
+				case STEAL:
+					value = 10000;
+					break;
+					
+				// Tier 4:
+				case ELEMENTAL_AIR:
+				case ELEMENTAL_ARCANE:
+				case ELEMENTAL_EARTH:
+				case ELEMENTAL_FIRE:
+				case ELEMENTAL_WATER:
+					value = 25000;
+					break;
+					
+				// Tier 5:
+				case LILITHS_COMMAND:
+				case TELEPORT:
+					value = 1000000;
+					break;
+					
+				case WITCH_CHARM:
+				case WITCH_SEAL:
+					break;
+			}
+			
+			AbstractItemType spellBook = new AbstractItemType(value,
+					null,
+					false,
+					"Spellbook: "+s.getName(),
+					"Spellbooks: "+s.getName(),
+					"An arcane tome which contains detailed instructions on how to cast the spell '"+s.getName()+"'."
+							+ " Reading this tome will permanently unlock the ability to cast this spell.",
+					"spell_book",
+					s.getSpellSchool().getColour(),
+					null,
+					null,
+					Rarity.LEGENDARY,
+					null,
+					Util.newArrayListOfValues(new ItemEffect(effectType)),
+					Util.newArrayListOfValues(ItemTag.SPELL_BOOK)) {
+		
+				private static final long serialVersionUID = 1L;
+				
+				@Override
+				public String getSVGString() {
+					return super.getSVGString()
+							+"<div style='width:60%;height:60%;position:absolute;left:0;top:0;'>"
+								+ s.getSVGString()
+							+ "</div>";
+				}
+				
+//				@Override
+//				public boolean isConsumedOnUse() {
+//					return false;
+//				}
+				
+				@Override
+				public boolean isAbleToBeUsed(GameCharacter target) {
+					return (target.isPlayer() || target.getAttributeValue(Attribute.MAJOR_ARCANE)>=IntelligenceLevel.ONE_AVERAGE.getMinimumValue());
+				}
+		
+				@Override
+				public String getUnableToBeUsedDescription(GameCharacter target) {
+					if(target.isPlayer()) {
+						return "You already know how to cast this spell!";
+					} else {
+						return UtilText.parse(target, "[npc.Name] does not have enough arcane skill to know how to learn this spell! (Requires arcane to be 5 or greater.)");
+					}
+				}
+				
+				@Override
+				public String getUseName() {
+					return "read";
+				}
+				
+				@Override
+				public String getUseDescription(GameCharacter user, GameCharacter target) {
+					return getGenericUseDescription(user, target,
+							"Opening the spell book, you read its contents...",
+							"Opening the spell book, you get [npc.name] to read its contents...",
+							"[npc.Name] produces a spell book, which [npc.she] then starts to read...",
+							"[npc.Name] produces a spell book, which [npc.she] then forces you to read...");
+				}
+				
+				@Override
+				public boolean isAbleToBeUsedInSex() {
+					return false;
+				}
+
+				@Override
+				public boolean isAbleToBeUsedInCombat() {
+					return false;
+				}
+			};
+			
+			itemToIdMap.put(spellBook, "SPELL_BOOK_"+s);
+			idToItemMap.put("SPELL_BOOK_"+s, spellBook);
+			
+			allItems.add(spellBook);
+		}
+		
+		for(SpellSchool school : SpellSchool.values()) {
+			
+			AbstractItemEffectType effectType = new AbstractItemEffectType(Util.newArrayListOfValues(
+							"[style.boldExcellent(+1)] to <span style='color:"+school.getColour().toWebHexString()+";'>"+school.getName()+"</span> upgrade points."),
+							school.getColour()) {
+						
+						@Override
+						public String applyEffect(TFModifier primaryModifier, TFModifier secondaryModifier, TFPotency potency, int limit, GameCharacter user, GameCharacter target, ItemEffectTimer timer) {
+							target.incrementSpellUpgradePoints(school, 1);
+							return "<p style='text-align:center;'>"
+										+ (target.isPlayer()?"You gain":UtilText.parse(target, "[npc.Name] gains"))+" an upgrade point for the spell school <b style='color:"+school.getColour().toWebHexString()+";'>"+school.getName()+"</b>!</br>"
+										+ "<i>Having served its purpose, the scroll disappears in a flash of purple light!</i>"
+									+ "</p>";
+						}
+					};
+
+			ItemEffectType.addAbstractItemEffectToIds("EFFECT_SCROLL_SCHOOL_"+school, effectType);
+			
+			AbstractItemType scroll = new AbstractItemType(1000,
+					null,
+					false,
+					"Scroll of "+Util.capitaliseSentence(school.getName()),
+					"Scrolls of "+Util.capitaliseSentence(school.getName()),
+					"An arcane scroll which, when read, imbues the reader with the power of the school of '"+Util.capitaliseSentence(school.getName())+"'.",
+					"spell_scroll",
+					school.getColour(),
+					null,
+					null,
+					Rarity.EPIC,
+					null,
+					Util.newArrayListOfValues(new ItemEffect(effectType)),
+					Util.newArrayListOfValues(ItemTag.SPELL_SCROLL)) {
+		
+				private static final long serialVersionUID = 1L;
+				
+				@Override
+				public boolean isAbleToBeUsed(GameCharacter target) {
+					return target.isPlayer() || target.getAttributeValue(Attribute.MAJOR_ARCANE)>=IntelligenceLevel.ONE_AVERAGE.getMinimumValue();
+				}
+		
+				@Override
+				public String getUnableToBeUsedDescription(GameCharacter target) {
+					return UtilText.parse(target, "[npc.Name] does not have enough arcane skill to know how to absorb the power of this scroll! (Requires arcane to be 5 or greater.)");
+				}
+				
+				@Override
+				public String getUseName() {
+					return "read";
+				}
+				
+				@Override
+				public String getUseDescription(GameCharacter user, GameCharacter target) {
+					return getGenericUseDescription(user, target,
+							"Unravelling the scroll, you read its contents...",
+							"Unravelling the scroll, you get [npc.name] to read its contents...",
+							"[npc.Name] produces a scroll, which [npc.she] then starts to read...",
+							"[npc.Name] produces a scroll, which [npc.she] then forces you to read...");
+				}
+				
+				@Override
+				public boolean isAbleToBeUsedInSex() {
+					return false;
+				}
+
+				@Override
+				public boolean isAbleToBeUsedInCombat() {
+					return false;
+				}
+			};
+			
+			itemToIdMap.put(scroll, "SPELL_SCROLL_"+school);
+			idToItemMap.put("SPELL_SCROLL_"+school, scroll);
+			
+			allItems.add(scroll);
 		}
 	}
 

@@ -4,21 +4,28 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.lilithsthrone.game.character.GameCharacter;
 import com.lilithsthrone.game.character.body.FluidCum;
+import com.lilithsthrone.game.character.body.FluidMilk;
 import com.lilithsthrone.game.inventory.AbstractCoreType;
+import com.lilithsthrone.game.inventory.ItemTag;
 import com.lilithsthrone.game.inventory.Rarity;
 import com.lilithsthrone.game.inventory.clothing.AbstractClothing;
+import com.lilithsthrone.game.inventory.enchanting.AbstractItemEffectType;
+import com.lilithsthrone.game.inventory.enchanting.ItemEffect;
 import com.lilithsthrone.game.inventory.enchanting.TFEssence;
+import com.lilithsthrone.game.inventory.weapon.AbstractWeapon;
 import com.lilithsthrone.main.Main;
 import com.lilithsthrone.utils.Colour;
 import com.lilithsthrone.utils.Util;
 
 /**
  * @since 0.1.84
- * @version 0.1.84
+ * @version 0.2.1
  * @author Innoxia
  */
 public abstract class AbstractItemType extends AbstractCoreType implements Serializable {
@@ -27,25 +34,31 @@ public abstract class AbstractItemType extends AbstractCoreType implements Seria
 	
 	private String determiner, name, namePlural, description, pathName;
 	private boolean plural;
-	private Colour colourShade;
+	private Colour colourPrimary;
+	private Colour colourSecondary;
+	private Colour colourTertiary;
 	private int value;
 	private Rarity rarity;
 	protected String SVGString;
 	private TFEssence relatedEssence;
 	protected List<ItemEffect> effects;
+	protected Set<ItemTag> itemTags;
 
 	public AbstractItemType(
+			int value,
 			String determiner,
 			boolean plural,
 			String name,
 			String namePlural,
 			String description,
 			String pathName,
-			Colour colourShade,
-			int value,
+			Colour colourPrimary,
+			Colour colourSecondary,
+			Colour colourTertiary,
 			Rarity rarity,
 			TFEssence relatedEssence,
-			List<ItemEffect> effects) {
+			List<ItemEffect> effects,
+			List<ItemTag> itemTags) {
 
 		this.determiner = determiner;
 		this.plural = plural;
@@ -59,37 +72,80 @@ public abstract class AbstractItemType extends AbstractCoreType implements Seria
 		
 		this.relatedEssence = relatedEssence;
 		
+		this.itemTags = new HashSet<>();
+		if(itemTags!=null) {
+			this.itemTags.addAll(itemTags);
+		}
+		
 		if(effects==null) {
 			this.effects = new ArrayList<>();
 		} else {
 			this.effects=effects;
 		}
 
-		if (colourShade == null) {
-			this.colourShade = com.lilithsthrone.utils.Colour.CLOTHING_BLACK;
+		if (colourPrimary == null) {
+			this.colourPrimary = com.lilithsthrone.utils.Colour.CLOTHING_BLACK;
 		} else {
-			this.colourShade = colourShade;
+			this.colourPrimary = colourPrimary;
+		}
+		if (colourSecondary == null) {
+			this.colourSecondary = com.lilithsthrone.utils.Colour.CLOTHING_BLACK;
+		} else {
+			this.colourSecondary = colourSecondary;
+		}
+		if (colourTertiary == null) {
+			this.colourTertiary = com.lilithsthrone.utils.Colour.CLOTHING_BLACK;
+		} else {
+			this.colourTertiary = colourTertiary;
 		}
 		
 		// Set this item's file image:
 		try {
 			InputStream is = this.getClass().getResourceAsStream("/com/lilithsthrone/res/items/" + pathName + ".svg");
+			if(is==null) {
+				System.err.println("Error! AbstractItemType icon file does not exist (Trying to read from '"+pathName+"')!");
+			}
 			String s = Util.inputStreamToString(is);
 
-			for (int i = 0; i <= 14; i++)
-				s = s.replaceAll("linearGradient" + i, this.hashCode() + this.colourShade.toString() + "linearGradient" + i);
-			s = s.replaceAll("#ff2a2a", this.colourShade.getShades()[0]);
-			s = s.replaceAll("#ff5555", this.colourShade.getShades()[1]);
-			s = s.replaceAll("#ff8080", this.colourShade.getShades()[2]);
-			s = s.replaceAll("#ffaaaa", this.colourShade.getShades()[3]);
-			s = s.replaceAll("#ffd5d5", this.colourShade.getShades()[4]);
-			SVGString = s;
-
+			SVGString = colourReplacement(this.getColourPrimary(), this.getColourSecondary(), this.getColourTertiary(), s);
+			
 			is.close();
 
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
+	}
+	
+	private String colourReplacement(Colour colour, Colour colourSecondary, Colour colourTertiary, String inputString) {
+		String s = inputString;
+		for (int i = 0; i <= 14; i++) {
+			s = s.replaceAll("linearGradient" + i, this.hashCode() + colour.toString() + (colourSecondary!=null?colourSecondary.toString():"") + (colourTertiary!=null?colourTertiary.toString():"") + "linearGradient" + i);
+			s = s.replaceAll("innoGrad" + i, this.hashCode() + colour.toString() + (colourSecondary!=null?colourSecondary.toString():"") + (colourTertiary!=null?colourTertiary.toString():"") + "innoGrad" + i);
+			
+		}
+		s = s.replaceAll("#ff2a2a", colour.getShades()[0]);
+		s = s.replaceAll("#ff5555", colour.getShades()[1]);
+		s = s.replaceAll("#ff8080", colour.getShades()[2]);
+		s = s.replaceAll("#ffaaaa", colour.getShades()[3]);
+		s = s.replaceAll("#ffd5d5", colour.getShades()[4]);
+		
+		if(colourSecondary!=null) {
+			s = s.replaceAll("#ff7f2a", colourSecondary.getShades()[0]);
+			s = s.replaceAll("#ff9955", colourSecondary.getShades()[1]);
+			s = s.replaceAll("#ffb380", colourSecondary.getShades()[2]);
+			s = s.replaceAll("#ffccaa", colourSecondary.getShades()[3]);
+			s = s.replaceAll("#ffe6d5", colourSecondary.getShades()[4]);
+		}
+		
+		if(colourTertiary!=null) {
+			s = s.replaceAll("#ffd42a", colourTertiary.getShades()[0]);
+			s = s.replaceAll("#ffdd55", colourTertiary.getShades()[1]);
+			s = s.replaceAll("#ffe680", colourTertiary.getShades()[2]);
+			s = s.replaceAll("#ffeeaa", colourTertiary.getShades()[3]);
+			s = s.replaceAll("#fff6d5", colourTertiary.getShades()[4]);
+		}
+		
+		return s;
 	}
 	
 	@Override
@@ -128,7 +184,13 @@ public abstract class AbstractItemType extends AbstractCoreType implements Seria
 	}
 	
 	public static AbstractItem generateFilledCondom(Colour colour, GameCharacter character, FluidCum cum) {
-		return new AbstractFilledCondom(ItemType.CONDOM_USED, colour, character, cum) {
+		return new AbstractFilledCondom(ItemType.CONDOM_USED, colour, character, cum, character.getPenisRawCumProductionValue()) {
+			private static final long serialVersionUID = 1L;
+		};
+	}
+
+	public static AbstractItem generateFilledBreastPump(Colour colour, GameCharacter character, FluidMilk milk, int quantity) {
+		return new AbstractFilledBreastPump(ItemType.MOO_MILKER_FULL, colour, character, milk, quantity) {
 			private static final long serialVersionUID = 1L;
 		};
 	}
@@ -151,7 +213,7 @@ public abstract class AbstractItemType extends AbstractCoreType implements Seria
 		return 100;
 	}
 	
-	public ItemEffectType getEnchantmentEffect() {
+	public AbstractItemEffectType getEnchantmentEffect() {
 		return null;
 	}
 	
@@ -175,9 +237,9 @@ public abstract class AbstractItemType extends AbstractCoreType implements Seria
 
 	public String getName(boolean displayName) {
 		if(displayName) {
-			return Util.capitaliseSentence((determiner!=null?determiner:"") + " <span style='color: " + rarity.getColour().toWebHexString() + ";'>" + name + "</span>");
+			return Util.capitaliseSentence((determiner!=null?determiner:"") + " <span style='color: " + rarity.getColour().toWebHexString() + ";'>" + (this.isPlural()?namePlural:name) + "</span>");
 		} else {
-			return name;
+			return (this.isPlural()?namePlural:name);
 		}
 	}
 	
@@ -194,15 +256,25 @@ public abstract class AbstractItemType extends AbstractCoreType implements Seria
 	}
 
 	public String getDisplayName(boolean withRarityColour) {
-		return Util.capitaliseSentence((determiner!=null?determiner:"") + (withRarityColour ? (" <span style='color: " + rarity.getColour().toWebHexString() + ";'>" + name + "</span>") : name));
+		return Util.capitaliseSentence((determiner!=null?determiner:"") + (withRarityColour
+				? (" <span style='color: " + rarity.getColour().toWebHexString() + ";'>" + (this.isPlural()?getNamePlural(false):getName(false)) + "</span>")
+				: (this.isPlural()?getNamePlural(false):getName(false))));
 	}
 
 	public String getPathName() {
 		return pathName;
 	}
 
-	public Colour getColour() {
-		return colourShade;
+	public Colour getColourPrimary() {
+		return colourPrimary;
+	}
+	
+	public Colour getColourSecondary() {
+		return colourSecondary;
+	}
+	
+	public Colour getColourTertiary() {
+		return colourTertiary;
 	}
 
 	public int getValue() {
@@ -232,11 +304,7 @@ public abstract class AbstractItemType extends AbstractCoreType implements Seria
 	}
 	
 	public boolean isAbleToBeUsed(GameCharacter target) {
-		if(Main.game.isInCombat() && !target.isPlayer()) {
-			return false;
-		} else {
-			return true;
-		}
+		return !Main.game.isInCombat() || target.isPlayer();
 	}
 	
 	public boolean isAbleToBeUsedInSex() {
@@ -255,6 +323,14 @@ public abstract class AbstractItemType extends AbstractCoreType implements Seria
 		return false;
 	}
 	
+	public boolean isGift() {
+		return false;
+	}
+	
+	public boolean isFetishGiving() {
+		return false;
+	}
+	
 	public String getUnableToBeUsedFromInventoryDescription() {
 		return "This item cannot be used in this way!";
 	}
@@ -270,5 +346,18 @@ public abstract class AbstractItemType extends AbstractCoreType implements Seria
 					+ " As you touch the bristles to the " + clothing.getName() + "'s surface, the Dye-brush instantly evaporates!"
 					+ " You see that the arcane enchantment has dyed the " + clothing.getName() + " " + colour.getName() + "."
 				+ "</p>";
+	}
+	
+	public String getDyeBrushEffects(AbstractWeapon weapon, Colour colour) {
+		return "<p>"
+					+ "As you take hold of the Dye-brush, you see the purple glow around the tip growing in strength."
+					+ " The closer you move it to your " + weapon.getName() + ", the brighter the glow becomes, until suddenly, images of different colours start flashing through your mind."
+					+ " As you touch the bristles to the " + weapon.getName() + "'s surface, the Dye-brush instantly evaporates!"
+					+ " You see that the arcane enchantment has dyed the " + weapon.getName() + " " + colour.getName() + "."
+				+ "</p>";
+	}
+
+	public Set<ItemTag> getItemTags() {
+		return itemTags;
 	}
 }

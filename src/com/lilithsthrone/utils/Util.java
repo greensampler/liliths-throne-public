@@ -1,23 +1,31 @@
 package com.lilithsthrone.utils;
 
+import java.awt.Desktop;
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.function.Function;
 
 import com.lilithsthrone.game.character.body.CoverableArea;
 import com.lilithsthrone.game.inventory.InventorySlot;
 import com.lilithsthrone.game.inventory.clothing.AbstractClothing;
 import com.lilithsthrone.game.inventory.clothing.DisplacementType;
-
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 
@@ -62,6 +70,66 @@ public class Util {
 	public static Color newColour(int hex) {
 		return newColour((hex & 0xFF0000) >> 16, (hex & 0xFF00) >> 8, (hex & 0xFF));
 	}
+	
+	public static String colourReplacement(String gradientReplacementID, Colour colour, Colour colourSecondary, Colour colourTertiary, String inputString) {
+		String s = inputString;
+		for (int i = 0; i <= 14; i++) {
+			s = s.replaceAll("linearGradient" + i, gradientReplacementID + colour.toString() + (colourSecondary!=null?colourSecondary.toString():"") + (colourTertiary!=null?colourTertiary.toString():"") + "linearGradient" + i);
+			s = s.replaceAll("innoGrad" + i, gradientReplacementID + colour.toString() + (colourSecondary!=null?colourSecondary.toString():"") + (colourTertiary!=null?colourTertiary.toString():"") + "innoGrad" + i);
+			
+		}
+		s = s.replaceAll("#ff2a2a", colour.getShades()[0]);
+		s = s.replaceAll("#ff5555", colour.getShades()[1]);
+		s = s.replaceAll("#ff8080", colour.getShades()[2]);
+		s = s.replaceAll("#ffaaaa", colour.getShades()[3]);
+		s = s.replaceAll("#ffd5d5", colour.getShades()[4]);
+		
+		if(colourSecondary!=null) {
+			s = s.replaceAll("#ff7f2a", colourSecondary.getShades()[0]);
+			s = s.replaceAll("#ff9955", colourSecondary.getShades()[1]);
+			s = s.replaceAll("#ffb380", colourSecondary.getShades()[2]);
+			s = s.replaceAll("#ffccaa", colourSecondary.getShades()[3]);
+			s = s.replaceAll("#ffe6d5", colourSecondary.getShades()[4]);
+		}
+		
+		if(colourTertiary!=null) {
+			s = s.replaceAll("#ffd42a", colourTertiary.getShades()[0]);
+			s = s.replaceAll("#ffdd55", colourTertiary.getShades()[1]);
+			s = s.replaceAll("#ffe680", colourTertiary.getShades()[2]);
+			s = s.replaceAll("#ffeeaa", colourTertiary.getShades()[3]);
+			s = s.replaceAll("#fff6d5", colourTertiary.getShades()[4]);
+		}
+		
+		return s;
+	}
+	
+	/**
+	 * Takes an input, and a maximum value, and returns LT's universal "dropoff" formula to it.
+	 * @param input
+	 * @param maxValue
+	 * @return
+	 */
+	public static float getModifiedDropoffValue(float input, float maxValue) {
+		if(Math.abs(input)>Math.abs(maxValue)) {
+			input = Math.signum(input) * maxValue;
+		}
+//		float value = Math.abs(input)/Math.abs(maxValue);
+//		//y = 0.75 * cos((x*(pi/2))-(pi/2))
+//		return ((int)((Math.signum(input) * maxValue * 0.75f * Math.cos((value * (Math.PI/2)) - (Math.PI/2)))*100))/100f;
+		
+		
+//		sin(x*pi/2)/2
+		if(input < maxValue/2) {
+			return input;
+			
+		} else {
+			float excess = Math.abs(input) - Math.abs(maxValue/2);
+			float value = (excess/Math.abs(maxValue))*2;
+			float multiplier = (float) (Math.sin(value * (Math.PI/2))/2f);
+//			System.out.println(input+", "+value +", "+ multiplier);
+			return Math.round((maxValue/2 + (multiplier * (maxValue/2)))*100)/100f;
+		}
+	}
 
 	public static class Value<T, S> {
 		private T key;
@@ -82,14 +150,16 @@ public class Util {
 	}
 
 	@SafeVarargs
-	public static <T, S> HashMap<T, S> newHashMapOfValues(Value<T, S>... values) {
-		HashMap<T, S> map = new HashMap<>();
+	public static <T, S> LinkedHashMap<T, S> newHashMapOfValues(Value<T, S>... values) {
+		LinkedHashMap<T, S> map = new LinkedHashMap<>();
 
-		for (Value<T, S> v : values)
+		for (Value<T, S> v : values) {
 			map.put(v.getKey(), v.getValue());
-
+		}
+		
 		return map;
 	}
+
 
 	public String keyCodeToShortString(KeyCode keyCode) {
 		switch (keyCode) {
@@ -109,37 +179,35 @@ public class Util {
 			return keyCode.toString();
 		}
 	}
-
-	public static class ListValue<U> {
-		private U value;
-
-		public ListValue(U value) {
-			this.value = value;
-		}
-
-		public U getValue() {
-			return value;
+	
+	public static void openLinkInDefaultBrowser(String url) {
+		Runtime runtime = Runtime.getRuntime();
+		try {
+			runtime.exec("xdg-open " + url);
+		} catch (IOException e0) {
+			Desktop desktop = Desktop.getDesktop();
+			try {
+				desktop.browse(new URI(url));
+			} catch (IOException | URISyntaxException e) {
+				e.printStackTrace();
+				e0.printStackTrace();
+			}
 		}
 	}
-
-	@SafeVarargs
-	public static <U> ArrayList<U> newArrayListOfValues(ListValue<U>... values) {
-		ArrayList<U> list = new ArrayList<>();
-
-		for (ListValue<U> v : values)
-			list.add(v.value);
-
-		return list;
+	
+	public static String getFileTime(File file) throws IOException {
+	    DateFormat dateFormat = new SimpleDateFormat("dd/MM/yy - hh:mm");
+	    return dateFormat.format(file.lastModified());
 	}
 	
 	@SafeVarargs
-	public static <U> HashSet<U> newHashSetOfValues(ListValue<U>... values) {
-		HashSet<U> list = new HashSet<>();
-
-		for (ListValue<U> v : values)
-			list.add(v.value);
-
-		return list;
+	public static <U> ArrayList<U> newArrayListOfValues(U... values) {
+		return new ArrayList<>(Arrays.asList(values));
+	}
+	
+	@SafeVarargs
+	public static <U> HashSet<U> newHashSetOfValues(U... values) {
+		return new HashSet<>(Arrays.asList(values));
 	}
 	
 	public static <T> T getRandomObjectFromWeightedMap(Map<T, Integer> map) {
@@ -234,10 +302,6 @@ public class Util {
 		return String.valueOf(integer);
 	}
 	
-	public static String formatForHTML(String input) {
-		return input.replaceAll("'", "&apos;").replaceAll("\"", "&quot;");
-	}
-	
 	public static String getKeyCodeCharacter(KeyCode code) {
 		switch(code) {
 			case ADD:
@@ -285,7 +349,7 @@ public class Util {
 			case ESCAPE:
 				return "Esc";
 			case EURO_SIGN:
-				return "€";
+				return "&euro;"; // €
 			case EXCLAMATION_MARK:
 				return "!";
 			case GREATER:
@@ -337,7 +401,7 @@ public class Util {
 			case PLUS:
 				return "+";
 			case POUND:
-				return "£";
+				return "&pound;"; // £
 			case POWER:
 				return "^";
 			case QUOTE:
@@ -393,6 +457,9 @@ public class Util {
 	}
 
 	public static String capitaliseSentence(String sentence) {
+		if(sentence==null || sentence.isEmpty()) {
+			return sentence;
+		}
 		return Character.toUpperCase(sentence.charAt(0)) + sentence.substring(1);
 	}
 
@@ -497,19 +564,21 @@ public class Util {
 		utilitiesStringBuilder.deleteCharAt(utilitiesStringBuilder.length() - 1);
 
 		// 1/3 chance of having a bimbo sentence ending:
-		switch (random.nextInt(6)) {
-			case 0:
-				char end = utilitiesStringBuilder.charAt(utilitiesStringBuilder.length() - 1);
-				utilitiesStringBuilder.deleteCharAt(utilitiesStringBuilder.length() - 1);
-				utilitiesStringBuilder.append(" and stuff");
-				utilitiesStringBuilder.append(end);
-				break;
-			case 1:
-				utilitiesStringBuilder.deleteCharAt(utilitiesStringBuilder.length() - 1);
-				utilitiesStringBuilder.append(", y'know?");
-				break;
-			default:
-				break;
+		if(!sentence.endsWith("~") && !sentence.endsWith("-")) {
+			switch (random.nextInt(6)) {
+				case 0:
+					char end = utilitiesStringBuilder.charAt(utilitiesStringBuilder.length() - 1);
+					utilitiesStringBuilder.deleteCharAt(utilitiesStringBuilder.length() - 1);
+					utilitiesStringBuilder.append(" and stuff");
+					utilitiesStringBuilder.append(end);
+					break;
+				case 1:
+					utilitiesStringBuilder.deleteCharAt(utilitiesStringBuilder.length() - 1);
+					utilitiesStringBuilder.append(", y'know?");
+					break;
+				default:
+					break;
+			}
 		}
 
 		return utilitiesStringBuilder.toString();
@@ -589,6 +658,44 @@ public class Util {
 		return utilitiesStringBuilder.toString();
 	}
 
+	private static String[] drunkSounds = new String[] { "~Hic!~ " };
+	/**
+	 * Turns a normal sentence into a sexy sentence.</br>
+	 * Example:</br>
+	 * "How far is it to the town hall?"</br>
+	 * "How ~Aah!~ far is it ~Mmm!~ to the town ~Aah!~ hall?"</br>
+	 * 
+	 * @param sentence
+	 *            sentence to apply sexy modifications
+	 * @param frequency
+	 *            of sex sounds (i.e. 4 would be 1 in 4 words are sexy)
+	 * @return
+	 *            modified sentence
+	 */
+	public static String addDrunkSlur(String sentence, int frequency) {
+		splitSentence = sentence.split(" ");
+		utilitiesStringBuilder.setLength(0);
+
+		// 1 in "frequency" words are sexy interjections, with a minimum of 1.
+		int wordsToMuffle = splitSentence.length / frequency + 1;
+
+		int offset = 0;
+		for (int i = 0; i < wordsToMuffle; i++) {
+			offset = random.nextInt(frequency);
+			offset = ((i * frequency + offset) >= splitSentence.length ? splitSentence.length - 1 : (i * frequency + offset));
+			
+			// Add the sexy sound to this word:
+			splitSentence[offset] = drunkSounds[random.nextInt(drunkSounds.length)] + splitSentence[offset];
+			
+		}
+		for (String word : splitSentence) {
+			utilitiesStringBuilder.append(word + " ");
+		}
+		utilitiesStringBuilder.deleteCharAt(utilitiesStringBuilder.length() - 1);
+		
+		return utilitiesStringBuilder.toString().replaceAll("Hi ", "Heeey ").replaceAll("yes", "yesh").replaceAll("is", "ish").replaceAll("So", "Sho").replaceAll("so", "sho");
+	}
+
 	/**
 	 * Builds a string representing the list of items in a collection.
 	 *
@@ -607,23 +714,27 @@ public class Util {
 	 */
 	private static <T> String toStringList(Collection<T> items, Function<T, String> stringExtractor, String combiningWord) {
 		Iterator<T> itemIterator = items.iterator();
-		T currentItem = itemIterator.next();
-
 		utilitiesStringBuilder.setLength(0);
-		utilitiesStringBuilder.append(stringExtractor.apply(currentItem));
-		if (itemIterator.hasNext()) { // If more than one item, enter the loop
-			currentItem = itemIterator.next();
-			while (itemIterator.hasNext()) { // Use commas until we're on the last item
-				utilitiesStringBuilder.append(", " + stringExtractor.apply(currentItem));
+		try {
+			T currentItem = itemIterator.next();
+	
+			utilitiesStringBuilder.append(stringExtractor.apply(currentItem));
+			if (itemIterator.hasNext()) { // If more than one item, enter the loop
 				currentItem = itemIterator.next();
+				while (itemIterator.hasNext()) { // Use commas until we're on the last item
+					utilitiesStringBuilder.append(", " + stringExtractor.apply(currentItem));
+					currentItem = itemIterator.next();
+				}
+				utilitiesStringBuilder.append((items.size()>2?", ":" ") + combiningWord + " " + stringExtractor.apply(currentItem));
 			}
-			utilitiesStringBuilder.append(" " + combiningWord + " " + stringExtractor.apply(currentItem));
+		} catch(NoSuchElementException ex) {
+			System.err.println("Util.toStringList() error - NoSuchElementException! (It's probably nothing to worry about...)");
 		}
 		return utilitiesStringBuilder.toString();
 	}
 
-	public static String clothesToStringList(Collection<AbstractClothing> clothingSet) {
-		return Util.toStringList(clothingSet, (AbstractClothing o) -> Util.capitaliseSentence(o.getClothingType().getName()), "and");
+	public static String clothesToStringList(Collection<AbstractClothing> clothingSet, boolean capitalise) {
+		return Util.toStringList(clothingSet, (AbstractClothing o) -> (capitalise?Util.capitaliseSentence(o.getClothingType().getName()):o.getClothingType().getName()), "and");
 	}
 
 	public static String setToStringListCoverableArea(Set<CoverableArea> coverableAreaSet) {

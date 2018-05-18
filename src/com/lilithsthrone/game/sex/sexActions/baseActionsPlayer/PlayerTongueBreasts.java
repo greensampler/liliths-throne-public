@@ -7,8 +7,10 @@ import com.lilithsthrone.game.sex.OrificeType;
 import com.lilithsthrone.game.sex.PenetrationType;
 import com.lilithsthrone.game.sex.Sex;
 import com.lilithsthrone.game.sex.SexPace;
+import com.lilithsthrone.game.sex.SexParticipantType;
 import com.lilithsthrone.game.sex.sexActions.SexAction;
 import com.lilithsthrone.game.sex.sexActions.SexActionType;
+import com.lilithsthrone.main.Main;
 
 /**
  * @since 0.1.88
@@ -22,8 +24,9 @@ public class PlayerTongueBreasts {
 			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.TONGUE_PLAYER,
-			OrificeType.BREAST_PARTNER) {
+			PenetrationType.TONGUE,
+			OrificeType.BREAST,
+			SexParticipantType.PITCHER) {
 		
 		@Override
 		public String getActionTitle() {
@@ -37,14 +40,14 @@ public class PlayerTongueBreasts {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.getSexPacePlayer()!=SexPace.SUB_RESISTING;
+			return Sex.getSexPace(Main.game.getPlayer())!=SexPace.SUB_RESISTING;
 		}
 
 		@Override
 		public String getDescription() {
 			UtilText.nodeContentSB.setLength(0);
 			
-			switch(Sex.getSexPacePlayer()) {
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"You slowly lean in to [npc.name]'s chest, pressing your [pc.lips+] against [npc.her] [npc.breastSkin+] before starting to plant a series of gentle kisses on [npc.her] [npc.breasts+].",
@@ -78,7 +81,7 @@ public class PlayerTongueBreasts {
 				default:
 					break;
 			}
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" [npc.She] lets out a soft [npc.moan] in response, and gently pulls your [pc.face] into [npc.her] chest as [npc.she] cries out for you to continue.",

@@ -2,22 +2,24 @@ package com.lilithsthrone.game.sex.sexActions.baseActionsSelfPlayer;
 
 import java.util.List;
 
+import com.lilithsthrone.game.character.GameCharacter;
 import com.lilithsthrone.game.character.attributes.CorruptionLevel;
 import com.lilithsthrone.game.character.body.CoverableArea;
-import com.lilithsthrone.game.character.effects.Fetish;
+import com.lilithsthrone.game.character.fetishes.Fetish;
 import com.lilithsthrone.game.dialogue.utils.UtilText;
 import com.lilithsthrone.game.sex.ArousalIncrease;
 import com.lilithsthrone.game.sex.OrificeType;
 import com.lilithsthrone.game.sex.PenetrationType;
+import com.lilithsthrone.game.sex.Sex;
+import com.lilithsthrone.game.sex.SexParticipantType;
 import com.lilithsthrone.game.sex.sexActions.SexAction;
 import com.lilithsthrone.game.sex.sexActions.SexActionType;
 import com.lilithsthrone.main.Main;
 import com.lilithsthrone.utils.Util;
-import com.lilithsthrone.utils.Util.ListValue;
 
 /**
  * @since 0.1.79
- * @version 0.1.8
+ * @version 0.2.0
  * @author Innoxia
  */
 public class PlayerSelfNoPen {
@@ -27,8 +29,9 @@ public class PlayerSelfNoPen {
 			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.ONE_MINIMUM,
 			CorruptionLevel.ZERO_PURE,
-			PenetrationType.FINGER_PLAYER,
-			OrificeType.VAGINA_PLAYER) {
+			PenetrationType.FINGER,
+			OrificeType.VAGINA,
+			SexParticipantType.SELF) {
 		
 		@Override
 		public String getActionTitle() {
@@ -59,6 +62,13 @@ public class PlayerSelfNoPen {
 			}
 		}
 		
+		@Override
+		public void applyEffects() {
+			if(Main.game.getPlayer().isCoverableAreaExposed(CoverableArea.VAGINA)) {
+				Sex.transferLubrication(Main.game.getPlayer(), Main.game.getPlayer(), PenetrationType.FINGER, OrificeType.VAGINA);
+			}
+		}
+		
 	};
 	
 	
@@ -67,8 +77,9 @@ public class PlayerSelfNoPen {
 			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.ONE_MINIMUM,
 			CorruptionLevel.ZERO_PURE,
-			PenetrationType.FINGER_PLAYER,
-			OrificeType.URETHRA_PLAYER) {
+			PenetrationType.FINGER,
+			OrificeType.URETHRA_PENIS,
+			SexParticipantType.SELF) {
 		
 		@Override
 		public String getActionTitle() {
@@ -100,6 +111,13 @@ public class PlayerSelfNoPen {
 			}
 		}
 		
+		@Override
+		public void applyEffects() {
+			if(Main.game.getPlayer().isCoverableAreaExposed(CoverableArea.PENIS)) {
+				Sex.transferLubrication(Main.game.getPlayer(), PenetrationType.FINGER, Main.game.getPlayer(), PenetrationType.PENIS);
+			}
+		}
+		
 	};
 	
 	
@@ -109,8 +127,9 @@ public class PlayerSelfNoPen {
 			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.ONE_MINIMUM,
 			CorruptionLevel.ZERO_PURE,
-			PenetrationType.FINGER_PLAYER,
-			null) {
+			PenetrationType.FINGER,
+			null,
+			SexParticipantType.SELF) {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
@@ -151,8 +170,12 @@ public class PlayerSelfNoPen {
 		}
 		
 		@Override
-		public List<Fetish> getFetishesPlayer() {
-			return Util.newArrayListOfValues(new ListValue<>(Fetish.FETISH_MASTURBATION));
+		public List<Fetish> getFetishes(GameCharacter character) {
+			if(character.isPlayer()) {
+				return Util.newArrayListOfValues(Fetish.FETISH_MASTURBATION);
+			} else {
+				return null;
+			}
 		}
 	};
 }

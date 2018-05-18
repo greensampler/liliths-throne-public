@@ -1,13 +1,19 @@
 package com.lilithsthrone.game.character.body.types;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.lilithsthrone.game.character.GameCharacter;
+import com.lilithsthrone.game.character.body.Body;
 import com.lilithsthrone.game.character.race.Race;
 import com.lilithsthrone.game.dialogue.utils.UtilText;
 import com.lilithsthrone.utils.Util;
 
 /**
  * @since 0.1.0
- * @version 0.1.69.9
+ * @version 0.2.1
  * @author Innoxia
  */
 public enum AssType implements BodyPartTypeInterface {
@@ -17,11 +23,19 @@ public enum AssType implements BodyPartTypeInterface {
 	
 	DEMON_COMMON(BodyCoveringType.DEMON_COMMON, AnusType.DEMON_COMMON, Race.DEMON),
 	
+	IMP(BodyCoveringType.IMP, AnusType.IMP, Race.IMP),
+	
 	DOG_MORPH(BodyCoveringType.CANINE_FUR, AnusType.DOG_MORPH, Race.DOG_MORPH),
 	
 	COW_MORPH(BodyCoveringType.BOVINE_FUR, AnusType.COW_MORPH, Race.COW_MORPH),
 
 	SQUIRREL_MORPH(BodyCoveringType.SQUIRREL_FUR, AnusType.SQUIRREL_MORPH, Race.SQUIRREL_MORPH),
+
+	RAT_MORPH(BodyCoveringType.RAT_FUR, AnusType.RAT_MORPH, Race.RAT_MORPH),
+	
+	RABBIT_MORPH(BodyCoveringType.RABBIT_FUR, AnusType.RABBIT_MORPH, Race.RABBIT_MORPH),
+
+	BAT_MORPH(BodyCoveringType.BAT_FUR, AnusType.BAT_MORPH, Race.BAT_MORPH),
 	
 	ALLIGATOR_MORPH(BodyCoveringType.ALLIGATOR_SCALES, AnusType.ALLIGATOR_MORPH, Race.ALLIGATOR_MORPH),
 	
@@ -33,9 +47,7 @@ public enum AssType implements BodyPartTypeInterface {
 	
 	REINDEER_MORPH(BodyCoveringType.REINDEER_FUR, AnusType.REINDEER_MORPH, Race.REINDEER_MORPH),
 	
-	HARPY(BodyCoveringType.FEATHERS, AnusType.HARPY, Race.HARPY),
-	
-	SLIME(BodyCoveringType.SLIME, AnusType.SLIME, Race.SLIME);
+	HARPY(BodyCoveringType.FEATHERS, AnusType.HARPY, Race.HARPY);
 
 	private BodyCoveringType skinType;
 	private AnusType anusType;
@@ -97,7 +109,10 @@ public enum AssType implements BodyPartTypeInterface {
 	}
 
 	@Override
-	public BodyCoveringType getBodyCoveringType() {
+	public BodyCoveringType getBodyCoveringType(Body body) {
+		if(body!=null) {
+			return body.getSkin().getType().getBodyCoveringType(body);
+		}
 		return skinType;
 	}
 
@@ -107,5 +122,59 @@ public enum AssType implements BodyPartTypeInterface {
 	}
 	public AnusType getAnusType() {
 		return anusType;
+	}
+	
+	public String getTransformName() {
+		switch(this){
+			case ANGEL:
+				return "angelic";
+			case CAT_MORPH:
+				return "feline";
+			case DEMON_COMMON:
+				return "demonic";
+			case IMP:
+				return "impish";
+			case DOG_MORPH:
+				return "canine";
+			case COW_MORPH:
+				return "bovine";
+			case SQUIRREL_MORPH:
+				return "furry";
+			case ALLIGATOR_MORPH:
+				return "alligator";
+			case HARPY:
+				return "feathered";
+			case HORSE_MORPH:
+				return "equine";
+			case REINDEER_MORPH:
+				return "rangiferine";
+			case HUMAN:
+				return "human";
+			case WOLF_MORPH:
+				return "lupine";
+			case BAT_MORPH:
+				return "bat";
+			case RAT_MORPH:
+				return "rat";
+			case RABBIT_MORPH:
+				return "rabbit";
+		}
+		return "";
+	}
+	
+	private static Map<Race, List<AssType>> typesMap = new HashMap<>();
+	public static List<AssType> getAssTypes(Race r) {
+		if(typesMap.containsKey(r)) {
+			return typesMap.get(r);
+		}
+		
+		List<AssType> types = new ArrayList<>();
+		for(AssType type : AssType.values()) {
+			if(type.getRace()==r) {
+				types.add(type);
+			}
+		}
+		typesMap.put(r, types);
+		return types;
 	}
 }

@@ -1,15 +1,19 @@
 package com.lilithsthrone.game.sex.sexActions.baseActionsPlayer;
 
 import com.lilithsthrone.game.character.attributes.CorruptionLevel;
+import com.lilithsthrone.game.character.body.CoverableArea;
 import com.lilithsthrone.game.dialogue.utils.UtilText;
 import com.lilithsthrone.game.sex.ArousalIncrease;
 import com.lilithsthrone.game.sex.OrificeType;
 import com.lilithsthrone.game.sex.PenetrationType;
 import com.lilithsthrone.game.sex.Sex;
 import com.lilithsthrone.game.sex.SexPace;
-import com.lilithsthrone.game.sex.SexPosition;
+import com.lilithsthrone.game.sex.SexParticipantType;
+import com.lilithsthrone.game.sex.SexPositionType;
+import com.lilithsthrone.game.sex.SexPositionSlot;
 import com.lilithsthrone.game.sex.sexActions.SexAction;
 import com.lilithsthrone.game.sex.sexActions.SexActionType;
+import com.lilithsthrone.main.Main;
 
 /**
  * @since 0.1.79
@@ -25,12 +29,13 @@ public class PlayerFingerUrethra {
 			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.FINGER_PLAYER,
-			OrificeType.URETHRA_PARTNER) {
+			PenetrationType.FINGER,
+			OrificeType.URETHRA_PENIS,
+			SexParticipantType.PITCHER) {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.getSexPacePlayer()!=SexPace.SUB_RESISTING;
+			return Sex.getSexPace(Main.game.getPlayer())!=SexPace.SUB_RESISTING;
 		}
 		
 		@Override
@@ -48,7 +53,7 @@ public class PlayerFingerUrethra {
 			
 			UtilText.nodeContentSB.setLength(0);
 			
-			switch(Sex.getSexPacePlayer()) {
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Reaching down between [npc.name]'s [npc.legs], you wrap your [pc.fingers] around [npc.her] [npc.cock+], letting out a soft [pc.moan] as you start slowly stroking up and down its length.",
@@ -82,7 +87,7 @@ public class PlayerFingerUrethra {
 				default:
 					break;
 			}
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" Letting out a soft [npc.moan], [npc.she] starts gently bucking [npc.her] [npc.hips] against your [pc.hand], and you feel [npc.her] [npc.cock+] throbbing in response to your touch.",
@@ -125,7 +130,13 @@ public class PlayerFingerUrethra {
 	
 			return UtilText.nodeContentSB.toString();
 		}
-		
+
+		@Override
+		public void applyEffects() {
+			if(Sex.getActivePartner().isCoverableAreaExposed(CoverableArea.PENIS)) {
+				Sex.transferLubrication(Main.game.getPlayer(), PenetrationType.FINGER, Sex.getActivePartner(), PenetrationType.PENIS);
+			}
+		}
 	};
 	
 	public static final SexAction PLAYER_FONDLE_BALLS = new SexAction(
@@ -133,12 +144,13 @@ public class PlayerFingerUrethra {
 			ArousalIncrease.ONE_MINIMUM,
 			ArousalIncrease.THREE_NORMAL,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.FINGER_PLAYER,
-			OrificeType.URETHRA_PARTNER) {
+			PenetrationType.FINGER,
+			OrificeType.URETHRA_PENIS,
+			SexParticipantType.PITCHER) {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return !Sex.getPartner().isInternalTesticles() && Sex.getSexPacePlayer()!=SexPace.SUB_RESISTING;
+			return !Sex.getActivePartner().isInternalTesticles() && Sex.getSexPace(Main.game.getPlayer())!=SexPace.SUB_RESISTING;
 		}
 		
 		@Override
@@ -153,7 +165,7 @@ public class PlayerFingerUrethra {
 
 		@Override
 		public String getDescription() {
-			if(Sex.getPosition()==SexPosition.SIXTY_NINE_PARTNER_TOP) {
+			if(Sex.getPosition()==SexPositionType.SIXTY_NINE && Sex.getSexPositionSlot(Main.game.getPlayer())==SexPositionSlot.SIXTY_NINE_BOTTOM) {
 				return UtilText.returnStringAtRandom(
 						"You prop yourself up on one [pc.arm], before using your free [pc.hand] to stroke and squeeze [npc.name]'s [npc.balls+].",
 						"You let out [pc.a_moan+] as you prop yourself up on one [pc.arm], before reaching down and starting to stroke and play with [npc.name]'s [npc.balls+].",

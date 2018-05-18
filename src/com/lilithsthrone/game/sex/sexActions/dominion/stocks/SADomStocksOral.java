@@ -4,16 +4,20 @@ import com.lilithsthrone.game.character.attributes.CorruptionLevel;
 import com.lilithsthrone.game.sex.ArousalIncrease;
 import com.lilithsthrone.game.sex.Sex;
 import com.lilithsthrone.game.sex.SexFlags;
-import com.lilithsthrone.game.sex.SexPosition;
-import com.lilithsthrone.game.sex.managers.dominion.SMDomStocksBehind;
-import com.lilithsthrone.game.sex.managers.dominion.SMDomStocksPerformOral;
+import com.lilithsthrone.game.sex.SexParticipantType;
+import com.lilithsthrone.game.sex.SexPositionType;
+import com.lilithsthrone.game.sex.SexPositionSlot;
+import com.lilithsthrone.game.sex.managers.dominion.SMStocks;
 import com.lilithsthrone.game.sex.sexActions.SexAction;
 import com.lilithsthrone.game.sex.sexActions.SexActionType;
 import com.lilithsthrone.game.slavery.SlaveJobSetting;
+import com.lilithsthrone.main.Main;
+import com.lilithsthrone.utils.Util;
+import com.lilithsthrone.utils.Util.Value;
 
 /**
  * @since 0.1.95
- * @version 0.1.95
+ * @version 0.1.97
  * @author Innoxia
  */
 public class SADomStocksOral {
@@ -24,13 +28,14 @@ public class SADomStocksOral {
 			ArousalIncrease.ONE_MINIMUM,
 			CorruptionLevel.ZERO_PURE,
 			null,
-			null) {
+			null,
+			SexParticipantType.MISC) {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
 			return !SexFlags.positioningBlockedPlayer
-					&& Sex.getPosition() != SexPosition.STOCKS_PARTNER_BEING_USED
-					&& Sex.isPlayerDom();
+					&& !(Sex.getPosition() == SexPositionType.STOCKS_SEX && Sex.getSexPositionSlot(Main.game.getPlayer()) == SexPositionSlot.STOCKS_FUCKING)
+					&& Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
@@ -52,9 +57,12 @@ public class SADomStocksOral {
 
 		@Override
 		public void applyEffects() {
-			Sex.setSexManager(new SMDomStocksBehind(
-					Sex.getPartner().getSlaveJobSettings().contains(SlaveJobSetting.SEX_VAGINAL),
-					Sex.getPartner().getSlaveJobSettings().contains(SlaveJobSetting.SEX_ANAL)));
+			Sex.setSexManager(new SMStocks(
+					Sex.getActivePartner().getSlaveJobSettings().contains(SlaveJobSetting.SEX_VAGINAL),
+					Sex.getActivePartner().getSlaveJobSettings().contains(SlaveJobSetting.SEX_ANAL),
+					Sex.getActivePartner().getSlaveJobSettings().contains(SlaveJobSetting.SEX_ORAL),
+					Util.newHashMapOfValues(new Value<>(Main.game.getPlayer(), SexPositionSlot.STOCKS_FUCKING)),
+					Util.newHashMapOfValues(new Value<>(Sex.getActivePartner(), SexPositionSlot.STOCKS_LOCKED_IN_STOCKS))));
 			
 			SexFlags.resetRequests();
 		}
@@ -66,13 +74,14 @@ public class SADomStocksOral {
 			ArousalIncrease.ONE_MINIMUM,
 			CorruptionLevel.ZERO_PURE,
 			null,
-			null) {
+			null,
+			SexParticipantType.MISC) {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
 			return !SexFlags.positioningBlockedPlayer
-					&& Sex.getPosition() != SexPosition.STOCKS_PARTNER_PLAYER_PERFORMING_ORAL
-					&& Sex.isPlayerDom();
+					&& !(Sex.getPosition() == SexPositionType.STOCKS_SEX && Sex.getSexPositionSlot(Main.game.getPlayer()) == SexPositionSlot.STOCKS_PERFORMING_ORAL)
+					&& Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
@@ -94,8 +103,12 @@ public class SADomStocksOral {
 
 		@Override
 		public void applyEffects() {
-			Sex.setSexManager(new SMDomStocksPerformOral(Sex.getPartner().getSlaveJobSettings().contains(SlaveJobSetting.SEX_VAGINAL),
-					Sex.getPartner().getSlaveJobSettings().contains(SlaveJobSetting.SEX_ANAL)));
+			Sex.setSexManager(new SMStocks(
+					Sex.getActivePartner().getSlaveJobSettings().contains(SlaveJobSetting.SEX_VAGINAL),
+					Sex.getActivePartner().getSlaveJobSettings().contains(SlaveJobSetting.SEX_ANAL),
+					Sex.getActivePartner().getSlaveJobSettings().contains(SlaveJobSetting.SEX_ORAL),
+					Util.newHashMapOfValues(new Value<>(Main.game.getPlayer(), SexPositionSlot.STOCKS_PERFORMING_ORAL)),
+					Util.newHashMapOfValues(new Value<>(Sex.getActivePartner(), SexPositionSlot.STOCKS_LOCKED_IN_STOCKS))));
 			
 			SexFlags.resetRequests();
 		}

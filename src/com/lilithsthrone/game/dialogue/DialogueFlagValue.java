@@ -2,13 +2,15 @@ package com.lilithsthrone.game.dialogue;
 
 /**
  * @since 0.1.89
- * @version 0.1.97
+ * @version 0.2.5
  * @author Innoxia
  */
 public enum DialogueFlagValue {
+	
 	quickTrade,
 	stormTextUpdateRequired,
 	hasSnowedThisWinter,
+	
 	
 	// Essence reactions:
 	jinxedClothingDiscovered,
@@ -16,19 +18,54 @@ public enum DialogueFlagValue {
 	essenceOrgasmDiscovered,
 	essenceBottledDiscovered,
 
+	
+	// Misc.:
+	foundHappiness,
+	visitedSubmission,
+	mommyFound,
+	
 	// Gym:
 	gymIntroduced,
 	gymHadTour,
 	gymIsMember,
 	
-	// Shopping arcade:
+	
+	// Introductions:
+	angelIntroduced,
+	angelsOfficeIntroduced,
+	bunnyIntroduced,
+	loppyIntroduced,
+	ashleyIntroduced,
 	ralphIntroduced,
 	nyanIntroduced,
 	kateIntroduced,
 	vickyIntroduced,
+	
+	
+	// Red-light district:
+	prostitutionLicenseObtained,
+	
+	
+	// Shopping arcade:
+	nyanTalkedTo,
+	nyanComplimented,
+	nyanFlirtedWith,
+	nyanKissed,
+	nyanMakeOut,
+	nyanSex,
+	nyanGift,
+	
+	supplierDepotDoorUnlocked,
+	suppliersEncountered,
+	suppliersTriedConvincing,
+	
+	ashleySexToysDiscovered,
+	ashleyAttitude,
+	
 	reactedToKatePregnancy,
 	
-	// Aunt's Home:
+	
+	// Lilaya's Home:
 	knowsDate,
 	lilayaDateTalk,
 	auntHomeJustEntered,
@@ -36,9 +73,12 @@ public enum DialogueFlagValue {
 	reactedToPregnancyLilaya,
 	waitingOnLilayaPregnancyResults,
 	essenceExtractionKnown,
+	roseToldOnYou,
+	
 	readBook1,
 	readBook2,
 	readBook3,
+	readBook4,
 	
 	arthursRoomInstalled,
 	arthursPackageObtained,
@@ -48,6 +88,7 @@ public enum DialogueFlagValue {
 	givenLilayaPresent3,
 	
 	// Brax:
+	braxEncountered,
 	accessToEnforcerHQ,
 	braxTransformedPlayer,
 	braxBeaten,
@@ -77,6 +118,26 @@ public enum DialogueFlagValue {
 	zaranixAmberSubdued,
 	zaranixKatherineSubdued,
 	zaranixKellySubdued,
+	
+	amberRepeatEncountered,
+	katherineRepeatEncountered,
+	kellyRepeatEncountered,
+	zaranixRepeatEncountered,
+	
+	// Lumi:
+	lumiMet,
+	lumiDisabled,
+	lumiPromisedDinner,
+	
+	// Slime Queen's Tower:
+	slimeGuardsIntroduced,
+	slimeGuardsBluffed,
+	slimeGuardsDefeated,
+	slimeRoyalGuardIntroduced,
+	slimeRoyalGuardDefeated,
+	slimeQueenHelped,
+	slimeQueenConvinced,
+	slimeQueenForced
 	
 	;
 }

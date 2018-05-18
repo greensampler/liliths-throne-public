@@ -1,27 +1,31 @@
 package com.lilithsthrone.game.sex.managers;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
+import com.lilithsthrone.game.character.GameCharacter;
 import com.lilithsthrone.game.character.attributes.ArousalLevel;
 import com.lilithsthrone.game.character.body.CoverableArea;
-import com.lilithsthrone.game.character.effects.Fetish;
 import com.lilithsthrone.game.character.effects.StatusEffect;
+import com.lilithsthrone.game.character.fetishes.Fetish;
 import com.lilithsthrone.game.sex.OrificeType;
 import com.lilithsthrone.game.sex.PenetrationType;
 import com.lilithsthrone.game.sex.Sex;
 import com.lilithsthrone.game.sex.SexFlags;
 import com.lilithsthrone.game.sex.SexPace;
+import com.lilithsthrone.game.sex.SexParticipantType;
+import com.lilithsthrone.game.sex.SexPositionType;
+import com.lilithsthrone.game.sex.SexPositionSlot;
 import com.lilithsthrone.game.sex.sexActions.SexAction;
 import com.lilithsthrone.game.sex.sexActions.SexActionInterface;
 import com.lilithsthrone.game.sex.sexActions.SexActionPriority;
 import com.lilithsthrone.game.sex.sexActions.SexActionType;
 import com.lilithsthrone.game.sex.sexActions.SexActionUtility;
-import com.lilithsthrone.game.sex.sexActions.baseActionsPartner.PartnerFingerVagina;
-import com.lilithsthrone.game.sex.sexActions.baseActionsPartner.PartnerTongueMouth;
+import com.lilithsthrone.game.sex.sexActions.baseActionsMisc.GenericActions;
 import com.lilithsthrone.game.sex.sexActions.baseActionsSelfPartner.PartnerSelfFingerMouth;
 import com.lilithsthrone.main.Main;
 import com.lilithsthrone.utils.Util;
@@ -29,175 +33,74 @@ import java.util.Set;
 
 /**
  * @since 0.1.0
- * @version 0.1.96
+ * @version 0.1.97
  * @author Innoxia
  */
 public abstract class SexManagerDefault implements SexManagerInterface {
-	
-	private static List<SexActionInterface> actionsAvailablePlayer, actionsAvailablePartner, orgasmActionsPlayer, orgasmActionsPartner, mutualOrgasmActions;
-	
-	public SexManagerDefault(Class<?>... coreContainers) {
-		actionsAvailablePlayer = new ArrayList<>();
-		actionsAvailablePartner = new ArrayList<>();
-		orgasmActionsPlayer = new ArrayList<>();
-		orgasmActionsPartner = new ArrayList<>();
-		mutualOrgasmActions = new ArrayList<>();
 
-		try {
-			if (coreContainers.length != 0) {
-				for(Class<?> container : coreContainers) {
-					if(container!=null) {
-						Field[] fields = container.getFields();
-						
-						for(Field f : fields){
-							
-							if (SexAction.class.isAssignableFrom(f.getType())) {
-								if (((SexAction) f.get(null)).getActionType().isOrgasmOption()) {
-									if (((SexAction) f.get(null)).getActionType() == SexActionType.MUTUAL_ORGASM) {
-										mutualOrgasmActions.add(((SexAction) f.get(null)));
-										
-									} else if (((SexAction) f.get(null)).getActionType().isPlayerAction()) {
-										orgasmActionsPlayer.add(((SexAction) f.get(null)));
-										
-									} else {
-										orgasmActionsPartner.add(((SexAction) f.get(null)));
-									}
-									
-								} else {
-									if (((SexAction) f.get(null)).getActionType().isPlayerAction()) {
-										actionsAvailablePlayer.add(((SexAction) f.get(null)));
-										
-									} else {
-										actionsAvailablePartner.add(((SexAction) f.get(null)));
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+	private SexPositionType position;
+	private Map<GameCharacter, SexPositionSlot> dominants;
+	private Map<GameCharacter, SexPositionSlot> submissives;
+	protected Map<GameCharacter, List<OrificeType>> orificesBannedMap;
+	
+	public SexManagerDefault(SexPositionType position, Map<GameCharacter, SexPositionSlot> dominants, Map<GameCharacter, SexPositionSlot> submissives) {
+		if(dominants.size()+submissives.size()>position.getMaximumSlots()) {
+			throw new IllegalArgumentException("Too many characters for Sex Manager!");
 		}
-	}
-	
-	@Override
-	public void addSexActionClass(Class<?> container) {
-		try {
-			if(container!=null) {
-				Field[] fields = container.getFields();
-				
-				for(Field f : fields){
-					
-					if (SexAction.class.isAssignableFrom(f.getType())) {
-						if (((SexAction) f.get(null)).getActionType().isOrgasmOption()) {
-							if (((SexAction) f.get(null)).getActionType().isPlayerAction()) {
-								orgasmActionsPlayer.add(((SexAction) f.get(null)));
-								
-							} else {
-								orgasmActionsPartner.add(((SexAction) f.get(null)));
-							}
-							
-						} else {
-							if (((SexAction) f.get(null)).getActionType().isPlayerAction()) {
-								actionsAvailablePlayer.add(((SexAction) f.get(null)));
-								
-							} else {
-								actionsAvailablePartner.add(((SexAction) f.get(null)));
-							}
-						}
-					}
-				}
+		
+		for(SexPositionSlot slot : position.getSlotTargets().keySet()) {
+			int count = 0;
+			if(dominants.values().contains(slot)) {
+				count++;
 			}
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			if(submissives.values().contains(slot)) {
+				count++;
+			}
+			if(count>1) {
+				throw new IllegalArgumentException("Multiple partners assigned to a single slot!");
+			}
 		}
-	}
-	
-//	// A+ quality code example: /s
-//	protected void overrideAction(SexActionInterface oldAction, SexActionInterface newAction){
-//		for(int i=0 ; i< actionsAvailablePlayer.size(); i++){
-//			if(actionsAvailablePlayer.get(i) == oldAction) {
-//				actionsAvailablePlayer.set(i, newAction);
-//				return;
-//			}
-//		}
-//		for(int i=0 ; i< actionsAvailablePartner.size(); i++){
-//			if(actionsAvailablePartner.get(i) == oldAction) {
-//				actionsAvailablePartner.set(i, newAction);
-//				return;
-//			}
-//		}
-//		for(int i=0 ; i< orgasmActionsPlayer.size(); i++){
-//			if(orgasmActionsPlayer.get(i) == oldAction) {
-//				orgasmActionsPlayer.set(i, newAction);
-//				return;
-//			}
-//		}
-//		for(int i=0 ; i< orgasmActionsPartner.size(); i++){
-//			if(orgasmActionsPartner.get(i) == oldAction) {
-//				orgasmActionsPartner.set(i, newAction);
-//				return;
-//			}
-//		}
-//		for(int i=0 ; i< mutualOrgasmActions.size(); i++){
-//			if(mutualOrgasmActions.get(i) == oldAction) {
-//				mutualOrgasmActions.set(i, newAction);
-//				return;
-//			}
-//		}
-//	}
-	
-	protected void removeAction(SexActionInterface action){
-		actionsAvailablePlayer.remove(action);
-		actionsAvailablePartner.remove(action);
-		orgasmActionsPlayer.remove(action);
-		orgasmActionsPartner.remove(action);
-		mutualOrgasmActions.remove(action);
+		
+		this.position = position;
+		this.dominants = dominants;
+		this.submissives = submissives;
+		orificesBannedMap = new HashMap<>();
 	}
 	
 	@Override
-	public List<SexActionInterface> getActionsAvailablePlayer(){
-		return actionsAvailablePlayer;
-	}
-	@Override
-	public List<SexActionInterface> getActionsAvailablePartner(){
-		return actionsAvailablePartner;
-	}
-	@Override
-	public List<SexActionInterface> getOrgasmActionsPlayer(){
-		return orgasmActionsPlayer;
-	}
-	@Override
-	public List<SexActionInterface> getOrgasmActionsPartner(){
-		return orgasmActionsPartner;
-	}
-	@Override
-	public List<SexActionInterface> getMutualOrgasmActions(){
-		return mutualOrgasmActions;
+	public SexPositionType getPosition() {
+		return position;
 	}
 
+	@Override
+	public Map<GameCharacter, SexPositionSlot> getDominants() {
+		return dominants;
+	}
+
+	@Override
+	public Map<GameCharacter, SexPositionSlot> getSubmissives() {
+		return submissives;
+	}
+
+	public Map<GameCharacter, List<OrificeType>> getOrificesBannedMap() {
+		return orificesBannedMap;
+	}
+	
 	private static List<SexActionInterface> possibleActions = new ArrayList<>(), bannedActions = new ArrayList<>();
 	
-	
-	/*
-	 * New:
-	 * - Get accessible areas
-	 * - Choose foreplay & main sex
-	 * - Choose positions for each
-	 * - Clothing for foreplay
-	 * - position
-	 * - foreplay (self-actions take minimum priority)
-	 * - clothing for main
-	 * - position
-	 * - main (self-actions take minimum priority)
+	/**
+	 * New:</br>
+	 * - Get accessible areas</br>
+	 * - Choose foreplay & main sex</br>
+	 * - Choose positions for each</br>
+	 * - Clothing for foreplay</br>
+	 * - position</br>
+	 * - foreplay (self-actions take minimum priority)</br>
+	 * - clothing for main</br>
+	 * - position</br>
+	 * - main (self-actions take minimum priority)</br>
 	 * - orgasm
 	 */
-	
 	@Override
 	public SexActionInterface getPartnerSexAction(SexActionInterface sexActionPlayer) {
 		
@@ -208,20 +111,27 @@ public abstract class SexManagerDefault implements SexManagerInterface {
 		
 		// --- Priority 1 | If orgasming, bypass everything and use an orgasm option ---
 		
-		if (ArousalLevel.getArousalLevelFromValue(Sex.getPartner().getArousal()) == ArousalLevel.FIVE_ORGASM_IMMINENT) {
+		if (Sex.getActivePartner().getArousal() >= ArousalLevel.FIVE_ORGASM_IMMINENT.getMaximumValue() && SexFlags.playerPreparedForOrgasm) {
 			List<SexActionInterface> priorityOrgasms = new ArrayList<>();
 			
 			for(SexActionInterface action : availableActions) {
-				if(action.getPlayerAreasCummedIn() != null) {
-					if((action.getPlayerAreasCummedIn().contains(OrificeType.VAGINA_PLAYER)
-							&& (Sex.getPartner().hasFetish(Fetish.FETISH_IMPREGNATION) || Sex.getPartner().hasFetish(Fetish.FETISH_SEEDER)))
-						|| (action.getPlayerAreasCummedIn().contains(OrificeType.VAGINA_PARTNER)
-								&& (Sex.getPartner().hasFetish(Fetish.FETISH_PREGNANCY) || Sex.getPartner().hasFetish(Fetish.FETISH_BROODMOTHER)))
-						|| SexFlags.playerRequestedCreampie) {
-						priorityOrgasms.add(action);
-						
-					} else if(SexFlags.playerRequestedPullOut) {
-						priorityOrgasms.add(action);
+				for(GameCharacter character : Sex.getAllParticipants()) {
+					if(action.getAreasCummedIn(Sex.getActivePartner(), character) != null) {
+						if((action.getAreasCummedIn(Sex.getActivePartner(), character).contains(OrificeType.VAGINA)
+								&& (Sex.getActivePartner().hasFetish(Fetish.FETISH_IMPREGNATION) || Sex.getActivePartner().hasFetish(Fetish.FETISH_SEEDER)))
+							|| SexFlags.playerRequestedCreampie) {
+							priorityOrgasms.add(action);
+							
+						} else if(SexFlags.playerRequestedPullOut && (Sex.isConsensual() || Sex.isSubHasEqualControl())) {
+							priorityOrgasms.add(action);
+						}
+					}
+					if(action.getAreasCummedIn(character, Sex.getActivePartner()) != null) {
+						if((action.getAreasCummedIn(character, Sex.getActivePartner()).contains(OrificeType.VAGINA)
+									&& (Sex.getActivePartner().hasFetish(Fetish.FETISH_PREGNANCY) || Sex.getActivePartner().hasFetish(Fetish.FETISH_BROODMOTHER)))) {
+							priorityOrgasms.add(action);
+							
+						}
 					}
 				}
 			}
@@ -238,10 +148,8 @@ public abstract class SexManagerDefault implements SexManagerInterface {
 		// --- Priority 2 | Resisting ---
 		
 		// If the partner is resisting, they will not want to remove any clothing, and will instead simply use an available option. (Which will be a SUB_RESIST or neutral pace one.)
-		if(Sex.getSexPacePartner()==SexPace.SUB_RESISTING) {
-			for (SexActionInterface action : Sex.getAvailableSexActionsPartner()) {
-				possibleActions.add(action);
-			}
+		if(Sex.getSexPace(Sex.getActivePartner())==SexPace.SUB_RESISTING) {
+			possibleActions.addAll(Sex.getAvailableSexActionsPartner());
 			
 			if (!possibleActions.isEmpty()) {
 				return possibleActions.get(Util.random.nextInt(possibleActions.size()));
@@ -253,7 +161,7 @@ public abstract class SexManagerDefault implements SexManagerInterface {
 		
 		// --- Priority 3 | Move into one of the partner's preferred positions ---
 		
-		if(!Sex.getPartner().getSexPositionPreferences().contains(getPosition())) {
+		if(!Sex.getActivePartner().getSexPositionPreferences().contains(Sex.getSexPositionSlot(Sex.getActivePartner()))) {
 			for(SexActionInterface action : availableActions) {
 				if(action.getActionType()==SexActionType.PARTNER_POSITIONING) {
 					possibleActions.add(action);
@@ -286,45 +194,47 @@ public abstract class SexManagerDefault implements SexManagerInterface {
 			List<CoverableArea> playerAreasToBeExposed = new ArrayList<>();
 			List<CoverableArea> partnerAreasToBeExposed = new ArrayList<>();
 			if(Sex.isInForeplay()) {
-				if(Sex.getPartner().getForeplayPreference()!=null) {
-					PenetrationType pen = Sex.getPartner().getForeplayPreference().getPenetrationType();
-					if(pen.isPlayer()) {
-						if(pen.isPenis() && !Main.game.getPlayer().isCoverableAreaExposed(CoverableArea.PENIS) && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.PENIS, true)) {
+				if(Sex.getActivePartner().getForeplayPreference()!=null) {
+					PenetrationType pen = Sex.getActivePartner().getForeplayPreference().getPenetrationType();
+					SexParticipantType participantType = Sex.getActivePartner().getForeplayPreference().getAsParticipant();
+					
+					if(participantType == SexParticipantType.CATCHER) {
+						if(pen == PenetrationType.PENIS && !Main.game.getPlayer().isCoverableAreaExposed(CoverableArea.PENIS) && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.PENIS, true)) {
 							playerAreasToBeExposed.add(CoverableArea.PENIS);
-						} else if(pen.isTongue() && !Main.game.getPlayer().isCoverableAreaExposed(CoverableArea.MOUTH) && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.MOUTH, true)) {
+						} else if(pen == PenetrationType.TONGUE && !Main.game.getPlayer().isCoverableAreaExposed(CoverableArea.MOUTH) && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.MOUTH, true)) {
 							playerAreasToBeExposed.add(CoverableArea.MOUTH);
 						}
 					} else {
-						if(pen.isPenis() && !Sex.getPartner().isCoverableAreaExposed(CoverableArea.PENIS) && Sex.getPartner().isAbleToAccessCoverableArea(CoverableArea.PENIS, true)) {
+						if(pen == PenetrationType.PENIS && !Sex.getActivePartner().isCoverableAreaExposed(CoverableArea.PENIS) && Sex.getActivePartner().isAbleToAccessCoverableArea(CoverableArea.PENIS, true)) {
 							partnerAreasToBeExposed.add(CoverableArea.PENIS);
-						} else if(pen.isTongue() && !Sex.getPartner().isCoverableAreaExposed(CoverableArea.MOUTH) && Sex.getPartner().isAbleToAccessCoverableArea(CoverableArea.MOUTH, true)) {
+						} else if(pen == PenetrationType.TONGUE && !Sex.getActivePartner().isCoverableAreaExposed(CoverableArea.MOUTH) && Sex.getActivePartner().isAbleToAccessCoverableArea(CoverableArea.MOUTH, true)) {
 							partnerAreasToBeExposed.add(CoverableArea.MOUTH);
 						}
 					}
 					
-					OrificeType orifice = Sex.getPartner().getForeplayPreference().getOrificeType();
-					if(orifice.isPlayer()) {
-						if(orifice.isAnus() && !Main.game.getPlayer().isCoverableAreaExposed(CoverableArea.ANUS) && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.ANUS, true)) {
+					OrificeType orifice = Sex.getActivePartner().getForeplayPreference().getOrificeType();
+					if(participantType == SexParticipantType.PITCHER) {
+						if(orifice == OrificeType.ANUS && !Main.game.getPlayer().isCoverableAreaExposed(CoverableArea.ANUS) && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.ANUS, true)) {
 							playerAreasToBeExposed.add(CoverableArea.ANUS);
-						} else if((orifice.isBreasts() || orifice.isNipple()) && !Main.game.getPlayer().isCoverableAreaExposed(CoverableArea.NIPPLES) && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.NIPPLES, true)) {
+						} else if((orifice == OrificeType.BREAST || orifice == OrificeType.NIPPLE) && !Main.game.getPlayer().isCoverableAreaExposed(CoverableArea.NIPPLES) && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.NIPPLES, true)) {
 							playerAreasToBeExposed.add(CoverableArea.NIPPLES);
-						} else if(orifice.isMouth() && !Main.game.getPlayer().isCoverableAreaExposed(CoverableArea.MOUTH) && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.MOUTH, true)) {
+						} else if(orifice == OrificeType.MOUTH && !Main.game.getPlayer().isCoverableAreaExposed(CoverableArea.MOUTH) && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.MOUTH, true)) {
 							playerAreasToBeExposed.add(CoverableArea.MOUTH);
-						} else if(orifice.isUrethra() && !Main.game.getPlayer().isCoverableAreaExposed(CoverableArea.PENIS) && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.PENIS, true)) {
+						} else if(orifice == OrificeType.URETHRA_PENIS && !Main.game.getPlayer().isCoverableAreaExposed(CoverableArea.PENIS) && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.PENIS, true)) {
 							playerAreasToBeExposed.add(CoverableArea.PENIS);
-						} else if(orifice.isVagina() && !Main.game.getPlayer().isCoverableAreaExposed(CoverableArea.VAGINA) && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.VAGINA, true)) {
+						} else if((orifice == OrificeType.VAGINA || orifice == OrificeType.URETHRA_VAGINA) && !Main.game.getPlayer().isCoverableAreaExposed(CoverableArea.VAGINA) && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.VAGINA, true)) {
 							playerAreasToBeExposed.add(CoverableArea.VAGINA);
 						}
 					} else {
-						if(orifice.isAnus() && !Sex.getPartner().isCoverableAreaExposed(CoverableArea.ANUS) && Sex.getPartner().isAbleToAccessCoverableArea(CoverableArea.ANUS, true)) {
+						if(orifice == OrificeType.ANUS && !Sex.getActivePartner().isCoverableAreaExposed(CoverableArea.ANUS) && Sex.getActivePartner().isAbleToAccessCoverableArea(CoverableArea.ANUS, true)) {
 							partnerAreasToBeExposed.add(CoverableArea.ANUS);
-						} else if((orifice.isBreasts() || orifice.isNipple()) && !Sex.getPartner().isCoverableAreaExposed(CoverableArea.NIPPLES) && Sex.getPartner().isAbleToAccessCoverableArea(CoverableArea.NIPPLES, true)) {
+						} else if((orifice == OrificeType.BREAST || orifice == OrificeType.NIPPLE) && !Sex.getActivePartner().isCoverableAreaExposed(CoverableArea.NIPPLES) && Sex.getActivePartner().isAbleToAccessCoverableArea(CoverableArea.NIPPLES, true)) {
 							partnerAreasToBeExposed.add(CoverableArea.NIPPLES);
-						} else if(orifice.isMouth() && !Sex.getPartner().isCoverableAreaExposed(CoverableArea.MOUTH) && Sex.getPartner().isAbleToAccessCoverableArea(CoverableArea.MOUTH, true)) {
+						} else if(orifice == OrificeType.MOUTH && !Sex.getActivePartner().isCoverableAreaExposed(CoverableArea.MOUTH) && Sex.getActivePartner().isAbleToAccessCoverableArea(CoverableArea.MOUTH, true)) {
 							partnerAreasToBeExposed.add(CoverableArea.MOUTH);
-						} else if(orifice.isUrethra() && !Sex.getPartner().isCoverableAreaExposed(CoverableArea.PENIS) && Sex.getPartner().isAbleToAccessCoverableArea(CoverableArea.PENIS, true)) {
+						} else if(orifice == OrificeType.URETHRA_PENIS && !Sex.getActivePartner().isCoverableAreaExposed(CoverableArea.PENIS) && Sex.getActivePartner().isAbleToAccessCoverableArea(CoverableArea.PENIS, true)) {
 							partnerAreasToBeExposed.add(CoverableArea.PENIS);
-						} else if(orifice.isVagina() && !Sex.getPartner().isCoverableAreaExposed(CoverableArea.VAGINA) && Sex.getPartner().isAbleToAccessCoverableArea(CoverableArea.VAGINA, true)) {
+						} else if((orifice == OrificeType.VAGINA || orifice == OrificeType.URETHRA_VAGINA) && !Sex.getActivePartner().isCoverableAreaExposed(CoverableArea.VAGINA) && Sex.getActivePartner().isAbleToAccessCoverableArea(CoverableArea.VAGINA, true)) {
 							partnerAreasToBeExposed.add(CoverableArea.VAGINA);
 						}
 					}
@@ -352,54 +262,56 @@ public abstract class SexManagerDefault implements SexManagerInterface {
 //						} else if(!Sex.getPartner().isCoverableAreaExposed(CoverableArea.VAGINA) && Sex.getPartner().isAbleToAccessCoverableArea(CoverableArea.VAGINA, true)) {
 //							partnerAreasToBeExposed.add(CoverableArea.VAGINA);
 //						}
-						if(!Sex.getPartner().isCoverableAreaExposed(CoverableArea.NIPPLES) && Sex.getPartner().isAbleToAccessCoverableArea(CoverableArea.NIPPLES, true)) {
+						if(!Sex.getActivePartner().isCoverableAreaExposed(CoverableArea.NIPPLES) && Sex.getActivePartner().isAbleToAccessCoverableArea(CoverableArea.NIPPLES, true)) {
 							partnerAreasToBeExposed.add(CoverableArea.NIPPLES);
-						} else if(!Sex.getPartner().isCoverableAreaExposed(CoverableArea.MOUTH) && Sex.getPartner().isAbleToAccessCoverableArea(CoverableArea.MOUTH, true)) {
+						} else if(!Sex.getActivePartner().isCoverableAreaExposed(CoverableArea.MOUTH) && Sex.getActivePartner().isAbleToAccessCoverableArea(CoverableArea.MOUTH, true)) {
 							partnerAreasToBeExposed.add(CoverableArea.MOUTH);
 						}
 					}
 				}
 				
 			} else {
-				if(Sex.getPartner().getMainSexPreference()!=null) {
-					PenetrationType pen = Sex.getPartner().getMainSexPreference().getPenetrationType();
-					if(pen.isPlayer()) {
-						if(pen.isPenis() && !Main.game.getPlayer().isCoverableAreaExposed(CoverableArea.PENIS) && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.PENIS, true)) {
+				if(Sex.getActivePartner().getMainSexPreference()!=null) {
+					PenetrationType pen = Sex.getActivePartner().getMainSexPreference().getPenetrationType();
+					SexParticipantType participantType = Sex.getActivePartner().getMainSexPreference().getAsParticipant();
+					
+					if(participantType == SexParticipantType.CATCHER) {
+						if(pen == PenetrationType.PENIS && !Main.game.getPlayer().isCoverableAreaExposed(CoverableArea.PENIS) && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.PENIS, true)) {
 							playerAreasToBeExposed.add(CoverableArea.PENIS);
-						} else if(pen.isTongue() && !Main.game.getPlayer().isCoverableAreaExposed(CoverableArea.MOUTH) && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.MOUTH, true)) {
+						} else if(pen == PenetrationType.TONGUE && !Main.game.getPlayer().isCoverableAreaExposed(CoverableArea.MOUTH) && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.MOUTH, true)) {
 							playerAreasToBeExposed.add(CoverableArea.MOUTH);
 						}
 					} else {
-						if(pen.isPenis() && !Sex.getPartner().isCoverableAreaExposed(CoverableArea.PENIS) && Sex.getPartner().isAbleToAccessCoverableArea(CoverableArea.PENIS, true)) {
+						if(pen == PenetrationType.PENIS && !Sex.getActivePartner().isCoverableAreaExposed(CoverableArea.PENIS) && Sex.getActivePartner().isAbleToAccessCoverableArea(CoverableArea.PENIS, true)) {
 							partnerAreasToBeExposed.add(CoverableArea.PENIS);
-						} else if(pen.isTongue() && !Sex.getPartner().isCoverableAreaExposed(CoverableArea.MOUTH) && Sex.getPartner().isAbleToAccessCoverableArea(CoverableArea.MOUTH, true)) {
+						} else if(pen == PenetrationType.TONGUE && !Sex.getActivePartner().isCoverableAreaExposed(CoverableArea.MOUTH) && Sex.getActivePartner().isAbleToAccessCoverableArea(CoverableArea.MOUTH, true)) {
 							partnerAreasToBeExposed.add(CoverableArea.MOUTH);
 						}
 					}
 					
-					OrificeType orifice = Sex.getPartner().getMainSexPreference().getOrificeType();
-					if(orifice.isPlayer()) {
-						if(orifice.isAnus() && !Main.game.getPlayer().isCoverableAreaExposed(CoverableArea.ANUS) && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.ANUS, true)) {
+					OrificeType orifice = Sex.getActivePartner().getMainSexPreference().getOrificeType();
+					if(participantType == SexParticipantType.PITCHER) {
+						if(orifice == OrificeType.ANUS && !Main.game.getPlayer().isCoverableAreaExposed(CoverableArea.ANUS) && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.ANUS, true)) {
 							playerAreasToBeExposed.add(CoverableArea.ANUS);
-						} else if((orifice.isBreasts() || orifice.isNipple()) && !Main.game.getPlayer().isCoverableAreaExposed(CoverableArea.NIPPLES) && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.NIPPLES, true)) {
+						} else if((orifice == OrificeType.BREAST || orifice == OrificeType.NIPPLE) && !Main.game.getPlayer().isCoverableAreaExposed(CoverableArea.NIPPLES) && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.NIPPLES, true)) {
 							playerAreasToBeExposed.add(CoverableArea.NIPPLES);
-						} else if(orifice.isMouth() && !Main.game.getPlayer().isCoverableAreaExposed(CoverableArea.MOUTH) && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.MOUTH, true)) {
+						} else if(orifice == OrificeType.MOUTH && !Main.game.getPlayer().isCoverableAreaExposed(CoverableArea.MOUTH) && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.MOUTH, true)) {
 							playerAreasToBeExposed.add(CoverableArea.MOUTH);
-						} else if(orifice.isUrethra() && !Main.game.getPlayer().isCoverableAreaExposed(CoverableArea.PENIS) && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.PENIS, true)) {
+						} else if(orifice == OrificeType.URETHRA_PENIS && !Main.game.getPlayer().isCoverableAreaExposed(CoverableArea.PENIS) && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.PENIS, true)) {
 							playerAreasToBeExposed.add(CoverableArea.PENIS);
-						} else if(orifice.isVagina() && !Main.game.getPlayer().isCoverableAreaExposed(CoverableArea.VAGINA) && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.VAGINA, true)) {
+						} else if((orifice == OrificeType.VAGINA || orifice == OrificeType.URETHRA_VAGINA) && !Main.game.getPlayer().isCoverableAreaExposed(CoverableArea.VAGINA) && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.VAGINA, true)) {
 							playerAreasToBeExposed.add(CoverableArea.VAGINA);
 						}
 					} else {
-						if(orifice.isAnus() && !Sex.getPartner().isCoverableAreaExposed(CoverableArea.ANUS) && Sex.getPartner().isAbleToAccessCoverableArea(CoverableArea.ANUS, true)) {
+						if(orifice == OrificeType.ANUS && !Sex.getActivePartner().isCoverableAreaExposed(CoverableArea.ANUS) && Sex.getActivePartner().isAbleToAccessCoverableArea(CoverableArea.ANUS, true)) {
 							partnerAreasToBeExposed.add(CoverableArea.ANUS);
-						} else if((orifice.isBreasts() || orifice.isNipple()) && !Sex.getPartner().isCoverableAreaExposed(CoverableArea.NIPPLES) && Sex.getPartner().isAbleToAccessCoverableArea(CoverableArea.NIPPLES, true)) {
+						} else if((orifice == OrificeType.BREAST || orifice == OrificeType.NIPPLE) && !Sex.getActivePartner().isCoverableAreaExposed(CoverableArea.NIPPLES) && Sex.getActivePartner().isAbleToAccessCoverableArea(CoverableArea.NIPPLES, true)) {
 							partnerAreasToBeExposed.add(CoverableArea.NIPPLES);
-						} else if(orifice.isMouth() && !Sex.getPartner().isCoverableAreaExposed(CoverableArea.MOUTH) && Sex.getPartner().isAbleToAccessCoverableArea(CoverableArea.MOUTH, true)) {
+						} else if(orifice == OrificeType.MOUTH && !Sex.getActivePartner().isCoverableAreaExposed(CoverableArea.MOUTH) && Sex.getActivePartner().isAbleToAccessCoverableArea(CoverableArea.MOUTH, true)) {
 							partnerAreasToBeExposed.add(CoverableArea.MOUTH);
-						} else if(orifice.isUrethra() && !Sex.getPartner().isCoverableAreaExposed(CoverableArea.PENIS) && Sex.getPartner().isAbleToAccessCoverableArea(CoverableArea.PENIS, true)) {
+						} else if(orifice == OrificeType.URETHRA_PENIS && !Sex.getActivePartner().isCoverableAreaExposed(CoverableArea.PENIS) && Sex.getActivePartner().isAbleToAccessCoverableArea(CoverableArea.PENIS, true)) {
 							partnerAreasToBeExposed.add(CoverableArea.PENIS);
-						} else if(orifice.isVagina() && !Sex.getPartner().isCoverableAreaExposed(CoverableArea.VAGINA) && Sex.getPartner().isAbleToAccessCoverableArea(CoverableArea.VAGINA, true)) {
+						} else if((orifice == OrificeType.VAGINA || orifice == OrificeType.URETHRA_VAGINA) && !Sex.getActivePartner().isCoverableAreaExposed(CoverableArea.VAGINA) && Sex.getActivePartner().isAbleToAccessCoverableArea(CoverableArea.VAGINA, true)) {
 							partnerAreasToBeExposed.add(CoverableArea.VAGINA);
 						}
 					}
@@ -425,9 +337,9 @@ public abstract class SexManagerDefault implements SexManagerInterface {
 //						if(!Sex.getPartner().isCoverableAreaExposed(CoverableArea.ANUS) && Sex.getPartner().isAbleToAccessCoverableArea(CoverableArea.ANUS, true)) {
 //							partnerAreasToBeExposed.add(CoverableArea.ANUS);
 //						} else
-						if(Sex.getPartner().hasPenis() && !Sex.getPartner().isCoverableAreaExposed(CoverableArea.PENIS) && Sex.getPartner().isAbleToAccessCoverableArea(CoverableArea.PENIS, true)) {
+						if(Sex.getActivePartner().hasPenis() && !Sex.getActivePartner().isCoverableAreaExposed(CoverableArea.PENIS) && Sex.getActivePartner().isAbleToAccessCoverableArea(CoverableArea.PENIS, true)) {
 							partnerAreasToBeExposed.add(CoverableArea.PENIS);
-						} else if(Sex.getPartner().hasVagina() && !Sex.getPartner().isCoverableAreaExposed(CoverableArea.VAGINA) && Sex.getPartner().isAbleToAccessCoverableArea(CoverableArea.VAGINA, true)) {
+						} else if(Sex.getActivePartner().hasVagina() && !Sex.getActivePartner().isCoverableAreaExposed(CoverableArea.VAGINA) && Sex.getActivePartner().isAbleToAccessCoverableArea(CoverableArea.VAGINA, true)) {
 							partnerAreasToBeExposed.add(CoverableArea.VAGINA);
 						}
 //						else if(!Sex.getPartner().isCoverableAreaExposed(CoverableArea.NIPPLES) && Sex.getPartner().isAbleToAccessCoverableArea(CoverableArea.NIPPLES, true)) {
@@ -439,7 +351,7 @@ public abstract class SexManagerDefault implements SexManagerInterface {
 //				}
 			}
 			
-			if(!partnerAreasToBeExposed.isEmpty() && Sex.isPartnerCanRemoveOwnClothes()) {
+			if(!partnerAreasToBeExposed.isEmpty() && Sex.isCanRemoveSelfClothing(Sex.getActivePartner())) {
 				Collections.shuffle(partnerAreasToBeExposed);
 				if(partnerAreasToBeExposed.get(0) == CoverableArea.MOUND) {
 					return Sex.partnerManageClothingToAccessCoverableArea(false, CoverableArea.VAGINA);
@@ -447,7 +359,7 @@ public abstract class SexManagerDefault implements SexManagerInterface {
 					return Sex.partnerManageClothingToAccessCoverableArea(false, partnerAreasToBeExposed.get(0));
 				}
 			}
-			if(!playerAreasToBeExposed.isEmpty() && Sex.isPartnerCanRemovePlayersClothes()) {
+			if(!playerAreasToBeExposed.isEmpty() && Sex.isCanRemoveOthersClothing(Sex.getActivePartner())) {
 				Collections.shuffle(playerAreasToBeExposed);
 				if(playerAreasToBeExposed.get(0) == CoverableArea.MOUND) {
 					return Sex.partnerManageClothingToAccessCoverableArea(true, CoverableArea.VAGINA);
@@ -455,40 +367,44 @@ public abstract class SexManagerDefault implements SexManagerInterface {
 					return Sex.partnerManageClothingToAccessCoverableArea(true, playerAreasToBeExposed.get(0));
 				}
 			}
-			
 		}
 
 		
 		// --- Priority 5 | Ban actions that make no sense for the partner to perform ---
 		
 		// Ban all penetrations if the partner is a virgin in the associated orifice:
-		for(SexActionInterface action : availableActions) {
-			if(action.getAssociatedOrificeType()!=null && action.getActionType()==SexActionType.PARTNER_PENETRATION) {
+		for(SexActionInterface action : availableActions) { //TODO
+			if(action.getAssociatedOrificeType()!=null && action.getActionType()==SexActionType.PARTNER_PENETRATION && action.getParticipantType().isUsingSelfOrificeType()) {
 				switch(action.getAssociatedOrificeType()) {
-					case ANUS_PARTNER:
-						if(Sex.getPartner().isAssVirgin() && Sex.getSexPacePartner()!=SexPace.SUB_EAGER) {
+					case ANUS:
+						if(Sex.getActivePartner().isAssVirgin() && Sex.getSexPace(Sex.getActivePartner())!=SexPace.SUB_EAGER) {
 							bannedActions.add(action);
 						}
 						break;
-					case MOUTH_PARTNER:
-						if(Sex.getPartner().isFaceVirgin() && Sex.getSexPacePartner()!=SexPace.SUB_EAGER) {
+					case MOUTH:
+						if(Sex.getActivePartner().isFaceVirgin() && Sex.getSexPace(Sex.getActivePartner())!=SexPace.SUB_EAGER) {
 							bannedActions.add(action);
 						}
 						break;
-					case NIPPLE_PARTNER:
-						if(Sex.getPartner().isNippleVirgin() && Sex.getSexPacePartner()!=SexPace.SUB_EAGER) {
+					case NIPPLE:
+						if(Sex.getActivePartner().isNippleVirgin() && Sex.getSexPace(Sex.getActivePartner())!=SexPace.SUB_EAGER) {
 							bannedActions.add(action);
 						}
 						break;
-					case URETHRA_PARTNER:
-						if(Sex.getPartner().isUrethraVirgin() && Sex.getSexPacePartner()!=SexPace.SUB_EAGER) {
+					case URETHRA_PENIS:
+						if(Sex.getActivePartner().isUrethraVirgin() && Sex.getSexPace(Sex.getActivePartner())!=SexPace.SUB_EAGER) {
 							bannedActions.add(action);
 						}
 						break;
-					case VAGINA_PARTNER:
-						if(Sex.getPartner().hasStatusEffect(StatusEffect.FETISH_PURE_VIRGIN)
-								|| Sex.getPartner().hasStatusEffect(StatusEffect.FETISH_PURE_VIRGIN_LUSTY_MAIDEN)
-								|| (Sex.getPartner().isVaginaVirgin() && Sex.getSexPacePartner()!=SexPace.SUB_EAGER)) {
+					case URETHRA_VAGINA:
+						if(Sex.getActivePartner().isVaginaUrethraVirgin() && Sex.getSexPace(Sex.getActivePartner())!=SexPace.SUB_EAGER) {
+							bannedActions.add(action);
+						}
+						break;
+					case VAGINA:
+						if(Sex.getActivePartner().hasStatusEffect(StatusEffect.FETISH_PURE_VIRGIN)
+								|| Sex.getActivePartner().hasStatusEffect(StatusEffect.FETISH_PURE_VIRGIN_LUSTY_MAIDEN)
+								|| (Sex.getActivePartner().isVaginaVirgin() && Sex.getSexPace(Sex.getActivePartner())!=SexPace.SUB_EAGER)) {
 							bannedActions.add(action);
 						}
 						break;
@@ -497,24 +413,6 @@ public abstract class SexManagerDefault implements SexManagerInterface {
 				}
 			}
 		}
-		
-		// Ban all anal actions unless the partner has an anal fetish, or if there is no vagina available to use.
-		if(!Sex.getPartner().hasFetish(Fetish.FETISH_ANAL_GIVING)) {
-			for(SexActionInterface action : availableActions) {
-				if(action.getAssociatedOrificeType()!=null) {
-					if(action.getAssociatedOrificeType().isAnus()) {
-						if(action.getAssociatedOrificeType().isPlayer()) {
-							if(Main.game.getPlayer().hasVagina() && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.VAGINA, true)) { // If the player has a vagina, ban the action so vaginal actions are preferred:
-								bannedActions.add(action);
-							}
-						} else {
-							bannedActions.add(action);
-						}
-					}
-				}
-			}
-		}
-
 		
 		// --- Priority 6 | Perform actions based on foreplay or sex ---
 		
@@ -533,20 +431,10 @@ public abstract class SexManagerDefault implements SexManagerInterface {
 			}
 		}
 
-//		System.out.println("---------------------------");
-		
 		// --- Priority 7 using other options at random ---
-		for (SexActionInterface action : availableActions) {
-			possibleActions.add(action);
-//			System.out.println(action.getActionTitle());
-		}
-		
+		possibleActions.addAll(availableActions);
+
 		possibleActions.removeAll(bannedActions);
-		
-//		System.out.println("REMOVED:");
-//		for (SexActionInterface action : possibleActions) {
-//			System.out.println(action.getActionTitle());
-//		}
 		
 		if (!possibleActions.isEmpty()) {
 			return possibleActions.get(Util.random.nextInt(possibleActions.size()));
@@ -564,18 +452,24 @@ public abstract class SexManagerDefault implements SexManagerInterface {
 		List<SexActionInterface> availableActions = Sex.getAvailableSexActionsPartner();
 		bannedActions.add(PartnerSelfFingerMouth.PARTNER_SELF_FINGER_MOUTH_PENETRATION);
 		
-		if(sexActionPlayer.getActionType()==SexActionType.PLAYER_STOP_PENETRATION) {
+		if(sexActionPlayer.getActionType()==SexActionType.PLAYER_STOP_PENETRATION
+				|| sexActionPlayer.equals(GenericActions.PLAYER_FORBID_PARTNER_SELF)
+				|| sexActionPlayer.equals(GenericActions.PLAYER_STOP_PARTNER_SELF)
+				|| sexActionPlayer.equals(GenericActions.PLAYER_STOP_ALL_PENETRATIONS)) {
 			availableActions.removeIf(sexAction -> sexAction.getActionType()==SexActionType.PARTNER_PENETRATION);
 		}
 		
 		availableActions.removeAll(bannedActions);
 
+		List<SexActionInterface> highPriorityList = new ArrayList<>();
+		
 		// If the NPC has a preference, they are more likely to choose actions related to that:
-		if(Sex.getPartner().getForeplayPreference()!=null) {
-			List<SexActionInterface> highPriorityList = new ArrayList<>();
+		if(Sex.getActivePartner().getForeplayPreference()!=null) {
 			for(SexActionInterface action : availableActions) {
-				if(action.getAssociatedOrificeType() == Sex.getPartner().getForeplayPreference().getOrificeType()
-						&& action.getAssociatedPenetrationType() == Sex.getPartner().getForeplayPreference().getPenetrationType()) {
+				if(action.getAssociatedOrificeType() == Sex.getActivePartner().getForeplayPreference().getOrificeType()
+						&& action.getAssociatedPenetrationType() == Sex.getActivePartner().getForeplayPreference().getPenetrationType()
+						&& action.getActionType() != SexActionType.PARTNER_STOP_PENETRATION
+						&& action.getParticipantType()!=SexParticipantType.SELF) {
 					highPriorityList.add(action);
 					if(action.getActionType() == SexActionType.PARTNER_PENETRATION) { // If a penetrative action is in the list, always return that first.
 						return (SexAction) action;
@@ -583,45 +477,28 @@ public abstract class SexManagerDefault implements SexManagerInterface {
 				}
 			}
 			
-			if(!highPriorityList.isEmpty() && Math.random()<0.7f) { // 70% chance, so that there is some chance of using other actions as well:
-				// Kissing is a fundamental part of foreplay!
-				if(availableActions.contains(PartnerTongueMouth.PARTNER_KISS_START)) {
-					highPriorityList.add(PartnerTongueMouth.PARTNER_KISS_START);
-				}
-				
+			if(!highPriorityList.isEmpty() && Math.random()<0.7f) {
 				return (SexAction) highPriorityList.get(Util.random.nextInt(highPriorityList.size()));
 			}
 		}
-
-		// --- Fingering the player: ---
-		if(availableActions.contains(PartnerFingerVagina.PARTNER_FINGERING_START)) {
-			return PartnerFingerVagina.PARTNER_FINGERING_START;
+		
+		highPriorityList.clear();
+		for (SexActionInterface action : availableActions) {
+			if((action.getActionType() == SexActionType.PARTNER_PENETRATION || Sex.isAnyNonSelfPenetrationHappening())
+					&& action.getActionType() != SexActionType.PARTNER_STOP_PENETRATION
+					&& action.getParticipantType()!=SexParticipantType.SELF
+					&& (action.getAssociatedPenetrationType()!=null && !action.getAssociatedPenetrationType().isTakesVirginity())) {
+				highPriorityList.add(action);
+			}
 		}
 		
-		// --- Kissing the player: ---
-
-		// Start kissing the player:
-		if(availableActions.contains(PartnerTongueMouth.PARTNER_KISS_START)) {
-			return PartnerTongueMouth.PARTNER_KISS_START;
+		if(!highPriorityList.isEmpty()) {
+			return (SexAction) highPriorityList.get(Util.random.nextInt(highPriorityList.size()));
 		}
 		
-		// --- Block penetrative actions that involve penis or tail in vagina/anus ---
+		// --- Ban stop penetration actions ---
 		
 		for(SexActionInterface action : availableActions) {
-			if(action.getActionType() == SexActionType.PARTNER_PENETRATION) {
-				if((action.getAssociatedPenetrationType()==PenetrationType.PENIS_PLAYER
-						|| action.getAssociatedPenetrationType()==PenetrationType.PENIS_PARTNER
-						|| action.getAssociatedPenetrationType()==PenetrationType.TAIL_PLAYER
-						|| action.getAssociatedPenetrationType()==PenetrationType.TAIL_PARTNER)
-						&&
-						(action.getAssociatedOrificeType()!=OrificeType.MOUTH_PLAYER
-						&& action.getAssociatedOrificeType()!=OrificeType.MOUTH_PARTNER
-						&& action.getAssociatedOrificeType()!=OrificeType.BREAST_PLAYER
-						&& action.getAssociatedOrificeType()!=OrificeType.BREAST_PARTNER)) {
-					bannedActions.add(action);
-				}
-			}
-			// Ban stop penetration actions:
 			if(action.getActionType() == SexActionType.PARTNER_STOP_PENETRATION) {
 				bannedActions.add(action);
 			}
@@ -630,12 +507,15 @@ public abstract class SexManagerDefault implements SexManagerInterface {
 		return null;
 	}
 
-	private boolean removedAllPenetrationAfterForeplay = false;
+//	private boolean removedAllPenetrationAfterForeplay = false;
 	
 	private SexAction performSexAction(SexActionInterface sexActionPlayer) {
 		List<SexActionInterface> availableActions = Sex.getAvailableSexActionsPartner();
 		
-		if(sexActionPlayer.getActionType()==SexActionType.PLAYER_STOP_PENETRATION) {
+		if(sexActionPlayer.getActionType()==SexActionType.PLAYER_STOP_PENETRATION
+				|| sexActionPlayer.equals(GenericActions.PLAYER_FORBID_PARTNER_SELF)
+				|| sexActionPlayer.equals(GenericActions.PLAYER_STOP_PARTNER_SELF)
+				|| sexActionPlayer.equals(GenericActions.PLAYER_STOP_ALL_PENETRATIONS)) {
 			availableActions.removeIf(sexAction -> sexAction.getActionType()==SexActionType.PARTNER_PENETRATION);
 		}
 		
@@ -644,41 +524,61 @@ public abstract class SexManagerDefault implements SexManagerInterface {
 		List<SexActionInterface> returnableActions = new ArrayList<>();
 		
 		boolean isSexPenetration = false;
+		boolean isSexPenetrationPossible = Sex.getActivePartner().hasPenis()
+				|| Sex.getActivePartner().getTailType().isSuitableForPenetration()
+				|| Main.game.getPlayer().hasPenis()
+				|| Main.game.getPlayer().getTailType().isSuitableForPenetration();
 		
 		// Is any sexual penetration happening:
-		for(Entry<PenetrationType, Set<OrificeType>> e : Sex.getOngoingPenetrationMap().entrySet()) {
-			if(e.getKey().isPenis() || e.getKey().isTail() || e.getKey().isTentacle()) {
-				isSexPenetration = true;
-			}
-		}
-		
-		if(!isSexPenetration) {
-			// --- Stop foreplay actions: ---
-			if(!removedAllPenetrationAfterForeplay) {
-				for(SexActionInterface action : availableActions) {
-					if(action.getActionType() == SexActionType.PARTNER_STOP_PENETRATION) {
-						if(!(action.getAssociatedPenetrationType()==PenetrationType.TONGUE_PARTNER && action.getAssociatedOrificeType()==OrificeType.MOUTH_PLAYER)
-								&& !(action.getAssociatedPenetrationType()==PenetrationType.TONGUE_PLAYER && action.getAssociatedOrificeType()==OrificeType.MOUTH_PARTNER)) { // Don't stop kissing actions:
-							returnableActions.add(action);
+		outerloop:
+		for(GameCharacter penetrator : Sex.getAllParticipants()) {
+			for(GameCharacter penetrated : Sex.getAllParticipants()) {
+				if((penetrator.equals(Sex.getActivePartner()) || penetrated.equals(Sex.getActivePartner())) && !penetrator.equals(penetrated)) {
+					for(Entry<PenetrationType, Set<OrificeType>> e : Sex.getOngoingPenetrationMap(penetrator).get(penetrated).entrySet()) {
+						if(e.getKey().isTakesVirginity()) {
+							isSexPenetration = true;
+							break outerloop;
 						}
 					}
 				}
 			}
+		}
+		
+		// If there is no real penetration going on:
+		if(!isSexPenetration && isSexPenetrationPossible) {
+			// --- Stop foreplay actions: ---
+			for(SexActionInterface action : availableActions) {
+				if(action.getActionType() == SexActionType.PARTNER_STOP_PENETRATION) {
+					// Don't stop kissing or fetishised oral actions:
+					if(!(action.getAssociatedPenetrationType()==PenetrationType.TONGUE && action.getAssociatedOrificeType()==OrificeType.MOUTH)
+							&& !(Sex.getActivePartner().hasFetish(Fetish.FETISH_ORAL_RECEIVING)
+									&& ((!action.getParticipantType().isUsingSelfOrificeType() && action.getAssociatedOrificeType()==OrificeType.MOUTH)
+											|| (!action.getParticipantType().isUsingSelfPenetrationType() && action.getAssociatedPenetrationType()==PenetrationType.TONGUE)))
+							&& !(Sex.getActivePartner().hasFetish(Fetish.FETISH_ORAL_GIVING)
+									&& ((action.getParticipantType().isUsingSelfOrificeType() && action.getAssociatedOrificeType()==OrificeType.MOUTH)
+											|| (action.getParticipantType().isUsingSelfPenetrationType() && action.getAssociatedPenetrationType()==PenetrationType.TONGUE)))) {
+						returnableActions.add(action);
+					}
+				}
+			}
 			if(returnableActions.size()<=1) {
-				removedAllPenetrationAfterForeplay = true;
 				SexFlags.positioningBlockedPartner = false;
 			}
 			if(!returnableActions.isEmpty()) {
 				return (SexAction) returnableActions.get(Util.random.nextInt(returnableActions.size()));
 			}
 			
+			// Foreplay actions are stopped:
+			
 			// If the NPC has a preference, they are more likely to choose actions related to that:
 			List<SexActionInterface> penetrativeActionList = new ArrayList<>();
-			if(Sex.getPartner().getMainSexPreference()!=null) {
+			if(Sex.getActivePartner().getMainSexPreference()!=null) {
 				List<SexActionInterface> highPriorityList = new ArrayList<>();
 				for(SexActionInterface action : availableActions) {
-					if(action.getAssociatedOrificeType() == Sex.getPartner().getMainSexPreference().getOrificeType()
-							&& action.getAssociatedPenetrationType() == Sex.getPartner().getMainSexPreference().getPenetrationType()) {
+					if(action.getAssociatedOrificeType() == Sex.getActivePartner().getMainSexPreference().getOrificeType()
+							&& action.getAssociatedPenetrationType() == Sex.getActivePartner().getMainSexPreference().getPenetrationType()
+							&& !action.isPartnerSelfAction()
+							&& action.getActionType() != SexActionType.PARTNER_STOP_PENETRATION) {
 						highPriorityList.add(action);
 						if(action.getActionType() == SexActionType.PARTNER_PENETRATION) { // If a penetrative action is in the list, always return that first.
 							penetrativeActionList.add(action);
@@ -694,31 +594,43 @@ public abstract class SexManagerDefault implements SexManagerInterface {
 			
 			// --- Start penetrating: ---
 			for(SexActionInterface action : availableActions) {
-				if(action.getActionType()==SexActionType.PARTNER_PENETRATION) {
-					if(action.getAssociatedPenetrationType().isPenis() || action.getAssociatedPenetrationType().isTail() || action.getAssociatedPenetrationType().isTentacle()) {
+				if(action.getActionType()==SexActionType.PARTNER_PENETRATION && action.getParticipantType().isUsingSelfPenetrationType()) {
+					if(action.getAssociatedPenetrationType() == PenetrationType.PENIS
+							|| action.getAssociatedPenetrationType() == PenetrationType.TAIL) {
 						// Anal penetrations:
-						if((Sex.getPartner().hasFetish(Fetish.FETISH_ANAL_GIVING) || Sex.getPlayerPenetrationRequests().contains(OrificeType.ANUS_PLAYER))
-								&& action.getAssociatedOrificeType()!=null && action.getAssociatedOrificeType().isAnus()) {
+						if((Sex.getActivePartner().hasFetish(Fetish.FETISH_ANAL_GIVING)
+								|| Sex.getPlayerPenetrationRequests().contains(OrificeType.ANUS))
+								&& action.getAssociatedOrificeType()!=null && action.getAssociatedOrificeType() == OrificeType.ANUS) {
 							penetrativeActionList.add(action);
 						}
 						// Nipple penetrations:
-						if((Sex.getPartner().hasFetish(Fetish.FETISH_BREASTS_OTHERS) || Sex.getPlayerPenetrationRequests().contains(OrificeType.NIPPLE_PLAYER))
-								&& action.getAssociatedOrificeType()!=null && action.getAssociatedOrificeType().isNipple()) {
+						if((Sex.getActivePartner().hasFetish(Fetish.FETISH_BREASTS_OTHERS)
+								|| Sex.getPlayerPenetrationRequests().contains(OrificeType.NIPPLE))
+								&& action.getAssociatedOrificeType()!=null && action.getAssociatedOrificeType() == OrificeType.NIPPLE) {
 							penetrativeActionList.add(action);
 						}
 						// Paizuri:
-						if((Sex.getPartner().hasFetish(Fetish.FETISH_BREASTS_OTHERS) || Sex.getPlayerPenetrationRequests().contains(OrificeType.BREAST_PLAYER))
-								&& action.getAssociatedOrificeType()!=null && action.getAssociatedOrificeType().isBreasts()) {
+						if((Sex.getActivePartner().hasFetish(Fetish.FETISH_BREASTS_OTHERS)
+								|| Sex.getPlayerPenetrationRequests().contains(OrificeType.BREAST))
+								&& action.getAssociatedOrificeType()!=null && action.getAssociatedOrificeType() == OrificeType.BREAST) {
 								penetrativeActionList.add(action);
 						}
-						// Vaginal penetration on player:
-						if((Sex.getPartner().hasFetish(Fetish.FETISH_IMPREGNATION) || Sex.getPartner().hasFetish(Fetish.FETISH_SEEDER) || Sex.getPlayerPenetrationRequests().contains(OrificeType.VAGINA_PLAYER))
-								&& action.getAssociatedOrificeType()!=null && action.getAssociatedOrificeType()==OrificeType.VAGINA_PLAYER && action.getAssociatedPenetrationType()!=null && action.getAssociatedPenetrationType().isPenis()) {
+						// Vaginal:
+						if((Sex.getActivePartner().hasFetish(Fetish.FETISH_VAGINAL_GIVING)
+								|| Sex.getPlayerPenetrationRequests().contains(OrificeType.VAGINA))
+								&& action.getAssociatedOrificeType()!=null && action.getAssociatedOrificeType() == OrificeType.VAGINA) {
+								penetrativeActionList.add(action);
+						}
+						// Pregnancy penetration on player:
+						if((Sex.getActivePartner().hasFetish(Fetish.FETISH_IMPREGNATION)
+								|| Sex.getActivePartner().hasFetish(Fetish.FETISH_SEEDER)
+								|| Sex.getPlayerPenetrationRequests().contains(OrificeType.VAGINA))
+								&& action.getAssociatedOrificeType()!=null && action.getAssociatedOrificeType()==OrificeType.VAGINA && action.getAssociatedPenetrationType()!=null && action.getAssociatedPenetrationType() == PenetrationType.PENIS) {
 							penetrativeActionList.add(action);
 						}
-						// Vaginal penetration for self:
-						if((Sex.getPartner().hasFetish(Fetish.FETISH_PREGNANCY) || Sex.getPartner().hasFetish(Fetish.FETISH_BROODMOTHER))
-								&& action.getAssociatedOrificeType()!=null && action.getAssociatedOrificeType()==OrificeType.VAGINA_PARTNER && action.getAssociatedPenetrationType()!=null && action.getAssociatedPenetrationType().isPenis()) {
+						// Pregnancy penetration for self:
+						if((Sex.getActivePartner().hasFetish(Fetish.FETISH_PREGNANCY) || Sex.getActivePartner().hasFetish(Fetish.FETISH_BROODMOTHER))
+								&& action.getAssociatedOrificeType()!=null && action.getAssociatedOrificeType()==OrificeType.VAGINA && action.getAssociatedPenetrationType()!=null && action.getAssociatedPenetrationType() == PenetrationType.PENIS) {
 							penetrativeActionList.add(action);
 						}
 					}
@@ -730,7 +642,7 @@ public abstract class SexManagerDefault implements SexManagerInterface {
 			
 			for(SexActionInterface action : availableActions) {
 				if(action.getActionType()==SexActionType.PARTNER_PENETRATION) {
-					if(action.getAssociatedPenetrationType().isPenis() || action.getAssociatedPenetrationType().isTail() || action.getAssociatedPenetrationType().isTentacle()) {
+					if(action.getAssociatedPenetrationType() == PenetrationType.PENIS || action.getAssociatedPenetrationType() == PenetrationType.TAIL) {
 						returnableActions.add(action);
 					}
 				}
@@ -745,38 +657,13 @@ public abstract class SexManagerDefault implements SexManagerInterface {
 		// Ban stop penetration actions:
 		for(SexActionInterface action : availableActions) {
 			if(action.getActionType() == SexActionType.PARTNER_STOP_PENETRATION) {
-				if(action.getAssociatedPenetrationType().isPenis() || action.getAssociatedPenetrationType().isTail() || action.getAssociatedPenetrationType().isTentacle()) {
+				if(action.getAssociatedPenetrationType().isTakesVirginity()) {
 					bannedActions.add(action);
 				}
 			}
 		}
 		
 		return null;
-	}
-
-	@Override
-	public boolean isPlayerCanRemoveOwnClothes(){
-		return true;
-	}
-	
-	@Override
-	public boolean isPlayerCanRemovePartnersClothes(){
-		return true;
-	}
-	
-	@Override
-	public boolean isPartnerCanRemoveOwnClothes(){
-		return true;
-	}
-	
-	@Override
-	public boolean isPartnerCanRemovePlayersClothes(){
-		return true;
-	}
-
-	@Override
-	public String getStartSexDescription() {
-		return "";//"<p>You are having sex with " + Sex.getPartner().getName("the") + ".</p>"; // TODO
 	}
 	
 }

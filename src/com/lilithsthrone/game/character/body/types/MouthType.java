@@ -1,16 +1,18 @@
 package com.lilithsthrone.game.character.body.types;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.lilithsthrone.game.character.GameCharacter;
+import com.lilithsthrone.game.character.body.Body;
 import com.lilithsthrone.game.character.body.valueEnums.OrificeModifier;
 import com.lilithsthrone.game.character.race.Race;
 import com.lilithsthrone.game.dialogue.utils.UtilText;
 
 /**
  * @since 0.1.83
- * @version 0.1.83
+ * @version 0.2.2
  * @author Innoxia
  */
 public enum MouthType implements BodyPartTypeInterface {
@@ -20,6 +22,8 @@ public enum MouthType implements BodyPartTypeInterface {
 	ANGEL(BodyCoveringType.MOUTH, Race.ANGEL),
 
 	DEMON_COMMON(BodyCoveringType.MOUTH, Race.DEMON),
+
+	IMP(BodyCoveringType.MOUTH, Race.IMP),
 
 	DOG_MORPH(BodyCoveringType.MOUTH, Race.DOG_MORPH),
 	
@@ -31,15 +35,19 @@ public enum MouthType implements BodyPartTypeInterface {
 	
 	SQUIRREL_MORPH(BodyCoveringType.MOUTH, Race.SQUIRREL_MORPH),
 	
+	RAT_MORPH(BodyCoveringType.MOUTH, Race.RAT_MORPH),
+	
+	RABBIT_MORPH(BodyCoveringType.MOUTH, Race.RABBIT_MORPH),
+	
+	BAT_MORPH(BodyCoveringType.MOUTH, Race.BAT_MORPH),
+	
 	ALLIGATOR_MORPH(BodyCoveringType.MOUTH, Race.ALLIGATOR_MORPH),
 	
 	HORSE_MORPH(BodyCoveringType.MOUTH, Race.HORSE_MORPH),
 	
 	REINDEER_MORPH(BodyCoveringType.MOUTH, Race.REINDEER_MORPH),
 	
-	HARPY(BodyCoveringType.MOUTH, Race.HARPY),
-
-	SLIME(BodyCoveringType.MOUTH_SLIME, Race.SLIME);
+	HARPY(BodyCoveringType.MOUTH, Race.HARPY);
 
 	
 	private BodyCoveringType skinType;
@@ -50,9 +58,7 @@ public enum MouthType implements BodyPartTypeInterface {
 		this.skinType = skinType;
 		this.race = race;
 		this.defaultRacialOrificeModifiers = new ArrayList<>();
-		for(OrificeModifier om : defaultRacialOrificeModifiers) {
-			this.defaultRacialOrificeModifiers.add(om);
-		}
+		Collections.addAll(this.defaultRacialOrificeModifiers, defaultRacialOrificeModifiers);
 	}
 
 	@Override
@@ -83,7 +89,7 @@ public enum MouthType implements BodyPartTypeInterface {
 	}
 	
 	@Override
-	public BodyCoveringType getBodyCoveringType() {
+	public BodyCoveringType getBodyCoveringType(Body body) {
 		return skinType;
 	}
 

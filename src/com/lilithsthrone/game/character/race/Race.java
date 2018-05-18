@@ -5,190 +5,164 @@ import java.util.List;
 import com.lilithsthrone.game.character.attributes.Attribute;
 import com.lilithsthrone.game.character.effects.StatusEffect;
 import com.lilithsthrone.game.combat.Attack;
+import com.lilithsthrone.game.dialogue.utils.UtilText;
 import com.lilithsthrone.utils.Colour;
 import com.lilithsthrone.utils.Util;
-import com.lilithsthrone.utils.Util.ListValue;
 
 /**
  * @since 0.1.0
- * @version 0.1.87
+ * @version 0.2.5
  * @author Innoxia
  */
 public enum Race {
 
-	// HUMAN:
-	HUMAN("human", "humans",
-			
-			"man",
-			"woman",
-			
-			"men",
-			"women",
-
-			"<p>"
-				+ "Humans are the least numerous of all the races."
-				+ " Although some people appear to be human on first glance, a fluffy pair of ears, a swishing tail, or a concealed bestial cock will often end up betraying their status as a morph of one race or another."
-				+ " Humans have wildly varying personalities, body types, and sexual preferences."
-			+ "</p>",
-			
-			
-			"<p>"
-				+ "Demons, following the orders of the Lilin, often encourage other races to treat humans as inferior beings."
-				+ " Rumours of Lilith's intense dislike of humans are commonplace, which would explain the fact that humans are banned from serving in any position of power within Dominion."
-				+ " This is partially the reason why humans are so rare; those that are born human often transform themselves to avoid persecution."
-			+ "</p>"
-			+ "<p>"
-				+ "A defining feature of humans is that they are typically unable to harness the arcane, which often leads to further ridicule from the other races."
-			+ "</p>"
-			+ "<p>"
-				+ "Human offspring will be a mixture of more humans and offspring of their partner's race."
-			+ "</p>",
-
-
+	NONE("none",
+			"none",
+			"none",
+			"none",
+			"none",
+			"none",
+			"",
+			"",
 			Colour.RACE_HUMAN,
-			Genus.HUMAN,
 			Disposition.CIVILIZED,
 			StatusEffect.PURE_HUMAN,
-			Util.newArrayListOfValues(new ListValue<Attack>(Attack.MAIN)),
+			Util.newArrayListOfValues(Attack.MAIN),
 			true,
 			0.5f,
 			1,
 			1,
 			Attribute.DAMAGE_HUMAN,
 			Attribute.RESISTANCE_HUMAN,
-			null,
-			null),
-
-	// ANGEL:
-	ANGEL("angel", "angels",
-			"angel",
-			"angel",
-			"angel",
-			"angel",
+			FurryPreference.NORMAL,
+			FurryPreference.NORMAL),
+	
+	// HUMAN:
+	HUMAN("human",
+			"humans",
 			
-			"<p>"
-				+ "Angels look pretty much exactly how most people imagine them."
-				+ " Their bodies closely resemble that of a human's, with the exception of having a gigantic pair of white-feathered wings growing from their backs."
-				+ " Their skin, while similar to that of a human's, gives off a pale golden radiance at all times."
-			+ "</p>",
+			"man",
+			"woman",
 			
-			"<p>"
-				+ "Although they fit the stereotypical appearance of an angel, these ones certainly don't act like their traditional counterparts."
-				+ " Boastful, loud, and incredibly vulgar, angels often make up stories about how powerful they are, despite the fact that they're actually only quite averagely-skilled when it comes to harnessing the arcane."
-			+ "</p>"
-			+ "<p>"
-				+ "To an even greater extent than demons, angels are completely obsessed with sex."
-				+ " Their nymphomania is so severe that it's almost impossible for an angel to be able to go more than an hour without masturbating or seeking out sex."
-			+ "</p>"
-			+ "<p>"
-				+ "An angel's offspring will be a mixture of more angels and offspring of their partner's race."
-			+ "</p>",
+			"men",
+			"women",
+			
+			UtilText.parseFromXMLFile("characters/raceInfo", "HUMAN_BASIC"),
 
-			Colour.CLOTHING_WHITE,
-			Genus.CELESTIAL,
+			UtilText.parseFromXMLFile("characters/raceInfo", "HUMAN_ADVANCED"),
+			
+			Colour.RACE_HUMAN,
 			Disposition.CIVILIZED,
 			StatusEffect.PURE_HUMAN,
-			Util.newArrayListOfValues(new ListValue<Attack>(Attack.MAIN), new ListValue<Attack>(Attack.SPELL)),
+			Util.newArrayListOfValues(Attack.MAIN),
+			true,
+			0.5f,
+			1,
+			1,
+			Attribute.DAMAGE_HUMAN,
+			Attribute.RESISTANCE_HUMAN,
+			FurryPreference.NORMAL,
+			FurryPreference.NORMAL),
+
+	// ANGEL:
+	ANGEL("angel",
+			"angels",
+			"angel",
+			"angel",
+			"angel",
+			"angel",
+
+			UtilText.parseFromXMLFile("characters/raceInfo", "ANGEL_BASIC"),
+
+			UtilText.parseFromXMLFile("characters/raceInfo", "ANGEL_ADVANCED"),
+
+			Colour.CLOTHING_WHITE,
+			Disposition.CIVILIZED,
+			StatusEffect.PURE_HUMAN,
+			Util.newArrayListOfValues(
+					Attack.MAIN,
+					Attack.SPELL),
 			false,
 			0.25f,
 			1,
 			1,
 			Attribute.DAMAGE_ANGEL,
 			Attribute.RESISTANCE_ANGEL,
-			null,
-			null),
+			FurryPreference.NORMAL,
+			FurryPreference.NORMAL),
 
 	// DEMON:
-	DEMON("demon", "demons",
+	DEMON("demon",
+			"demons",
 			"incubus",
 			"succubus",
 			"incubi",
 			"succubi",
 
-			"<p>"
-				+ "Not only are demons real, but they also conform to their stereotypical image."
-				+ " A pair of horns, bat-like wings, and a spaded tail, amongst other features, all mark a person as a demon."
-				+ " Demons are able to shift their bodies into any form they like, although the vast majority of them prefer to remain as females."
-			+ "</p>",
-			
-			"<p>"
-				+ "Demons are created in one of two ways."
-				+ " They are either born from a Lilin being impregnated by a demon, or they are created when a Lilin corrupts another race into becoming a demon."
-				+ " If a Lilin is impregnated by a non-demon, which is an extremely rare occurrence, their offspring will be half-demons, who are the lowest on the demonic social ladder."
-			+ "</p>"
-			+ "<p>"
-				+ "Despite their alarming appearance, demons do not seem to be predisposed towards evil."
-				+ " In fact, the only personality trait that sets them apart from a regular human is that they're obsessed with sex."
-				+ " This is a result of their incredibly potent arcane aura, which, while being able to shield them from an arcane storm's effects, as well as granting them access to powerful arcane spells, causes them to crave sexual pleasure."
-			+ "</p>"
-			+ "<p>"
-				+ "A demon's offspring will be a mixture of imps and offspring of their partner's race."
-			+ "</p>",
+			UtilText.parseFromXMLFile("characters/raceInfo", "DEMON_BASIC"),
 
+			UtilText.parseFromXMLFile("characters/raceInfo", "DEMON_ADVANCED"),
 
 			Colour.RACE_DEMON,
-			Genus.CELESTIAL,
 			Disposition.CIVILIZED,
 			StatusEffect.DEMON,
-			Util.newArrayListOfValues(new ListValue<Attack>(Attack.SEDUCTION), new ListValue<Attack>(Attack.SPELL)),
+			Util.newArrayListOfValues(
+					Attack.SPECIAL_ATTACK,
+					Attack.SEDUCTION,
+					Attack.SPELL),
 			false,
-			0f,
+			0.75f,
 			2,
 			3,
 			Attribute.DAMAGE_DEMON,
 			Attribute.RESISTANCE_DEMON,
-			null,
-			null){
-		
-		@Override
-		public String getOffspringMaleName() {
-			return "imps";
-		}
-		@Override
-		public String getOffspringMaleNameSingular() {
-			return "imp";
-		}
+			FurryPreference.MAXIMUM,
+			FurryPreference.MAXIMUM),
 
-		@Override
-		public String getOffspringFemaleName() {
-			return "imps";
-		}
-		@Override
-		public String getOffspringFemaleNameSingular() {
-			return "imp";
-		}
-	},
+	IMP("imp",
+			"imps",
+			"imp",
+			"imp",
+			"imps",
+			"imps",
+
+			UtilText.parseFromXMLFile("characters/raceInfo", "IMP_BASIC"),
+
+			UtilText.parseFromXMLFile("characters/raceInfo", "IMP_ADVANCED"),
+
+			Colour.RACE_DEMON,
+			Disposition.UNPREDICTABLE,
+			StatusEffect.IMP,
+			Util.newArrayListOfValues(
+					Attack.MAIN,
+					Attack.SEDUCTION),
+			true,
+			0.75f,
+			2,
+			3,
+			Attribute.DAMAGE_IMP,
+			Attribute.RESISTANCE_IMP,
+			FurryPreference.MAXIMUM,
+			FurryPreference.MAXIMUM),
 
 	// BOVINES:
-	COW_MORPH("cow-morph", "cow-morphs",
+	COW_MORPH("cow-morph",
+			"cow-morphs",
 			"cow-boy",
 			"cow-girl",
 			"cow-boys",
 			"cow-girls",
 
-			"<p>"
-				+ "Although cow-morphs can often be found in Dominion, they're far more common and numerous out in the Foloi Fields, where their primary occupation is working in the many farms that litter the landscape."
-				+ " The females of this race, called cow-girls, tend to be quite docile and submissive, which is in stark contrast to their male counterparts (cow-boys), who are typically very dominant and territorial."
-			+ "</p>",
-			
-			"<p>"
-				+ "Cow-girls are well known for having gigantic breasts and heavy lactation, and, due to this, are often the target of unwanted attention."
-				+ " It's commonplace for a cow-girl to have her breasts regularly milked, and the Foloi Fields are littered with milking sheds suited for this purpose."
-			+ "</p>"
-			+ "<p>"
-				+ "Cow-girls have strong herding instincts, and will naturally seek out a cow-boy to submit to."
-				+ " As a result of this, harems are a common part of cow-morph society, with some of the stronger and more dominant cow-boys leading herds of up to fifty females."
-				+ " Cow-boys are usually the owners of the many farms out in the Foloi Fields, and will assign their herd to be responsible for tending to their crops, as well as for providing milk for the farm's dairy."
-			+ "</p>"
-			+ "<p>"
-				+ "A cow-morph's offspring will be a mixture of more cow-morphs and offspring of their partner's race."
-			+ "</p>",
+			UtilText.parseFromXMLFile("characters/raceInfo", "COW_MORPH_BASIC"),
+
+			UtilText.parseFromXMLFile("characters/raceInfo", "COW_MORPH_ADVANCED"),
 
 			Colour.RACE_COW_MORPH,
-			Genus.BOVINE,
 			Disposition.CIVILIZED,
 			StatusEffect.COW_MORPH,
-			Util.newArrayListOfValues(new ListValue<Attack>(Attack.SPECIAL_ATTACK), new ListValue<Attack>(Attack.MAIN), new ListValue<Attack>(Attack.SEDUCTION)),
+			Util.newArrayListOfValues(
+					Attack.MAIN,
+					Attack.SPECIAL_ATTACK),
 			true,
 			0.5f,
 			1,
@@ -199,34 +173,21 @@ public enum Race {
 			FurryPreference.NORMAL),
 
 	// CANINES:
-	DOG_MORPH("dog-morph", "dog-morphs",
+	DOG_MORPH("dog-morph",
+			"dog-morphs",
 			"dog-boy",
 			"dog-girl",
 			"dog-boys",
 			"dog-girls",
 
-			"<p>"
-				+ "Dog-morphs are a very common race."
-				+ " Easily identified by their wagging tails, fluffy ears, and energetic mannerisms, dog-morphs can be found almost anywhere."
-			+ "</p>",
-			
-			"<p>"
-				+ "Dog-morphs are typically highly excitable and incredibly sociable, which often causes them to approach strangers in an attempt to make new friends."
-				+ " Although such friendly behaviour is common, dog-morphs still have varied personalities, much like humans, and not all of them are as gregarious as their reputation would have you expect."
-			+ "</p>"
-			+ "<p>"
-				+ "Dog-morphs, like the other common races, get heavily affected by arcane storms."
-				+ " Being exposed to arcane thunder will fill dog-boys with the desire to assert their dominance over anyone they meet, while dog-girls will go into heat."
-			+ "</p>"
-			+ "<p>"
-				+ "A dog-morph's offspring will be a mixture of dog-morphs and offspring of their partner's race."
-			+ "</p>",
+			UtilText.parseFromXMLFile("characters/raceInfo", "DOG_MORPH_BASIC"),
+
+			UtilText.parseFromXMLFile("characters/raceInfo", "DOG_MORPH_ADVANCED"),
 
 			Colour.RACE_DOG_MORPH,
-			Genus.CANINE,
 			Disposition.CIVILIZED,
 			StatusEffect.DOG_MORPH,
-			Util.newArrayListOfValues(new ListValue<Attack>(Attack.SPECIAL_ATTACK), new ListValue<Attack>(Attack.MAIN), new ListValue<Attack>(Attack.SEDUCTION)),
+			Util.newArrayListOfValues(Attack.MAIN),
 			true,
 			0.5f,
 			1,
@@ -236,38 +197,23 @@ public enum Race {
 			FurryPreference.NORMAL,
 			FurryPreference.NORMAL),
 
-	WOLF_MORPH(
-			"wolf-morph", "wolf-morphs",
-			
+	WOLF_MORPH("wolf-morph",
+			"wolf-morphs",
 			"wolf-boy",
 			"wolf-girl",
-			
 			"wolf-boys",
 			"wolf-girls",
 
-			"<p>"
-				+ "Wolf-morphs are a common anthropomorphic race that can be found almost anywhere."
-				+ " Possessing a shaggy tail, upright ears, and hungry wolf-like eyes, wolf-morphs can sometimes be mistaken for a dog-morph at first glance."
-			+ "</p>",
-			
-			"<p>"
-				+ "Unlike dog-morphs, however, wolf-morphs are extremely unpredictable, and although they sometimes share the same energetic mannerisms as dog-morphs, they often focus their energy on trying to assert their dominance."
-				+ " Wolf-morphs typically have short tempers and a primal instinct to prey on the weak."
-				+ " As a result, many people try to avoid encounters with wolf-morphs, finding them to be more trouble than they're worth."
-			+ "</p>"
-			+ "<p>"
-				+ "Wolf-morphs, like the other common races, get heavily affected by arcane storms."
-				+ " Being exposed to arcane thunder will fill wolf-boys with the overwhelming desire to assert their dominance over anyone they meet, while wolf-girls will go into heat."
-			+ "</p>"
-			+ "<p>"
-				+ "A wolf-morph's offspring will be a mixture of wolf-morphs and offspring of their partner's race."
-			+ "</p>",
+			UtilText.parseFromXMLFile("characters/raceInfo", "WOLF_MORPH_BASIC"),
+
+			UtilText.parseFromXMLFile("characters/raceInfo", "WOLF_MORPH_ADVANCED"),
 			
 			Colour.RACE_WOLF_MORPH,
-			Genus.CANINE,
 			Disposition.SAVAGE,
 			StatusEffect.WOLF_MORPH,
-			Util.newArrayListOfValues(new ListValue<Attack>(Attack.SPECIAL_ATTACK), new ListValue<Attack>(Attack.MAIN)),
+			Util.newArrayListOfValues(
+					Attack.MAIN,
+					Attack.SPECIAL_ATTACK),
 			true,
 			0.5f,
 			1,
@@ -278,39 +224,23 @@ public enum Race {
 			FurryPreference.NORMAL),
 
 	// FELINES:
-	CAT_MORPH("cat-morph", "cat-morphs",
-			
+	CAT_MORPH("cat-morph",
+			"cat-morphs",
 			"cat-boy",
 			"cat-girl",
-			
 			"cat-boys",
 			"cat-girls",
 
-			"<p>"
-				+ "Cat-morphs are one of the more common anthropomorphic races found in this world."
-				+ " A sleek tail, upright ears, and cat-like eyes identify a cat-morph."
-			+ "</p>",
-			
-			"<p>"
-				+ "Like all the other common races, a cat-morph's personality can vary wildly from person to person, although they do have some typical characteristics."
-				+ " Cat-morphs are usually quite delicate in their mannerisms, and although they often try to hide it, they can get extremely curious about things they haven't encountered before."
-				+ " Most cat-morphs are very feminine, and it's quite common for cat-boys to err more towards androgyny than masculinity."
-			+ "</p>"
-			+ "<p>"
-				+ "Cat-morphs, like the other common races, get heavily affected by arcane storms."
-				+ " Being exposed to arcane thunder will make cat-boys seek out a partner to mate with, while cat-girls will go into heat."
-			+ "</p>"
-			+ "<p>"
-				+ "A cat-morph's offspring will be a mixture of cat-morphs and offspring of their partner's race."
-			+ "</p>",
+			UtilText.parseFromXMLFile("characters/raceInfo", "CAT_MORPH_BASIC"),
 
-			
+			UtilText.parseFromXMLFile("characters/raceInfo", "CAT_MORPH_ADVANCED"),
 
 			Colour.RACE_CAT_MORPH,
-			Genus.FELINE,
 			Disposition.CIVILIZED,
 			StatusEffect.CAT_MORPH,
-			Util.newArrayListOfValues(new ListValue<Attack>(Attack.SPECIAL_ATTACK), new ListValue<Attack>(Attack.MAIN), new ListValue<Attack>(Attack.SEDUCTION)),
+			Util.newArrayListOfValues(
+					Attack.SEDUCTION,
+					Attack.SPECIAL_ATTACK),
 			true,
 			0.5f,
 			1,
@@ -321,39 +251,23 @@ public enum Race {
 			FurryPreference.NORMAL),
 
 	// EQUINE:
-	HORSE_MORPH(
-			"horse-morph", "horse-morphs",
-			
+	HORSE_MORPH("horse-morph",
+			"horse-morphs",
 			"horse-boy",
 			"horse-girl",
-			
 			"horse-boys",
 			"horse-girls",
 
-			"<p>"
-				+ "Horse-morphs are one of the more common anthropomorphic races found in this world."
-				+ " A pair of horse-like ears and a swishing tail are usually enough to identify a horse-morph."
-			+ "</p>",
-			
-			"<p>"
-				+ "Horse-morphs have the reputation of being all brawn and no brains."
-				+ " There is some truth behind this characterisation, as most horse-morphs are quite dull-witted, although they are usually far stronger than the other common races."
-				+ " Horse-morphs are usually very haughty, and take great offence at any perceived sleight against them."
-			+ "</p>"
-			+ "<p>"
-				+ "Horse-morphs, like the other common races, get heavily affected by arcane storms."
-				+ " Being exposed to arcane thunder will make horse-boys enter a potent rut, which, when combined with their great strength, makes them a dangerous person to meet in the middle of an arcane storm."
-				+ " Horse-girls will react to arcane thunder by going into heat, and will force themselves on anyone they might come across."
-			+ "</p>"
-			+ "<p>"
-				+ "A horse-morph's offspring will be a mixture of horse-morphs and offspring of their partner's race."
-			+ "</p>",
+			UtilText.parseFromXMLFile("characters/raceInfo", "HORSE_MORPH_BASIC"),
+
+			UtilText.parseFromXMLFile("characters/raceInfo", "HORSE_MORPH_ADVANCED"),
 
 			Colour.RACE_HORSE_MORPH,
-			Genus.EQUINE,
 			Disposition.CIVILIZED,
 			StatusEffect.HORSE_MORPH,
-			Util.newArrayListOfValues(new ListValue<Attack>(Attack.MAIN)),
+			Util.newArrayListOfValues(
+					Attack.MAIN,
+					Attack.SPECIAL_ATTACK),
 			true,
 			0.5f,
 			1,
@@ -364,39 +278,23 @@ public enum Race {
 			FurryPreference.NORMAL),
 
 	
-	 REINDEER_MORPH(
-			 "reindeer morph", "reindeer-morphs",
-				
+	 REINDEER_MORPH("reindeer-morph",
+			"reindeer-morphs",
 			"reindeer-boy",
 			"reindeer-girl",
-			
 			"reindeer-boys",
 			"reindeer-girls",
 
-			"<p>"
-				+ "Reindeer-morphs are one of the rarer anthropomorphic races found in this world, and are almost exclusively found in the snowy tundra area far from Dominion."
-				+ " A large pair of multiple-branching antlers are usually enough to identify a reindeer-morph, the rounded shape of which is noticeably different from the sharper antlers of the more common deer-morphs."
-			+ "</p>",
-				
-			"<p>"
-				+ "Reindeer-morphs are, for most of the year, an extremely rare sight to see outside of their traditional tundra homeland."
-				+ " During the winter months, however, large groups of reindeer-morphs travel to Dominion, where they work to keep the streets shovelled clear of snow."
-				+ " These reindeer work-gangs usually operate under a dominant male or female reindeer-morph, although on occasion some groups can be found to be working for an overseer of a different race."
-			+ "</p>"
-			+ "<p>"
-				+ "Reindeer-morphs, like all non-demonic races, get heavily affected by arcane storms."
-				+ " Being exposed to arcane thunder will make reindeer-boys enter a potent rut, which, when combined with their strength and stamina, makes them very dangerous to meet in the middle of an arcane storm."
-				+ " Reindeer-girls will react to arcane thunder by going into heat, and will force themselves on anyone they might come across."
-			+ "</p>"
-			+ "<p>"
-				+ "A reindeer-morph's offspring will be a mixture of reindeer-morphs and offspring of their partner's race."
-			+ "</p>",
+			UtilText.parseFromXMLFile("characters/raceInfo", "REINDEER_MORPH_BASIC"),
+
+			UtilText.parseFromXMLFile("characters/raceInfo", "REINDEER_MORPH_ADVANCED"),
 		 
 	  Colour.RACE_REINDEER_MORPH,
-			Genus.RANGIFERINE,
 			Disposition.CIVILIZED,
 			StatusEffect.REINDEER_MORPH,
-			Util.newArrayListOfValues(new ListValue<Attack>(Attack.SPECIAL_ATTACK), new ListValue<Attack>(Attack.MAIN)),
+			Util.newArrayListOfValues(
+					Attack.MAIN,
+					Attack.SPECIAL_ATTACK),
 			true,
 			0.5f,
 			1,
@@ -407,91 +305,129 @@ public enum Race {
 			FurryPreference.NORMAL),
 			
 
-	SQUIRREL_MORPH(
-			"squirrel-morph", "squirrel-morphs",
-			
+	SQUIRREL_MORPH("squirrel-morph",
+			"squirrel-morphs",
 			"squirrel-boy",
 			"squirrel-girl",
-			
 			"squirrel-boys",
 			"squirrel-girls",
 
-			"<p>"
-				+ "Squirrel-morphs are one of the more common anthropomorphic races found in this world."
-				+ " Although they're mostly found in the wooded areas of the Foloi Fields, squirrel-morphs are also a regular sight in Dominion."
-				+ " Their long fluffy tails and small round ears are usually enough to identify a squirrel-morph."
-			+ "</p>",
-			
-			"<p>"
-				+ "Squirrel-morphs have a reputation for their stunning agility."
-				+ " They are excellent climbers and can scale even the most sheer of walls by launching themselves at it, even from a standstill."
-				+ " Although their personalities can vary greatly, most squirrel-morphs tend to be a bit skittish most of the time."
-			+ "</p>"
-			+ "<p>"
-				+ "Squirrel-morphs, like the other common races, get heavily affected by arcane storms."
-				+ " Being exposed to arcane thunder will make squirrel-boys enter a potent rut, which, when combined with their great speed, makes them a dangerous foe to encounter during an arcane storm."
-				+ " Squirrel-girls will react to arcane thunder by going into heat, and will force themselves on anyone they might come across."
-			+ "</p>"
-			+ "<p>"
-				+ "Squirrel-morphs will give birth to one or two of their own kind, in much the same way that a human pregnancy works."
-			+ "</p>",
+			UtilText.parseFromXMLFile("characters/raceInfo", "SQUIRREL_MORPH_BASIC"),
+
+			UtilText.parseFromXMLFile("characters/raceInfo", "SQUIRREL_MORPH_ADVANCED"),
 
 			Colour.RACE_SQUIRREL_MORPH,
-			Genus.RODENT,
 			Disposition.CIVILIZED,
 			StatusEffect.SQUIRREL_MORPH,
-			Util.newArrayListOfValues(new ListValue<Attack>(Attack.SPECIAL_ATTACK), new ListValue<Attack>(Attack.MAIN)),
+			Util.newArrayListOfValues(
+					Attack.MAIN),
 			true,
-			0.25f,
+			0.5f,
 			1,
 			2,
 			Attribute.DAMAGE_SQUIRREL_MORPH,
 			Attribute.RESISTANCE_SQUIRREL_MORPH,
 			FurryPreference.NORMAL,
 			FurryPreference.NORMAL),
+
+	RAT_MORPH("rat-morph",
+			"rat-morphs",
+			"rat-boy",
+			"rat-girl",
+			"rat-boys",
+			"rat-girls",
+
+			UtilText.parseFromXMLFile("characters/raceInfo", "RAT_MORPH_BASIC"),
+
+			UtilText.parseFromXMLFile("characters/raceInfo", "RAT_MORPH_ADVANCED"),
+
+			Colour.RACE_RAT_MORPH,
+			Disposition.NEUTRAL,
+			StatusEffect.RAT_MORPH,
+			Util.newArrayListOfValues(
+					Attack.MAIN,
+					Attack.SPECIAL_ATTACK),
+			true,
+			0.5f,
+			1,
+			4,
+			Attribute.DAMAGE_RAT_MORPH,
+			Attribute.RESISTANCE_RAT_MORPH,
+			FurryPreference.NORMAL,
+			FurryPreference.NORMAL),
+
+	RABBIT_MORPH("rabbit-morph",
+			"rabbit-morphs",
+			"rabbit-boy",
+			"rabbit-girl",
+			"rabbit-boys",
+			"rabbit-girls",
+
+			UtilText.parseFromXMLFile("characters/raceInfo", "RABBIT_MORPH_BASIC"),
+
+			UtilText.parseFromXMLFile("characters/raceInfo", "RABBIT_MORPH_ADVANCED"),
+
+			Colour.RACE_RABBIT_MORPH,
+			Disposition.NEUTRAL,
+			StatusEffect.RABBIT_MORPH,
+			Util.newArrayListOfValues(
+					Attack.SEDUCTION,
+					Attack.SPECIAL_ATTACK),
+			true,
+			0.5f,
+			2,
+			8,
+			Attribute.DAMAGE_RABBIT_MORPH,
+			Attribute.RESISTANCE_RABBIT_MORPH,
+			FurryPreference.NORMAL,
+			FurryPreference.NORMAL),
 	
-	ALLIGATOR_MORPH(
-			"alligator-morph",
+	BAT_MORPH("bat-morph",
+			"bat-morphs",
+			"bat-boy",
+			"bat-girl",
+			"bat-boys",
+			"bat-girls",
+
+			UtilText.parseFromXMLFile("characters/raceInfo", "BAT_MORPH_BASIC"),
+
+			UtilText.parseFromXMLFile("characters/raceInfo", "BAT_MORPH_ADVANCED"),
+
+			Colour.RACE_BAT_MORPH,
+			Disposition.NEUTRAL,
+			StatusEffect.BAT_MORPH,
+			Util.newArrayListOfValues(
+					Attack.MAIN,
+					Attack.SPECIAL_ATTACK),
+			true,
+			0.5f,
+			1,
+			2,
+			Attribute.DAMAGE_BAT_MORPH,
+			Attribute.RESISTANCE_BAT_MORPH,
+			FurryPreference.NORMAL,
+			FurryPreference.NORMAL),
+	
+	ALLIGATOR_MORPH("alligator-morph",
 			"alligator-morphs",
-			
 			"alligator-boy",
 			"alligator-girl",
-			
 			"alligator-boys",
 			"alligator-girls",
 
-			"<p>"
-				+ "Alligator-morphs are one of the more common races of this world."
-				+ " They're almost exclusively found in the watery undercity of Submission, making them one of the rarer races to be seen walking the streets of Dominion, in spite of their significant population."
-				+ " Their large reptilian tails and alligator-like snouts make alligator-morphs very easy to identify."
-			+ "</p>",
-			
-			"<p>"
-				+ "Alligator-morphs are usually quite laid-back and easy-going, and prefer to live down in Submission to get away from the busy hustle-and-bustle of Dominion's streets."
-				+ " They also love swimming, and are responsible for having converted huge parts of Submission's tunnels into slow-flowing waterways."
-				+ " Being very similar in looks to the hyper-aggressive crocodile-morphs found in other parts of the world, alligator-morphs have, very unfairly, gained a slight reputation for being aggressive trouble-makers."
-				+ " In contrast to how most of the population see them, alligator-morph's personalities vary greatly between individuals, and are no more or less aggressive than any of the common morphs that roam Dominion's streets."
-			+ "</p>"
-			+ "<p>"
-				+ "Alligator-morphs, like all non-demonic races, get heavily affected by arcane storms."
-				+ " Being exposed to arcane thunder will make alligator-morphs enter a potent mating frenzy, which, when combined with their great strength, makes them a dangerous foe to encounter during an arcane storm."
-				+ " This is yet another reason for their self-imposed exile to Submission, as they're able to escape the effects of arcane storms down there."
-			+ "</p>"
-			+ "<p>"
-				+ "Alligator-morph pregnancies are a mix between mammalian and reptilian reproduction."
-				+ " They are impregnated in much the same way as a human, but instead of giving birth to live young, a clutch of eggs will grow inside an alligator-girl's womb once she's been fertilised."
-				+ " Pregnancy advances just like that of other common races, but when it comes time to give birth, the alligator-girl will seek out a safe place to lay her eggs."
-				+ " After incubating her clutch for for approximately eighteen to twenty-four hours, the alligator-morph's young will hatch, with the resulting offspring being a mixture of alligator-morphs and offspring of their partner's race."
-			+ "</p>",
+			UtilText.parseFromXMLFile("characters/raceInfo", "ALLIGATOR_MORPH_BASIC"),
+
+			UtilText.parseFromXMLFile("characters/raceInfo", "ALLIGATOR_MORPH_ADVANCED"),
 
 			Colour.RACE_ALLIGATOR_MORPH,
-			Genus.REPTILE,
 			Disposition.NEUTRAL,
 			StatusEffect.ALLIGATOR_MORPH,
-			Util.newArrayListOfValues(new ListValue<Attack>(Attack.SPECIAL_ATTACK), new ListValue<Attack>(Attack.MAIN)),
+			Util.newArrayListOfValues(
+					Attack.MAIN,
+					Attack.SPECIAL_ATTACK),
 			true,
 			0.5f,
-			3,
+			1,
 			4,
 			Attribute.DAMAGE_ALLIGATOR_MORPH,
 			Attribute.RESISTANCE_ALLIGATOR_MORPH,
@@ -499,114 +435,191 @@ public enum Race {
 			FurryPreference.NORMAL),
 
 	// SLIME:
-	SLIME("slime", "slimes",
-			
+	SLIME("slime",
+			"slimes",
 			"slime",
 			"slime",
-			
 			"slimes",
 			"slimes",
-			
-			// TODO Not accurate!
-			"<p>"
-				+ "Slimes are a humanoid race, able to morph their bodies into different shapes and sizes."
-				+ " Slimes are tolerated in Dominion, as they aren't aggressive and don't cause too many problems."
-				+ " They are typically found near bodies of water, as they require a steady source of liquid to stay healthy."
-				+ " Slimes can change their gender at will, though the vast majority choose to take on a female form, and seeing a male slime is a very rare occurrence."
-			+ "</p>",
 
-			"<p>"
-				+ "Slimes are quite stupid, and usually only care about obtaining other species' cum and milk."
-				+ " They will change their bodies to become as attractive as possible in order to attract a mate."
-				+ " Once a suitable mate has been found, slimes will be extremely eager to please them in any way they can, so they can feast on their sexual fluids."
-				+ " If they attract a female partner, they will encourage them to drink lactation-inducing liquids in order to get a full meal."
-			+ "</p>"
+			UtilText.parseFromXMLFile("characters/raceInfo", "SLIME_BASIC"),
 
-			+ "<p>"
-				+ "Slimes can come in all shapes and sizes, as they are capable of morphing their bodies."
-				+ " Doing so requires some time and effort, so slimes usually stick to one appearance."
-				+ " Most slimes, however, will take on the form of a beautiful woman with massive breasts, as they prefer attracting male partners."
-				+ " If they attract an unwilling partner, slimes have no qualms about fighting, as they can't be hurt by any physical attacks."
-				+ " Their soft bodies are unable to inflict much damage on others though, so they will often resort to seducing their opponents into submission."
-			+ "</p>",
+			UtilText.parseFromXMLFile("characters/raceInfo", "SLIME_ADVANCED"),
 
-			Colour.CLOTHING_WHITE,
-			Genus.SLIME,
+			Colour.RACE_SLIME,
 			Disposition.NEUTRAL,
 			StatusEffect.SLIME,
-			Util.newArrayListOfValues(new ListValue<Attack>(Attack.SEDUCTION)),
+			Util.newArrayListOfValues(Attack.SEDUCTION),
 			true,
 			0.5f,
 			1,
 			1,
-			Attribute.DAMAGE_HUMAN,
-			Attribute.RESISTANCE_HUMAN,
-			null,
-			null),
+			Attribute.DAMAGE_SLIME,
+			Attribute.RESISTANCE_SLIME,
+			FurryPreference.MAXIMUM,
+			FurryPreference.MAXIMUM),
 
 	// AVIAN:
-	HARPY("harpy", "harpies",
-			
+	HARPY("harpy",
+			"harpies",
 			"harpy",
 			"harpy",
-			
 			"harpies",
 			"harpies",
-			
-			"<p>"
-				+ "Harpies have human bodies and faces, but in place of arms, they have huge, feathered wings."
-				+ " Their legs are similarly bird-like in appearance, and are covered in leathery, bird-like skin, with talons in place of feet."
-				+ " In stark contrast to most mythological tales, harpies are exceptionally beautiful, and their feathers come in all sorts of brightly coloured varieties."
-			+ "</p>",
-			
-			"<p>"
-				+ "Although harpies live in Dominion, they're almost never seen walking down at street level."
-				+ " Instead, most of the buildings in Dominion have had their rooves converted into 'harpy nests'."
-				+ " These nests are large communal living spaces, where harpies in the same flock will live together."
-				+ " Each nest will be controlled by the most attractive harpy in the flock, who is commonly referred to as the flock's matriarch."
-			+ "</p>"
-			+ "<p>"
-				+ "Harpy society is both matriarchal and very insular, and can seem quite alarming to an outside observer."
-				+ " All harpy society is based on femininity and beauty, and the more attractive a harpy is, the higher they are on the social ladder."
-				+ " Any harpies that are not part of a flock will be mercilessly bulled and taunted by members of other flocks until they submit to the protection of a matriarch."
-			+ "</p>"
-			+ "<p>"
-				+ "Each matriarch will have their own way for a harpy to show submission, but some of the more common demands involve public humiliation, or having to offer themselves as sexual relief for the rest of the flock."
-				+ " Once the matriarch decides that their display of submission has been acceptable, the harpy will be accepted into the flock,"
-					+ " although they will often continue to be treated as a servant or slave by any harpies that are more attractive than they are."
-			+ "</p>"
-			+ "<p>"
-				+ "Most harpies, no matter if they're male or female, are gynephilic, with the odd exception being ambiphilic."
-				+ " Due to this fact, male harpies do their best to look as feminine as possible, in order to appear attractive to the harpy females."
-				+ " Despite their best efforts, however, male harpies are never as feminine as the females, which causes them to be treated as the lowest of the low, and will be mercilessly bullied by all females in the flock."
-				+ " Harpy males seem to think that this arrangement is worthwhile, as if they do a good job of obeying their mistress's commands, they will sometimes be offered sex as a reward."
-			+ "</p>"
-			+ "<p>"
-				+ "All harpies, both male and female, have a well-deserved reputation for being narcissists, and are only interested in being more attractive than the other harpies in their flock."
-				+ " They will take extreme offence at being called ugly, and can quickly be driven into a blind rage by anyone doing so."
-			+ "</p>"
-			+ "<p>"
-				+ "Harpy pregnancies are a mix between mammalian and avian reproduction."
-				+ " They are impregnated in much the same way as a human, but instead of giving birth to live young, a clutch of eggs will grow inside a harpy's womb once she's been fertilised."
-				+ " Pregnancy advances just like that of other common races, but when it comes time to give birth, the harpy will seek out a safe place to lay her eggs."
-				+ " After laying is complete, the mother becomes fiercely protective of her clutch, and will refuse to sleep while she incubates her eggs for approximately eighteen to twenty-four hours."
-				+ " Once the eggs finally hatch, the mother will usually collapse from exhaustion."
-				+ " The resulting offspring will be a mixture of harpies and offspring of their partner's race."
-			+ "</p>",
+
+			UtilText.parseFromXMLFile("characters/raceInfo", "HARPY_BASIC"),
+
+			UtilText.parseFromXMLFile("characters/raceInfo", "HARPY_ADVANCED"),
 			
 			Colour.RACE_HARPY,
-			Genus.AVIAN,
 			Disposition.NEUTRAL,
 			StatusEffect.HARPY,
-			Util.newArrayListOfValues(new ListValue<Attack>(Attack.SPECIAL_ATTACK), new ListValue<Attack>(Attack.SEDUCTION)),
+			Util.newArrayListOfValues(
+					Attack.SEDUCTION,
+					Attack.SPECIAL_ATTACK),
 			true,
 			0.5f,
 			3,
 			4,
 			Attribute.DAMAGE_HARPY,
 			Attribute.RESISTANCE_HARPY,
-			null,
-			null);
+			FurryPreference.NORMAL,
+			FurryPreference.NORMAL),
+	
+
+	// ELEMENTALS:
+	ELEMENTAL_EARTH("earth elemental",
+			"earth elementals",
+			"earth elemental",
+			"earth elemental",
+			"earth elementals",
+			"earth elementals",
+
+			UtilText.parseFromXMLFile("characters/raceInfo", "ELEMENTAL_EARTH_BASIC"),
+
+			UtilText.parseFromXMLFile("characters/raceInfo", "ELEMENTAL_EARTH_ADVANCED"),
+
+			Colour.SPELL_SCHOOL_EARTH,
+			Disposition.NEUTRAL,
+			StatusEffect.ELEMENTAL_EARTH,
+			Util.newArrayListOfValues(
+					Attack.MAIN,
+					Attack.SPELL),
+			false,
+			0.5f,
+			1,
+			1,
+			Attribute.DAMAGE_ELEMENTAL_EARTH,
+			Attribute.RESISTANCE_ELEMENTAL_EARTH,
+			FurryPreference.MAXIMUM,
+			FurryPreference.MAXIMUM),
+	
+	ELEMENTAL_WATER("water elemental",
+			"water elementals",
+			"water elemental",
+			"water elemental",
+			"water elementals",
+			"water elementals",
+
+			UtilText.parseFromXMLFile("characters/raceInfo", "ELEMENTAL_WATER_BASIC"),
+
+			UtilText.parseFromXMLFile("characters/raceInfo", "ELEMENTAL_WATER_ADVANCED"),
+
+			Colour.SPELL_SCHOOL_WATER,
+			Disposition.NEUTRAL,
+			StatusEffect.ELEMENTAL_WATER,
+			Util.newArrayListOfValues(
+					Attack.MAIN,
+					Attack.SPELL),
+			false,
+			0.5f,
+			1,
+			1,
+			Attribute.DAMAGE_ELEMENTAL_WATER,
+			Attribute.RESISTANCE_ELEMENTAL_WATER,
+			FurryPreference.MAXIMUM,
+			FurryPreference.MAXIMUM),
+	
+	ELEMENTAL_AIR("air elemental",
+			"air elementals",
+			"air elemental",
+			"air elemental",
+			"air elementals",
+			"air elementals",
+
+			UtilText.parseFromXMLFile("characters/raceInfo", "ELEMENTAL_AIR_BASIC"),
+
+			UtilText.parseFromXMLFile("characters/raceInfo", "ELEMENTAL_AIR_ADVANCED"),
+
+			Colour.SPELL_SCHOOL_AIR,
+			Disposition.NEUTRAL,
+			StatusEffect.ELEMENTAL_AIR,
+			Util.newArrayListOfValues(
+					Attack.MAIN,
+					Attack.SPELL),
+			false,
+			0.5f,
+			1,
+			1,
+			Attribute.DAMAGE_ELEMENTAL_AIR,
+			Attribute.RESISTANCE_ELEMENTAL_AIR,
+			FurryPreference.MAXIMUM,
+			FurryPreference.MAXIMUM),
+	
+	ELEMENTAL_FIRE("fire elemental",
+			"fire elementals",
+			"fire elemental",
+			"fire elemental",
+			"fire elementals",
+			"fire elementals",
+
+			UtilText.parseFromXMLFile("characters/raceInfo", "ELEMENTAL_FIRE_BASIC"),
+
+			UtilText.parseFromXMLFile("characters/raceInfo", "ELEMENTAL_FIRE_ADVANCED"),
+
+			Colour.SPELL_SCHOOL_FIRE,
+			Disposition.NEUTRAL,
+			StatusEffect.ELEMENTAL_FIRE,
+			Util.newArrayListOfValues(
+					Attack.MAIN,
+					Attack.SEDUCTION,
+					Attack.SPELL),
+			false,
+			0.5f,
+			1,
+			1,
+			Attribute.DAMAGE_ELEMENTAL_FIRE,
+			Attribute.RESISTANCE_ELEMENTAL_FIRE,
+			FurryPreference.MAXIMUM,
+			FurryPreference.MAXIMUM),
+	
+	ELEMENTAL_ARCANE("arcane elemental",
+			"arcane elementals",
+			"arcane elemental",
+			"arcane elemental",
+			"arcane elementals",
+			"arcane elementals",
+
+			UtilText.parseFromXMLFile("characters/raceInfo", "ELEMENTAL_ARCANE_BASIC"),
+
+			UtilText.parseFromXMLFile("characters/raceInfo", "ELEMENTAL_ARCANE_ADVANCED"),
+
+			Colour.SPELL_SCHOOL_ARCANE,
+			Disposition.NEUTRAL,
+			StatusEffect.ELEMENTAL_ARCANE,
+			Util.newArrayListOfValues(
+					Attack.SEDUCTION,
+					Attack.SPELL),
+			false,
+			0.5f,
+			1,
+			1,
+			Attribute.DAMAGE_ELEMENTAL_ARCANE,
+			Attribute.RESISTANCE_ELEMENTAL_ARCANE,
+			FurryPreference.MAXIMUM,
+			FurryPreference.MAXIMUM),
+	
+	;
 
 	/*
 	 * // INSECTS: BEE_MORPH("bee-morph",
@@ -1037,117 +1050,6 @@ public enum Race {
 	 * 
 	 * 
 	 * 
-	 * IMP("imp",
-	 * 
-	 * "Imps are a small, mischievous, tribal race, found primarily in the subterranean city of Submission."
-	 * +
-	 * " Despite their short stature, Imps are birthed fully mature, and inherit the calibre of intelligence from their mother."
-	 * +
-	 * " Imps are exclusively male, and form tribes based on their birthing heritage."
-	 * +
-	 * " Each tribe is led by an Alpha Imp, who organises his tribe in order to fight other Imp tribes."
-	 * +
-	 * " Once an Imp defeats another in combat, the victor will rape the loser, using demonic magic to absorb them into their cocks."
-	 * +
-	 * " In this way, it is easy to see the most formidable fighters, as they will have gigantic cocks."
-	 * +
-	 * " When Imp tribes have no other Imps to fight, they will venture to the surface, looking for individuals to ambush."
-	 * +
-	 * " When they have found and overwhelmed a victim, they will forcefully transform them into a bimbo slut, before taking them back to their lair to use as a sex slave."
-	 * +
-	 * " Due to this activity, they are outlawed from setting foot in Dominion, being forced to live in the undercity of Submission."
-	 * ,
-	 * 
-	 * "Imps are humanoids, and standing at roughly 2\" tall, they resemble a smaller version of the demons."
-	 * +
-	 * " Skin colour varies from Imp to Imp, with the weakest and smallest-endowed being a light lilac, turning to a dark shade of red as they absorb more Imps."
-	 * +
-	 * " Imps have a humanoid face, with a pair of small horns breaking out of their forehead."
-	 * +
-	 * " A small, spaded tail grows from above their ass, and a pair of wings grow from their upper back, allowing them to fly with some effort."
-	 * +
-	 * " Imps have a demonic penis, the size of which depends on how many other Imps they have absorbed."
-	 * ,
-	 * 
-	 * "Individual Imps will try and avoid fighting other creatures, but when in groups of two or more, will grow bold enough to attack isolated individuals."
-	 * +
-	 * " Imps are capable of using demonic magic, though their usage of spells is typically limited to absorbing other Imps and casting minor arousal spells."
-	 * +
-	 * " Imps are very weak, and when fighting anything other than Imps, will rely on seduction and spells."
-	 * ,
-	 * 
-	 * "Imps are birthed after a demon impregnates their partner when in Incubus form."
-	 * +
-	 * " Imps are unable to impregnate others, and instead only use their cocks for absorbing other Imps and for personal pleasure."
-	 * +
-	 * " The cum of an Imp is extremely corruptive, and Imps are able to break the mind of individuals by repeatedly raping them."
-	 * +
-	 * " Such unfortunate creatures are then turned into a tribe's willing sex slave, being used over and over by their new owners."
-	 * ,
-	 * 
-	 * RacialBody.IMP, Genus.DEMON, Disposition.NEUTRAL, StatusEffect.IMP),
-	 * IMP_ALPHA("alpha imp", "Alpha Imps are the leaders of each Imp tribe." +
-	 * " Although physically the same size as a regular Imp, the Alpha Imp will have the largest cock in his tribe, showing that he has defeated the most Imps."
-	 * +
-	 * " The Alpha Imp organises his tribe to fight other Imp tribes, and when there are none to fight, will lead his tribe to the surface, looking for individuals to ambush."
-	 * +
-	 * " When the Alpha's tribe has found and overwhelmed a victim, he will get the best position in the gang rape that follows."
-	 * +
-	 * " The Alpha's cum has the strongest corruptive taint of his tribe, and by cumming in the vagina or ass of the victim, he will ensure that their mind is quickly broken."
-	 * +
-	 * " The Alpha will then enslave the broken person, giving them a new name and taking them back to their lair as a sex slave."
-	 * +
-	 * " Thankfully for the residents of Dominion, this is a very rare occurrence, as the punishment for an Imp setting foot in Dominion is being transformed into a statue by the nearest demon."
-	 * ,
-	 * 
-	 * "An Alpha Imp is exactly the same as a regular Imp, albeit with a larger cock."
-	 * +
-	 * " Skin colour varies from Imp to Imp, but an Alpha Imp's skin tends to be dark red."
-	 * +
-	 * " Imps have a humanoid face, with a pair of small horns breaking out of their forehead."
-	 * +
-	 * " A small, spaded tail grows from above their ass, and a pair of wings grow from their upper back, allowing them to fly with some effort."
-	 * ,
-	 * 
-	 * "The Alpha Imp is seldom seen isolated from his tribe, and as a result is always bold enough to attack isolated individuals."
-	 * +
-	 * " The Alpha is capable of using  more powerful magic than a standard Imp, being able to absorb other Imps and cast moderate arousal spells."
-	 * +
-	 * " The Alpha Imps is still very weak, and when fighting anything other than Imps, will rely on seduction and spells."
-	 * ,
-	 * 
-	 * "An Alpha Imps is created once an Imp in a certain tribe has grow their cock to be larger than the current Alpha."
-	 * +
-	 * " That Imp will then challenge the Alpha to combat, with the loser being absorbed into the winning Alpha's cock."
-	 * +
-	 * " Alpha Imps are unable to impregnate others, and instead only use their cocks for absorbing other Imps and for personal pleasure."
-	 * +
-	 * " The cum of an Alpha Imp is even more corruptive than a regular Imp's, and an Alpha is sometimes even able to break an individual's mind by themselves."
-	 * +
-	 * " Such unfortunate creatures are then turned into a tribe's willing sex slave, being used over and over by their new owners."
-	 * ,
-	 * 
-	 * RacialBody.IMP, Genus.DEMON, Disposition.SAVAGE, StatusEffect.IMP),
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
 	 * LIZARD_MORPH("lizard morph",
 	 * 
 	 * "Lizard morphs are a humanoid race most commonly found in the city of Dominion."
@@ -1467,51 +1369,6 @@ public enum Race {
 	 * StatusEffect.DRAGON),
 	 * 
 	 * 
-	 * DEMON_COMMON("demon",
-	 * 
-	 * "Demons are a humanoid race found everywhere." +
-	 * " Demons possesses the ability to switch their gender at will, but most of the time they will take on a female form."
-	 * +
-	 * " When male, they are referred to as an Incubus, and while female, a Succubus."
-	 * +
-	 * " Demons are not born, but are instead created by a Lilin by corrupting individuals using powerful demonic magic."
-	 * ,
-	 * 
-	 * "Demons are humanoid, with a human-like face and body." +
-	 * " Their skin will range in colour from dark red to a light lilac." +
-	 * " Demons can change the appearance of their bodies at will, but they will commonly have one or two pairs of horns and a thin spaded tail."
-	 * +
-	 * " When in succubus form, many demons like to morph their legs into black leather reaching up to their thighs, forming their feet into high heels."
-	 * +
-	 * " They often give themselves up to three pairs of breasts, each pair being at least a DD cup."
-	 * +
-	 * " When in Incubus form, a demon will take on a muscular masculine form, giving themselves a gigantic demonic cock."
-	 * +
-	 * " Some demons prefer to never leave their Succubus form, and when ready to impregnate someone, will simply grow a demonic cock above their pussy."
-	 * ,
-	 * 
-	 * "Demons have the ability to cast powerful spells, although the most potent demonic magic can only be harnessed by the more powerful version of a demon, the Lilin."
-	 * +
-	 * " When in combat, a demon will use physical attacks, seduction and spells in order to defeat their foe."
-	 * ,
-	 * 
-	 * "A demon will take on their Succubus form and seek out males of any species to breed with."
-	 * +
-	 * " Once they have found and seduced a suitable mate, they will present themselves to be fucked, using demonic magic to force their partner to repeatedly orgasm."
-	 * +
-	 * " After milking their victim of cum, they will move on to their next conquest.</br>"
-	 * +
-	 * "The cum that they gather is transformed within their bodies into their own highly corruptive and addictive seed."
-	 * +
-	 * " Once they have gathered enough cum, they will transform into their Incubus form and seek out a suitable female to breed."
-	 * +
-	 * " Having located a suitable victim, the demon will fuck them, filling them with their corruptive spooge."
-	 * +
-	 * " Such a union will more often than not result in the female birthing a litter of imps a few days later."
-	 * ,
-	 * 
-	 * RacialBody.DEMON, Genus.DEMON, Disposition.NEUTRAL, StatusEffect.DEMON),
-	 * 
 	 * LILIN("lilin",
 	 * 
 	 * "Lilin are a humanoid race found everywhere." +
@@ -1563,9 +1420,8 @@ public enum Race {
 	 * StatusEffect.LILIN);
 	 */
 
-	private String name, namePlural, singularMaleName, singularFemaleName, pluralMaleName, pluralFemaleName, basicDescription, advancedDescription;
+	private String name, basicDescription, advancedDescription;
 	private Colour colour;
-	private Genus genus;
 	private Disposition disposition;
 	private StatusEffect statusEffect;
 	private List<Attack> preferredAttacks;
@@ -1575,8 +1431,7 @@ public enum Race {
 	private Attribute damageMultiplier, resistanceMultiplier;
 	private FurryPreference defaultFemininePreference, defaultMasculinePreference;
 	
-	private Race(
-			String name,
+	private Race(String name,
 			String namePlural,
 			String singularMaleName,
 			String singularFemaleName,
@@ -1587,14 +1442,14 @@ public enum Race {
 			String advancedDescription,
 
 			Colour colour,
-			Genus genus,
 			Disposition disposition,
 			StatusEffect statusEffect,
 			List<Attack> preferredAttacks,
 			boolean vulnerableToLilithsLustStorm,
 			
 			float chanceForMaleOffspring,
-			int numberOfOffspringLow, int numberOfOffspringHigh,
+			int numberOfOffspringLow,
+			int numberOfOffspringHigh,
 			
 			Attribute damageMultiplier,
 			Attribute resistanceMultiplier,
@@ -1602,19 +1457,11 @@ public enum Race {
 			FurryPreference defaultFemininePreference,
 			FurryPreference defaultMasculinePreference) {
 		this.name = name;
-		this.namePlural = namePlural;
-
-		this.singularMaleName = singularMaleName;
-		this.singularFemaleName = singularFemaleName;
-		
-		this.pluralMaleName = pluralMaleName;
-		this.pluralFemaleName = pluralFemaleName;
 
 		this.basicDescription = basicDescription;
 		this.advancedDescription = advancedDescription;
 
 		this.colour = colour;
-		this.genus = genus;
 		this.disposition = disposition;
 		this.statusEffect = statusEffect;
 
@@ -1637,10 +1484,6 @@ public enum Race {
 	public String getName() {
 		return name;
 	}
-	
-	public String getNamePlural() {
-		return namePlural;
-	}
 
 	public String getBasicDescription() {
 		return basicDescription;
@@ -1648,10 +1491,6 @@ public enum Race {
 
 	public String getAdvancedDescription() {
 		return advancedDescription;
-	}
-
-	public Genus getGenus() {
-		return genus;
 	}
 
 	public Disposition getDisposition() {
@@ -1677,22 +1516,6 @@ public enum Race {
 	public int getNumberOfOffspringHigh() {
 		return numberOfOffspringHigh;
 	}
-
-	public String getSingularMaleName() {
-		return singularMaleName;
-	}
-
-	public String getSingularFemaleName() {
-		return singularFemaleName;
-	}
-	
-	public String getPluralMaleName() {
-		return pluralMaleName;
-	}
-
-	public String getPluralFemaleName() {
-		return pluralFemaleName;
-	}
 	
 	public Colour getColour() {
 		return colour;
@@ -1706,20 +1529,6 @@ public enum Race {
 	
 	public float getChanceForMaleOffspring() {
 		return chanceForMaleOffspring;
-	}
-
-	public String getOffspringMaleName() {
-		return pluralMaleName;
-	}
-	public String getOffspringMaleNameSingular() {
-		return singularMaleName;
-	}
-	
-	public String getOffspringFemaleName() {
-		return pluralFemaleName;
-	}
-	public String getOffspringFemaleNameSingular() {
-		return singularFemaleName;
 	}
 
 	public Attribute getDamageMultiplier() {

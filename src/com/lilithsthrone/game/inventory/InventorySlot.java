@@ -11,7 +11,7 @@ import com.lilithsthrone.game.dialogue.utils.UtilText;
 
 /**
  * @since 0.1.0
- * @version 0.1.85
+ * @version 0.2.1
  * @author Innoxia
  */
 public enum InventorySlot {
@@ -36,6 +36,7 @@ public enum InventorySlot {
 	WRIST(30, "wrists", false, false), // Bracelets
 	FINGER(30, "fingers", false, false), // Rings
 	HIPS(40, "hips", false, false), // Belts
+//	HIPS_UNDER(20, "hips-under", false, false), // suspender belts
 	ANUS(0, "anus", false, false), // Insertables
 
 	// LEG & FOOT:
@@ -47,7 +48,7 @@ public enum InventorySlot {
 	
 	// OPTIONAL EXTRAS:
 	HORNS(50, "horns", false, false), // Decorations
-	WINGS(50, "wings", false, false), // Decorations
+//	WINGS(50, "wings", false, false), // Decorations
 	TAIL(50, "tail", false, false), // Decorations
 	PENIS(0, "penis", false, false), // Cock socks & insertables
 	VAGINA(0, "vagina", false, false), // Insertables
@@ -63,8 +64,8 @@ public enum InventorySlot {
 	PIERCING_PENIS(0, "cock piercing", false, true),
 
 	// EQUIPPABLE:
-	WEAPON_OFFHAND(0, "offhand weapon", false, false),
-	WEAPON_MAIN(0, "main weapon", false, false);
+	WEAPON_MAIN(0, "primary weapon", false, false),
+	WEAPON_OFFHAND(0, "secondary weapon", false, false);
 
 	private int zLayer;
 	private String name;

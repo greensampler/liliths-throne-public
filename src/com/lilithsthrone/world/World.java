@@ -2,24 +2,20 @@ package com.lilithsthrone.world;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.lilithsthrone.game.character.CharacterUtils;
+import com.lilithsthrone.main.Main;
 import com.lilithsthrone.utils.Util;
 import com.lilithsthrone.utils.Vector2i;
 import com.lilithsthrone.utils.XMLSaving;
-import com.lilithsthrone.world.places.GenericPlace;
 import com.lilithsthrone.world.places.PlaceType;
 
 /**
  * @since 0.1.0
- * @version 0.1.89
+ * @version 0.2.5
  * @author Innoxia
  */
 public class World implements Serializable, XMLSaving {
@@ -30,7 +26,6 @@ public class World implements Serializable, XMLSaving {
 	
 	private Cell[][] grid;
 	private WorldType worldType;
-	private Map<GenericPlace, Vector2i> placesOfInterest;
 
 	public World(int worldWidth, int worldHeight, Cell[][] grid, WorldType worldType) {
 		WORLD_WIDTH = worldWidth;
@@ -38,8 +33,6 @@ public class World implements Serializable, XMLSaving {
 
 		this.grid = grid;
 		this.worldType = worldType;
-		
-		placesOfInterest = new HashMap<>();
 	}
 	
 	@Override
@@ -59,22 +52,6 @@ public class World implements Serializable, XMLSaving {
 			}
 		}
 		
-		innerElement = doc.createElement("placesOfInterest");
-		element.appendChild(innerElement);
-		for(Entry<GenericPlace, Vector2i> entry : placesOfInterest.entrySet()) {
-			Element e = doc.createElement("entry");
-			innerElement.appendChild(e);
-			
-			Element place = doc.createElement("placeEntry");
-			e.appendChild(place);
-			entry.getKey().saveAsXML(place, doc);
-			
-			Element location = doc.createElement("locationEntry");
-			e.appendChild(location);
-			CharacterUtils.addAttribute(doc, location, "x", String.valueOf(entry.getValue().getX()));
-			CharacterUtils.addAttribute(doc, location, "y", String.valueOf(entry.getValue().getY()));
-		}
-		
 		return element;
 	}
 	
@@ -88,21 +65,18 @@ public class World implements Serializable, XMLSaving {
 			newGrid[c.getLocation().getX()][c.getLocation().getY()] = c;
 		}
 		
+		WorldType type = WorldType.EMPTY;
+		if(parentElement.getAttribute("worldType").equals("SEWERS")) {
+			type = WorldType.SUBMISSION;
+		} else {
+			type = WorldType.valueOf(parentElement.getAttribute("worldType"));
+		}
+		
 		World world = new World(
 				Integer.valueOf(parentElement.getAttribute("width")),
 				Integer.valueOf(parentElement.getAttribute("height")),
 				newGrid,
-				WorldType.valueOf(parentElement.getAttribute("worldType")));
-		
-		for(int i=0; i<((Element) parentElement.getElementsByTagName("placesOfInterest").item(0)).getElementsByTagName("entry").getLength(); i++){
-			Element e = (Element) ((Element) parentElement.getElementsByTagName("placesOfInterest").item(0)).getElementsByTagName("entry").item(i);
-			
-			world.addPlaceOfInterest(
-					GenericPlace.loadFromXML((Element) ((Element)e.getElementsByTagName("placeEntry").item(0)).getElementsByTagName("place").item(0), doc),
-					new Vector2i(
-							Integer.valueOf(((Element)e.getElementsByTagName("locationEntry").item(0)).getAttribute("x")),
-							Integer.valueOf(((Element)e.getElementsByTagName("locationEntry").item(0)).getAttribute("y"))));
-		}
+				type);
 		
 		return world;
 	}
@@ -131,6 +105,43 @@ public class World implements Serializable, XMLSaving {
 			}
 		}
 		return null;
+	}
+	
+	public Cell getClosestCell(Vector2i location, PlaceType place) {
+		float distance = 10000f;
+		Cell closestCell = null;
+		for(int i=0; i<grid.length; i++) {
+			for(int j=0; j<grid[0].length; j++) {
+				if(grid[i][j].getPlace().getPlaceType().equals(place)) {
+					float newDistance = Vector2i.getDistance(location, grid[i][j].getLocation());
+					if(newDistance < distance) {
+						closestCell = grid[i][j];
+						distance = newDistance;
+					}
+				}
+			}
+		}
+		return closestCell;
+	}
+	
+	/**
+	 * @param place The PlaceType to find a Cell of.
+	 * @return A random, unoccupied Cell of the PlaceType defined by the argument 'place'. If there are no unoccupied Cells with this PlaceType, a random occupied one is returned instead.
+	 */
+	public Cell getRandomUnoccupiedCell(PlaceType place) {
+		List<Cell> cells = new ArrayList<>();
+		for(int i=0; i<grid.length; i++) {
+			for(int j=0; j<grid[0].length; j++) {
+				if(grid[i][j].getPlace().getPlaceType().equals(place) && Main.game.getCharactersPresent(grid[i][j]).isEmpty()) {
+					cells.add(grid[i][j]);
+				}
+			}
+		}
+		if(cells.isEmpty()) {
+			System.err.println("World.getRandomUnoccupiedCell() - No unoccupied cells found, occupied one returned instead.");
+			return getRandomCell(place);
+		}
+		return cells.get(Util.random.nextInt(cells.size()));
 	}
 	
 	/**
@@ -171,13 +182,5 @@ public class World implements Serializable, XMLSaving {
 
 	public void setGrid(Cell[][] grid) {
 		this.grid = grid;
-	}
-
-	public Map<GenericPlace, Vector2i> getPlacesOfInterest() {
-		return placesOfInterest;
-	}
-	
-	public void addPlaceOfInterest(GenericPlace place, Vector2i vector) {
-		placesOfInterest.put(place, vector);
 	}
 }

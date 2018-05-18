@@ -8,9 +8,12 @@ import com.lilithsthrone.game.sex.OrificeType;
 import com.lilithsthrone.game.sex.PenetrationType;
 import com.lilithsthrone.game.sex.Sex;
 import com.lilithsthrone.game.sex.SexPace;
-import com.lilithsthrone.game.sex.SexPosition;
+import com.lilithsthrone.game.sex.SexParticipantType;
+import com.lilithsthrone.game.sex.SexPositionType;
+import com.lilithsthrone.game.sex.SexPositionSlot;
 import com.lilithsthrone.game.sex.sexActions.SexAction;
 import com.lilithsthrone.game.sex.sexActions.SexActionType;
+import com.lilithsthrone.main.Main;
 
 /**
  * @since 0.1.79
@@ -21,15 +24,16 @@ public class PlayerTongueVagina {
 	
 	public static final SexAction PARTNER_FORCE_CLIT = new SexAction(
 			SexActionType.PARTNER,
-			ArousalIncrease.FOUR_HIGH,
 			ArousalIncrease.TWO_LOW,
+			ArousalIncrease.FOUR_HIGH,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.TONGUE_PLAYER,
-			OrificeType.VAGINA_PARTNER) {
+			PenetrationType.TONGUE,
+			OrificeType.VAGINA,
+			SexParticipantType.CATCHER) {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.getSexPacePartner()!=SexPace.SUB_RESISTING;
+			return Sex.getSexPace(Sex.getActivePartner())!=SexPace.SUB_RESISTING;
 		}
 		
 		@Override
@@ -45,9 +49,9 @@ public class PlayerTongueVagina {
 		@Override
 		public String getDescription() {
 			
-			if(Sex.getPosition()==SexPosition.SIXTY_NINE_PARTNER_TOP) {
+			if(Sex.getPosition()==SexPositionType.SIXTY_NINE && Sex.getSexPositionSlot(Main.game.getPlayer())==SexPositionSlot.SIXTY_NINE_BOTTOM) {
 				
-				switch(Sex.getSexPacePlayer()) {
+				switch(Sex.getSexPace(Main.game.getPlayer())) {
 					case SUB_RESISTING:
 						return UtilText.returnStringAtRandom(
 								"Pushing [npc.her] [npc.pussy+] down against your [pc.lips], [npc.name] shuffles back on [npc.her] knees until [npc.her] [npc.clit+] is pressing down against your [pc.tongue]."
@@ -68,7 +72,7 @@ public class PlayerTongueVagina {
 				
 			} else {
 			
-				switch(Sex.getSexPacePlayer()) {
+				switch(Sex.getSexPace(Main.game.getPlayer())) {
 					case SUB_RESISTING:
 						return UtilText.returnStringAtRandom(
 								"Shifting [npc.her] [pc.hips], [npc.name] repositions your mouth over [npc.her] [npc.clit+]."
@@ -95,8 +99,9 @@ public class PlayerTongueVagina {
 			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.FOUR_HIGH,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.TONGUE_PLAYER,
-			OrificeType.VAGINA_PARTNER) {
+			PenetrationType.TONGUE,
+			OrificeType.VAGINA,
+			SexParticipantType.PITCHER) {
 		@Override
 		public String getActionTitle() {
 			return "Suck clit";
@@ -109,14 +114,14 @@ public class PlayerTongueVagina {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.getSexPacePlayer()!=SexPace.SUB_RESISTING;
+			return Sex.getSexPace(Main.game.getPlayer())!=SexPace.SUB_RESISTING;
 		}
 
 		@Override
 		public String getDescription() {
 			UtilText.nodeContentSB.setLength(0);
 			
-			switch(Sex.getSexPacePlayer()) {
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Slowly sliding your [pc.tongue] over [npc.name]'s [npc.pussy+], you press your [pc.lips+] against [npc.her] [npc.clit+], before starting to gently suck and kiss it.",
@@ -154,7 +159,7 @@ public class PlayerTongueVagina {
 				default:
 					break;
 			}
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" [npc.She] lets out a soft [npc.moan], and, gently bucking [npc.her] [npc.hips] into your [pc.face], [npc.she] cries out for you to continue.",
@@ -206,11 +211,12 @@ public class PlayerTongueVagina {
 			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.FOUR_HIGH,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.TONGUE_PLAYER,
-			OrificeType.VAGINA_PARTNER) {
+			PenetrationType.TONGUE,
+			OrificeType.VAGINA,
+			SexParticipantType.PITCHER) {
 		@Override
 		public String getActionTitle() {
-			if(Sex.getPartner().isFeminine()) {
+			if(Sex.getActivePartner().isFeminine()) {
 				return "Futa fun";
 			} else {
 				return "Herm fun";
@@ -224,14 +230,15 @@ public class PlayerTongueVagina {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.getSexPacePlayer()!=SexPace.SUB_RESISTING && Sex.getPartner().hasPenis() && Sex.getPartner().isCoverableAreaExposed(CoverableArea.PENIS) && Sex.isPartnerFreePenis();
+			return Sex.getSexPace(Main.game.getPlayer())!=SexPace.SUB_RESISTING && Sex.getActivePartner().hasPenis() && Sex.getActivePartner().isCoverableAreaExposed(CoverableArea.PENIS)
+					&& Sex.isPenetrationTypeFree(Sex.getActivePartner(), PenetrationType.PENIS);
 		}
 
 		@Override
 		public String getDescription() {
 			UtilText.nodeContentSB.setLength(0);
 			
-			switch(Sex.getSexPacePlayer()) {
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Not wanting to ignore [npc.name]'s other sexual organ, you give [npc.her] [npc.pussy+] a gentle kiss, before pulling back and starting to slowly suck and kiss the [npc.cockHead] of [npc.her] [npc.cock+].",
@@ -270,7 +277,7 @@ public class PlayerTongueVagina {
 				default:
 					break;
 			}
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" [npc.She] lets out a soft [npc.moan], gently pushing [npc.her] [npc.cock] into your mouth before you decide to shift your focus back to [npc.her] [npc.pussy+] once again.",
@@ -321,8 +328,9 @@ public class PlayerTongueVagina {
 			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.THREE_NORMAL,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.TONGUE_PLAYER,
-			OrificeType.VAGINA_PARTNER) {
+			PenetrationType.TONGUE,
+			OrificeType.VAGINA,
+			SexParticipantType.PITCHER) {
 		@Override
 		public String getActionTitle() {
 			return "Eat [npc.herHim] out";
@@ -338,9 +346,9 @@ public class PlayerTongueVagina {
 			
 			UtilText.nodeContentSB.setLength(0);
 			
-			if(Sex.getPosition()==SexPosition.SIXTY_NINE_PLAYER_TOP) {
+			if(Sex.getPosition()==SexPositionType.SIXTY_NINE && Sex.getSexPositionSlot(Main.game.getPlayer())==SexPositionSlot.SIXTY_NINE_TOP) {
 				
-				switch(Sex.getSexPacePlayer()) {
+				switch(Sex.getSexPace(Main.game.getPlayer())) {
 					case DOM_GENTLE:
 						UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 								"Your hot breath falls down onto [npc.name]'s groin as you slowly lower your head between [npc.her] [npc.legs],"
@@ -365,7 +373,7 @@ public class PlayerTongueVagina {
 				
 			} else {
 				
-				switch(Sex.getSexPacePlayer()) {
+				switch(Sex.getSexPace(Main.game.getPlayer())) {
 					case DOM_GENTLE:
 						UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 								"Pressing your [pc.lips+] against [npc.name]'s groin, you plant a soft kiss on [npc.her] outer folds, before slowly, but firmly, sliding your [pc.tongue+] into [npc.her] [npc.pussy+].",
@@ -396,7 +404,7 @@ public class PlayerTongueVagina {
 				}
 			}
 
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" [npc.She] lets out a soft [npc.moan] in response, gently bucking [npc.her] [npc.hips] out against your [pc.face] as [npc.she] begs for you to keep going.",
@@ -441,14 +449,15 @@ public class PlayerTongueVagina {
 			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.THREE_NORMAL,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.TONGUE_PLAYER,
-			OrificeType.VAGINA_PARTNER,
+			PenetrationType.TONGUE,
+			OrificeType.VAGINA,
+			SexParticipantType.PITCHER,
 			SexPace.DOM_GENTLE,
 			null) {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isPlayerDom();
+			return Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
@@ -466,7 +475,7 @@ public class PlayerTongueVagina {
 
 			UtilText.nodeContentSB.setLength(0);
 			
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case SUB_EAGER:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Sliding your [pc.tongue+] out from [npc.name]'s [npc.pussy+], you plant a series of delicate kisses on [npc.her] soft outer folds,"
@@ -503,14 +512,15 @@ public class PlayerTongueVagina {
 			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.THREE_NORMAL,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.TONGUE_PLAYER,
-			OrificeType.VAGINA_PARTNER,
+			PenetrationType.TONGUE,
+			OrificeType.VAGINA,
+			SexParticipantType.PITCHER,
 			SexPace.DOM_NORMAL,
 			null) {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isPlayerDom();
+			return Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
@@ -528,7 +538,7 @@ public class PlayerTongueVagina {
 
 			UtilText.nodeContentSB.setLength(0);
 			
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case SUB_EAGER:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Pushing your [pc.face] into [npc.name]'s groin, you greedily drive your [pc.tongue] deep into [npc.her] [npc.pussy+],"
@@ -565,14 +575,15 @@ public class PlayerTongueVagina {
 			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.THREE_DIRTY,
-			PenetrationType.TONGUE_PLAYER,
-			OrificeType.VAGINA_PARTNER,
+			PenetrationType.TONGUE,
+			OrificeType.VAGINA,
+			SexParticipantType.PITCHER,
 			SexPace.DOM_ROUGH,
 			null) {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isPlayerDom();
+			return Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
@@ -590,7 +601,7 @@ public class PlayerTongueVagina {
 
 			UtilText.nodeContentSB.setLength(0);
 			
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case SUB_EAGER:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Grinding your [pc.face] into [npc.name]'s groin, you roughly drive your [pc.tongue] deep into [npc.her] [npc.pussy+],"
@@ -627,14 +638,15 @@ public class PlayerTongueVagina {
 			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.THREE_NORMAL,
 			CorruptionLevel.ZERO_PURE,
-			PenetrationType.TONGUE_PLAYER,
-			OrificeType.VAGINA_PARTNER,
+			PenetrationType.TONGUE,
+			OrificeType.VAGINA,
+			SexParticipantType.PITCHER,
 			SexPace.SUB_RESISTING,
 			null) {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return !Sex.isPlayerDom();
+			return !Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
@@ -652,7 +664,7 @@ public class PlayerTongueVagina {
 
 			UtilText.nodeContentSB.setLength(0);
 			
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"You try to pull your [pc.face] away from [npc.name]'s groin, but [npc.she] continues gently thrusting [npc.her] [npc.pussy+] against your [pc.lips+], holding you in place as [npc.she] forces [npc.herself] on you.",
@@ -686,14 +698,15 @@ public class PlayerTongueVagina {
 			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.THREE_NORMAL,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.TONGUE_PLAYER,
-			OrificeType.VAGINA_PARTNER,
+			PenetrationType.TONGUE,
+			OrificeType.VAGINA,
+			SexParticipantType.PITCHER,
 			SexPace.SUB_NORMAL,
 			null) {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return !Sex.isPlayerDom();
+			return !Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
@@ -711,7 +724,7 @@ public class PlayerTongueVagina {
 
 			UtilText.nodeContentSB.setLength(0);
 			
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Pushing your [pc.face] into [npc.name]'s groin, you drive your [pc.tongue] deep into [npc.her] [npc.pussy+], drawing a series of soft [npc.moans] from between [npc.her] [npc.lips+] as you eat [npc.herHim] out.",
@@ -745,14 +758,15 @@ public class PlayerTongueVagina {
 			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.THREE_NORMAL,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.TONGUE_PLAYER,
-			OrificeType.VAGINA_PARTNER,
+			PenetrationType.TONGUE,
+			OrificeType.VAGINA,
+			SexParticipantType.PITCHER,
 			SexPace.SUB_EAGER,
 			null) {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return !Sex.isPlayerDom();
+			return !Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
@@ -770,7 +784,7 @@ public class PlayerTongueVagina {
 
 			UtilText.nodeContentSB.setLength(0);
 			
-			if(Sex.getPosition()==SexPosition.KNEELING_PLAYER_PERFORMING_ORAL) {
+			if(Sex.getPosition()==SexPositionType.KNEELING_ORAL && Sex.getSexPositionSlot(Main.game.getPlayer())==SexPositionSlot.KNEELING_PERFORMING_ORAL) {
 				
 				return UtilText.returnStringAtRandom(
 						"Lifting your [pc.hands] up, you reach around and take hold of [npc.name]'s [npc.ass], and before [npc.she] can react, you pull [npc.herHim] forwards and bury your [pc.tongue+] deep in [npc.her] [npc.pussy+].",
@@ -780,7 +794,7 @@ public class PlayerTongueVagina {
 				
 			} else {
 			
-				switch(Sex.getSexPacePartner()) {
+				switch(Sex.getSexPace(Sex.getActivePartner())) {
 					case DOM_GENTLE:
 						UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 								"Eagerly pushing your [pc.face] into [npc.name]'s groin, you greedily drive your [pc.tongue] deep into [npc.her] [npc.pussy+],"
@@ -819,12 +833,13 @@ public class PlayerTongueVagina {
 			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.ZERO_PURE,
-			PenetrationType.TONGUE_PLAYER,
-			OrificeType.VAGINA_PARTNER) {
+			PenetrationType.TONGUE,
+			OrificeType.VAGINA,
+			SexParticipantType.PITCHER) {
 		
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isPlayerDom() ||Sex.isConsensual(); // Player can only stop if they're in charge.
+			return Sex.isDom(Main.game.getPlayer()) ||Sex.isConsensual(); // Player can only stop if they're in charge.
 		}
 		
 		@Override
@@ -842,7 +857,7 @@ public class PlayerTongueVagina {
 			
 			UtilText.nodeContentSB.setLength(0);
 			
-			switch(Sex.getSexPacePlayer()) {
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
 				case DOM_ROUGH:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"With one last rough lick, you pull your [pc.face] away from [npc.name]'s [npc.pussy+].",
@@ -855,7 +870,7 @@ public class PlayerTongueVagina {
 					break;
 			}
 			
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case SUB_RESISTING:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" [npc.She] continues to struggle against you, [npc.sobbing] and squirming in discomfort as [npc.she] realises that you aren't completely finished with [npc.herHim] just yet.",
@@ -878,15 +893,16 @@ public class PlayerTongueVagina {
 	
 	public static final SexAction PARTNER_CUNNILINGUS_START = new SexAction(
 			SexActionType.PARTNER_PENETRATION,
-			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.THREE_NORMAL,
+			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.TONGUE_PLAYER,
-			OrificeType.VAGINA_PARTNER) {
+			PenetrationType.TONGUE,
+			OrificeType.VAGINA,
+			SexParticipantType.CATCHER) {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isConsensual() || !Sex.isPlayerDom(); // Partner can only start cunnilingus in consensual sex or if they're the dom.
+			return Sex.isConsensual() || !Sex.isDom(Main.game.getPlayer()); // Partner can only start cunnilingus in consensual sex or if they're the dom.
 		}
 		
 		@Override
@@ -904,9 +920,9 @@ public class PlayerTongueVagina {
 			
 			UtilText.nodeContentSB.setLength(0);
 			
-			if(Sex.getPosition()==SexPosition.KNEELING_PLAYER_PERFORMING_ORAL) {
+			if(Sex.getPosition()==SexPositionType.KNEELING_ORAL && Sex.getSexPositionSlot(Main.game.getPlayer())==SexPositionSlot.KNEELING_PERFORMING_ORAL) {
 				
-				switch(Sex.getSexPacePartner()) {
+				switch(Sex.getSexPace(Sex.getActivePartner())) {
 					case DOM_GENTLE:
 						UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 								"Reaching down, [npc.name] gently takes hold of your head, and with a soft [npc.moan], [npc.she] pulls your [pc.face] into [npc.her] groin,"
@@ -932,9 +948,9 @@ public class PlayerTongueVagina {
 						break;
 				}
 				
-			} else if(Sex.getPosition()==SexPosition.SIXTY_NINE_PARTNER_TOP) {
+			} else if(Sex.getPosition()==SexPositionType.SIXTY_NINE && Sex.getSexPositionSlot(Main.game.getPlayer())==SexPositionSlot.SIXTY_NINE_BOTTOM) {
 				
-				switch(Sex.getSexPacePartner()) {
+				switch(Sex.getSexPace(Sex.getActivePartner())) {
 					case DOM_GENTLE:
 						UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 								"Shuffling back a little, [npc.name] slowly lowers [npc.her] [npc.pussy+] down to your mouth, before letting [npc.her] [npc.legs] slide out from under [npc.herHim] and collapsing down onto your [pc.face+].",
@@ -959,7 +975,7 @@ public class PlayerTongueVagina {
 				
 			} else {
 			
-				switch(Sex.getSexPacePartner()) {
+				switch(Sex.getSexPace(Sex.getActivePartner())) {
 					case DOM_GENTLE:
 						UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 								"Gently pressing [npc.her] crotch down against your [pc.face], [npc.name] lets out a soft [npc.moan] as [npc.she] starts slowly grinding [npc.her] [npc.pussy+] down on your [pc.lips+].",
@@ -996,7 +1012,7 @@ public class PlayerTongueVagina {
 			
 			}
 
-			switch(Sex.getSexPacePlayer()) {
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" Breathing in [npc.her] [npc.scent], you slowly slide your [pc.tongue+] between [npc.her] folds, letting out a muffled [pc.moan] as you start gently licking and kissing [npc.her] [npc.pussy+].",
@@ -1038,17 +1054,18 @@ public class PlayerTongueVagina {
 	
 	public static final SexAction PARTNER_RECEIVING_CUNNILINGUS_DOM_GENTLE = new SexAction(
 			SexActionType.PARTNER,
-			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.THREE_NORMAL,
+			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.TONGUE_PLAYER,
-			OrificeType.VAGINA_PARTNER,
+			PenetrationType.TONGUE,
+			OrificeType.VAGINA,
+			SexParticipantType.CATCHER,
 			null,
 			SexPace.DOM_GENTLE) {
 		
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return !Sex.isPlayerDom();
+			return !Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
@@ -1065,7 +1082,7 @@ public class PlayerTongueVagina {
 		public String getDescription() {
 			UtilText.nodeContentSB.setLength(0);
 			
-			switch(Sex.getSexPacePlayer()) {
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
 				case SUB_EAGER:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"[npc.Name] gently bucks [npc.her] [npc.hips] into your [pc.face], letting out a soft [npc.moan] as you greedily thrust your [pc.tongue] deep into [npc.her] [npc.pussy+].",
@@ -1096,17 +1113,18 @@ public class PlayerTongueVagina {
 	
 	public static final SexAction PARTNER_RECEIVING_CUNNILINGUS_DOM_NORMAL = new SexAction(
 			SexActionType.PARTNER,
-			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.THREE_NORMAL,
+			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.TONGUE_PLAYER,
-			OrificeType.VAGINA_PARTNER,
+			PenetrationType.TONGUE,
+			OrificeType.VAGINA,
+			SexParticipantType.CATCHER,
 			null,
 			SexPace.DOM_NORMAL) {
 		
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return !Sex.isPlayerDom();
+			return !Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
@@ -1123,7 +1141,7 @@ public class PlayerTongueVagina {
 		public String getDescription() {
 			UtilText.nodeContentSB.setLength(0);
 
-			switch(Sex.getSexPacePlayer()) {
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
 				case SUB_EAGER:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"[npc.Name] eagerly bucks [npc.her] [npc.hips] into your [pc.face], letting out [npc.a_moan+] as you greedily thrust your [pc.tongue] deep into [npc.her] [npc.pussy+].",
@@ -1154,17 +1172,18 @@ public class PlayerTongueVagina {
 	
 	public static final SexAction PARTNER_RECEIVING_CUNNILINGUS_DOM_ROUGH = new SexAction(
 			SexActionType.PARTNER,
-			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.THREE_NORMAL,
+			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.TONGUE_PLAYER,
-			OrificeType.VAGINA_PARTNER,
+			PenetrationType.TONGUE,
+			OrificeType.VAGINA,
+			SexParticipantType.CATCHER,
 			null,
 			SexPace.DOM_ROUGH) {
 		
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return !Sex.isPlayerDom();
+			return !Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
@@ -1181,9 +1200,9 @@ public class PlayerTongueVagina {
 		public String getDescription() {
 			UtilText.nodeContentSB.setLength(0);
 			
-			if(Sex.getPosition()==SexPosition.KNEELING_PLAYER_PERFORMING_ORAL) {
+			if(Sex.getPosition()==SexPositionType.KNEELING_ORAL && Sex.getSexPositionSlot(Main.game.getPlayer())==SexPositionSlot.KNEELING_PERFORMING_ORAL) {
 				
-				switch(Sex.getSexPacePartner()) {
+				switch(Sex.getSexPace(Sex.getActivePartner())) {
 					case SUB_EAGER:
 						UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 								"Grabbing the back of your head, [npc.name] forcefully pulls you into [npc.her] crotch,"
@@ -1213,9 +1232,9 @@ public class PlayerTongueVagina {
 						break;
 				}
 				
-			} else if(Sex.getPosition()==SexPosition.SIXTY_NINE_PARTNER_TOP) {
+			} else if(Sex.getPosition()==SexPositionType.SIXTY_NINE && Sex.getSexPositionSlot(Main.game.getPlayer())==SexPositionSlot.SIXTY_NINE_BOTTOM) {
 				
-				switch(Sex.getSexPacePlayer()) {
+				switch(Sex.getSexPace(Main.game.getPlayer())) {
 					case SUB_EAGER:
 						UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 								"[npc.Name]'s knees suddenly slide out from under [npc.herHim], and as [npc.she] collapses down onto your face, [npc.she] starts roughly grinding [npc.her] [npc.pussy+] against your [pc.lips+].",
@@ -1241,7 +1260,7 @@ public class PlayerTongueVagina {
 					
 			} else {
 			
-				switch(Sex.getSexPacePlayer()) {
+				switch(Sex.getSexPace(Main.game.getPlayer())) {
 					case SUB_EAGER:
 						UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 								"[npc.Name] roughly grinds [npc.her] [npc.hips] into your [pc.face], letting out [npc.a_moan+] as you greedily thrust your [pc.tongue] deep into [npc.her] [npc.pussy+].",
@@ -1274,17 +1293,18 @@ public class PlayerTongueVagina {
 	
 	public static final SexAction PARTNER_RECEIVING_CUNNILINGUS_SUB_NORMAL = new SexAction(
 			SexActionType.PARTNER,
-			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.THREE_NORMAL,
+			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.TONGUE_PLAYER,
-			OrificeType.VAGINA_PARTNER,
+			PenetrationType.TONGUE,
+			OrificeType.VAGINA,
+			SexParticipantType.CATCHER,
 			null,
 			SexPace.SUB_NORMAL) {
 		
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isPlayerDom();
+			return Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
@@ -1301,7 +1321,7 @@ public class PlayerTongueVagina {
 		public String getDescription() {
 			UtilText.nodeContentSB.setLength(0);
 			
-			switch(Sex.getSexPacePlayer()) {
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"[npc.Name] bucks [npc.her] [npc.hips] into your [pc.face], letting out [npc.a_moan+] as you gently slide your [pc.tongue] deep into [npc.her] [npc.pussy+].",
@@ -1333,17 +1353,18 @@ public class PlayerTongueVagina {
 	
 	public static final SexAction PARTNER_RECEIVING_CUNNILINGUS_SUB_EAGER = new SexAction(
 			SexActionType.PARTNER,
-			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.THREE_NORMAL,
+			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.TONGUE_PLAYER,
-			OrificeType.VAGINA_PARTNER,
+			PenetrationType.TONGUE,
+			OrificeType.VAGINA,
+			SexParticipantType.CATCHER,
 			null,
 			SexPace.SUB_EAGER) {
 		
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isPlayerDom();
+			return Sex.isDom(Main.game.getPlayer());
 		}
 		
 		@Override
@@ -1360,7 +1381,7 @@ public class PlayerTongueVagina {
 		public String getDescription() {
 			UtilText.nodeContentSB.setLength(0);
 
-			switch(Sex.getSexPacePlayer()) {
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"[npc.Name] frantically bucks [npc.her] [npc.hips] into your [pc.face], letting out [npc.a_moan+] as you gently slide your [pc.tongue] deep into [npc.her] [npc.pussy+].",
@@ -1394,11 +1415,12 @@ public class PlayerTongueVagina {
 	
 	public static final SexAction PARTNER_RECEIVING_CUNNILINGUS_SUB_RESIST = new SexAction(
 			SexActionType.PARTNER,
-			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.ONE_MINIMUM,
+			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.ZERO_PURE,
-			PenetrationType.TONGUE_PLAYER,
-			OrificeType.VAGINA_PARTNER,
+			PenetrationType.TONGUE,
+			OrificeType.VAGINA,
+			SexParticipantType.CATCHER,
 			null,
 			SexPace.SUB_RESISTING) {
 		@Override
@@ -1413,7 +1435,7 @@ public class PlayerTongueVagina {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isPlayerDom();
+			return Sex.isDom(Main.game.getPlayer());
 		}
 
 		@Override
@@ -1421,7 +1443,7 @@ public class PlayerTongueVagina {
 
 			UtilText.nodeContentSB.setLength(0);
 			
-			switch(Sex.getSexPacePlayer()) {
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"[npc.Name] desperately tries to pull [npc.her] [npc.hips] away from your [pc.face], letting out [npc.a_sob+] as you gently slide your [pc.tongue] deep into [npc.her] [npc.pussy+].",
@@ -1458,12 +1480,13 @@ public class PlayerTongueVagina {
 			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.ZERO_PURE,
-			PenetrationType.TONGUE_PLAYER,
-			OrificeType.VAGINA_PARTNER) {
+			PenetrationType.TONGUE,
+			OrificeType.VAGINA,
+			SexParticipantType.CATCHER) {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isConsensual() || !Sex.isPlayerDom(); // Partner can only stop in consensual sex or if they're the dom.
+			return Sex.isConsensual() || !Sex.isDom(Main.game.getPlayer()); // Partner can only stop in consensual sex or if they're the dom.
 		}
 		
 		@Override
@@ -1481,12 +1504,12 @@ public class PlayerTongueVagina {
 			
 			UtilText.nodeContentSB.setLength(0);
 			
-			if(Sex.getPosition()==SexPosition.SIXTY_NINE_PARTNER_TOP) {
+			if(Sex.getPosition()==SexPositionType.SIXTY_NINE && Sex.getSexPositionSlot(Main.game.getPlayer())==SexPositionSlot.SIXTY_NINE_BOTTOM) {
 				UtilText.nodeContentSB.append("Using [npc.her] knees to lift [npc.herself] up, [npc.name] allows your [pc.tongue] to slip out of [npc.her] [npc.pussy+],"
 						+ " and you look up to see a thin strand of saliva linking your lips for a brief moment, before breaking to fall down over your [pc.face].");
 				
 			} else {
-				switch(Sex.getSexPacePartner()) {
+				switch(Sex.getSexPace(Sex.getActivePartner())) {
 					case DOM_ROUGH:
 						UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 								"Roughly yanking your head away from [npc.her] [npc.pussy+], [npc.name] orders you to stop eating [npc.herHim] out.",
@@ -1500,7 +1523,7 @@ public class PlayerTongueVagina {
 				}
 			}
 			
-			switch(Sex.getSexPacePlayer()) {
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
 				case SUB_RESISTING:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" With tears streaming down your face, you let out [pc.a_sob+] as you realise that [npc.she] isn't finished with you just yet.",

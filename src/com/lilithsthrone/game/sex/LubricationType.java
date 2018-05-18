@@ -18,8 +18,8 @@ public enum LubricationType {
 	PARTNER_SALIVA(false) {
 		@Override
 		public String getName() {
-			if(Sex.getPartner()!=null) {
-				return Sex.getPartner().getName("the")+"'s saliva";
+			if(Sex.getActivePartner()!=null) {
+				return Sex.getActivePartner().getName("the")+"'s saliva";
 			} else {
 				return "saliva";
 			}
@@ -35,8 +35,8 @@ public enum LubricationType {
 	PARTNER_MILK(false) {
 		@Override
 		public String getName() {
-			if(Sex.getPartner()!=null) {
-				return Sex.getPartner().getName("the")+"'s milk";
+			if(Sex.getActivePartner()!=null) {
+				return Sex.getActivePartner().getName("the")+"'s milk";
 			} else {
 				return "milk";
 			}
@@ -52,8 +52,8 @@ public enum LubricationType {
 	PARTNER_PRECUM(false) {
 		@Override
 		public String getName() {
-			if(Sex.getPartner()!=null) {
-				return Sex.getPartner().getName("the")+"'s precum";
+			if(Sex.getActivePartner()!=null) {
+				return Sex.getActivePartner().getName("the")+"'s precum";
 			} else {
 				return "precum";
 			}
@@ -69,8 +69,8 @@ public enum LubricationType {
 	PARTNER_CUM(false) {
 		@Override
 		public String getName() {
-			if(Sex.getPartner()!=null) {
-				return Sex.getPartner().getName("the")+"'s "+Sex.getPartner().getCumName();
+			if(Sex.getActivePartner()!=null) {
+				return Sex.getActivePartner().getName("the")+"'s "+Sex.getActivePartner().getCumName();
 			} else {
 				return "cum";
 			}
@@ -83,23 +83,47 @@ public enum LubricationType {
 		}
 	},
 	
-	// I'm using these two values to represent vaginal lubrication, but due to the nature of the game, a similar kind of lubrication can be gained from having fuckable nipples or a wet asshole.
-	// Basically, this is the same slippery liquid that you get when getting wet.
 	
-	PLAYER_NATURAL_LUBRICATION(true) {
+	PLAYER_GIRLCUM(false) {
 		@Override
 		public String getName() {
-			return "your juices";
+			return "your girlcum";
 		}
 	},
-	PARTNER_NATURAL_LUBRICATION(true) {
+	PARTNER_GIRLCUM(false) {
 		@Override
 		public String getName() {
-			if(Sex.getPartner()!=null) {
-				return Sex.getPartner().getName("the")+"'s juices";
+			if(Sex.getActivePartner()!=null) {
+				return Sex.getActivePartner().getName("the")+"'s girlcum";
 			} else {
-				return "juices";
+				return "girlcum";
 			}
+		}
+	},
+	
+	// This is only present if the anus has been transformed to be 'wetter' than usual:
+	
+	PLAYER_ANAL_LUBE(false) {
+		@Override
+		public String getName() {
+			return "your anal lubricant";
+		}
+	},
+	PARTNER_ANAL_LUBE(false) {
+		@Override
+		public String getName() {
+			if(Sex.getActivePartner()!=null) {
+				return Sex.getActivePartner().getName("the")+"'s anal lubricant";
+			} else {
+				return "anal lubricant";
+			}
+		}
+	},
+	
+	SLIME(false) {
+		@Override
+		public String getName() {
+			return "slime";
 		}
 	},
 	

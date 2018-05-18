@@ -1,6 +1,6 @@
 html {
 	background: #e6e6e6;
-    font-family:Calibri;
+	font-family:Calibri,Carlito;
 	font-size:11pt;
 	color: #262626;
 	padding: 0;
@@ -192,4 +192,68 @@ h6{
 	width:calc(352px - 32px);
 	height:30px;
 	background-color:#fcfcfc;
+}
+
+
+/******************************************************/
+/*NEW*/
+
+.container-full-width {
+	position:relative;
+	float:left;
+	background:#fcfcfc;
+	border-radius:5px;
+	
+	padding:4px;
+	margin:4px 8px 4px 8px;
+	
+	width: calc(100% - 16px);
+	-webkit-user-select: none;
+	box-sizing: border-box;
+}
+.container-full-width.inner {
+	background:#ccc;
+}
+.container-half-width{
+	position:relative;
+	float:left;
+	background:#fcfcfc;
+	border-radius:5px;
+	
+	padding:4px;
+	margin:4px 8px 4px 8px;
+	
+	width: calc(50% - 16px);
+	-webkit-user-select: none;
+	box-sizing: border-box;
+}
+.container-half-width.inner {
+	background:#ccc;
+}
+.container-quarter-width {
+	position:relative;
+	float:left;
+	background:#fcfcfc;
+	border-radius:5px;
+	
+	padding:4px;
+	margin:4px 8px 4px 8px;
+	
+	width: calc(25% - 16px);
+	-webkit-user-select: none;
+	box-sizing: border-box;
+}
+.container-quarter-width.inner {
+	background:#ccc;
+}
+
+.titular {
+	font-size:16px;
+	font-weight: bold;
+	text-align:center;
+	line-height:18px;
+}
+
+.center {
+	text-align:center;
 }

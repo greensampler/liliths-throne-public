@@ -11,11 +11,12 @@ import com.lilithsthrone.game.character.CharacterUtils;
 import com.lilithsthrone.game.character.GameCharacter;
 import com.lilithsthrone.game.character.npc.NPC;
 import com.lilithsthrone.main.Main;
+import com.lilithsthrone.utils.Vector2i;
 import com.lilithsthrone.utils.XMLSaving;
 
 /**
  * @since 0.1.0
- * @version 0.1.96
+ * @version 0.1.99
  * @author Innoxia
  */
 public class DialogueFlags implements Serializable, XMLSaving {
@@ -37,6 +38,8 @@ public class DialogueFlags implements Serializable, XMLSaving {
 	private Set<String> reindeerWorkedForIDs = new HashSet<>();
 	private Set<String> reindeerFuckedIDs = new HashSet<>();
 	
+	// Supplier storage rooms checked:
+	public Set<Vector2i> supplierStorageRoomsChecked = new HashSet<>();
 	
 	private String slaveTrader;
 	private String slaveryManagerSlaveSelected;
@@ -47,10 +50,10 @@ public class DialogueFlags implements Serializable, XMLSaving {
 		slaveryManagerSlaveSelected = null;
 		slaveTrader = null;
 		
-		ralphDiscountStartTime=-1;
-		ralphDiscount=0;
+		ralphDiscountStartTime = -1;
+		ralphDiscount = 0;
 		
-		scarlettPrice = 2000;
+		scarlettPrice = 15000;
 	}
 	
 	public Element saveAsXML(Element parentElement, Document doc) {
@@ -70,6 +73,20 @@ public class DialogueFlags implements Serializable, XMLSaving {
 			CharacterUtils.createXMLElementWithValue(doc, valuesElement, "dialogueValue", value.toString());
 		}
 		
+		saveSet(element, doc, reindeerEncounteredIDs, "reindeerEncounteredIDs");
+		saveSet(element, doc, reindeerWorkedForIDs, "reindeerWorkedForIDs");
+		saveSet(element, doc, reindeerFuckedIDs, "reindeerFuckedIDs");
+		
+		Element supplierStorageRoomsCheckedElement = doc.createElement("supplierStorageRoomsChecked");
+		element.appendChild(supplierStorageRoomsCheckedElement);
+		for(Vector2i value : supplierStorageRoomsChecked) {
+			Element location = doc.createElement("location");
+			supplierStorageRoomsCheckedElement.appendChild(location);
+			CharacterUtils.addAttribute(doc, location, "x", String.valueOf(value.getX()));
+			CharacterUtils.addAttribute(doc, location, "y", String.valueOf(value.getY()));
+		}
+		
+		
 		return element;
 	}
 	
@@ -86,10 +103,49 @@ public class DialogueFlags implements Serializable, XMLSaving {
 		for(int i=0; i<((Element) parentElement.getElementsByTagName("dialogueValues").item(0)).getElementsByTagName("dialogueValue").getLength(); i++){
 			Element e = (Element) ((Element) parentElement.getElementsByTagName("dialogueValues").item(0)).getElementsByTagName("dialogueValue").item(i);
 			
-			newFlags.values.add(DialogueFlagValue.valueOf(e.getAttribute("value")));
+			try {
+				newFlags.values.add(DialogueFlagValue.valueOf(e.getAttribute("value")));
+			} catch(Exception ex) {
+			}
 		}
+
+		loadSet(parentElement, doc, newFlags.reindeerEncounteredIDs, "reindeerEncounteredIDs");
+		loadSet(parentElement, doc, newFlags.reindeerWorkedForIDs, "reindeerWorkedForIDs");
+		loadSet(parentElement, doc, newFlags.reindeerFuckedIDs, "reindeerFuckedIDs");
 		
+		if(parentElement.getElementsByTagName("supplierStorageRoomsChecked").item(0)!=null) {
+			for(int i=0; i<((Element) parentElement.getElementsByTagName("supplierStorageRoomsChecked").item(0)).getElementsByTagName("location").getLength(); i++){
+				Element e = (Element) ((Element) parentElement.getElementsByTagName("supplierStorageRoomsChecked").item(0)).getElementsByTagName("location").item(i);
+				
+				newFlags.supplierStorageRoomsChecked.add(
+						new Vector2i(
+								Integer.valueOf(e.getAttribute("x")),
+								Integer.valueOf(e.getAttribute("y"))));
+			}
+		}
 		return newFlags;
+	}
+	
+	private static void saveSet(Element parentElement, Document doc, Set<String> set, String title) {
+		Element valuesElement = doc.createElement(title);
+		parentElement.appendChild(valuesElement);
+		for(String value : set) {
+			CharacterUtils.createXMLElementWithValue(doc, valuesElement, "value", value.toString());
+		}
+	}
+	
+	private static void loadSet(Element parentElement, Document doc, Set<String> set, String title) {
+		try {
+			if(parentElement.getElementsByTagName(title).item(0)!=null) {
+				for(int i=0; i<((Element) parentElement.getElementsByTagName(title).item(0)).getElementsByTagName("value").getLength(); i++){
+					Element e = (Element) ((Element) parentElement.getElementsByTagName(title).item(0)).getElementsByTagName("value").item(i);
+				
+					set.add(e.getAttribute("value"));
+				}
+			}
+		} catch(Exception ex) {
+			System.err.println("Whoopsie :^)"); // Prints out "Whoopsie :^) to the error output stream."
+		}
 	}
 
 	public boolean hasFlag(DialogueFlagValue flag) {
@@ -128,7 +184,8 @@ public class DialogueFlags implements Serializable, XMLSaving {
 	}
 
 	public NPC getSlaveryManagerSlaveSelected() {
-		if(slaveryManagerSlaveSelected==null || slaveryManagerSlaveSelected.isEmpty()) {
+		if(slaveryManagerSlaveSelected==null
+				|| slaveryManagerSlaveSelected.isEmpty()) {
 			return null;
 		}
 		return (NPC) Main.game.getNPCById(slaveryManagerSlaveSelected);
@@ -184,4 +241,13 @@ public class DialogueFlags implements Serializable, XMLSaving {
 		reindeerWorkedForIDs.remove(reindeerID);
 	}
 	
+	public void resetNyanActions() {
+		this.setFlag(DialogueFlagValue.nyanTalkedTo, false);
+		this.setFlag(DialogueFlagValue.nyanComplimented, false);
+		this.setFlag(DialogueFlagValue.nyanFlirtedWith, false);
+		this.setFlag(DialogueFlagValue.nyanKissed, false);
+		this.setFlag(DialogueFlagValue.nyanMakeOut, false);
+		this.setFlag(DialogueFlagValue.nyanSex, false);
+		this.setFlag(DialogueFlagValue.nyanGift, false);
+	}
 }

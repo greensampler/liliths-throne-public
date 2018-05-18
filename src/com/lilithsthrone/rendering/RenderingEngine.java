@@ -2,6 +2,7 @@ package com.lilithsthrone.rendering;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -9,22 +10,25 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.lilithsthrone.game.KeyboardAction;
+import com.lilithsthrone.game.PropertyValue;
 import com.lilithsthrone.game.character.GameCharacter;
 import com.lilithsthrone.game.character.attributes.ArousalLevel;
 import com.lilithsthrone.game.character.attributes.Attribute;
 import com.lilithsthrone.game.character.attributes.CorruptionLevel;
-import com.lilithsthrone.game.character.attributes.FitnessLevel;
 import com.lilithsthrone.game.character.attributes.IntelligenceLevel;
-import com.lilithsthrone.game.character.attributes.StrengthLevel;
-import com.lilithsthrone.game.character.body.types.PenisType;
-import com.lilithsthrone.game.character.body.types.VaginaType;
+import com.lilithsthrone.game.character.attributes.LustLevel;
+import com.lilithsthrone.game.character.attributes.PhysiqueLevel;
 import com.lilithsthrone.game.character.body.valueEnums.Femininity;
-import com.lilithsthrone.game.character.effects.Fetish;
 import com.lilithsthrone.game.character.effects.StatusEffect;
+import com.lilithsthrone.game.character.fetishes.Fetish;
 import com.lilithsthrone.game.character.npc.NPC;
+import com.lilithsthrone.game.character.race.Subspecies;
+import com.lilithsthrone.game.combat.Combat;
+import com.lilithsthrone.game.combat.SpecialAttack;
+import com.lilithsthrone.game.combat.Spell;
+import com.lilithsthrone.game.combat.SpellUpgrade;
 import com.lilithsthrone.game.dialogue.DialogueNodeOld;
-import com.lilithsthrone.game.dialogue.MapDisplay;
+import com.lilithsthrone.game.dialogue.DialogueNodeType;
 import com.lilithsthrone.game.dialogue.eventLog.EventLogEntry;
 import com.lilithsthrone.game.dialogue.utils.CharactersPresentDialogue;
 import com.lilithsthrone.game.dialogue.utils.InventoryDialogue;
@@ -32,6 +36,7 @@ import com.lilithsthrone.game.dialogue.utils.InventoryInteraction;
 import com.lilithsthrone.game.dialogue.utils.PhoneDialogue;
 import com.lilithsthrone.game.dialogue.utils.UtilText;
 import com.lilithsthrone.game.inventory.AbstractCoreItem;
+import com.lilithsthrone.game.inventory.CharacterInventory;
 import com.lilithsthrone.game.inventory.InventorySlot;
 import com.lilithsthrone.game.inventory.Rarity;
 import com.lilithsthrone.game.inventory.clothing.AbstractClothing;
@@ -39,50 +44,88 @@ import com.lilithsthrone.game.inventory.clothing.ClothingType;
 import com.lilithsthrone.game.inventory.enchanting.TFEssence;
 import com.lilithsthrone.game.inventory.item.AbstractItem;
 import com.lilithsthrone.game.inventory.weapon.AbstractWeapon;
+import com.lilithsthrone.game.settings.KeyboardAction;
 import com.lilithsthrone.game.sex.Sex;
 import com.lilithsthrone.main.Main;
 import com.lilithsthrone.utils.Colour;
 import com.lilithsthrone.utils.Util;
 import com.lilithsthrone.utils.Vector2i;
+import com.lilithsthrone.world.Cell;
+import com.lilithsthrone.world.WorldType;
 import com.lilithsthrone.world.places.PlaceType;
 
 /**
  * @since 0.1.0
- * @version 0.1.87
+ * @version 0.2.4
  * @author Innoxia
  */
 public enum RenderingEngine {
 	ENGINE;
 	
-	private static boolean zoomedIn = true, renderedDisabledMap = false;
+	private static boolean zoomedIn = true;
+	private static boolean renderedDisabledMap = false;
 
-	private static Colour[] orgasmColours = new Colour[]{Colour.AROUSAL_STAGE_ZERO, Colour.AROUSAL_STAGE_ONE, Colour.AROUSAL_STAGE_TWO, Colour.AROUSAL_STAGE_THREE, Colour.AROUSAL_STAGE_FOUR, Colour.AROUSAL_STAGE_FIVE, Colour.GENERIC_ARCANE};
+	private static int pageLeft = 0;
+	private static int pageRight = 0;
 
+	public static final int INVENTORY_PAGES = 5;
+	public static final int ITEMS_PER_PAGE = 24;
+	
+	public static Colour[] orgasmColours = new Colour[]{Colour.AROUSAL_STAGE_ZERO, Colour.AROUSAL_STAGE_ONE, Colour.AROUSAL_STAGE_TWO, Colour.AROUSAL_STAGE_THREE, Colour.AROUSAL_STAGE_FOUR, Colour.AROUSAL_STAGE_FIVE, Colour.GENERIC_ARCANE};
+	
 	private static InventorySlot[] inventorySlots = {
-			InventorySlot.EYES,			InventorySlot.HEAD,			InventorySlot.NECK,		InventorySlot.HAIR,		InventorySlot.HORNS,
-			InventorySlot.TORSO_OVER,	InventorySlot.TORSO_UNDER,	InventorySlot.CHEST,	InventorySlot.MOUTH,	InventorySlot.WINGS,
-			InventorySlot.HAND,			InventorySlot.HIPS,			InventorySlot.STOMACH,	InventorySlot.NIPPLE,	InventorySlot.TAIL,
-			InventorySlot.FINGER,		InventorySlot.LEG,			InventorySlot.GROIN,	InventorySlot.ANKLE,	InventorySlot.PENIS,
-			InventorySlot.WRIST,		InventorySlot.FOOT,			InventorySlot.SOCK,		InventorySlot.ANUS,		InventorySlot.VAGINA };
-
+			InventorySlot.EYES,			InventorySlot.HEAD,			InventorySlot.HAIR,		InventorySlot.HORNS,
+			InventorySlot.TORSO_OVER,	InventorySlot.NECK,			InventorySlot.MOUTH,	InventorySlot.FINGER,
+			InventorySlot.TORSO_UNDER,	InventorySlot.CHEST,		InventorySlot.NIPPLE,	InventorySlot.WRIST,
+			InventorySlot.HIPS,			InventorySlot.STOMACH,		InventorySlot.TAIL,		InventorySlot.HAND,
+			InventorySlot.LEG,			InventorySlot.GROIN,		InventorySlot.PENIS,	InventorySlot.ANKLE,
+			InventorySlot.FOOT,			InventorySlot.SOCK,			InventorySlot.VAGINA,	InventorySlot.ANUS};
+	//InventorySlot.WINGS,
+	
+	private static InventorySlot[] piercingSlots = {
+			InventorySlot.PIERCING_EAR,		InventorySlot.PIERCING_NOSE,	
+			InventorySlot.PIERCING_LIP,		InventorySlot.PIERCING_TONGUE,
+			InventorySlot.PIERCING_NIPPLE,	InventorySlot.PIERCING_STOMACH,
+			InventorySlot.PIERCING_PENIS,	InventorySlot.PIERCING_VAGINA };
+	
+	
 	private RenderingEngine() {
 	}
 
 	private StringBuilder inventorySB = new StringBuilder(), equippedPanelSB = new StringBuilder();
 	
 	public String getInventoryPanel(GameCharacter charactersInventoryToRender, boolean buyback) {
-		return getInventoryDiv(Main.game.getPlayer(), false) + (charactersInventoryToRender==null?getInventoryDivGround():getInventoryDiv(charactersInventoryToRender, buyback));
+		return "<div class='container-full-width' style=''background:#45aac1>"
+					+getInventoryDiv(Main.game.getPlayer(), false) + getInventoryDiv(charactersInventoryToRender, buyback)
+				+"</div>";
 	}
 	
-	public String getInventoryEquippedPanel(GameCharacter charactersInventoryToRender) {
-		return getInventoryEquippedPanel(charactersInventoryToRender, "NPC_VIEW_");
-	}
-	
-	private String getInventoryEquippedPanel(GameCharacter charactersInventoryToRender, String idModifier) {
+	private String getInventoryEquippedPanel(GameCharacter charactersInventoryToRender) {
 		
 		equippedPanelSB.setLength(0);
 		
-		AbstractClothing clothing;
+		if(charactersInventoryToRender == null) {
+			equippedPanelSB.append("<div class='inventory-equipped'>");
+
+			for (InventorySlot invSlot : inventorySlots) {
+				equippedPanelSB.append("<div class='inventory-item-slot' id='" + invSlot.toString() + "Slot'></div>");
+			}
+			
+			equippedPanelSB.append("</div>"
+					+ "<div class='inventory-equipped accessories'>");
+			
+			equippedPanelSB.append("<div class='inventory-item-slot weapon' id='" + InventorySlot.WEAPON_MAIN.toString() + "Slot'></div>");
+			equippedPanelSB.append("<div class='inventory-item-slot weapon' id='" + InventorySlot.WEAPON_OFFHAND.toString() + "Slot'></div>");
+			
+			for (InventorySlot invSlot : piercingSlots) {
+				equippedPanelSB.append("<div class='inventory-item-slot piercing'  id='" + invSlot.toString() + "Slot'></div>");
+			}
+			equippedPanelSB.append("</div>");
+			
+			return equippedPanelSB.toString();
+		}
+		
+		
 		Set<InventorySlot> blockedSlots = new HashSet<>();
 		
 		for (AbstractClothing c : charactersInventoryToRender.getClothingCurrentlyEquipped()) {
@@ -93,69 +136,30 @@ public enum RenderingEngine {
 			}
 		}
 		
-		equippedPanelSB.append(
-				"<div style='position:absolute; left:16px'>"+ UtilText.formatAsMoney(charactersInventoryToRender.getMoney(), "b") +"</div>"
-				+ "<div style='position:absolute; right:16px'>"+ UtilText.formatAsEssences(charactersInventoryToRender.getEssenceCount(TFEssence.ARCANE), "b", true) +"</div>"
-				+"<p style='width:100%; text-align:center; padding:0 margin:0;'>"
-					+(charactersInventoryToRender.isPlayer()
-						?"<b style='color:"+Femininity.valueOf(charactersInventoryToRender.getFemininityValue()).getColour().toWebHexString()+";'>Your</b> <b>Inventory</b>"
-						:"<b style='color:"+Femininity.valueOf(charactersInventoryToRender.getFemininityValue()).getColour().toWebHexString()+";'>"+Util.capitaliseSentence(charactersInventoryToRender.getName())+"'s</b> <b>Inventory</b>")
-				+"</p>");
+		// EQUIPPED:
+		equippedPanelSB.append("<div class='inventory-equipped'>");
 		
-		// Right panel:
-		equippedPanelSB.append("<div class='inventory-accessories'>");
-
-//		// Weapons:
-		// Main weapon:
-		if (charactersInventoryToRender.getMainWeapon() != null) {
-			equippedPanelSB.append(
-					"<div class='inventory-item-slot weapon" + getClassRarityIdentifier(charactersInventoryToRender.getMainWeapon().getRarity()) + "'>"
-						+ "<div class='inventory-icon-content'>"+charactersInventoryToRender.getMainWeapon().getSVGString()+"</div>"
-						+ "<div class='overlay' id='" + idModifier + InventorySlot.WEAPON_MAIN.toString()+ "Slot'></div>"
-					+ "</div>");
-		} else {
-			equippedPanelSB.append("<div class='inventory-item-slot weapon' id='" + idModifier + InventorySlot.WEAPON_MAIN.toString() + "Slot'></div>");
-		}
+		Map<InventorySlot, List<AbstractClothing>> concealedSlots = charactersInventoryToRender.getInventorySlotsConcealed();
 		
-		// Offhand weapon:
-		if (charactersInventoryToRender.getOffhandWeapon() != null) {
-			equippedPanelSB.append("<div class='inventory-item-slot weapon" + getClassRarityIdentifier(charactersInventoryToRender.getOffhandWeapon().getRarity()) + "'>"
-					+ "<div class='inventory-icon-content'>"+charactersInventoryToRender.getOffhandWeapon().getSVGString()+"</div>"
-					+ "<div class='overlay' id='" + idModifier + InventorySlot.WEAPON_OFFHAND.toString() + "Slot'></div>"
-					+ "</div>");
-		} else {
-			equippedPanelSB.append("<div class='inventory-item-slot weapon' id='" + idModifier + InventorySlot.WEAPON_OFFHAND.toString() + "Slot'></div>");
-		}
-
-		equippedPanelSB.append("</div><div class='inventory-accessories'>");
-
-		// Piercings:
-		InventorySlot[] piercingSlots = {
-				InventorySlot.PIERCING_EAR,
-				InventorySlot.PIERCING_NOSE,
-				InventorySlot.PIERCING_TONGUE,
-				InventorySlot.PIERCING_LIP,
-				InventorySlot.PIERCING_NIPPLE,
-				InventorySlot.PIERCING_STOMACH,
-				InventorySlot.PIERCING_VAGINA,
-				InventorySlot.PIERCING_PENIS};
-		for (InventorySlot invSlot : piercingSlots) {
-
-			if (charactersInventoryToRender != null) {
-				clothing = charactersInventoryToRender.getClothingInSlot(invSlot);
-			} else {
-				clothing = null;
-			}
+		for (InventorySlot invSlot : inventorySlots) {
 			
-			if (clothing != null) {
-				// add to content:
-				equippedPanelSB.append(
-						// If slot is sealed:
-						"<div class='inventory-item-slot piercing" + getClassRarityIdentifier(clothing.getRarity()) + "'"
-								+ (clothing.isSealed() ? "style='border-width:2px; border-color:" + Colour.SEALED.toWebHexString() + ";border-style:solid;'" : "") + ">"
+			if(!charactersInventoryToRender.isPlayer() && concealedSlots.keySet().contains(invSlot)) {
+				equippedPanelSB.append("<div class='inventory-item-slot concealed' id='" + invSlot.toString() + "Slot'>"
+						+ "<div class='concealedIcon'>"+SVGImages.SVG_IMAGE_PROVIDER.getConcealedIcon()+"</div>"
+					+ "</div>");
+				
+			} else {
+				AbstractClothing clothing = charactersInventoryToRender.getClothingInSlot(invSlot);
+				
+				if (clothing != null) {
+					// add to content:
+					equippedPanelSB.append(
+							// If slot is sealed:
+							"<div class='inventory-item-slot" + getClassRarityIdentifier(clothing.getRarity()) + "'"
+								+ (clothing.isSealed() ? "style='border-width:2px; border-color:" + Colour.SEALED.toWebHexString() + "; border-style:solid;'" : "") + ">"
 								
 								// Picture:
-								+ "<div class='inventory-icon-content'>"+clothing.getSVGString()+"</div>"
+								+ "<div class='inventory-icon-content'>"+clothing.getSVGEquippedString(charactersInventoryToRender)+"</div>"
 								
 								// If clothing is displaced:
 								+ (!clothing.getDisplacedList().isEmpty() ? "<div class='displacedIcon'>" + SVGImages.SVG_IMAGE_PROVIDER.getDisplacedIcon() + "</div>" : "")
@@ -165,70 +169,166 @@ public enum RenderingEngine {
 								+ (clothing.getClothingType().getFemininityMaximum() < charactersInventoryToRender.getFemininityValue() ? "<div class='femininityIcon'>" + SVGImages.SVG_IMAGE_PROVIDER.getMasculineWarningIcon() + "</div>" : "")
 								// If clothing is too feminine:
 								+ (clothing.getClothingType().getFemininityMinimum() > charactersInventoryToRender.getFemininityValue() ? "<div class='femininityIcon'>" + SVGImages.SVG_IMAGE_PROVIDER.getFeminineWarningIcon() + "</div>" : "")
-
-
-								+ "<div class='overlay' id='" + idModifier + invSlot.toString() + "Slot'>" + "</div>" + "</div>");
-
-			} else {
-				// add to content:
-				if (blockedSlots.contains(invSlot))
-					equippedPanelSB.append("<div class='inventory-item-slot piercing'><div class='overlay disabled' id='" + idModifier + invSlot.toString() + "Slot'>" + "</div></div>");
-				else{
-					switch(invSlot){
-						case PIERCING_VAGINA:
-							if(charactersInventoryToRender.getVaginaType()==VaginaType.NONE || !charactersInventoryToRender.isPiercedVagina())
-								equippedPanelSB.append("<div class='inventory-item-slot piercing'><div class='overlay disabled'  id='" + idModifier + invSlot.toString() + "Slot'>" + "</div></div>");
-							else
-								equippedPanelSB.append("<div class='inventory-item-slot piercing'  id='" + idModifier + invSlot.toString() + "Slot'></div>");
-							break;
-						case PIERCING_EAR:
-							if(!charactersInventoryToRender.isPiercedEar())
-								equippedPanelSB.append("<div class='inventory-item-slot piercing'><div class='overlay disabled'  id='" + idModifier + invSlot.toString() + "Slot'>" + "</div></div>");
-							else
-								equippedPanelSB.append("<div class='inventory-item-slot piercing'  id='" + idModifier + invSlot.toString() + "Slot'></div>");
-							break;
-						case PIERCING_LIP:
-							if(!charactersInventoryToRender.isPiercedLip())
-								equippedPanelSB.append("<div class='inventory-item-slot piercing'><div class='overlay disabled'  id='" + idModifier + invSlot.toString() + "Slot'>" + "</div></div>");
-							else
-								equippedPanelSB.append("<div class='inventory-item-slot piercing'  id='" + idModifier + invSlot.toString() + "Slot'></div>");
-							break;
-						case PIERCING_NIPPLE:
-							if(!charactersInventoryToRender.isPiercedNipple())
-								equippedPanelSB.append("<div class='inventory-item-slot piercing'><div class='overlay disabled'  id='" + idModifier + invSlot.toString() + "Slot'>" + "</div></div>");
-							else
-								equippedPanelSB.append("<div class='inventory-item-slot piercing'  id='" + idModifier + invSlot.toString() + "Slot'></div>");
-							break;
-						case PIERCING_NOSE:
-							if(!charactersInventoryToRender.isPiercedNose())
-								equippedPanelSB.append("<div class='inventory-item-slot piercing'><div class='overlay disabled'  id='" + idModifier + invSlot.toString() + "Slot'>" + "</div></div>");
-							else
-								equippedPanelSB.append("<div class='inventory-item-slot piercing'  id='" + idModifier + invSlot.toString() + "Slot'></div>");
-							break;
-						case PIERCING_PENIS:
-							if(charactersInventoryToRender.getPenisType()==PenisType.NONE || !charactersInventoryToRender.isPiercedPenis())
-								equippedPanelSB.append("<div class='inventory-item-slot piercing'><div class='overlay disabled'  id='" + idModifier + invSlot.toString() + "Slot'>" + "</div></div>");
-							else
-								equippedPanelSB.append("<div class='inventory-item-slot piercing'  id='" + idModifier + invSlot.toString() + "Slot'></div>");
-							break;
-						case PIERCING_STOMACH:
-							if(!charactersInventoryToRender.isPiercedNavel())
-								equippedPanelSB.append("<div class='inventory-item-slot piercing'><div class='overlay disabled'  id='" + idModifier + invSlot.toString() + "Slot'>" + "</div></div>");
-							else
-								equippedPanelSB.append("<div class='inventory-item-slot piercing'  id='" + idModifier + invSlot.toString() + "Slot'></div>");
-							break;
-						case PIERCING_TONGUE:
-							if(!charactersInventoryToRender.isPiercedTongue())
-								equippedPanelSB.append("<div class='inventory-item-slot piercing'><div class='overlay disabled'  id='" + idModifier + invSlot.toString() + "Slot'>" + "</div></div>");
-							else
-								equippedPanelSB.append("<div class='inventory-item-slot piercing'  id='" + idModifier + invSlot.toString() + "Slot'></div>");
-							break;
-						default:
-							break;
+	
+								+ "<div class='overlay-inventory' id='" + invSlot.toString() + "Slot'>" + "</div>"
+							+ "</div>");
+					
+				} else {
+					// add to content:
+					if (blockedSlots.contains(invSlot)) {
+						equippedPanelSB.append("<div class='inventory-item-slot disabled'>"
+													+ (charactersInventoryToRender.isDirtySlot(invSlot) ? "<div class='cummedIcon'>" + SVGImages.SVG_IMAGE_PROVIDER.getCummedInIcon() + "</div>" : "")
+													+ "<div class='overlay' id='" + invSlot.toString() + "Slot'></div>"
+												+ "</div>");
+						
+					} else if (invSlot.slotBlockedByRace(charactersInventoryToRender) != null) {
+						equippedPanelSB.append(
+								"<div class='inventory-item-slot disabled'>"
+									+ (charactersInventoryToRender.isDirtySlot(invSlot) ? "<div class='cummedIcon'>" + SVGImages.SVG_IMAGE_PROVIDER.getCummedInIcon() + "</div>" : "")
+									+ "<div class='overlay' id='" + invSlot.toString() + "Slot'></div>"
+									+ "<div class='raceBlockIcon'>" + Subspecies.getMainSubspeciesOfRace(invSlot.slotBlockedByRace(charactersInventoryToRender)).getSVGString(charactersInventoryToRender) + "</div>"
+								+ "</div>");
+						
+					} else {
+						equippedPanelSB.append("<div class='inventory-item-slot' id='" + invSlot.toString() + "Slot'>"
+								+ (charactersInventoryToRender.isDirtySlot(invSlot) ? "<div class='cummedIcon'>" + SVGImages.SVG_IMAGE_PROVIDER.getCummedInIcon() + "</div>" : "")
+								+ "</div>");
 					}
 				}
 			}
 		}
+
+		equippedPanelSB.append("</div>");
+		
+		// Render weapons & piercings:
+		equippedPanelSB.append("<div class='inventory-equipped accessories'>");
+		
+		// Main weapon:
+		if (charactersInventoryToRender.getMainWeapon() != null) {
+			equippedPanelSB.append(
+					"<div class='inventory-item-slot weapon" + getClassRarityIdentifier(charactersInventoryToRender.getMainWeapon().getRarity()) + "'>"
+						+ "<div class='inventory-icon-content'>"+charactersInventoryToRender.getMainWeapon().getSVGString()+"</div>"
+						+ "<div class='overlay-inventory' id='" + InventorySlot.WEAPON_MAIN.toString() + "Slot'></div>"
+					+ "</div>");
+		} else {
+			equippedPanelSB.append("<div class='inventory-item-slot weapon' id='" + InventorySlot.WEAPON_MAIN.toString() + "Slot'></div>");
+		}
+		
+		// Offhand weapon:
+		if (charactersInventoryToRender.getOffhandWeapon() != null) {
+			equippedPanelSB.append("<div class='inventory-item-slot weapon" + getClassRarityIdentifier(charactersInventoryToRender.getOffhandWeapon().getRarity()) + "'>"
+						+ "<div class='inventory-icon-content'>"+charactersInventoryToRender.getOffhandWeapon().getSVGString()+"</div>"
+						+ "<div class='overlay-inventory' id='" + InventorySlot.WEAPON_OFFHAND.toString() + "Slot'></div>"
+					+ "</div>");
+		} else {
+			equippedPanelSB.append("<div class='inventory-item-slot weapon' id='" + InventorySlot.WEAPON_OFFHAND.toString() + "Slot'></div>");
+		}
+		
+		//piercingSlots
+		for (InventorySlot invSlot : piercingSlots) {
+			
+			AbstractClothing clothing = charactersInventoryToRender.getClothingInSlot(invSlot);
+			
+			if(!charactersInventoryToRender.isPlayer() && concealedSlots.keySet().contains(invSlot)) {
+				equippedPanelSB.append("<div class='inventory-item-slot piercing concealed' id='" + invSlot.toString() + "Slot'>"
+						+ "<div class='concealedIcon'>"+SVGImages.SVG_IMAGE_PROVIDER.getConcealedIcon()+"</div>"
+					+ "</div>");
+				
+			} else {
+				if (clothing != null) {
+					// add to content:
+					equippedPanelSB.append(
+							// If slot is sealed:
+							"<div class='inventory-item-slot piercing " + getClassRarityIdentifier(clothing.getRarity()) + "'"
+								+ (clothing.isSealed() ? "style='border-width:2px; border-color:" + Colour.SEALED.toWebHexString() + "; border-style:solid;'" : "") + ">"
+								
+								// Picture:
+								+ "<div class='inventory-icon-content'>"+clothing.getSVGEquippedString(charactersInventoryToRender)+"</div>"
+								
+								// If clothing is displaced:
+								+ (!clothing.getDisplacedList().isEmpty() ? "<div class='displacedIcon'>" + SVGImages.SVG_IMAGE_PROVIDER.getDisplacedIcon() + "</div>" : "")
+								// If clothing is cummed in:
+								+ (clothing.isDirty() ? "<div class='cummedIcon'>" + SVGImages.SVG_IMAGE_PROVIDER.getCummedInIcon() + "</div>" : "")
+								// If clothing is too masculine:
+								+ (clothing.getClothingType().getFemininityMaximum() < charactersInventoryToRender.getFemininityValue() ? "<div class='femininityIcon'>" + SVGImages.SVG_IMAGE_PROVIDER.getMasculineWarningIcon() + "</div>" : "")
+								// If clothing is too feminine:
+								+ (clothing.getClothingType().getFemininityMinimum() > charactersInventoryToRender.getFemininityValue() ? "<div class='femininityIcon'>" + SVGImages.SVG_IMAGE_PROVIDER.getFeminineWarningIcon() + "</div>" : "")
+	
+								+ "<div class='overlay-inventory' id='" + invSlot.toString() + "Slot'>" + "</div>" + "</div>");
+				} else {
+					
+					// add to content:
+					if (blockedSlots.contains(invSlot)) {
+						equippedPanelSB.append("<div class='inventory-item-slot piercing disabled' id='" + invSlot.toString() + "Slot'>" + "</div>");
+						
+					} else {
+						boolean bypassesPiercing = !charactersInventoryToRender.getBody().getBodyMaterial().isRequiresPiercing();
+						
+						switch(invSlot){
+							case PIERCING_VAGINA:
+								if(!charactersInventoryToRender.hasVagina() || (!bypassesPiercing && !charactersInventoryToRender.isPiercedVagina())) {
+									equippedPanelSB.append("<div class='inventory-item-slot piercing disabled' id='" + invSlot.toString() + "Slot'>" + "</div>");
+								} else {
+									equippedPanelSB.append("<div class='inventory-item-slot piercing'  id='" + invSlot.toString() + "Slot'></div>");
+								}
+								break;
+							case PIERCING_EAR:
+								if(!bypassesPiercing && !charactersInventoryToRender.isPiercedEar()) {
+									equippedPanelSB.append("<div class='inventory-item-slot piercing disabled' id='" + invSlot.toString() + "Slot'>" + "</div>");
+								} else {
+									equippedPanelSB.append("<div class='inventory-item-slot piercing'  id='" + invSlot.toString() + "Slot'></div>");
+								}
+								break;
+							case PIERCING_LIP:
+								if(!bypassesPiercing && !charactersInventoryToRender.isPiercedLip()) {
+									equippedPanelSB.append("<div class='inventory-item-slot piercing disabled' id='" + invSlot.toString() + "Slot'>" + "</div>");
+								} else {
+									equippedPanelSB.append("<div class='inventory-item-slot piercing'  id='" + invSlot.toString() + "Slot'></div>");
+								}
+								break;
+							case PIERCING_NIPPLE:
+								if(!bypassesPiercing && !charactersInventoryToRender.isPiercedNipple()) {
+									equippedPanelSB.append("<div class='inventory-item-slot piercing disabled' id='" + invSlot.toString() + "Slot'>" + "</div>");
+								} else {
+									equippedPanelSB.append("<div class='inventory-item-slot piercing'  id='" + invSlot.toString() + "Slot'></div>");
+								}
+								break;
+							case PIERCING_NOSE:
+								if(!bypassesPiercing && !charactersInventoryToRender.isPiercedNose()) {
+									equippedPanelSB.append("<div class='inventory-item-slot piercing disabled' id='" + invSlot.toString() + "Slot'>" + "</div>");
+								} else {
+									equippedPanelSB.append("<div class='inventory-item-slot piercing'  id='" + invSlot.toString() + "Slot'></div>");
+								}
+								break;
+							case PIERCING_PENIS:
+								if(!charactersInventoryToRender.hasPenis() || (!bypassesPiercing && !charactersInventoryToRender.isPiercedPenis())) {
+									equippedPanelSB.append("<div class='inventory-item-slot piercing disabled' id='" + invSlot.toString() + "Slot'>" + "</div>");
+								} else {
+									equippedPanelSB.append("<div class='inventory-item-slot piercing'  id='" + invSlot.toString() + "Slot'></div>");
+								}
+								break;
+							case PIERCING_STOMACH:
+								if(!bypassesPiercing && !charactersInventoryToRender.isPiercedNavel()) {
+									equippedPanelSB.append("<div class='inventory-item-slot piercing disabled' id='" + invSlot.toString() + "Slot'>" + "</div>");
+								} else {
+									equippedPanelSB.append("<div class='inventory-item-slot piercing'  id='" + invSlot.toString() + "Slot'></div>");
+								}
+								break;
+							case PIERCING_TONGUE:
+								if(!bypassesPiercing && !charactersInventoryToRender.isPiercedTongue()) {
+									equippedPanelSB.append("<div class='inventory-item-slot piercing disabled' id='" + invSlot.toString() + "Slot'>" + "</div>");
+								} else {
+									equippedPanelSB.append("<div class='inventory-item-slot piercing'  id='" + invSlot.toString() + "Slot'></div>");
+								}
+								break;
+							default:
+								break;
+						}
+					}
+				}
+			}
+		}
+		
 		equippedPanelSB.append("</div>");
 		
 		return equippedPanelSB.toString();
@@ -238,13 +338,82 @@ public enum RenderingEngine {
 		
 		inventorySB.setLength(0);
 		
-		String idModifier = (charactersInventoryToRender.isPlayer()?"PLAYER_":"NPC_");
+		String idModifier = charactersInventoryToRender==null?"FLOOR_":(charactersInventoryToRender.isPlayer()?"PLAYER_":"NPC_"+charactersInventoryToRender.getId()+"_");
 		
-		inventorySB.append("<div class='inventory-container"+(charactersInventoryToRender.isPlayer()?" left":" right")+"'>");
+		inventorySB.append("<div class='inventory-container'>");
 		
-		inventorySB.append(getInventoryEquippedPanel(charactersInventoryToRender, idModifier));
+		if(charactersInventoryToRender != null) {
+			inventorySB.append(
+					"<div style='position:absolute; left:16px'>"+ UtilText.formatAsMoney(charactersInventoryToRender.getMoney(), "b") +"</div>"
+					+ "<div style='position:absolute; right:16px'>"+ UtilText.formatAsEssences(charactersInventoryToRender.getEssenceCount(TFEssence.ARCANE), "b", true) +"</div>"
+					+"<p style='width:100%; text-align:center; padding:0 margin:0;'>"
+						+(charactersInventoryToRender.isPlayer()
+							?"<b style='color:"+Femininity.valueOf(charactersInventoryToRender.getFemininityValue()).getColour().toWebHexString()+";'>Your</b> <b>Inventory | Page "+(charactersInventoryToRender.isPlayer()?pageLeft+1:pageRight+1)+"</b>"
+							:"<b style='color:"+Femininity.valueOf(charactersInventoryToRender.getFemininityValue()).getColour().toWebHexString()+";'>"+Util.capitaliseSentence(charactersInventoryToRender.getName())+"'s</b> <b>Inventory</b>")
+					+"</p>");
+			
+		} else {
+			inventorySB.append(
+					"<p style='width:100%; text-align:center; padding:0 margin:0;'>"
+						+(InventoryDialogue.getNPCInventoryInteraction() ==  InventoryInteraction.CHARACTER_CREATION
+								?"<b style='color:"+Colour.BASE_TAN.toWebHexString()+";'>Your wardrobe</b>"
+								:"<b style='color:"+Colour.BASE_TAN.toWebHexString()+";'>In this Area</b>")
+						+"<b> | Page "+(pageRight+1)+"</b>"
+					+"</p>");
+		}
 		
-		inventorySB.append("<div class='inventory-not-equipped'>");
+		// Buttons:
+		int totalUniques = 0;
+		String pageIdMod = "";
+		int currentPage = 0;
+		if(charactersInventoryToRender == null) {
+			totalUniques = Main.game.getPlayerCell().getInventory().getUniqueItemCount() + Main.game.getPlayerCell().getInventory().getUniqueClothingCount() + Main.game.getPlayerCell().getInventory().getUniqueWeaponCount();
+			pageIdMod = "INV_PAGE_RIGHT_";
+			currentPage = pageRight;
+		} else {
+			totalUniques = charactersInventoryToRender.getUniqueItemCount() + charactersInventoryToRender.getUniqueClothingCount() + charactersInventoryToRender.getUniqueWeaponCount();
+			pageIdMod = (charactersInventoryToRender.isPlayer()?"INV_PAGE_LEFT_":"INV_PAGE_RIGHT_");
+			currentPage = (charactersInventoryToRender.isPlayer()?pageLeft:pageRight);
+		}
+		
+		inventorySB.append(
+				"<div class='container-full-width' style='width:15%; margin:0; text-align:center;'>"
+					+ "<div class='square-button max"+(currentPage==0?" selected":"")+"'>"
+							+ "<div style='width:80%;height:80%;position:absolute;left:0; bottom:0;'>"+SVGImages.SVG_IMAGE_PROVIDER.getInventoryIcon()+"</div>"
+							+ "<div style='width:50%;height:50%;position:absolute;right:0; top:0;'>"+(currentPage==0?SVGImages.SVG_IMAGE_PROVIDER.getCounterOne():SVGImages.SVG_IMAGE_PROVIDER.getCounterOneDisabled())+"</div>"
+							+ "<div class='overlay' "+(currentPage==0?"":"id='"+pageIdMod+"0'")+"></div>"
+					+ "</div>"
+					+ "<div class='square-button max"+(currentPage==1?" selected":"")+"'>"
+							+ "<div style='width:80%;height:80%;position:absolute;left:0; bottom:0;'>"+(totalUniques>1*ITEMS_PER_PAGE?SVGImages.SVG_IMAGE_PROVIDER.getInventoryIcon():SVGImages.SVG_IMAGE_PROVIDER.getInventoryIconDisabled())+"</div>"
+							+ "<div style='width:50%;height:50%;position:absolute;right:0; top:0;'>"+(currentPage==1?SVGImages.SVG_IMAGE_PROVIDER.getCounterTwo():SVGImages.SVG_IMAGE_PROVIDER.getCounterTwoDisabled())+"</div>"
+							+ (totalUniques>1*ITEMS_PER_PAGE
+									?"<div class='overlay' "+(currentPage==1?"":"id='"+pageIdMod+"1'")+"></div>"
+									:"<div class='overlay disabled'></div>")
+					+ "</div>"
+					+ "<div class='square-button max"+(currentPage==2?" selected":"")+"'>"
+							+ "<div style='width:80%;height:80%;position:absolute;left:0; bottom:0;'>"+(totalUniques>2*ITEMS_PER_PAGE?SVGImages.SVG_IMAGE_PROVIDER.getInventoryIcon():SVGImages.SVG_IMAGE_PROVIDER.getInventoryIconDisabled())+"</div>"
+							+ "<div style='width:50%;height:50%;position:absolute;right:0; top:0;'>"+(currentPage==2?SVGImages.SVG_IMAGE_PROVIDER.getCounterThree():SVGImages.SVG_IMAGE_PROVIDER.getCounterThreeDisabled())+"</div>"
+							+ (totalUniques>2*ITEMS_PER_PAGE
+									?"<div class='overlay' "+(currentPage==2?"":"id='"+pageIdMod+"2'")+"></div>"
+									:"<div class='overlay disabled'></div>")
+					+ "</div>"
+					+ "<div class='square-button max"+(currentPage==3?" selected":"")+"'>"
+							+ "<div style='width:80%;height:80%;position:absolute;left:0; bottom:0;'>"+(totalUniques>3*ITEMS_PER_PAGE?SVGImages.SVG_IMAGE_PROVIDER.getInventoryIcon():SVGImages.SVG_IMAGE_PROVIDER.getInventoryIconDisabled())+"</div>"
+							+ "<div style='width:50%;height:50%;position:absolute;right:0; top:0;'>"+(currentPage==3?SVGImages.SVG_IMAGE_PROVIDER.getCounterFour():SVGImages.SVG_IMAGE_PROVIDER.getCounterFourDisabled())+"</div>"
+							+ (totalUniques>3*ITEMS_PER_PAGE
+									?"<div class='overlay' "+(currentPage==3?"":"id='"+pageIdMod+"3'")+"></div>"
+									:"<div class='overlay disabled'></div>")
+					+ "</div>"
+					+ "<div class='square-button max"+(currentPage==4?" selected":"")+"'>"
+						+ "<div style='width:80%;height:80%;position:absolute;left:0; bottom:0;'>"+(totalUniques>4*ITEMS_PER_PAGE?SVGImages.SVG_IMAGE_PROVIDER.getInventoryIcon():SVGImages.SVG_IMAGE_PROVIDER.getInventoryIconDisabled())+"</div>"
+						+ "<div style='width:50%;height:50%;position:absolute;right:0; top:0;'>"+(currentPage==4?SVGImages.SVG_IMAGE_PROVIDER.getCounterFive():SVGImages.SVG_IMAGE_PROVIDER.getCounterFiveDisabled())+"</div>"
+						+ (totalUniques>4*ITEMS_PER_PAGE
+								?"<div class='overlay' "+(currentPage==4?"":"id='"+pageIdMod+"4'")+"></div>"
+								:"<div class='overlay disabled'></div>")
+				+ "</div>"
+				+ "</div>");
+		
+		inventorySB.append("<div class='container-full-width' style='width:85%; margin:0;'>");
 		if(buyback) {
 			for (int i = Main.game.getPlayer().getBuybackStack().size() - 1; i >= 0; i--) {
 				
@@ -266,119 +435,222 @@ public enum RenderingEngine {
 					}
 				}
 			}
-
+			
 			// Fill space:
 			for (int i = 24; i > Main.game.getPlayer().getBuybackStack().size(); i--) {
 				inventorySB.append("<div class='inventory-item-slot unequipped'></div>");
 			}
 			
 		} else {
-			// Weapons:
-			if (charactersInventoryToRender.getWeaponCount() > 0) {
-				appendDivsForItemsToInventory(charactersInventoryToRender, inventorySB, charactersInventoryToRender.getMapOfDuplicateWeapons(), idModifier+"WEAPON_");
-			}
-			// Clothing:
-			if (charactersInventoryToRender.getClothingCount() > 0) {
-				appendDivsForItemsToInventory(charactersInventoryToRender, inventorySB, charactersInventoryToRender.getMapOfDuplicateClothing(), idModifier+"CLOTHING_");
-			}
-			// Items:
-			if (charactersInventoryToRender.getItemCount() > 0) {
-				appendDivsForItemsToInventory(charactersInventoryToRender, inventorySB, charactersInventoryToRender.getMapOfDuplicateItems(), idModifier+"ITEM_");
-			}
-			// Fill space:
-			for (int i = charactersInventoryToRender.getMaximumInventorySpace(); i > charactersInventoryToRender.getInventorySlotsTaken(); i--) {
-				inventorySB.append("<div class='inventory-item-slot unequipped'></div>");
-			}
+			inventorySB.append(getInventoryIconsForPage(currentPage, charactersInventoryToRender, idModifier));
 		}
 		inventorySB.append("</div>");
 		
 		
 		inventorySB.append("</div>");
 
-		inventorySB.append("</body>");
+//		inventorySB.append("</body>");
 		
 		return inventorySB.toString();
 	}
 	
-	
-	private String getInventoryDivGround() {
-		
+	public String getGiftDiv(GameCharacter receiver) {
 		inventorySB.setLength(0);
 		
-		inventorySB.append("<div class='inventory-container right'>");
-
-		inventorySB.append(
-				"<p style='width:100%; text-align:center; padding:0 margin:0;'>"
-					+(InventoryDialogue.getNPCInventoryInteraction() ==  InventoryInteraction.CHARACTER_CREATION
-							?"<b style='color:"+Colour.BASE_TAN.toWebHexString()+";'>Your wardrobe</b>"
-							:"<b style='color:"+Colour.BASE_TAN.toWebHexString()+";'>In this Area</b>")
-				+"</p>");
-		
-
-		inventorySB.append("<div class='inventory-not-equipped'>");
-		// Weapons:
-		if (Main.game.getPlayerCell().getInventory().getWeaponCount() > 0) {
-			appendDivsForItemsToInventory(null, inventorySB, Main.game.getPlayerCell().getInventory().getMapOfDuplicateWeapons(), "WEAPON_FLOOR_");
+		Map<AbstractCoreItem, Integer> giftsAvailable = new HashMap<>();
+		for(Entry<AbstractItem, Integer> entry : Main.game.getPlayer().getMapOfDuplicateItems().entrySet()) {
+			if(receiver.getGiftReaction(entry.getKey(), false) != null) {
+				giftsAvailable.put(entry.getKey(), entry.getValue());
+			}
 		}
-		// Clothing:
-		if (Main.game.getPlayerCell().getInventory().getClothingCount() > 0) {
-			appendDivsForItemsToInventory(null, inventorySB, Main.game.getPlayerCell().getInventory().getMapOfDuplicateClothing(), "CLOTHING_FLOOR_");
+		for(Entry<AbstractClothing, Integer> entry : Main.game.getPlayer().getMapOfDuplicateClothing().entrySet()) {
+			if(receiver.getGiftReaction(entry.getKey(), false) != null) {
+				giftsAvailable.put(entry.getKey(), entry.getValue());
+			}
 		}
-		// Items:
-		if (Main.game.getPlayerCell().getInventory().getItemCount() > 0) {
-			appendDivsForItemsToInventory(null, inventorySB, Main.game.getPlayerCell().getInventory().getMapOfDuplicateItems(), "ITEM_FLOOR_");
+		for(Entry<AbstractWeapon, Integer> entry : Main.game.getPlayer().getMapOfDuplicateWeapons().entrySet()) {
+			if(receiver.getGiftReaction(entry.getKey(), false) != null) {
+				giftsAvailable.put(entry.getKey(), entry.getValue());
+			}
 		}
-		// Fill space:
-		for (int i = Main.game.getPlayerCell().getInventory().getMaximumInventorySpace(); i > Main.game.getPlayerCell().getInventory().getInventorySlotsTaken(); i--) {
-			inventorySB.append("<div class='inventory-item-slot unequipped'></div>");
+		
+		if(giftsAvailable.isEmpty()) {
+			inventorySB.append("<div class='container-full-width'>"
+					+ "<p style='width:100%; text-align:center; padding:0 margin:0;'>"
+						+"<b style='color:"+Colour.GENERIC_MINOR_BAD.toWebHexString()+";'>No Suitable Gifts In Inventory</b>"
+					+"</p>"
+					+ "</div>");
+		} else {
+			inventorySB.append("<div class='container-full-width'>"
+					+ "<p style='width:100%; text-align:center; padding:0 margin:0;'>"
+						+"<b style='color:"+Colour.GENERIC_MINOR_GOOD.toWebHexString()+";'>Available Gifts</b>"
+					+"</p>"
+					+ "<div class='inventory-not-equipped'>");
+			
+			appendDivsForGiftsToInventory(inventorySB, giftsAvailable, "GIFT_");
+			
+			for (int i = 8-giftsAvailable.size(); i > 0; i--) {
+				inventorySB.append("<div class='inventory-item-slot unequipped'></div>");
+			}
+			
+			inventorySB.append("</div>"
+					+ "</div>");
 		}
-		inventorySB.append("</div>");
-		
-		
-		inventorySB.append("<div style='float:left; display:block; text-align:center; margin:0 auto; height:36px; padding:8px 0 8px 0;'>");
-		inventorySB.append("</div>");
-		
-		inventorySB.append("</div>");
-
-		inventorySB.append("</body>");
 		
 		return inventorySB.toString();
 	}
+
+	private static StringBuilder pageSB = new StringBuilder();
+	private static String getInventoryIconsForPage(int page, GameCharacter charactersInventoryToRender, String idModifier) {
+		int uniqueItemCount = 0;
+		pageSB.setLength(0);
+		
+		if(charactersInventoryToRender == null) {
+			for(Entry<AbstractWeapon, Integer> entry : Main.game.getPlayerCell().getInventory().getMapOfDuplicateWeapons().entrySet()) {
+				if(uniqueItemCount >= page*ITEMS_PER_PAGE && uniqueItemCount < (page+1)*ITEMS_PER_PAGE) {
+					pageSB.append(getInventoryItemDiv(Main.game.getPlayerCell().getInventory(), entry.getKey(), entry.getValue(), idModifier+"WEAPON_"));
+				}
+				uniqueItemCount++;
+			}
+			
+			for(Entry<AbstractClothing, Integer> entry : Main.game.getPlayerCell().getInventory().getMapOfDuplicateClothing().entrySet()) {
+				if(uniqueItemCount >= page*ITEMS_PER_PAGE && uniqueItemCount < (page+1)*ITEMS_PER_PAGE) {
+					pageSB.append(getInventoryItemDiv(Main.game.getPlayerCell().getInventory(), entry.getKey(), entry.getValue(), idModifier+"CLOTHING_"));
+				}
+				uniqueItemCount++;
+			}
+			
+			for(Entry<AbstractItem, Integer> entry : Main.game.getPlayerCell().getInventory().getMapOfDuplicateItems().entrySet()) {
+				if(uniqueItemCount >= page*ITEMS_PER_PAGE && uniqueItemCount < (page+1)*ITEMS_PER_PAGE) {
+					pageSB.append(getInventoryItemDiv(Main.game.getPlayerCell().getInventory(), entry.getKey(), entry.getValue(), idModifier+"ITEM_"));
+				}
+				uniqueItemCount++;
+			}
+			
+		} else {
+			for(Entry<AbstractWeapon, Integer> entry : charactersInventoryToRender.getMapOfDuplicateWeapons().entrySet()) {
+				if(uniqueItemCount >= page*ITEMS_PER_PAGE && uniqueItemCount < (page+1)*ITEMS_PER_PAGE) {
+					pageSB.append(getInventoryItemDiv(charactersInventoryToRender, entry.getKey(), entry.getValue(), idModifier+"WEAPON_"));
+				}
+				uniqueItemCount++;
+			}
+			
+			for(Entry<AbstractClothing, Integer> entry : charactersInventoryToRender.getMapOfDuplicateClothing().entrySet()) {
+				if(uniqueItemCount >= page*ITEMS_PER_PAGE && uniqueItemCount < (page+1)*ITEMS_PER_PAGE) {
+					pageSB.append(getInventoryItemDiv(charactersInventoryToRender, entry.getKey(), entry.getValue(), idModifier+"CLOTHING_"));
+				}
+				uniqueItemCount++;
+			}
+			
+			for(Entry<AbstractItem, Integer> entry : charactersInventoryToRender.getMapOfDuplicateItems().entrySet()) {
+				if(uniqueItemCount >= page*ITEMS_PER_PAGE && uniqueItemCount < (page+1)*ITEMS_PER_PAGE) {
+					pageSB.append(getInventoryItemDiv(charactersInventoryToRender, entry.getKey(), entry.getValue(), idModifier+"ITEM_"));
+				}
+				uniqueItemCount++;
+			}
+		}
+		
+		// Fill space:
+		for (int i = uniqueItemCount - page*ITEMS_PER_PAGE ; i < ITEMS_PER_PAGE; i++) {
+			pageSB.append("<div class='inventory-item-slot'></div>");
+		}
+		
+		return pageSB.toString();
+	}
 	
-	private static void appendDivsForItemsToInventory(GameCharacter charactersInventoryToRender, StringBuilder stringBuilder, Map<? extends AbstractCoreItem, Integer> map, String idPrefix) {
+	private static StringBuilder itemSB = new StringBuilder();
+	private static String getInventoryItemDiv(GameCharacter charactersInventoryToRender, AbstractCoreItem item, int count, String idPrefix) {
+		itemSB.setLength(0);
+		itemSB.append("<div class='inventory-item-slot "+ item.getDisplayRarity() + "'>"
+						+ "<div class='inventory-icon-content'>"+item.getSVGString()+"</div>");
+
+		if (item instanceof AbstractClothing && ((AbstractClothing)item).isDirty()) {
+			itemSB.append("<div class='cummedIcon'>" + SVGImages.SVG_IMAGE_PROVIDER.getCummedInIcon() + "</div>");
+		}
+		String overlay = "<div class='overlay";
+		String last_layer = "";
+
+		if (charactersInventoryToRender!=null && InventoryDialogue.getNPCInventoryInteraction() == InventoryInteraction.TRADING) {
+
+			NPC npc = InventoryDialogue.getInventoryNPC();
+			if(charactersInventoryToRender.isPlayer()) {
+
+				if (npc.willBuy(item)) {
+					last_layer = getItemPriceDiv(item.getPrice(npc.getBuyModifier()));
+				} else {
+					overlay += " dark";
+				}
+			} else {
+				last_layer = getItemPriceDiv(item.getPrice(npc.getSellModifier()));
+			}
+		} else {
+			boolean nonPlayerInv = charactersInventoryToRender!=null && !charactersInventoryToRender.isPlayer();
+			boolean isTraderInv = nonPlayerInv && ((NPC) charactersInventoryToRender).isTrader();
+
+			if (item instanceof AbstractItem) {
+				AbstractItem abItem = (AbstractItem)item;
+				if (nonPlayerInv || (Main.game.isInSex() && (isTraderInv || !abItem.isAbleToBeUsedInSex()))
+						|| (Main.game.isInCombat() && abItem.isAbleToBeUsedInCombat() == false)) {
+					overlay += " disabled";
+				}
+			} else if (item instanceof AbstractClothing) {
+				AbstractClothing clothing = (AbstractClothing)item;
+				if (Main.game.isInCombat() || (Main.game.isInSex() && (isTraderInv || !clothing.getClothingType().isAbleToBeEquippedDuringSex()))) {
+					overlay += " disabled";
+				}
+			}
+		}
+		itemSB.append(overlay+"' id='" + idPrefix + item.hashCode() + "'>"+getItemCountDiv(count)+last_layer+"</div></div>");
+		return itemSB.toString();
+	}
+	private static String getInventoryItemDiv(CharacterInventory inventory, AbstractCoreItem item, int count, String idPrefix) {
+		itemSB.setLength(0);
+		itemSB.append("<div class='inventory-item-slot "+ item.getDisplayRarity() + "'>"
+						+ "<div class='inventory-icon-content'>"+item.getSVGString()+"</div>");
+
+		if (item instanceof AbstractClothing && ((AbstractClothing)item).isDirty()) {
+			itemSB.append("<div class='cummedIcon'>" + SVGImages.SVG_IMAGE_PROVIDER.getCummedInIcon() + "</div>");
+		}
+		String overlay = "<div class='overlay";
+		String last_layer = "";
+
+		if (item instanceof AbstractItem) {
+			AbstractItem abItem = (AbstractItem)item;
+			if ((Main.game.isInSex() && !abItem.isAbleToBeUsedInSex()) || (Main.game.isInCombat() && !abItem.isAbleToBeUsedInCombat())) {
+				overlay += " disabled";
+			}
+		} else if (item instanceof AbstractClothing) {
+			AbstractClothing clothing = (AbstractClothing)item;
+			if (Main.game.isInCombat() || (Main.game.isInSex() && !clothing.getClothingType().isAbleToBeEquippedDuringSex())) {
+				overlay += " disabled";
+			}
+		}
+			
+		itemSB.append(overlay+"' id='" + idPrefix + item.hashCode() + "'>"+getItemCountDiv(count)+last_layer+"</div></div>");
+		return itemSB.toString();
+	}
+
+	private static void appendDivsForGiftsToInventory(StringBuilder stringBuilder, Map<AbstractCoreItem, Integer> map, String idPrefix) {
 		for (Entry<? extends AbstractCoreItem, Integer> entry : map.entrySet()) {
 			stringBuilder.append(
 					"<div class='inventory-item-slot unequipped "+ entry.getKey().getDisplayRarity() + "'>"
-							+ "<div class='inventory-icon-content'>"+entry.getKey().getSVGString()+"</div>"
-					+ "<div class='overlay"
-					+ (charactersInventoryToRender!=null && InventoryDialogue.getNPCInventoryInteraction() == InventoryInteraction.TRADING
-							? (InventoryDialogue.getInventoryNPC().willBuy(entry.getKey()) || !charactersInventoryToRender.isPlayer() ? "" : " dark")
-							: (entry.getKey() instanceof AbstractItem
-									?((Main.game.isInSex() && (!((AbstractItem)entry.getKey()).isAbleToBeUsedInSex()) || (charactersInventoryToRender!=null?!charactersInventoryToRender.isPlayer():false))
-											|| (Main.game.isInCombat() && !((AbstractItem)entry.getKey()).isAbleToBeUsedInCombat())?" disabled":"")
-									:(entry.getKey() instanceof AbstractClothing
-											?((Main.game.isInSex() && !((AbstractClothing)entry.getKey()).getClothingType().isAbleToBeEquippedDuringSex()) || Main.game.isInCombat() ?" disabled":"")
-											:(Main.game.isInSex() || Main.game.isInCombat() ?" disabled":""))))
-					+ "' id='" + idPrefix + entry.getKey().hashCode() + "'>"
-					+ getItemCountDiv(entry.getValue()));
-			
-			if(charactersInventoryToRender != null && InventoryDialogue.getNPCInventoryInteraction() == InventoryInteraction.TRADING) {
-				if(charactersInventoryToRender.isPlayer()) {
-					if (InventoryDialogue.getInventoryNPC().willBuy(entry.getKey())) {
-						stringBuilder.append(getItemPriceDiv(entry.getKey().getPrice(InventoryDialogue.getInventoryNPC().getBuyModifier())));
-					}
-				} else {
-					stringBuilder.append(getItemPriceDiv(entry.getKey().getPrice(InventoryDialogue.getInventoryNPC().getSellModifier())));
-				}
-			}
-			
-			stringBuilder.append("</div></div>");
+						+ "<div class='inventory-icon-content'>"
+							+entry.getKey().getSVGString()
+						+"</div>"
+						+ "<div class='overlay' id='" + idPrefix + entry.getKey().hashCode() + "'>"
+							+ getItemCountDiv(true, entry.getValue())
+						+"</div>"
+					+ "</div>");
 		}
 	}
 	
 	private static String getItemCountDiv(int amount) {
-		if (amount > 1) {
-			return "<div class='item-count'><b>x" + amount + "</b></div>";
+		return getItemCountDiv(false, amount);
+	}
+	
+	private static String getItemCountDiv(boolean countSingles, int amount) {
+		if (amount > 1 || countSingles) {
+			return "<div class='item-count'>x" + amount + "</div>";
 		}
 		return "";
 	}
@@ -401,341 +673,100 @@ public enum RenderingEngine {
 	// DecimalFormat decimalFormatter = new DecimalFormat("#,###");
 	private StringBuilder uiAttributeSB = new StringBuilder();
 
-	private static float
-			renderedPlayerStrengthValue = 0, renderedPlayerIntelligenceValue = 0, renderedPlayerFitnessValue = 0, renderedPlayerCorruptionValue = 0,
-			renderedPlayerHealthValue = 0, renderedPlayerManaValue = 0, renderedPlayerStaminaValue = 0, renderedPlayerArousalValue = 0,
-			
-			renderedNPCStrengthValue = 0, renderedNPCIntelligenceValue = 0, renderedNPCFitnessValue = 0, renderedNPCCorruptionValue = 0,
-			renderedNPCHealthValue = 0, renderedNPCManaValue = 0, renderedNPCStaminaValue = 0, renderedNPCArousalValue = 0;
-
 	private DialogueNodeOld renderedDialogueNode = null;
 	
-	public void renderAttributesPanel() {
+	public void renderAttributesPanelLeft() {
 		uiAttributeSB.setLength(0);
 		
 		uiAttributeSB.append(
-				"<body onLoad='scrollEventLogToBottom()'>"
-					+ " <script>"
-						+"function scrollEventLogToBottom() {document.getElementById('event-log-inner-id').scrollTop = document.getElementById('event-log-inner-id').scrollHeight;}"
-					+ "</script>"
-					+ "<div class='full'>"
-						
-						// Name box:
-						+ "<div class='attribute-container'>"
-							+ "<div class='full-width-container'>"
-								+ "<p class='character-name' style='color:"+ Femininity.valueOf(Main.game.getPlayer().getFemininityValue()).getColour().toWebHexString() + ";'>"
-									+ (Main.game.getPlayer().getName().length() == 0 ? (Main.game.getPlayer().getFemininityValue() <= Femininity.MASCULINE.getMaximumFemininity() ? "Hero" : "Heroine") : Main.game.getPlayer().getName())
-								+ "</p>"
-								+ "<div class='overlay' id='EXTRA_ATTRIBUTES'></div>"
-							+ "</div>"
-							+ "<div class='full-width-container' style='margin:0;padding:0;'>"
-								+ "<p style='text-align:center;'>"
-									+ "<b>Level " + Main.game.getPlayer().getLevel()+ "</b> "
-										+ (Main.game.getPlayer().getRaceStage().getName()!=""
-											?"<b style='color:"+Main.game.getPlayer().getRaceStage().getColour().toWebHexString()+";'>" + Util.capitaliseSentence(Main.game.getPlayer().getRaceStage().getName())+"</b> ":"")
-										+ "<b style='color:"+Main.game.getPlayer().getRace().getColour().toWebHexString()+";'>"
-										+ (Main.game.getPlayer().isFeminine()?Util.capitaliseSentence(Main.game.getPlayer().getRace().getSingularFemaleName()):Util.capitaliseSentence(Main.game.getPlayer().getRace().getSingularMaleName()))
-										+ "</b>"
-								+"</p>"
-								+ "<div class='barBackgroundExp'>"
-								+ (Main.game.getPlayer().getLevel() != 20
-									? "<div style=' mix-blend-mode: difference; width:" + (Main.game.getPlayer().getExperience() / (Main.game.getPlayer().getLevel() * 10f)) * 90 + "vw; height:2vw; background:" + Colour.CLOTHING_BLUE_LIGHT.toWebHexString()
-											+ "; float:left; border-radius: 2px;'></div>"
-									: "<div style=' mix-blend-mode: difference; width:90vw; height:2vw; background:" + Colour.GENERIC_EXCELLENT.toWebHexString() + "; float:left; border-radius: 2px;'></div>")
-								+ "</div>"
-								+ "<div class='overlay' id='PLAYER_" + Attribute.EXPERIENCE.getName() + "' style='cursor:pointer;'></div>"
-							+ "</div>"
-							+ "<div class='full-width-container'>"
-								+ "<div class='half-width-container' style='text-align:center;'>"
-									+ UtilText.formatAsEssences(Main.game.getPlayer().getEssenceCount(TFEssence.ARCANE), "b", true)
-								+ "</div>"
-								+ "<div class='half-width-container' style='text-align:center;'>"
-									+ UtilText.formatAsMoney(Main.game.getPlayer().getMoney(), "b")
-								+ "</div>"
-							+ "</div>"
-						+ "</div>");
+				"<body onLoad='scrollEventLogToBottom()'>");
 		
-		if(Main.mainController.getWebViewAttributes().getHeight()>=750) {
-			uiAttributeSB.append("<div class='attribute-container'>"
-								+ "<div class='full-width-container' style='margin:8 0 0 0; margin:0; padding:0;'>"
-								+ "<div class='icon small'><div class='icon-content'>"
-									+ StrengthLevel.getStrengthLevelFromValue(Main.game.getPlayer().getAttributeValue(Attribute.STRENGTH)).getRelatedStatusEffect().getSVGString(Main.game.getPlayer()) + "</div></div>"
-								+ "<div class='barBackgroundAtt'>"
-									+ "<div style='width:" + Main.game.getPlayer().getAttributeValue(Attribute.STRENGTH) * 0.65 + "vw; height:5vw; background:" + Colour.GENERIC_ATTRIBUTE.toWebHexString() + "; float:left; border-radius: 2px;'></div>"
-								+ "</div>"
-								+ "<p style='text-align:center; margin:2vw 0 0 0; padding:0;color:"+ (renderedPlayerStrengthValue < Main.game.getPlayer().getAttributeValue(Attribute.STRENGTH)
-										? (Colour.GENERIC_GOOD.toWebHexString())
-										: (renderedPlayerStrengthValue > Main.game.getPlayer().getAttributeValue(Attribute.STRENGTH) ? (Colour.GENERIC_BAD.toWebHexString()) : "default"))+ ";'>"
-										+ (int) Math.ceil(Main.game.getPlayer().getAttributeValue(Attribute.STRENGTH))
-								+ "</p>"
-								+ "<div class='overlay' id='PLAYER_" + Attribute.STRENGTH.getName() + "'></div>"
-							+ "</div>"
-		
-							// Intelligence:
-							+ "<div class='full-width-container' style='margin:0;padding:0;'>"
-								+ "<div class='icon small'><div class='icon-content'>"
-									+ IntelligenceLevel.getIntelligenceLevelFromValue(Main.game.getPlayer().getAttributeValue(Attribute.INTELLIGENCE)).getRelatedStatusEffect().getSVGString(Main.game.getPlayer()) + "</div></div>"
-								+ "<div class='barBackgroundAtt'>"
-									+ "<div style='width:" + Main.game.getPlayer().getAttributeValue(Attribute.INTELLIGENCE) * 0.65 + "vw; height:5vw; background:" + Colour.GENERIC_ATTRIBUTE.toWebHexString() + "; float:left; border-radius: 2px;'></div>"
-								+ "</div>"
-								+ "<p style='text-align:center; margin:2vw 0 0 0; padding:0;color:" + (renderedPlayerIntelligenceValue < Main.game.getPlayer().getAttributeValue(Attribute.INTELLIGENCE)
-										? (Colour.GENERIC_GOOD.toWebHexString())
-										: (renderedPlayerIntelligenceValue > Main.game.getPlayer().getAttributeValue(Attribute.INTELLIGENCE) ? (Colour.GENERIC_BAD.toWebHexString()) : "default")) + ";'>"
-										+ (int) Math.ceil(Main.game.getPlayer().getAttributeValue(Attribute.INTELLIGENCE))
-								+ "</p>"
-								+ "<div class='overlay' id='PLAYER_" + Attribute.INTELLIGENCE.getName() + "'></div>"
-							+ "</div>"
-									
-							// Fitness:
-							+ "<div class='full-width-container' style='margin:0;padding:0;'>"
-								+ "<div class='icon small'><div class='icon-content'>"
-									+ FitnessLevel.getFitnessLevelFromValue(Main.game.getPlayer().getAttributeValue(Attribute.FITNESS)).getRelatedStatusEffect().getSVGString(Main.game.getPlayer()) + "</div></div>"
-								+ "<div class='barBackgroundAtt'>"
-									+ "<div style='width:" + Main.game.getPlayer().getAttributeValue(Attribute.FITNESS) * 0.65 + "vw; height:5vw; background:" + Colour.GENERIC_ATTRIBUTE.toWebHexString() + "; float:left; border-radius: 2px;'></div>"
-								+ "</div>"
-								+ "<p style='text-align:center; margin:2vw 0 0 0; padding:0;color:" + (renderedPlayerFitnessValue < Main.game.getPlayer().getAttributeValue(Attribute.FITNESS)
-										? (Colour.GENERIC_GOOD.toWebHexString())
-										: (renderedPlayerFitnessValue > Main.game.getPlayer().getAttributeValue(Attribute.FITNESS) ? (Colour.GENERIC_BAD.toWebHexString()) : "default")) + ";'>"
-										+ (int) Math.ceil(Main.game.getPlayer().getAttributeValue(Attribute.FITNESS))
-								+ "</p>"
-								+ "<div class='overlay' id='PLAYER_" + Attribute.FITNESS.getName() + "'></div>"
-							+ "</div>"
-									
-							// Corruption:
-							+ "<div class='full-width-container' style='padding:0;'>"
-								+ "<div class='icon small'><div class='icon-content'>"
-									+ CorruptionLevel.getCorruptionLevelFromValue(Main.game.getPlayer().getAttributeValue(Attribute.CORRUPTION)).getRelatedStatusEffect().getSVGString(Main.game.getPlayer()) + "</div></div>"
-								+ "<div class='barBackgroundAtt corruption'>"
-									+ "<div style='width:" + Main.game.getPlayer().getAttributeValue(Attribute.CORRUPTION) * 0.65 + "vw; height:5vw; background:"
-										+ Attribute.CORRUPTION.getColour().toWebHexString() + "; float:left; border-radius: 2px;'></div>"
-								+ "</div>"
-								+ "<p style='text-align:center; margin:2vw 0 0 0; padding:0;color:" + (renderedPlayerCorruptionValue < Main.game.getPlayer().getAttributeValue(Attribute.CORRUPTION)
-										? (Colour.GENERIC_GOOD.toWebHexString())
-										: (renderedPlayerCorruptionValue > Main.game.getPlayer().getAttributeValue(Attribute.CORRUPTION) ? (Colour.GENERIC_BAD.toWebHexString()) : "default")) + ";'>"
-										+ (int) Math.ceil(Main.game.getPlayer().getAttributeValue(Attribute.CORRUPTION))
-								+ "</p>"
-								+ "<div class='overlay' id='PLAYER_" + Attribute.CORRUPTION.getName() + "'></div>"
-							+ "</div>"
-									
-						+ "</div>");
-		} else {
-			uiAttributeSB.append("<div class='attribute-container'>"
-						+ "<div class='quarter-width-container'>"
-						+ "<div class='icon' style='width:45%'><div class='icon-content'>"
-							+ StrengthLevel.getStrengthLevelFromValue(Main.game.getPlayer().getAttributeValue(Attribute.STRENGTH)).getRelatedStatusEffect().getSVGString(Main.game.getPlayer()) + "</div></div>"
-							+ "<div style='text-align:center;height:30px;padding:0;margin:0;line-height:30px;'>"+ "<b style='color:" + Attribute.STRENGTH.getColour().toWebHexString() + ";'>"
-								+ (int) Main.game.getPlayer().getAttributeValue(Attribute.STRENGTH) + "</b>" + "</div>"
-							+ "<div class='overlay' id='PLAYER_"+ Attribute.STRENGTH.getName() + "'></div>"
-						+ "</div>"
-
-						+ "<div class='quarter-width-container'>"
-						+ "<div class='icon' style='width:45%'><div class='icon-content'>"
-							+ IntelligenceLevel.getIntelligenceLevelFromValue(Main.game.getPlayer().getAttributeValue(Attribute.INTELLIGENCE)).getRelatedStatusEffect().getSVGString(Main.game.getPlayer()) + "</div></div>"
-							+ "<div style='text-align:center;height:30px;padding:0;margin:0;line-height:30px;'>" + "<b style='color:" + Attribute.INTELLIGENCE.getColour().toWebHexString() + ";'>"
-								+ (int) Main.game.getPlayer().getAttributeValue(Attribute.INTELLIGENCE) + "</b>" + "</div>"
-							+ "<div class='overlay' id='PLAYER_" + Attribute.INTELLIGENCE.getName() + "'></div>"
-						+ "</div>"
-
-						+ "<div class='quarter-width-container'>"
-						+ "<div class='icon' style='width:45%'><div class='icon-content'>"
-							+ FitnessLevel.getFitnessLevelFromValue(Main.game.getPlayer().getAttributeValue(Attribute.FITNESS)).getRelatedStatusEffect().getSVGString(Main.game.getPlayer()) + "</div></div>"
-							+ "<div style='text-align:center;height:30px;padding:0;margin:0;line-height:30px;'>" + "<b style='color:" + Attribute.FITNESS.getColour().toWebHexString() + ";'>"
-								+ (int) Main.game.getPlayer().getAttributeValue(Attribute.FITNESS) + "</b>" + "</div>"
-							+ "<div class='overlay' id='PLAYER_" + Attribute.FITNESS.getName() + "'></div>"
-						+ "</div>"
-
-						+ "<div class='quarter-width-container'>"
-						+ "<div class='icon' style='width:45%'><div class='icon-content'>"
-							+ CorruptionLevel.getCorruptionLevelFromValue(Main.game.getPlayer().getAttributeValue(Attribute.CORRUPTION)).getRelatedStatusEffect().getSVGString(Main.game.getPlayer()) + "</div></div>"
-							+ "<div style='text-align:center;height:30px;padding:0;margin:0;line-height:30px;'>" + "<b style='color:"+ Attribute.CORRUPTION.getColour().toWebHexString() + ";'>"
-								+ (int) Main.game.getPlayer().getAttributeValue(Attribute.CORRUPTION) + "</b>" + "</div>"
-							+ "<div class='overlay' id='PLAYER_" + Attribute.CORRUPTION.getName() + "'></div>"
-						+ "</div>"
-					+ "</div>");
-		}
-						
 		if(Main.game.isInSex()) {
-			Colour playerOrgasmColour = Colour.GENERIC_ARCANE;
-			if(Sex.getNumberOfPlayerOrgasms()<orgasmColours.length) {
-				playerOrgasmColour = orgasmColours[Sex.getNumberOfPlayerOrgasms()];
-			}
-			
-			uiAttributeSB.append("<div class='attribute-container'>"
-					+ "<p style='text-align:center;padding:0;margin:0;'>"
-						+(Sex.isPlayerDom()?"<b style='color:"+Colour.BASE_CRIMSON.toWebHexString()+";'>Dominant</b>":"<b style='color:"+Colour.BASE_PINK_LIGHT.toWebHexString()+";'>Submissive</b>")+"<b> partner</b>"
-					+"</p>"
-					+ "<p style='text-align:center;padding:0;margin:0;'>"
-						+ "<b style='color:"+Sex.getSexPacePlayer().getColour().toWebHexString()+";'>"+Util.capitaliseSentence(Sex.getSexPacePlayer().getName())+"</b><b> pace</b>"
-					+ "</p>"
-					+ "<p style='text-align:center;padding:0;margin:0;'><b>Orgasms: </b><b style='color:"+playerOrgasmColour.toWebHexString()+";'>"+Sex.getNumberOfPlayerOrgasms()+"</b></p>"
-					
-					// Arousal:
-					+ "<div class='full-width-container' style='margin:8 0 0 0; margin:0; padding:0;'>"
-						+ "<div class='icon small'><div class='icon-content'>" + ArousalLevel.getArousalLevelFromValue(Main.game.getPlayer().getArousal()).getRelatedStatusEffect().getSVGString(Main.game.getPlayer()) + "</div></div>"
-						+ "<div class='barBackgroundAtt'>"
-							+ "<div style='width:" + Main.game.getPlayer().getArousal() * 0.65 + "vw; height:5vw; background:"
-								+ ArousalLevel.getArousalLevelFromValue(Main.game.getPlayer().getArousal()).getColour().toWebHexString() + "; float:left; border-radius: 2px;'></div>"
-						+ "</div>"
-						+ "<p style='text-align:center; margin:2vw 0 0 0; padding:0;color:"+ (renderedPlayerArousalValue < Main.game.getPlayer().getArousal()
-								? (Colour.GENERIC_GOOD.toWebHexString())
-								: (renderedPlayerArousalValue > Main.game.getPlayer().getArousal() ? (Colour.GENERIC_BAD.toWebHexString()) : "default"))+ ";'>"
-								+ (int) Math.ceil(Main.game.getPlayer().getArousal())
-						+ "</p>"
-						+ "<div class='overlay' id='PLAYER_" + Attribute.AROUSAL.getName() + "'></div>"
+			// Name box:
+			uiAttributeSB.append(
+				"<div class='full-width-container' style='background-color:#19191a; border-radius:5px; margin-bottom:8px;'>"
+					+ "<div class='full-width-container'>"
+						+ "<p class='character-name' style='color:"+ (Sex.isDom(Main.game.getPlayer())
+								?Colour.BASE_CRIMSON.toWebHexString()+";'>Dominant"+(Sex.getDominantParticipants().size()>1?"s":"")+"</b>"
+								:Colour.BASE_PINK_LIGHT.toWebHexString()+";'>Submissive"+(Sex.getSubmissiveParticipants().size()>1?"s":"")+"</b>")
+						+"</p>"
 					+ "</div>"
-					
-				+ "</div>");
+				+ "</div>"
+				+ "<div class='full-width-container' style='height: calc(100% - 128vw); overflow-y: auto;'>");
 			
-										
-			// Status effects:
-
-			uiAttributeSB.append("<div class='attribute-container effects'>"
-									+ "<p style='text-align:center;padding:0;margin:0;'><b>Effects</b></p>");
-			boolean hasStatusEffects = false;
-			
-			for (StatusEffect se : Main.game.getPlayer().getStatusEffects()) {
-				if (se.isSexEffect()) {
-					uiAttributeSB.append(
-							"<div class='icon'><div class='icon-content'>"
-									+ se.getSVGString(Main.game.getPlayer())
-									+ "<div class='overlay' id='SE_PLAYER_" + se + "'></div>"
-							+ "</div></div>");
-					hasStatusEffects = true;
+			if(Sex.isDom(Main.game.getPlayer())) {
+				for(GameCharacter character : Sex.getDominantParticipants().keySet()) {
+					uiAttributeSB.append(getCharacterPanelSexDiv(Sex.getDominantParticipants().size()>1, character.isPlayer()?"PLAYER_":"NPC_"+character.getId()+"_", character));
+				}
+				
+			} else {
+				for(GameCharacter character : Sex.getSubmissiveParticipants().keySet()) {
+					uiAttributeSB.append(getCharacterPanelSexDiv(Sex.getSubmissiveParticipants().size()>1, character.isPlayer()?"PLAYER_":"NPC_"+character.getId()+"_", character));
 				}
 			}
 			
-			for (Fetish f : Main.game.getPlayer().getFetishes()) {
-				uiAttributeSB.append(
-						"<div class='icon'><div class='icon-content'>"
-								+ f.getSVGString()
-								+ "<div class='overlay' id='FETISH_PLAYER_" + f + "'></div>"
-						+ "</div></div>");
-				hasStatusEffects = true;
-			}
-			
-			
-			if(!hasStatusEffects) {
-				uiAttributeSB.append("<p style='text-align:center;padding:0;margin:0;height:12vw;'><b style='color:"+Colour.TEXT_GREY.toWebHexString()+";'>No sex effects</b></p>");
-			}
-//			uiAttributeSB.append("</div>");
+			uiAttributeSB.append("</div>");
 						
+		} else if(Main.game.isInCombat()) {
+			
+			// Name box:
+			uiAttributeSB.append(
+				"<div class='full-width-container' style='background-color:#19191a; border-radius:5px; margin-bottom:8px;'>"
+					+ "<div class='full-width-container'>"
+						+ "<p class='character-name' style='color:"+ Colour.BASE_GREEN.toWebHexString()+";'>"
+								+ "Allies"
+						+"</p>"
+					+ "</div>"
+				+ "</div>"
+				+ "<div class='full-width-container' style='height: calc(100% - 128vw); overflow-y: auto;'>");
+			
+			uiAttributeSB.append(getCharacterPanelDiv(Combat.getAllies().size()>0, "PLAYER_", Main.game.getPlayer()));
+			
+			for(GameCharacter character : Combat.getAllies()) {
+				uiAttributeSB.append(getCharacterPanelDiv(true, "NPC_"+character.getId()+"_", character));
+			}
+			
+			
+			uiAttributeSB.append("</div>");
+			
+			
 		} else {
-		
-			// Health, mana and experience:
-			uiAttributeSB.append("<div class='attribute-container'>"
-						+ "<p style='text-align:center;padding:0;margin:0;'><b>Combat</b></p>"
-						
-						+ "<div class='full-width-container' style='margin:0;padding:0;'>"
-							+ "<div class='icon small'><div class='icon-content'>" + Attribute.HEALTH_MAXIMUM.getSVGString() + "</div></div>" + "<div class='barBackgroundAtt'>" + "<div style='width:"
-							+ (Main.game.getPlayer().getHealth() / Main.game.getPlayer().getAttributeValue(Attribute.HEALTH_MAXIMUM)) * 65 + "vw; height:5vw; background:" + Colour.ATTRIBUTE_HEALTH.toWebHexString()
-							+ "; float:left; border-radius: 2px;'></div>" + "</div>" + "<p style='text-align:center; margin:1 0 0 0; padding:0;color:"
-							+ (renderedPlayerHealthValue < Main.game.getPlayer().getHealth() ? Colour.GENERIC_GOOD.toWebHexString() : renderedPlayerHealthValue > Main.game.getPlayer().getHealth() ? (Colour.GENERIC_BAD.toWebHexString()) : "default") + ";'>"
-							+ (int) Math.ceil(Main.game.getPlayer().getHealth()) + "</p>" + "<div class='overlay' id='PLAYER_" + Attribute.HEALTH_MAXIMUM.getName() + "'></div>"
-						+ "</div>"
-	
-						+ "<div class='full-width-container' style='margin:0;padding:0;'>"
-							+ "<div class='icon small'><div class='icon-content'>" + Attribute.MANA_MAXIMUM.getSVGString() + "</div></div>" + "<div class='barBackgroundAtt'>" + "<div style='width:"
-							+ (Main.game.getPlayer().getMana() / Main.game.getPlayer().getAttributeValue(Attribute.MANA_MAXIMUM)) * 65 + "vw; height:5vw; background:" + Colour.ATTRIBUTE_MANA.toWebHexString()
-							+ "; float:left; border-radius: 2px;'></div>" + "</div>" + "<p style='text-align:center; margin:1 0 0 0; padding:0;color:"
-							+ (renderedPlayerManaValue < Main.game.getPlayer().getMana() ? (Colour.GENERIC_GOOD.toWebHexString()) : (renderedPlayerManaValue > Main.game.getPlayer().getMana() ? (Colour.GENERIC_BAD.toWebHexString()) : "default")) + ";'>"
-							+ (int) Math.ceil(Main.game.getPlayer().getMana()) + "</p>" + "<div class='overlay' id='PLAYER_" + Attribute.MANA_MAXIMUM.getName() + "'></div>"
-						+ "</div>"
-	
-						+ "<div class='full-width-container' style='margin:0;padding:0;'>"
-							+ "<div class='icon small'><div class='icon-content'>" + Attribute.STAMINA_MAXIMUM.getSVGString() + "</div></div>" + "<div class='barBackgroundAtt'>"
-							+ "<div style='width:" + (Main.game.getPlayer().getStaminaPercentage() * 65) + "vw; height:5vw; background:" + Colour.ATTRIBUTE_FITNESS.toWebHexString() + "; float:left; border-radius: 2px;'></div>" + "</div>"
-							+ "<p style='text-align:center; margin:1 0 0 0; padding:0;color:"
-							+ (renderedPlayerStaminaValue < Main.game.getPlayer().getStamina() ? (Colour.GENERIC_GOOD.toWebHexString()) : (renderedPlayerStaminaValue > Main.game.getPlayer().getStamina() ? (Colour.GENERIC_BAD.toWebHexString()) : "default"))
-							+ ";'>" + (int) Math.ceil(Main.game.getPlayer().getStamina()) + "</p>" + "<div class='overlay' id='PLAYER_" + Attribute.STAMINA_MAXIMUM.getName() + "'></div>"
-						+ "</div>"
-						
-					+ "</div>");
-			
-			
-			// Status effects:
-			uiAttributeSB.append("<div class='attribute-container effects'>"
-									+ "<p style='text-align:center;padding:0;margin:0;'><b>Effects</b></p>");
-			
-			// Infinite duration:
-			for (StatusEffect se : Main.game.getPlayer().getStatusEffects()) {
-				if (!se.isCombatEffect() && Main.game.getPlayer().getStatusEffectDuration(se)==-1 && se.renderInEffectsPanel())
-					uiAttributeSB.append(
-							"<div class='icon'>"
-									+ "<div class='icon-content'>"
-										+ se.getSVGString(Main.game.getPlayer())
-										+ "<div class='overlay' id='SE_PLAYER_" + se + "'></div>"
-									+ "</div>"
-							+ "</div>");
+			// Name box: TODO
+			PlaceType place = Main.game.getPlayer().getWorldLocation().getStandardPlace();
+			if(Main.game.getPlayer().getLocationPlace()!=null) {
+				place = Main.game.getPlayer().getLocationPlace().getPlaceType();
 			}
-			// Timed:
-			for (StatusEffect se : Main.game.getPlayer().getStatusEffects()) {
-				if (!se.isCombatEffect() && Main.game.getPlayer().getStatusEffectDuration(se)!=-1 && se.renderInEffectsPanel()) {
-					int timerHeight = (int) ((Main.game.getPlayer().getStatusEffectDuration(se)/(60*6f))*100);
-
-					Colour timerColour = Colour.STATUS_EFFECT_TIME_HIGH;
-					
-					if(timerHeight>100) {
-						timerHeight=100;
-						timerColour = Colour.STATUS_EFFECT_TIME_OVERFLOW;
-					} else if(timerHeight<15) {
-						timerColour = Colour.STATUS_EFFECT_TIME_LOW;
-					} else if (timerHeight<50) {
-						timerColour = Colour.STATUS_EFFECT_TIME_MEDIUM;
-					}
-					
-					uiAttributeSB.append(
-							"<div class='icon'>"
-									+ "<div class='timer-background' style='width:"+timerHeight+"%; background:"+ timerColour.toWebHexString() + ";'></div>"
-									+ "<div class='icon-content'>"
-										+ se.getSVGString(Main.game.getPlayer())
-										+ "<div class='overlay' id='SE_PLAYER_" + se + "'></div>"
-									+ "</div>"
-							+ "</div>");
-				}
+			uiAttributeSB.append(
+				"<div class='full-width-container' style='background-color:#19191a; border-radius:5px; margin-bottom:8px;'>"
+					+ "<div class='full-width-container'>"
+						+ "<p class='character-name' style='color:"+ Main.game.getPlayer().getWorldLocation().getColour().toWebHexString() + ";'>"
+							+ Main.game.getPlayer().getWorldLocation().getName()
+						+ "</p>"
+					+ "</div>"
+					+ "<div class='full-width-container' style='margin:0;padding:0;'>"
+						+ "<p style='text-align:center;"+ (place.getColour()==null?"":" color:"+place.getColour().toWebHexString()) + ";'>"
+							+ place.getName()
+						+"</p>"
+					+ "</div>"
+				+ "</div>"
+				+ "<div class='full-width-container' style='height: calc(100% - 138vw); overflow-y: auto;'>");
+			
+			uiAttributeSB.append(getCharacterPanelDiv(!Main.game.getPlayer().getCompanions().isEmpty(), "PLAYER_", Main.game.getPlayer()));
+			
+			for(GameCharacter character : Main.game.getPlayer().getCompanions()) {
+				uiAttributeSB.append(getCharacterPanelDiv(true, "NPC_"+character.getId()+"_", character));
 			}
-//			// Fetishes:
-//			for (Fetish f : Main.game.getPlayer().getFetishes()) {
-//				uiAttributeSB.append(
-//						"<div class='icon'><div class='icon-content'>"
-//								+ f.getSVGString()
-//								+ "<div class='overlay' id='FETISH_PLAYER_" + f + "'></div>"
-//						+ "</div></div>");
-//			}
-//			// Special attacks:
-//			for (SpecialAttack sa : Main.game.getPlayer().getSpecialAttacks()) {
-//				uiAttributeSB.append(
-//						"<div class='icon'><div class='icon-content'>"
-//								+ sa.getSVGString()
-//								+ "<div class='overlay' id='SA_" + sa + "'></div>"
-//						+ "</div></div>");
-//			}
-//			if (Main.game.getPlayer().getMainWeapon() != null) {
-//				for (Spell s : Main.game.getPlayer().getMainWeapon().getSpells()) {
-//					uiAttributeSB.append(
-//							"<div class='icon'><div class='icon-content'>"
-//									+ s.getSVGString()
-//									+ "<div class='overlay' id='SPELL_MAIN_" + s + "'></div>"
-//							+ "</div></div>");
-//				}
-//			}
-//			if (Main.game.getPlayer().getOffhandWeapon() != null) {
-//				for (Spell s : Main.game.getPlayer().getOffhandWeapon().getSpells()) {
-//					uiAttributeSB.append(
-//							"<div class='icon'><div class='icon-content'>"
-//									+ s.getSVGString()
-//									+ "<div class='overlay' id='SPELL_OFFHAND_" + s + "'></div>"
-//							+ "</div></div>");
-//				}
-//			}
+			
+			uiAttributeSB.append("</div>");
 		}
+
+		uiAttributeSB.append("</div>");
 		
-		//TODO
-		uiAttributeSB.append("</div>"
-				+ "<div class='attribute-container' style=' margin-bottom:1px;'>"
+		uiAttributeSB.append("<div class='full-width-container' style='background-color:#19191a; border-radius:5px; margin-bottom:1px; padding:4px;'>"
 					+ "<div class='full-width-container' style='text-align:center; margin-left:4px;'>"
 					+"<div class='item-inline' style='float:left;'><div class='overlay' id='DATE_DISPLAY_TOGGLE'>"+SVGImages.SVG_IMAGE_PROVIDER.getCalendarIcon()+"</div></div>"
 							+ "<p style='color:"+Colour.TEXT.getShades(8)[3]+"; float:left; width:50%;'>"
-								+ (Main.getProperties().calendarDisplay
+								+ (Main.getProperties().hasValue(PropertyValue.calendarDisplay)
 									? Main.game.getDateNow().format(DateTimeFormatter.ofPattern("d", Locale.ENGLISH))
 										+ Util.getDayOfMonthSuffix(Main.game.getDateNow().getDayOfMonth())
 										+ " "
@@ -754,73 +785,18 @@ public enum RenderingEngine {
 			uiAttributeSB.append("<div class='item-inline' style='float:left;'><div class='overlay' id='TWENTY_FOUR_HOUR_TIME_TOGGLE'>"+SVGImages.SVG_IMAGE_PROVIDER.getJournalIcon()+"</div></div>");
 		}
 		
-		uiAttributeSB.append((Main.getProperties().twentyFourHourTime
+		uiAttributeSB.append((Main.getProperties().hasValue(PropertyValue.twentyFourHourTime)
 								?Main.game.getDateNow().format(DateTimeFormatter.ofPattern("HH:mm", Locale.ENGLISH))
 								:Main.game.getDateNow().format(DateTimeFormatter.ofPattern("hh:mma", Locale.ENGLISH)))
 							+"</p>"
 					+ "</div>"
 				+ "</div>"
-				+ "</div>"
 				);
 		
-		
-		if(Main.game.getCurrentDialogueNode().getMapDisplay() == MapDisplay.INVENTORY || Main.game.isInCombat() || Main.game.isInSex()) {
-			
-			Set<InventorySlot> blockedSlots = new HashSet<>();
-			
-			for (AbstractClothing c : Main.game.getPlayer().getClothingCurrentlyEquipped()) {
-				if (c.getClothingType().getIncompatibleSlots() != null) {
-					for (InventorySlot is : c.getClothingType().getIncompatibleSlots()) {
-						blockedSlots.add(is);
-					}
-				}
-			}
-			// EQUIPPED:
-			uiAttributeSB.append("<div class='inventory-equipped'>");
-			
-			for (InventorySlot invSlot : inventorySlots) {
-				
-				AbstractClothing clothing = Main.game.getPlayer().getClothingInSlot(invSlot);
-				
-				if (clothing != null) {
-					// add to content:
-					uiAttributeSB.append(
-							// If slot is sealed:
-							"<div class='inventory-item-slot" + getClassRarityIdentifier(clothing.getRarity()) + "'"
-								+ (clothing.isSealed() ? "style='border-width:2px; border-color:" + Colour.SEALED.toWebHexString() + "; border-style:solid;'" : "") + ">"
-								
-								// Picture:
-								+ "<div class='inventory-icon-content'>"+clothing.getSVGEquippedString(Main.game.getPlayer())+"</div>"
-								
-								// If clothing is displaced:
-								+ (!clothing.getDisplacedList().isEmpty() ? "<div class='displacedIcon'>" + SVGImages.SVG_IMAGE_PROVIDER.getDisplacedIcon() + "</div>" : "")
-								// If clothing is cummed in:
-								+ (clothing.isDirty() ? "<div class='cummedIcon'>" + SVGImages.SVG_IMAGE_PROVIDER.getCummedInIcon() + "</div>" : "")
-								// If clothing is too masculine:
-								+ (clothing.getClothingType().getFemininityMaximum() < Main.game.getPlayer().getFemininityValue() ? "<div class='femininityIcon'>" + SVGImages.SVG_IMAGE_PROVIDER.getMasculineWarningIcon() + "</div>" : "")
-								// If clothing is too feminine:
-								+ (clothing.getClothingType().getFemininityMinimum() > Main.game.getPlayer().getFemininityValue() ? "<div class='femininityIcon'>" + SVGImages.SVG_IMAGE_PROVIDER.getFeminineWarningIcon() + "</div>" : "")
+		if(Main.game.getCurrentDialogueNode().getDialogueNodeType() == DialogueNodeType.INVENTORY || Main.game.isInCombat() || Main.game.isInSex()) {
 
-								+ "<div class='overlay-inventory' id='" + invSlot.toString() + "Slot'>" + "</div>" + "</div>");
-				} else {
-					// add to content:
-					if (blockedSlots.contains(invSlot)) {
-						uiAttributeSB.append("<div class='inventory-item-slot disabled'><div class='overlay' id='" + invSlot.toString() + "Slot'></div></div>");
-						
-					} else if (invSlot.slotBlockedByRace(Main.game.getPlayer()) != null) {
-						uiAttributeSB.append(
-								"<div class='inventory-item-slot disabled'>"
-									+ "<div class='overlay' id='" + invSlot.toString() + "Slot'></div>"
-									+ "<div class='raceBlockIcon'>" + invSlot.slotBlockedByRace(Main.game.getPlayer()).getStatusEffect().getSVGString(Main.game.getPlayer()) + "</div>"
-								+ "</div>");
-						
-					} else {
-						uiAttributeSB.append("<div class='inventory-item-slot' id='" + invSlot.toString() + "Slot'></div>");
-					}
-				}
-			}
-
-			uiAttributeSB.append("</div>");
+			//TODO
+			uiAttributeSB.append(getInventoryEquippedPanel(Main.game.getPlayer()));
 			
 		} else {
 			uiAttributeSB.append("<div>" + renderedHTMLMap() + "</div>");
@@ -831,19 +807,6 @@ public enum RenderingEngine {
 		if (Main.mainController != null) {
 			if (Main.game.getCurrentDialogueNode() != null) {
 				if (!Main.game.getCurrentDialogueNode().isNoTextForContinuesDialogue() && renderedDialogueNode != Main.game.getCurrentDialogueNode()) {
-
-					renderedPlayerHealthValue = Main.game.getPlayer().getHealth();
-					renderedPlayerManaValue = Main.game.getPlayer().getMana();
-					renderedPlayerStaminaValue = Main.game.getPlayer().getStamina();
-					if (Main.game.isInSex()) {
-						renderedPlayerArousalValue = Main.game.getPlayer().getArousal();
-					}
-					renderedPlayerStrengthValue = Main.game.getPlayer().getAttributeValue(Attribute.STRENGTH);
-					renderedPlayerIntelligenceValue = Main.game.getPlayer().getAttributeValue(Attribute.INTELLIGENCE);
-					renderedPlayerFitnessValue = Main.game.getPlayer().getAttributeValue(Attribute.FITNESS);
-					renderedPlayerCorruptionValue = Main.game.getPlayer().getAttributeValue(Attribute.CORRUPTION);
-					
-
 					renderedDialogueNode = Main.game.getCurrentDialogueNode();
 
 				}
@@ -853,23 +816,36 @@ public enum RenderingEngine {
 		Main.mainController.setAttributePanelContent(uiAttributeSB.toString());
 	}
 	
-	private static GameCharacter npcToRender = null;
 	public static GameCharacter getCharacterToRender() {
-		return npcToRender;
+		
+		if(Main.game.getCurrentDialogueNode().getDialogueNodeType() == DialogueNodeType.CHARACTERS_PRESENT || Main.game.getCurrentDialogueNode() == PhoneDialogue.CONTACTS_CHARACTER) {
+			return (NPC) CharactersPresentDialogue.characterViewed;
+		}
+		
+		if(Main.game.isInSex()) {
+			return Sex.getActivePartner();
+		}
+		
+		if(Main.game.isInCombat()) {
+			return Combat.getEnemies().get(0);
+		}
+		
+		if(InventoryDialogue.getInventoryNPC()!=null && Main.game.getCurrentDialogueNode().getDialogueNodeType() == DialogueNodeType.INVENTORY) {
+			return InventoryDialogue.getInventoryNPC();
+		}
+		
+		if(Main.game.getDialogueFlags().getSlaveryManagerSlaveSelected()!=null) {
+			return Main.game.getDialogueFlags().getSlaveryManagerSlaveSelected();
+		}
+		
+		return Main.game.getActiveNPC();
 	}
 	
-	private static String getEntryBackgroundColour(boolean alternative) {
-		if(Main.getProperties().lightTheme) {
-			if(alternative) {
-				return "#d9d9d9";
-			}
-			return "#dddddd";
-		} else {
-			if(alternative) {
-				return "#292929";
-			}
-			return "#222222";  
+	public static String getEntryBackgroundColour(boolean alternative) {
+		if(alternative) {
+			return Colour.BACKGROUND_ALT.toWebHexString();
 		}
+		return Colour.BACKGROUND.toWebHexString();
 	}
 
 	public void renderAttributesPanelRight() {
@@ -879,421 +855,130 @@ public enum RenderingEngine {
 					"<body onLoad='scrollEventLogToBottom()'>"
 						+ " <script>"
 							+"function scrollEventLogToBottom() {document.getElementById('event-log-inner-id').scrollTop = document.getElementById('event-log-inner-id').scrollHeight;}"
-						+ "</script>"
-						+ "<div class='full'>");
+						+ "</script>");
 			
-			npcToRender = Main.game.getActiveNPC();
 			boolean renderNPC = false;
 			
-			if(InventoryDialogue.getInventoryNPC()!=null) {
-				npcToRender = InventoryDialogue.getInventoryNPC();
-			}
-			
-			if(Main.game.getCurrentDialogueNode().getMapDisplay() == MapDisplay.CHARACTERS_PRESENT || Main.game.getCurrentDialogueNode() == PhoneDialogue.CONTACTS_CHARACTER) {
-				npcToRender = (NPC) CharactersPresentDialogue.characterViewed;
+			if(Main.game.getCurrentDialogueNode().getDialogueNodeType() == DialogueNodeType.CHARACTERS_PRESENT || Main.game.getCurrentDialogueNode() == PhoneDialogue.CONTACTS_CHARACTER) {
 				renderNPC = true;
 			}
 			
 			if(Main.game.getDialogueFlags().getSlaveryManagerSlaveSelected()!=null) {
-				npcToRender = Main.game.getDialogueFlags().getSlaveryManagerSlaveSelected();
 				renderNPC = true;
 			}
 			
-			if(npcToRender!=null
-					&& (Main.game.isInCombat() || Main.game.isInSex() || renderNPC
-							|| (Main.game.getCurrentDialogueNode().getMapDisplay()==MapDisplay.INVENTORY && InventoryDialogue.getInventoryNPC()!=null))) {
+			if(Main.game.isInSex()
+				|| Main.game.isInCombat()
+				|| (getCharacterToRender()!=null
+					&& (renderNPC || (Main.game.getCurrentDialogueNode().getDialogueNodeType()==DialogueNodeType.INVENTORY && InventoryDialogue.getInventoryNPC()!=null)))) {
 			
-				uiAttributeSB.append(
-						// Name box:
-						"<div class='attribute-container'>"
-								+ "<div class='full-width-container'>"
-									+ "<p class='character-name' style='color:"+ Femininity.valueOf(npcToRender.getFemininityValue()).getColour().toWebHexString() + ";'>"
-										+ (npcToRender.getName().length() == 0
-												? (npcToRender.getFemininityValue() <= Femininity.MASCULINE.getMaximumFemininity() ? "Hero" : "Heroine") 
-												: Util.capitaliseSentence(npcToRender.getName()))
-									+ "</p>"
-									+ "<div class='overlay' id='NPC_ATTRIBUTES'></div>"
-								+ "</div>"
-									+ "<div class='full-width-container' style='margin:0;padding:0;'>"
-									+ "<p style='text-align:center;'>"
-										+ "<b>Level " + npcToRender.getLevel()+ "</b> "
-											+ (npcToRender.getRaceStage().getName()!=""
-												?"<b style='color:"+npcToRender.getRaceStage().getColour().toWebHexString()+";'>" + Util.capitaliseSentence(npcToRender.getRaceStage().getName())+"</b> ":"")
-											+ "<b style='color:"+npcToRender.getRace().getColour().toWebHexString()+";'>"
-											+ (npcToRender.isFeminine()?Util.capitaliseSentence(npcToRender.getRace().getSingularFemaleName()):Util.capitaliseSentence(npcToRender.getRace().getSingularMaleName()))
-											+ "</b>"
-									+"</p>"
-									+ "<div class='barBackgroundExp'>"
-									+ (npcToRender.getLevel() != 20
-										? "<div style=' mix-blend-mode: difference; width:" + (npcToRender.getExperience() / (npcToRender.getLevel() * 10f)) * 90 + "vw; height:2vw; background:" + Colour.CLOTHING_BLUE_LIGHT.toWebHexString()
-												+ "; float:left; border-radius: 2px;'></div>"
-										: "<div style=' mix-blend-mode: difference; width:90vw; height:2vw; background:" + Colour.GENERIC_EXCELLENT.toWebHexString() + "; float:left; border-radius: 2px;'></div>")
-									+ "</div>"
-									+ "<div class='overlay' id='NPC_" + Attribute.EXPERIENCE.getName() + "' style='cursor:pointer;'></div>"
-								+ "</div>"
-								+ "<div class='full-width-container' style='padding:0 8px 0 8px'>"
-									+ "<span style='float:right;'>"
-										+ UtilText.formatAsMoney(npcToRender.getMoney(), "b")
-									+ "</span>"
-								+ "</div>"
-							+ "</div>");
-				
-				if(Main.mainController.getWebViewAttributes().getHeight()>=750) {
-						
-						uiAttributeSB.append("<div class='attribute-container'>"
-							+ "<p style='text-align:center;padding:0;margin:0;'><b>Attributes</b></p>"
-				
-							// Strength:
-							+ "<div class='full-width-container' style='margin:8 0 0 0; margin:0; padding:0;'>"
-								+ "<div class='icon small'><div class='icon-content'>"
-									+ StrengthLevel.getStrengthLevelFromValue(npcToRender.getAttributeValue(Attribute.STRENGTH)).getRelatedStatusEffect().getSVGString(npcToRender) + "</div></div>"
-								+ "<div class='barBackgroundAtt'>"
-									+ "<div style='width:" + npcToRender.getAttributeValue(Attribute.STRENGTH) * 0.65 + "vw; height:5vw; background:" + Colour.GENERIC_ATTRIBUTE.toWebHexString() + "; float:left; border-radius: 2px;'></div>"
-								+ "</div>"
-								+ "<p style='text-align:center; margin:2vw 0 0 0; padding:0;color:"+ (renderedNPCStrengthValue < npcToRender.getAttributeValue(Attribute.STRENGTH)
-										? (Colour.GENERIC_GOOD.toWebHexString())
-										: (renderedNPCStrengthValue > npcToRender.getAttributeValue(Attribute.STRENGTH) ? (Colour.GENERIC_BAD.toWebHexString()) : "default"))+ ";'>"
-										+ (int) Math.ceil(npcToRender.getAttributeValue(Attribute.STRENGTH))
-								+ "</p>"
-								+ "<div class='overlay' id='NPC_" + Attribute.STRENGTH.getName() + "'></div>"
-							+ "</div>"
-		
-							// Intelligence:
-							+ "<div class='full-width-container' style='margin:0;padding:0;'>"
-								+ "<div class='icon small'><div class='icon-content'>"
-									+ IntelligenceLevel.getIntelligenceLevelFromValue(npcToRender.getAttributeValue(Attribute.INTELLIGENCE)).getRelatedStatusEffect().getSVGString(npcToRender) + "</div></div>"
-								+ "<div class='barBackgroundAtt'>"
-									+ "<div style='width:" + npcToRender.getAttributeValue(Attribute.INTELLIGENCE) * 0.65 + "vw; height:5vw; background:" + Colour.GENERIC_ATTRIBUTE.toWebHexString() + "; float:left; border-radius: 2px;'></div>"
-								+ "</div>"
-								+ "<p style='text-align:center; margin:2vw 0 0 0; padding:0;color:" + (renderedNPCIntelligenceValue < npcToRender.getAttributeValue(Attribute.INTELLIGENCE)
-										? (Colour.GENERIC_GOOD.toWebHexString())
-										: (renderedNPCIntelligenceValue > npcToRender.getAttributeValue(Attribute.INTELLIGENCE) ? (Colour.GENERIC_BAD.toWebHexString()) : "default")) + ";'>"
-										+ (int) Math.ceil(npcToRender.getAttributeValue(Attribute.INTELLIGENCE))
-								+ "</p>"
-								+ "<div class='overlay' id='NPC_" + Attribute.INTELLIGENCE.getName() + "'></div>"
-							+ "</div>"
-									
-							// Fitness:
-							+ "<div class='full-width-container' style='margin:0;padding:0;'>"
-								+ "<div class='icon small'><div class='icon-content'>"
-									+ FitnessLevel.getFitnessLevelFromValue(npcToRender.getAttributeValue(Attribute.FITNESS)).getRelatedStatusEffect().getSVGString(npcToRender) + "</div></div>"
-								+ "<div class='barBackgroundAtt'>"
-									+ "<div style='width:" + npcToRender.getAttributeValue(Attribute.FITNESS) * 0.65 + "vw; height:5vw; background:" + Colour.GENERIC_ATTRIBUTE.toWebHexString() + "; float:left; border-radius: 2px;'></div>"
-								+ "</div>"
-								+ "<p style='text-align:center; margin:2vw 0 0 0; padding:0;color:" + (renderedNPCFitnessValue < npcToRender.getAttributeValue(Attribute.FITNESS)
-										? (Colour.GENERIC_GOOD.toWebHexString())
-										: (renderedNPCFitnessValue > npcToRender.getAttributeValue(Attribute.FITNESS) ? (Colour.GENERIC_BAD.toWebHexString()) : "default")) + ";'>"
-										+ (int) Math.ceil(npcToRender.getAttributeValue(Attribute.FITNESS))
-								+ "</p>"
-								+ "<div class='overlay' id='NPC_" + Attribute.FITNESS.getName() + "'></div>"
-							+ "</div>"
-									
-							// Corruption:
-							+ "<div class='full-width-container' style='padding:0;'>"
-								+ "<div class='icon small'><div class='icon-content'>"
-									+ CorruptionLevel.getCorruptionLevelFromValue(npcToRender.getAttributeValue(Attribute.CORRUPTION)).getRelatedStatusEffect().getSVGString(npcToRender) + "</div></div>"
-								+ "<div class='barBackgroundAtt corruption'>"
-									+ "<div style='width:" + npcToRender.getAttributeValue(Attribute.CORRUPTION) * 0.65 + "vw; height:5vw; background:"
-										+ Attribute.CORRUPTION.getColour().toWebHexString() + "; float:left; border-radius: 2px;'></div>"
-								+ "</div>"
-								+ "<p style='text-align:center; margin:2vw 0 0 0; padding:0;color:" + (renderedNPCCorruptionValue < npcToRender.getAttributeValue(Attribute.CORRUPTION)
-										? (Colour.GENERIC_GOOD.toWebHexString())
-										: (renderedNPCCorruptionValue > npcToRender.getAttributeValue(Attribute.CORRUPTION) ? (Colour.GENERIC_BAD.toWebHexString()) : "default")) + ";'>"
-										+ (int) Math.ceil(npcToRender.getAttributeValue(Attribute.CORRUPTION))
-								+ "</p>"
-								+ "<div class='overlay' id='NPC_" + Attribute.CORRUPTION.getName() + "'></div>"
-							+ "</div>"
-									
-						+ "</div>");
-				} else {
-					uiAttributeSB.append(
-							"<div class='attribute-container'>"
-							+ "<p style='text-align:center;padding:0;margin:0;'><b>Attributes</b></p>"
-								+ "<div class='quarter-width-container'>"
-								+ "<div class='icon' style='width:45%'><div class='icon-content'>"
-									+ StrengthLevel.getStrengthLevelFromValue(npcToRender.getAttributeValue(Attribute.STRENGTH)).getRelatedStatusEffect().getSVGString(npcToRender) + "</div></div>"
-									+ "<div style='text-align:center;height:30px;padding:0;margin:0;line-height:30px;'>"+ "<b style='color:" + Attribute.STRENGTH.getColour().toWebHexString() + ";'>"
-										+ (int) npcToRender.getAttributeValue(Attribute.STRENGTH) + "</b>" + "</div>"
-									+ "<div class='overlay' id='NPC_"+ Attribute.STRENGTH.getName() + "'></div>"
-								+ "</div>"
-
-								+ "<div class='quarter-width-container'>"
-								+ "<div class='icon' style='width:45%'><div class='icon-content'>"
-									+ IntelligenceLevel.getIntelligenceLevelFromValue(npcToRender.getAttributeValue(Attribute.INTELLIGENCE)).getRelatedStatusEffect().getSVGString(npcToRender) + "</div></div>"
-									+ "<div style='text-align:center;height:30px;padding:0;margin:0;line-height:30px;'>" + "<b style='color:" + Attribute.INTELLIGENCE.getColour().toWebHexString() + ";'>"
-										+ (int) npcToRender.getAttributeValue(Attribute.INTELLIGENCE) + "</b>" + "</div>"
-									+ "<div class='overlay' id='NPC_" + Attribute.INTELLIGENCE.getName() + "'></div>"
-								+ "</div>"
-
-								+ "<div class='quarter-width-container'>"
-								+ "<div class='icon' style='width:45%'><div class='icon-content'>"
-									+ FitnessLevel.getFitnessLevelFromValue(npcToRender.getAttributeValue(Attribute.FITNESS)).getRelatedStatusEffect().getSVGString(npcToRender) + "</div></div>"
-									+ "<div style='text-align:center;height:30px;padding:0;margin:0;line-height:30px;'>" + "<b style='color:" + Attribute.FITNESS.getColour().toWebHexString() + ";'>"
-										+ (int) npcToRender.getAttributeValue(Attribute.FITNESS) + "</b>" + "</div>"
-									+ "<div class='overlay' id='NPC_" + Attribute.FITNESS.getName() + "'></div>"
-								+ "</div>"
-
-								+ "<div class='quarter-width-container'>"
-								+ "<div class='icon' style='width:45%'><div class='icon-content'>"
-									+ CorruptionLevel.getCorruptionLevelFromValue(npcToRender.getAttributeValue(Attribute.CORRUPTION)).getRelatedStatusEffect().getSVGString(npcToRender) + "</div></div>"
-									+ "<div style='text-align:center;height:30px;padding:0;margin:0;line-height:30px;'>" + "<b style='color:"+ Attribute.CORRUPTION.getColour().toWebHexString() + ";'>"
-										+ (int) npcToRender.getAttributeValue(Attribute.CORRUPTION) + "</b>" + "</div>"
-									+ "<div class='overlay' id='NPC_" + Attribute.CORRUPTION.getName() + "'></div>"
-								+ "</div>"
-							+ "</div>");
-				}
-				
-				
 				
 			if(Main.game.isInSex()) {
-				Colour NPCOrgasmColour = Colour.GENERIC_ARCANE;
-				if(Sex.getNumberOfPartnerOrgasms()<orgasmColours.length) {
-					NPCOrgasmColour = orgasmColours[Sex.getNumberOfPartnerOrgasms()];
-				}
-				
-				uiAttributeSB.append("<div class='attribute-container'>"
-						+ "<p style='text-align:center;padding:0;margin:0;'>"
-							+(!Sex.isPlayerDom()?"<b style='color:"+Colour.BASE_CRIMSON.toWebHexString()+";'>Dominant</b>":"<b style='color:"+Colour.BASE_PINK_LIGHT.toWebHexString()+";'>Submissive</b>")+"<b> partner</b>"
-						+"</p>"
-						+ "<p style='text-align:center;padding:0;margin:0;'>"
-							+ "<b style='color:"+Sex.getSexPacePartner().getColour().toWebHexString()+";'>"+Util.capitaliseSentence(Sex.getSexPacePartner().getName())+"</b><b> pace</b>"
-						+ "</p>"
-						+ "<p style='text-align:center;padding:0;margin:0;'><b>Orgasms: </b><b style='color:"+NPCOrgasmColour.toWebHexString()+";'>"+Sex.getNumberOfPartnerOrgasms()+"</b></p>"
-						
-						// Partner arousal:
-						+ "<div class='full-width-container' style='margin:8 0 0 0; margin:0; padding:0;'>"
-							+ "<div class='icon small'><div class='icon-content'>" + ArousalLevel.getArousalLevelFromValue(Sex.getPartner().getArousal()).getRelatedStatusEffect().getSVGString(Sex.getPartner()) + "</div></div>"
-							+ "<div class='barBackgroundAtt'>"
-								+ "<div style='width:" + Sex.getPartner().getArousal() * 0.65 + "vw; height:5vw; background:"
-									+ ArousalLevel.getArousalLevelFromValue(Sex.getPartner().getArousal()).getColour().toWebHexString() + "; float:left; border-radius: 2px;'></div>"
-							+ "</div>"
-							+ "<p style='text-align:center; margin:2vw 0 0 0; padding:0;color:"+ (renderedNPCArousalValue < Sex.getPartner().getArousal()
-									? (Colour.GENERIC_GOOD.toWebHexString())
-									: (renderedNPCArousalValue > Sex.getPartner().getArousal() ? (Colour.GENERIC_BAD.toWebHexString()) : "default"))+ ";'>"
-									+ (int) Math.ceil(Sex.getPartner().getArousal())
-							+ "</p>"
-							+ "<div class='overlay' id='NPC_" + Attribute.AROUSAL.getName() + "'></div>"
+				// Name box:
+				uiAttributeSB.append(
+						"<div class='full-width-container' style='background-color:#19191a; border-radius:5px; margin-bottom:8px;'>"
+						+ "<div class='full-width-container'>"
+							+ "<p class='character-name' style='color:"+ (!Sex.isDom(Main.game.getPlayer())
+									?Colour.BASE_CRIMSON.toWebHexString()+";'>Dominant"+(Sex.getDominantParticipants().size()>1?"s":"")
+									:Colour.BASE_PINK_LIGHT.toWebHexString()+";'>Submissive"+(Sex.getSubmissiveParticipants().size()>1?"s":""))
+							+"</p>"
 						+ "</div>"
-						
 					+ "</div>"
-					
-					// Status effects:
-					+"<div class='attribute-container effects'>"
-					+ "<p style='text-align:center;padding:0;margin:0;'><b>Effects</b></p>");
-					boolean hasStatusEffects = false;
-
-					for (StatusEffect se : Sex.getPartner().getStatusEffects()) {
-						if (se.isSexEffect()) {
-							uiAttributeSB.append(
-									"<div class='icon'><div class='icon-content'>"
-											+ se.getSVGString(Sex.getPartner())
-											+ "<div class='overlay' id='SE_NPC_" + se + "'></div>"
-									+ "</div></div>");
-							hasStatusEffects = true;
-						}
+					+ "<div class='full-width-container' style='height: calc(100% - 128vw); overflow-y: auto;'>");
+				
+				if(!Sex.isDom(Main.game.getPlayer())) {
+					for(GameCharacter character : Sex.getDominantParticipants().keySet()) {
+						uiAttributeSB.append(getCharacterPanelSexDiv(Sex.getDominantParticipants().size()>1, "NPC_"+character.getId()+"_", character));
 					}
 					
-					for (Fetish f : Sex.getPartner().getFetishes()) {
-						uiAttributeSB.append(
-								"<div class='icon'><div class='icon-content'>"
-										+ f.getSVGString()
-										+ "<div class='overlay' id='FETISH_NPC_" + f + "'></div>"
-								+ "</div></div>");
-						hasStatusEffects = true;
-					}
-					
-					if(!hasStatusEffects) {
-						uiAttributeSB.append("<p style='text-align:center;padding:0;margin:0;height:12vw;'><b style='color:"+Colour.TEXT_GREY.toWebHexString()+";'>No sex effects</b></p>");
-					}
-					uiAttributeSB.append("</div>");
-			
-			} else {
-			
-				// Health, mana and experience:
-				uiAttributeSB.append("<div class='attribute-container'>"
-							+ "<p style='text-align:center;padding:0;margin:0;'><b>Combat</b></p>"
-							
-							+ "<div class='full-width-container' style='margin:0;padding:0;'>"
-								+ "<div class='icon small'><div class='icon-content'>" + Attribute.HEALTH_MAXIMUM.getSVGString() + "</div></div>" + "<div class='barBackgroundAtt'>" + "<div style='width:"
-								+ (npcToRender.getHealth() / npcToRender.getAttributeValue(Attribute.HEALTH_MAXIMUM)) * 65 + "vw; height:5vw; background:" + Colour.ATTRIBUTE_HEALTH.toWebHexString()
-								+ "; float:left; border-radius: 2px;'></div>" + "</div>" + "<p style='text-align:center; margin:1 0 0 0; padding:0;color:"
-								+ (renderedNPCHealthValue < npcToRender.getHealth() ? Colour.GENERIC_GOOD.toWebHexString() : renderedNPCHealthValue > npcToRender.getHealth() ? (Colour.GENERIC_BAD.toWebHexString()) : "default") + ";'>"
-								+ (int) Math.ceil(npcToRender.getHealth()) + "</p>" + "<div class='overlay' id='NPC_" + Attribute.HEALTH_MAXIMUM.getName() + "'></div>"
-							+ "</div>"
-		
-							+ "<div class='full-width-container' style='margin:0;padding:0;'>"
-								+ "<div class='icon small'><div class='icon-content'>" + Attribute.MANA_MAXIMUM.getSVGString() + "</div></div>" + "<div class='barBackgroundAtt'>" + "<div style='width:"
-								+ (npcToRender.getMana() / npcToRender.getAttributeValue(Attribute.MANA_MAXIMUM)) * 65 + "vw; height:5vw; background:" + Colour.ATTRIBUTE_MANA.toWebHexString()
-								+ "; float:left; border-radius: 2px;'></div>" + "</div>" + "<p style='text-align:center; margin:1 0 0 0; padding:0;color:"
-								+ (renderedNPCManaValue < npcToRender.getMana() ? (Colour.GENERIC_GOOD.toWebHexString()) : (renderedNPCManaValue > npcToRender.getMana() ? (Colour.GENERIC_BAD.toWebHexString()) : "default")) + ";'>"
-								+ (int) Math.ceil(npcToRender.getMana()) + "</p>" + "<div class='overlay' id='NPC_" + Attribute.MANA_MAXIMUM.getName() + "'></div>"
-							+ "</div>"
-		
-							+ "<div class='full-width-container' style='margin:0;padding:0;'>"
-								+ "<div class='icon small'><div class='icon-content'>" + Attribute.STAMINA_MAXIMUM.getSVGString() + "</div></div>" + "<div class='barBackgroundAtt'>"
-								+ "<div style='width:" + (npcToRender.getStaminaPercentage() * 65) + "vw; height:5vw; background:" + Colour.ATTRIBUTE_FITNESS.toWebHexString() + "; float:left; border-radius: 2px;'></div>" + "</div>"
-								+ "<p style='text-align:center; margin:1 0 0 0; padding:0;color:"
-								+ (renderedNPCStaminaValue < npcToRender.getStamina() ? (Colour.GENERIC_GOOD.toWebHexString()) : (renderedNPCStaminaValue > npcToRender.getStamina() ? (Colour.GENERIC_BAD.toWebHexString()) : "default"))
-								+ ";'>" + (int) Math.ceil(npcToRender.getStamina()) + "</p>" + "<div class='overlay' id='NPC_" + Attribute.STAMINA_MAXIMUM.getName() + "'></div>"
-							+ "</div>"
-							
-						+ "</div>");
-				
-				
-				// Status effects:
-				uiAttributeSB.append("<div class='attribute-container effects'>"
-										+ "<p style='text-align:center;padding:0;margin:0;'><b>Effects</b></p>");
-				// Infinite duration:
-				for (StatusEffect se : npcToRender.getStatusEffects()) {
-					if (!se.isCombatEffect() && npcToRender.getStatusEffectDuration(se)==-1 && se.renderInEffectsPanel())
-						uiAttributeSB.append(
-								"<div class='icon'>"
-										+ "<div class='icon-content'>"
-											+ se.getSVGString(npcToRender)
-											+ "<div class='overlay' id='SE_NPC_" + se + "'></div>"
-										+ "</div>"
-								+ "</div>");
-				}
-				// Timed:
-				for (StatusEffect se : npcToRender.getStatusEffects()) {
-					if (!se.isCombatEffect() && npcToRender.getStatusEffectDuration(se)!=-1 && se.renderInEffectsPanel()) {
-						int timerHeight = (int) ((npcToRender.getStatusEffectDuration(se)/(60*6f))*100);
-	
-						Colour timerColour = Colour.STATUS_EFFECT_TIME_HIGH;
-						
-						if(timerHeight>100) {
-							timerHeight=100;
-							timerColour = Colour.STATUS_EFFECT_TIME_OVERFLOW;
-						} else if(timerHeight<15) {
-							timerColour = Colour.STATUS_EFFECT_TIME_LOW;
-						} else if (timerHeight<50) {
-							timerColour = Colour.STATUS_EFFECT_TIME_MEDIUM;
-						}
-						
-						uiAttributeSB.append(
-								"<div class='icon'>"
-										+ "<div class='timer-background' style='width:"+timerHeight+"%; background:"+ timerColour.toWebHexString() + ";'></div>"
-										+ "<div class='icon-content'>"
-											+ se.getSVGString(npcToRender)
-											+ "<div class='overlay' id='SE_NPC_" + se + "'></div>"
-										+ "</div>"
-								+ "</div>");
-					}
-				}
-				// Fetishes:
-				for (Fetish f : npcToRender.getFetishes()) {
-					uiAttributeSB.append(
-							"<div class='icon'><div class='icon-content'>"
-									+ f.getSVGString()
-									+ "<div class='overlay' id='FETISH_NPC_" + f + "'></div>"
-							+ "</div></div>");
-				}
-//				// Special attacks:
-//				for (SpecialAttack sa : npcToRender.getSpecialAttacks()) {
-//					uiAttributeSB.append(
-//							"<div class='icon'><div class='icon-content'>"
-//									+ sa.getSVGString()
-//									+ "<div class='overlay' id='SA_" + sa + "'></div>"
-//							+ "</div></div>");
-//				}
-//				if (npcToRender.getMainWeapon() != null) {
-//					for (Spell s : npcToRender.getMainWeapon().getSpells()) {
-//						uiAttributeSB.append(
-//								"<div class='icon'><div class='icon-content'>"
-//										+ s.getSVGString()
-//										+ "<div class='overlay' id='SPELL_MAIN_" + s + "'></div>"
-//								+ "</div></div>");
-//					}
-//				}
-//				if (npcToRender.getOffhandWeapon() != null) {
-//					for (Spell s : npcToRender.getOffhandWeapon().getSpells()) {
-//						uiAttributeSB.append(
-//								"<div class='icon'><div class='icon-content'>"
-//										+ s.getSVGString()
-//										+ "<div class='overlay' id='SPELL_OFFHAND_" + s + "'></div>"
-//								+ "</div></div>");
-//					}
-//				}
-			}
-			uiAttributeSB.append("</div>");
-			
-			
-			// Inventory:
-			Set<InventorySlot> blockedSlots = new HashSet<>();
-			
-			for (AbstractClothing c : npcToRender.getClothingCurrentlyEquipped()) {
-				if (c.getClothingType().getIncompatibleSlots() != null) {
-					for (InventorySlot is : c.getClothingType().getIncompatibleSlots()) {
-						blockedSlots.add(is);
-					}
-				}
-			}
-			// EQUIPPED:
-			uiAttributeSB.append("</div><div class='inventory-equipped'>");
-			
-			for (InventorySlot invSlot : inventorySlots) {
-				
-				AbstractClothing clothing = npcToRender.getClothingInSlot(invSlot);
-				
-				if (clothing != null) {
-					// add to content:
-					uiAttributeSB.append(
-							// If slot is sealed:
-							"<div class='inventory-item-slot" + getClassRarityIdentifier(clothing.getRarity()) + "'"
-								+ (clothing.isSealed() ? "style='border-width:2px; border-color:" + Colour.SEALED.toWebHexString() + "; border-style:solid;'" : "") + ">"
-								
-								// Picture:
-								+ "<div class='inventory-icon-content'>"+clothing.getSVGEquippedString(npcToRender)+"</div>"
-								
-								// If clothing is displaced:
-								+ (!clothing.getDisplacedList().isEmpty() ? "<div class='displacedIcon'>" + SVGImages.SVG_IMAGE_PROVIDER.getDisplacedIcon() + "</div>" : "")
-								// If clothing is cummed in:
-								+ (clothing.isDirty() ? "<div class='cummedIcon'>" + SVGImages.SVG_IMAGE_PROVIDER.getCummedInIcon() + "</div>" : "")
-								// If clothing is too masculine:
-								+ (clothing.getClothingType().getFemininityMaximum() < npcToRender.getFemininityValue() ? "<div class='femininityIcon'>" + SVGImages.SVG_IMAGE_PROVIDER.getMasculineWarningIcon() + "</div>" : "")
-								// If clothing is too feminine:
-								+ (clothing.getClothingType().getFemininityMinimum() > npcToRender.getFemininityValue() ? "<div class='femininityIcon'>" + SVGImages.SVG_IMAGE_PROVIDER.getFeminineWarningIcon() + "</div>" : "")
-
-								+ "<div class='overlay-inventory' id='" + invSlot.toString() + "Slot'>" + "</div>" + "</div>");
 				} else {
-					// add to content:
-					if (blockedSlots.contains(invSlot)) {
-						uiAttributeSB.append("<div class='inventory-item-slot disabled'><div class='overlay' id='" + invSlot.toString() + "Slot'></div></div>");
-						
-					} else if (invSlot.slotBlockedByRace(npcToRender) != null) {
-						uiAttributeSB.append(
-								"<div class='inventory-item-slot disabled'>"
-									+ "<div class='overlay' id='" + invSlot.toString() + "Slot'></div>"
-									+ "<div class='raceBlockIcon'>" + invSlot.slotBlockedByRace(npcToRender).getStatusEffect().getSVGString(npcToRender) + "</div>"
-								+ "</div>");
-						
-					} else {
-						uiAttributeSB.append("<div class='inventory-item-slot' id='" + invSlot.toString() + "Slot'></div>");
+					for(GameCharacter character : Sex.getSubmissiveParticipants().keySet()) {
+						uiAttributeSB.append(getCharacterPanelSexDiv(Sex.getSubmissiveParticipants().size()>1, "NPC_"+character.getId()+"_", character));
 					}
 				}
-			}
+				uiAttributeSB.append("</div>");
+				
+			
+			} else if(Main.game.isInCombat()) {
+				
+				// Name box:
+				uiAttributeSB.append(
+					"<div class='full-width-container' style='background-color:#19191a; border-radius:5px; margin-bottom:8px;'>"
+						+ "<div class='full-width-container'>"
+							+ "<p class='character-name' style='color:"+ Colour.BASE_CRIMSON.toWebHexString()+";'>"
+								+ (Combat.getEnemies().size()>1?"Enemies":"Enemy")
+							+"</p>"
+						+ "</div>"
+					+ "</div>"
+					+ "<div class='full-width-container' style='height: calc(100% - 128vw); overflow-y: auto;'>");
+				
+				for(GameCharacter character : Combat.getEnemies()) {
+					uiAttributeSB.append(getCharacterPanelDiv(Combat.getEnemies().size()>1, "NPC_"+character.getId()+"_", character));
+				}
+				
+				
+				uiAttributeSB.append("</div>");
+				
+				
+			} else {
+				// Name box: TODO
+				PlaceType place = Main.game.getPlayer().getWorldLocation().getStandardPlace();
+				if(Main.game.getPlayer().getLocationPlace()!=null) {
+					place = Main.game.getPlayer().getLocationPlace().getPlaceType();
+				}
+				uiAttributeSB.append(
+					"<div class='full-width-container' style='background-color:#19191a; border-radius:5px; margin-bottom:8px;'>"
+						+ "<div class='full-width-container'>"
+							+ "<p class='character-name' style='color:"+ Main.game.getPlayer().getWorldLocation().getColour().toWebHexString() + ";'>"
+								+ Main.game.getPlayer().getWorldLocation().getName()
+							+ "</p>"
+						+ "</div>"
+						+ "<div class='full-width-container' style='margin:0;padding:0;'>"
+							+ "<p style='text-align:center;"+ (place.getColour()==null?"":" color:"+place.getColour().toWebHexString()) + ";'>"
+								+ place.getName()
+							+"</p>"
+						+ "</div>"
+					+ "</div>"
+					+ "<div class='full-width-container' style='height: calc(100% - 138vw); overflow-y: auto;'>");
+				
+				uiAttributeSB.append(getCharacterPanelDiv(true, "NPC_"+getCharacterToRender().getId()+"_", getCharacterToRender()));
+				
+				uiAttributeSB.append("</div>");
 
-			uiAttributeSB.append("</div>");
+			}
+			uiAttributeSB.append(
+					"<div class='full-width-container' style='background-color:#19191a; border-radius:5px; margin-bottom:1px; padding:4px;'>"
+							+ "<div class='full-width-container' style='text-align:center;'>"
+									+ "<p>"
+										+ (getCharacterToRender()==null?"No Character":UtilText.parse(getCharacterToRender(), "[npc.Name]'s Inventory"))
+									+ "</p>"
+							+ "</div>"
+						+ "</div>");
+			
+			uiAttributeSB.append(getInventoryEquippedPanel(getCharacterToRender()));
 				
 		} else {
+
+			uiAttributeSB.append("<div class='full'>");
+			
 			PlaceType place = Main.game.getPlayer().getWorldLocation().getStandardPlace();
 			if(Main.game.getPlayer().getLocationPlace()!=null) {
 				place = Main.game.getPlayer().getLocationPlace().getPlaceType();
 			}
 			uiAttributeSB.append(
 							// Name box:
-							"<div class='attribute-container'>"
-								+ "<div class='full-width-container'>"
-									+ "<p class='character-name' style='color:"+ Main.game.getPlayer().getWorldLocation().getColour().toWebHexString() + ";'>"
-										+ Main.game.getPlayer().getWorldLocation().getName()
-									+ "</p>"
-								+ "</div>"
-								+ "<div class='full-width-container' style='margin:0;padding:0;'>"
-									+ "<p style='text-align:center;"+ (place.getColour()==null?"":" color:"+place.getColour().toWebHexString()) + ";'>"
-										+ place.getName()
-									+"</p>"
-								+ "</div>"
-							+ "</div>");
+					"<div class='full-width-container' style='background-color:#19191a; border-radius:5px; margin-bottom:8px;'>"
+					+ "<div class='full-width-container'>"
+						+ "<p class='character-name' style='color:"+ Main.game.getPlayer().getWorldLocation().getColour().toWebHexString() + ";'>"
+							+ Main.game.getPlayer().getWorldLocation().getName()
+						+ "</p>"
+					+ "</div>"
+					+ "<div class='full-width-container' style='margin:0;padding:0;'>"
+						+ "<p style='text-align:center;"+ (place.getColour()==null?"":" color:"+place.getColour().toWebHexString()) + ";'>"
+							+ place.getName()
+						+"</p>"
+					+ "</div>"
+				+ "</div>");
 			
 			// Characters Present:
 			uiAttributeSB.append("<div class='attribute-container effects'>"
@@ -1304,23 +989,17 @@ public enum RenderingEngine {
 			} else {
 				int count = 0;
 				for(NPC character : charactersPresent) {
-					if(count%2==0) {
-						uiAttributeSB.append(
-								"<div class='event-log-entry' style='background:"+getEntryBackgroundColour(false)+";'>"
-									+ "<span style='color:"+character.getFemininity().getColour().toWebHexString()+";'>"+character.getName("A")+"</span>"
-									+ " - <span style='color:"+character.getRace().getColour().toWebHexString()+";'>"
-										+Util.capitaliseSentence((character.isFeminine()?character.getRace().getSingularFemaleName():character.getRace().getSingularMaleName()))+"</span>"
-									+ "<div class='overlay-inventory' id='CHARACTERS_PRESENT_"+character.getId()+"'></div>"
-								+ "</div>");
-					} else {
-						uiAttributeSB.append(
-								"<div class='event-log-entry' style='background:"+getEntryBackgroundColour(true)+";'>"
-									+ "<span style='color:"+character.getFemininity().getColour().toWebHexString()+";'>"+character.getName("A")+"</span>"
-									+ " - <span style='color:"+character.getRace().getColour().toWebHexString()+";'>"
-										+Util.capitaliseSentence((character.isFeminine()?character.getRace().getSingularFemaleName():character.getRace().getSingularMaleName()))+"</span>"
-									+ "<div class='overlay-inventory' id='CHARACTERS_PRESENT_"+character.getId()+"'></div>"
-								+ "</div>");
-					}
+					uiAttributeSB.append(
+							"<div class='event-log-entry' style='background:"+getEntryBackgroundColour(count%2==0)+";'>"
+								+" <span style='color:"+character.getFemininity().getColour().toWebHexString()+";'>"+(!character.getArtworkList().isEmpty() && Main.getProperties().hasValue(PropertyValue.artwork)?"&#128247; ":"")+character.getName("A")+"</span>"
+								+ " - "
+									+ (character.isRaceConcealed()
+											?"<span style='color:"+Colour.RACE_UNKNOWN.toWebHexString()+";'>Unknown"
+											:"<span style='color:"+character.getRace().getColour().toWebHexString()+";'>"
+												+Util.capitaliseSentence((character.isFeminine()?character.getSubspecies().getSingularFemaleName():character.getSubspecies().getSingularMaleName())))
+									+"</span>"
+								+ "<div class='overlay-inventory' id='CHARACTERS_PRESENT_"+character.getId()+"'></div>"
+							+ "</div>");
 					count++;
 				}
 			}
@@ -1337,13 +1016,13 @@ public enum RenderingEngine {
 					if(count%2==0) {
 						uiAttributeSB.append(
 								"<div class='event-log-entry' style='background:"+getEntryBackgroundColour(false)+";'>"
-										+entry.getValue()+"x "+UtilText.parse(entry.getKey().getDisplayName(true))
+										+entry.getValue()+"x "+UtilText.parse(entry.getKey().getName(false, true))
 										+ "<div class='overlay-inventory' id='WEAPON_FLOOR_"+entry.getKey().hashCode()+"'></div>"
 								+"</div>");
 					} else {
 						uiAttributeSB.append(
 								"<div class='event-log-entry' style='background:"+getEntryBackgroundColour(true)+";'>"
-										+entry.getValue()+"x "+UtilText.parse(entry.getKey().getDisplayName(true))
+										+entry.getValue()+"x "+UtilText.parse(entry.getKey().getName(false, true))
 										+ "<div class='overlay-inventory' id='WEAPON_FLOOR_"+entry.getKey().hashCode()+"'></div>"
 								+"</div>");
 					}
@@ -1353,13 +1032,13 @@ public enum RenderingEngine {
 					if(count%2==0) {
 						uiAttributeSB.append(
 								"<div class='event-log-entry' style='background:"+getEntryBackgroundColour(false)+";'>"
-										+entry.getValue()+"x "+UtilText.parse(entry.getKey().getDisplayName(true))
+										+entry.getValue()+"x "+UtilText.parse(entry.getKey().getName(false, true))
 										+ "<div class='overlay-inventory' id='CLOTHING_FLOOR_"+entry.getKey().hashCode()+"'></div>"
 								+"</div>");
 					} else {
 						uiAttributeSB.append(
 								"<div class='event-log-entry' style='background:"+getEntryBackgroundColour(true)+";'>"
-										+entry.getValue()+"x "+UtilText.parse(entry.getKey().getDisplayName(true))
+										+entry.getValue()+"x "+UtilText.parse(entry.getKey().getName(false, true))
 										+ "<div class='overlay-inventory' id='CLOTHING_FLOOR_"+entry.getKey().hashCode()+"'></div>"
 								+"</div>");
 					}
@@ -1369,13 +1048,13 @@ public enum RenderingEngine {
 					if(count%2==0) {
 						uiAttributeSB.append(
 								"<div class='event-log-entry' style='background:"+getEntryBackgroundColour(false)+";'>"
-										+entry.getValue()+"x "+UtilText.parse(entry.getKey().getDisplayName(true))
+										+entry.getValue()+"x "+UtilText.parse(entry.getKey().getName(false, true))
 										+ "<div class='overlay-inventory' id='ITEM_FLOOR_"+entry.getKey().hashCode()+"'></div>"
 								+"</div>");
 					} else {
 						uiAttributeSB.append(
 								"<div class='event-log-entry' style='background:"+getEntryBackgroundColour(true)+";'>"
-										+entry.getValue()+"x "+UtilText.parse(entry.getKey().getDisplayName(true))
+										+entry.getValue()+"x "+UtilText.parse(entry.getKey().getName(false, true))
 										+ "<div class='overlay-inventory' id='ITEM_FLOOR_"+entry.getKey().hashCode()+"'></div>"
 								+"</div>");
 					}
@@ -1429,20 +1108,7 @@ public enum RenderingEngine {
 		if (Main.mainController != null) {
 			if (Main.game.getCurrentDialogueNode() != null) {
 				if (!Main.game.getCurrentDialogueNode().isNoTextForContinuesDialogue() && renderedDialogueNode != Main.game.getCurrentDialogueNode()) {
-
-					renderedNPCHealthValue = npcToRender.getHealth();
-					renderedNPCManaValue = npcToRender.getMana();
-					renderedNPCStaminaValue = npcToRender.getStamina();
-					if (Main.game.isInSex()) {
-						renderedNPCArousalValue = npcToRender.getArousal();
-					}
-					renderedNPCStrengthValue = npcToRender.getAttributeValue(Attribute.STRENGTH);
-					renderedNPCIntelligenceValue = npcToRender.getAttributeValue(Attribute.INTELLIGENCE);
-					renderedNPCFitnessValue = npcToRender.getAttributeValue(Attribute.FITNESS);
-					renderedNPCCorruptionValue = npcToRender.getAttributeValue(Attribute.CORRUPTION);
-					
 					renderedDialogueNode = Main.game.getCurrentDialogueNode();
-
 				}
 			}
 		}
@@ -1451,7 +1117,121 @@ public enum RenderingEngine {
 	}
 
 	private StringBuilder mapSB = new StringBuilder();
+	
+	private Colour getPlayerIconColour(boolean isDangerous) {
+		if(isDangerous) {
+			return Colour.BASE_RED;
+		} else {
+			switch(Main.game.getPlayer().getFemininity()) {
+				case ANDROGYNOUS:
+					return Femininity.ANDROGYNOUS.getColour();
+				case FEMININE:
+				case FEMININE_STRONG:
+					return Femininity.FEMININE_STRONG.getColour();
+				case MASCULINE:
+				case MASCULINE_STRONG:
+					return Femininity.MASCULINE_STRONG.getColour();
+			}
+			return Main.game.getPlayer().getFemininity().getColour();
+		}
+	}
 
+	public String getFullMap(WorldType world) {
+		mapSB.setLength(0);
+
+		Cell[][] grid = Main.game.getWorlds().get(world).getGrid();
+		
+		boolean isAbleToTeleport = Main.game.getPlayer().isAbleToTeleport()
+				&& Main.game.getSavedDialogueNode().equals(Main.game.getPlayer().getLocationPlace().getDialogue(false))
+				&& Main.game.getPlayer().getMana()>=Spell.TELEPORT.getModifiedCost(Main.game.getPlayer());
+		
+		if(Main.game.getPlayer().hasSpell(Spell.TELEPORT)) {
+			mapSB.append("<div class='container-full-width'>"
+					+ (isAbleToTeleport
+							?"[style.boldArcane(Teleport:)] You are currently able to teleport! This will cost <b>"+Spell.TELEPORT.getModifiedCost(Main.game.getPlayer())+"</b> "+Attribute.MANA_MAXIMUM.getColouredName("b")+"."
+							:"[style.boldBad(Teleport:)] Teleport is unavailable! You need to:"
+								+(!Main.game.getPlayer().getCompanions().isEmpty() && !Main.game.getPlayer().hasSpellUpgrade(SpellUpgrade.TELEPORT_2)
+									?"</br><b>-</b> Either learn the upgrade '"+SpellUpgrade.TELEPORT_2.getName()+"', or dismiss your party members."
+									:"")
+								+(!Main.game.getSavedDialogueNode().equals(Main.game.getPlayer().getLocationPlace().getDialogue(false))
+									?"</br><b>-</b> Not be in the middle of a special scene."
+									:"")
+								+(Main.game.getPlayer().getMana()<Spell.TELEPORT.getModifiedCost(Main.game.getPlayer())
+										?"</br><b>-</b> Have at least <b>"+Spell.TELEPORT.getModifiedCost(Main.game.getPlayer())+"</b> "+Attribute.MANA_MAXIMUM.getColouredName("b")+"."
+										:""))
+					
+					+ "</div>");
+			}
+		
+		int divWidth = (Math.min(75, grid.length*10));
+		mapSB.append("<div class='container-full-width' style='width:"+divWidth+"%; margin:2% "+((100-divWidth)/2)+"%; float:left;'>");
+		
+		float width = 100f/grid.length;
+		for(int i=grid[0].length-1; i>=0; i--) {
+			for(int j=0; j<grid.length; j++) {
+				Cell c = grid[j][i];
+				
+				boolean discovered = c.isDiscovered() || Main.game.isDebugMode();
+				
+				String background = c.getPlace().getPlaceType()==PlaceType.GENERIC_IMPASSABLE
+									?"background:transparent;"
+									:c.getPlace().getPlaceType().isDangerous() && discovered
+										?""
+										:discovered
+											?"background-color:"+c.getPlace().getPlaceType().getBackgroundColour().toWebHexString()+";"
+											:"background-color:"+Colour.MAP_BACKGROUND_UNEXPLORED.toWebHexString()+";";
+				
+				if(!discovered) {
+					mapSB.append("<div class='map-icon' style='width:"+(width-0.5)+"%; margin:0.25%; "+background+"'></div>");
+					
+				} else {
+					String border = c.getPlace() != null && c.getPlace().getPlaceType().getColour()!=null
+									?"border:1px solid; border-color:"+c.getPlace().getPlaceType().getColour().toWebHexString()+";"
+									:"";
+					
+					boolean playerOnTile = Main.game.getPlayer().getWorldLocation()==world && Main.game.getPlayer().getLocation().getX()==j && Main.game.getPlayer().getLocation().getY()==i;
+					boolean dangerousTile = c.getPlace().getPlaceType().isDangerous();
+					
+					mapSB.append(
+							"<div class='map-icon"+(dangerousTile?" dangerous":"")+"'"
+									+ " style='width:"+(width-0.5)+"%; margin:0.25%; "+border+" "+background+" "+(Main.game.getPlayer().isAbleToTeleport() && c.getPlace().getPlaceType()!=PlaceType.GENERIC_IMPASSABLE?"cursor:pointer;":"")+"'" 
+									+ " id='MAP_NODE_" + i + "_" + j + "'>"
+								+(playerOnTile && (c.getPlace() == null || c.getPlace().getSVGString()==null)
+									?getPlayerIcon(dangerousTile)
+									:"")
+								+ (c.getPlace() != null && c.getPlace().getSVGString()!=null
+									? "<div class='map-icon-content' style='background-color:"+c.getPlace().getPlaceType().getColour().toWebHexString()+";"
+											+ " width:75%; height:75%; margin:12.5%; border-radius:50%;"
+										+(playerOnTile?" border:2px solid "+getPlayerIconColour(dangerousTile).toWebHexString()+";":"")+"'>"
+											+c.getPlace().getSVGString()+"</div>"
+									: "")
+								+(playerOnTile?"<div class='overlay map-player'></div>":"")
+							+ "</div>");
+				}
+			}
+		}
+		
+		mapSB.append("</div>");
+		
+		return mapSB.toString();
+	}
+	
+	private String getPlayerIcon(boolean dangerous) {
+		if (dangerous) {
+			return ("<div class='map-icon-content' style='width:75%; height:75%; margin:12.5%; border-radius:50%;'>" + SVGImages.SVG_IMAGE_PROVIDER.getPlayerMapDangerousIcon() + "</div>");
+		} else {
+			if(Main.game.getPlayer().getFemininityValue()<=Femininity.MASCULINE.getMaximumFemininity()) {
+				return ("<div class='map-icon-content' style='width:75%; height:75%; margin:12.5%; border-radius:50%;'>" + SVGImages.SVG_IMAGE_PROVIDER.getPlayerMapIconMasculine() + "</div>");
+				
+			} else if(Main.game.getPlayer().getFemininityValue()<=Femininity.ANDROGYNOUS.getMaximumFemininity()) {
+				return ("<div class='map-icon-content' style='width:75%; height:75%; margin:12.5%; border-radius:50%;'>" + SVGImages.SVG_IMAGE_PROVIDER.getPlayerMapIconAndrogynous() + "</div>");
+				
+			} else{
+				return ("<div class='map-icon-content' style='width:75%; height:75%; margin:12.5%; border-radius:50%;'>" + SVGImages.SVG_IMAGE_PROVIDER.getPlayerMapIconFeminine() + "</div>");
+			}
+		}
+	}
+	
 	public String renderedHTMLMap() {
 
 		mapSB.setLength(0);
@@ -1472,21 +1252,23 @@ public enum RenderingEngine {
 		// It looks messy, but it works...
 		for (int y = playerPosition.getY() + mapSize; y >= playerPosition.getY() - mapSize; y--) {
 			for (int x = playerPosition.getX() - mapSize; x <= playerPosition.getX() + mapSize; x++) {
+				
 				if (x < Main.game.getActiveWorld().WORLD_WIDTH && x >= 0 && y < Main.game.getActiveWorld().WORLD_HEIGHT && y >= 0) {// If within  bounds of map:
+					PlaceType placeType = Main.game.getActiveWorld().getCell(x, y).getPlace().getPlaceType();
 
 					if (Main.game.getActiveWorld().getCell(x, y).isDiscovered() || Main.game.isDebugMode()) { // If the tile is discovered:
 
-						if (Main.game.getActiveWorld().getCell(x, y).getPlace().getPlaceType() == PlaceType.GENERIC_IMPASSABLE) {
+						if (placeType == PlaceType.GENERIC_IMPASSABLE) {
 							mapSB.append("<div class='map-tile blank' style='width:" + (4 * unit) + "%;'></div>");
 						} else {
 
 							// This is the "move North" tile:
-							if (y == playerPosition.getY() + 1 && x == playerPosition.getX() && Main.game.getActiveWorld().getCell(x, y).getPlace().getPlaceType() != PlaceType.GENERIC_IMPASSABLE) {
+							if (y == playerPosition.getY() + 1 && x == playerPosition.getX() && placeType != PlaceType.GENERIC_IMPASSABLE) {
 								if(Main.game.getActiveWorld().getCell(x, y).getPlace().isDangerous()) {
 									mapSB.append("<div class='map-tile movement dangerous' id='upButton' style='width:" + (4 * unit - borderSizeReduction) + "%; border-width:1%;'>");
 									
 								} else {
-									mapSB.append("<div class='map-tile movement' id='upButton' style='width:" + (4 * unit - borderSizeReduction) + "%; border-width:1%; border-color:"+
+									mapSB.append("<div class='map-tile movement' id='upButton' style='width:" + (4 * unit - borderSizeReduction) + "%; border-width:1%; background:"+placeType.getBackgroundColour().toWebHexString()+"; border-color:"+
 												(Main.game.getPlayer().getFemininityValue()<=Femininity.MASCULINE.getMaximumFemininity()
 														?Colour.MASCULINE_PLUS
 														:(Main.game.getPlayer().getFemininityValue()<=Femininity.ANDROGYNOUS.getMaximumFemininity()
@@ -1509,12 +1291,12 @@ public enum RenderingEngine {
 								mapSB.append("</div>");
 
 								// This is the "move South" tile:
-							} else if (y == playerPosition.getY() - 1 && x == playerPosition.getX() && Main.game.getActiveWorld().getCell(x, y).getPlace().getPlaceType() != PlaceType.GENERIC_IMPASSABLE) {
+							} else if (y == playerPosition.getY() - 1 && x == playerPosition.getX() && placeType != PlaceType.GENERIC_IMPASSABLE) {
 								if(Main.game.getActiveWorld().getCell(x, y).getPlace().isDangerous()) {
 									mapSB.append("<div class='map-tile movement dangerous' id='downButton' style='width:" + (4 * unit - borderSizeReduction) + "%; border-width:1%;'>");
 									
 								} else {
-									mapSB.append("<div class='map-tile movement' id='downButton' style='width:" + (4 * unit - borderSizeReduction) + "%; border-width:1%; border-color:"+
+									mapSB.append("<div class='map-tile movement' id='downButton' style='width:" + (4 * unit - borderSizeReduction) + "%; border-width:1%; background:"+placeType.getBackgroundColour().toWebHexString()+"; border-color:"+
 												(Main.game.getPlayer().getFemininityValue()<=Femininity.MASCULINE.getMaximumFemininity()
 														?Colour.MASCULINE_PLUS
 														:(Main.game.getPlayer().getFemininityValue()<=Femininity.ANDROGYNOUS.getMaximumFemininity()
@@ -1537,12 +1319,12 @@ public enum RenderingEngine {
 								mapSB.append("</div>");
 
 								// This is the "move West" tile:
-							} else if (y == playerPosition.getY() && x == playerPosition.getX() - 1 && Main.game.getActiveWorld().getCell(x, y).getPlace().getPlaceType() != PlaceType.GENERIC_IMPASSABLE) {
+							} else if (y == playerPosition.getY() && x == playerPosition.getX() - 1 && placeType != PlaceType.GENERIC_IMPASSABLE) {
 								if(Main.game.getActiveWorld().getCell(x, y).getPlace().isDangerous()) {
 									mapSB.append("<div class='map-tile movement dangerous' id='leftButton' style='width:" + (4 * unit - borderSizeReduction) + "%; border-width:1%;'>");
 									
 								} else {
-									mapSB.append("<div class='map-tile movement' id='leftButton' style='width:" + (4 * unit - borderSizeReduction) + "%; border-width:1%; border-color:"+
+									mapSB.append("<div class='map-tile movement' id='leftButton' style='width:" + (4 * unit - borderSizeReduction) + "%; border-width:1%; background:"+placeType.getBackgroundColour().toWebHexString()+"; border-color:"+
 												(Main.game.getPlayer().getFemininityValue()<=Femininity.MASCULINE.getMaximumFemininity()
 														?Colour.MASCULINE_PLUS
 														:(Main.game.getPlayer().getFemininityValue()<=Femininity.ANDROGYNOUS.getMaximumFemininity()
@@ -1565,12 +1347,12 @@ public enum RenderingEngine {
 								mapSB.append("</div>");
 
 								// This is the "move East" tile:
-							} else if (y == playerPosition.getY() && x == playerPosition.getX() + 1 && Main.game.getActiveWorld().getCell(x, y).getPlace().getPlaceType() != PlaceType.GENERIC_IMPASSABLE) {
+							} else if (y == playerPosition.getY() && x == playerPosition.getX() + 1 && placeType != PlaceType.GENERIC_IMPASSABLE) {
 								if(Main.game.getActiveWorld().getCell(x, y).getPlace().isDangerous()) {
 									mapSB.append("<div class='map-tile movement dangerous' id='rightButton' style='width:" + (4 * unit - borderSizeReduction) + "%; border-width:1%;'>");
 									
 								} else {
-									mapSB.append("<div class='map-tile movement' id='rightButton' style='width:" + (4 * unit - borderSizeReduction) + "%; border-width:1%; border-color:"+
+									mapSB.append("<div class='map-tile movement' id='rightButton' style='width:" + (4 * unit - borderSizeReduction) + "%; border-width:1%; background:"+placeType.getBackgroundColour().toWebHexString()+"; border-color:"+
 												(Main.game.getPlayer().getFemininityValue()<=Femininity.MASCULINE.getMaximumFemininity()
 														?Colour.MASCULINE_PLUS
 														:(Main.game.getPlayer().getFemininityValue()<=Femininity.ANDROGYNOUS.getMaximumFemininity()
@@ -1593,28 +1375,24 @@ public enum RenderingEngine {
 								mapSB.append("</div>");
 
 							} else {
-								mapSB.append("<div class='map-tile" + (Main.game.getActiveWorld().getCell(x, y).getPlace().isDangerous() ? (y == playerPosition.getY() && x == playerPosition.getX() ? " player dangerous" : " dangerous")
-										: (y == playerPosition.getY() && x == playerPosition.getX() ? " player" : "")) + "' style='width:" + (4 * unit) + "%;'>");
+								if(Main.game.getActiveWorld().getCell(x, y).getPlace().isDangerous()) {
+									mapSB.append("<div class='map-tile" + (y == playerPosition.getY() && x == playerPosition.getX() ? " player dangerous" : " dangerous") + "' style='width:" + (4 * unit) + "%;'>");
+									
+								} else {
+									mapSB.append("<div class='map-tile" + (y == playerPosition.getY() && x == playerPosition.getX() ? " player" : "") + "' style='width:" + (4 * unit) + "%; background:"+placeType.getBackgroundColour().toWebHexString()+";'>");
+									
+								}
 
 								// Put place icon onto tile:
-								if (Main.game.getActiveWorld().getCell(x, y).getPlace().getSVGString() != null) {
+								if (Main.game.getActiveWorld().getCell(x, y).getPlace().getSVGString() != null) { //TODO border
 									if (y == playerPosition.getY() && x == playerPosition.getX()) {
-										if (Main.game.getActiveWorld().getCell(x, y).getPlace().isDangerous()) {
-											mapSB.append("<div class='place-icon' style='margin:7%;width:86%;'><div class='map-tile-content'>" + SVGImages.SVG_IMAGE_PROVIDER.getPlayerPlaceMapDangerousIcon() + "</div></div>");
-											
-										} else {
-											if(Main.game.getPlayer().getFemininityValue()<=Femininity.MASCULINE.getMaximumFemininity()) {
-												mapSB.append("<div class='place-icon' style='margin:7%;width:86%;'><div class='map-tile-content'>" + SVGImages.SVG_IMAGE_PROVIDER.getPlayerPlaceMapIconMasculine() + "</div></div>");
-												
-											} else if(Main.game.getPlayer().getFemininityValue()<=Femininity.ANDROGYNOUS.getMaximumFemininity()) {
-												mapSB.append("<div class='place-icon' style='margin:7%;width:86%;'><div class='map-tile-content'>" + SVGImages.SVG_IMAGE_PROVIDER.getPlayerPlaceMapIconAndrogynous() + "</div></div>");
-												
-											} else{
-												mapSB.append("<div class='place-icon' style='margin:7%;width:86%;'><div class='map-tile-content'>" + SVGImages.SVG_IMAGE_PROVIDER.getPlayerPlaceMapIconFeminine() + "</div></div>");
-											}
-										}
+										mapSB.append("<div class='place-icon' style='margin:calc(18% - 4px); width:64%;'>"
+												+ "<div class='map-tile-content' style='background-color:"+getPlayerIconColour(Main.game.getActiveWorld().getCell(x, y).getPlace().isDangerous()).toWebHexString()+";"
+														+ "border:4px solid "+getPlayerIconColour(Main.game.getActiveWorld().getCell(x, y).getPlace().isDangerous()).toWebHexString()+"; border-radius:50%;'>"
+												+ Main.game.getActiveWorld().getCell(x, y).getPlace().getSVGString() + "</div></div>");
+									} else {
+										mapSB.append("<div class='place-icon' style='margin:18%;width:64%;'><div class='map-tile-content'>" + Main.game.getActiveWorld().getCell(x, y).getPlace().getSVGString() + "</div></div>");
 									}
-									mapSB.append("<div class='place-icon' style='margin:18%;width:64%;'><div class='map-tile-content'>" + Main.game.getActiveWorld().getCell(x, y).getPlace().getSVGString() + "</div></div>");
 
 								} else if (y == playerPosition.getY() && x == playerPosition.getX()) {
 
@@ -1675,6 +1453,8 @@ public enum RenderingEngine {
 		List<String> mapIcons = new ArrayList<>();
 		List<NPC> charactersPresent = Main.game.getCharactersPresent(Main.game.getActiveWorld().getCell(x, y));
 		
+		charactersPresent.removeIf((npc) -> Main.game.getPlayer().hasCompanion(npc));
+		
 		for(NPC gc : charactersPresent) {
 			mapIcons.add(gc.getMapIcon());
 		}
@@ -1709,13 +1489,11 @@ public enum RenderingEngine {
 							Main.game.getPlayer().isMainQuestUpdated()
 							|| Main.game.getPlayer().isSideQuestUpdated()
 							|| Main.game.getPlayer().isRomanceQuestUpdated()
-							|| Main.getProperties().isNewWeaponDiscovered()
-							|| Main.getProperties().isNewClothingDiscovered()
-							|| Main.getProperties().isNewItemDiscovered()
-							|| Main.getProperties().isNewRaceDiscovered()
-							|| Main.game.getPlayer().getPerkPoints()>0
-							|| (Main.game.getPlayer().getLevelUpPoints()>0
-									&& (Main.game.getPlayer().getBaseAttributeValue(Attribute.STRENGTH) + Main.game.getPlayer().getBaseAttributeValue(Attribute.INTELLIGENCE) + Main.game.getPlayer().getBaseAttributeValue(Attribute.FITNESS))<300)
+							|| Main.getProperties().hasValue(PropertyValue.newWeaponDiscovered)
+							|| Main.getProperties().hasValue(PropertyValue.newClothingDiscovered)
+							|| Main.getProperties().hasValue(PropertyValue.newItemDiscovered)
+							|| Main.getProperties().hasValue(PropertyValue.newRaceDiscovered)
+							|| Main.getProperties().hasValue(PropertyValue.levelUpHightlight)
 								?" highlight"
 								:"")
 						+ (!Main.game.getCurrentDialogueNode().isOptionsDisabled() && Main.game.isInNewWorld() ? "" : " disabled") + "' id='journal'>" + SVGImages.SVG_IMAGE_PROVIDER.getJournalIcon()
@@ -1732,9 +1510,9 @@ public enum RenderingEngine {
 				+ "</div>"
 
 				+ "<div class='quarterContainer'>"
-					+ "<div class='button" + (Main.game.getCharactersPresent().isEmpty() && Main.game.getCurrentDialogueNode().getMapDisplay() != MapDisplay.CHARACTERS_PRESENT ? " disabled" : "")
+					+ "<div class='button" + (Main.game.getCharactersPresent().isEmpty() && Main.game.getCurrentDialogueNode().getDialogueNodeType() != DialogueNodeType.CHARACTERS_PRESENT ? " disabled" : "")
 					+ "' id='charactersPresent'>" + SVGImages.SVG_IMAGE_PROVIDER.getPeopleIcon()
-						+ (Main.game.getCharactersPresent().isEmpty() && Main.game.getCurrentDialogueNode().getMapDisplay() != MapDisplay.CHARACTERS_PRESENT ? "<div class='disabledLayer'></div>" : "")
+						+ (Main.game.getCharactersPresent().isEmpty() && Main.game.getCurrentDialogueNode().getDialogueNodeType() != DialogueNodeType.CHARACTERS_PRESENT ? "<div class='disabledLayer'></div>" : "")
 					+ "</div>"
 				+ "</div>"
 
@@ -1769,5 +1547,448 @@ public enum RenderingEngine {
 				+ (rarity == Rarity.LEGENDARY ? " legendary" : "")
 				+ (rarity == Rarity.JINXED ? " jinxed" : "");
 	}
+	
+	private static String getAttributeBar(String SVGImage, Colour barColour, float attributeValue, float attributeMaximum, String id) {
+		return "<div class='full-width-container' style='margin:8 0 0 0; margin:0; padding:0;'>"
+					+ "<div class='icon small'>"
+						+ "<div class='icon-content'>"
+							+ SVGImage
+						+ "</div>"
+					+ "</div>"
+					+ "<div class='barBackgroundAtt'>"
+						+ "<div style='width:" + (attributeValue/attributeMaximum) * 100 + "%; height:5vw; background:" + barColour.toWebHexString() + "; float:left; border-radius: 2px;'></div>"
+					+ "</div>"
+					+ "<p style='text-align:center; margin:0; padding:0; line-height:12vw;'>"
+						+ (int) Math.ceil(attributeValue)
+					+ "</p>"
+					+ "<div class='overlay' id='" + id + "'></div>"
+				+ "</div>";
+	}
+	
+	private static String getAttributeBarHalf(String SVGImage, Colour barColour, float attributeValue, float attributeMaximum, String id) {
+		return "<div class='half-width-container' style='margin:8 0 0 0; margin:0; padding:0;'>"
+					+ "<div class='icon small' style='width:20%;'>"
+						+ "<div class='icon-content'>"
+							+ SVGImage
+						+ "</div>"
+					+ "</div>"
+					+ "<div class='barBackgroundAtt' style='width:50%;'>"
+						+ "<div style='width:" + (attributeValue/attributeMaximum) * 100 + "%; height:5vw; background:" + barColour.toWebHexString() + "; float:left; border-radius: 2px;'></div>"
+					+ "</div>"
+					+ "<p style='text-align:center; margin:0; padding:0; line-height:12vw; color:" + barColour.toWebHexString() + ";'>"
+						+ (int) Math.ceil(attributeValue)
+					+ "</p>"
+					+ "<div class='overlay' id='" + id + "'></div>"
+				+ "</div>";
+	}
+	
+	private static String getAttributeBarThird(String SVGImage, Colour barColour, float attributeValue, float attributeMaximum, String id) {
+		return "<div class='half-width-container' style='width:33.3%; margin:8 0 0 0; margin:0; padding:0;'>"
+					+ "<div class='icon small' style='width:30%;'>"
+						+ "<div class='icon-content'>"
+							+ SVGImage
+						+ "</div>"
+					+ "</div>"
+					+ "<div class='barBackgroundAtt' style='width:30%;'>"
+						+ "<div style='width:" + (attributeValue/attributeMaximum) * 100 + "%; height:5vw; background:" + barColour.toWebHexString() + "; float:left; border-radius: 2px;'></div>"
+					+ "</div>"
+					+ "<p style='text-align:center; margin:0; padding:0; line-height:12vw; color:" + barColour.toWebHexString() + ";'>"
+						+ (int) Math.ceil(attributeValue)
+					+ "</p>"
+					+ "<div class='overlay' id='" + id + "'></div>"
+				+ "</div>";
+	}
+	
+	private static String getCharacterPanelDiv(boolean compact, String idPrefix, GameCharacter character) {
+		StringBuilder panelSB = new StringBuilder();
+		
+		panelSB.append(
+				"<div class='attribute-container' style='"
+						+ (Main.game.isInCombat()&&Combat.getTargetedCombatant(Main.game.getPlayer()).equals(character)?"border:2px solid "+Colour.GENERIC_COMBAT.toWebHexString()+";":"border:1px solid "+Colour.TEXT_GREY_DARK.toWebHexString()+";")
+							+ "'>"
+					+ "<div class='full-width-container' style='margin-bottom:4px;'>"
+						+ "<div class='icon' style='width:12%'>"
+							+ "<div class='icon-content'>"
+								+ (character.isRaceConcealed()?SVGImages.SVG_IMAGE_PROVIDER.getRaceUnknown():character.getMapIcon())
+							+ "</div>"
+							+"<div class='overlay' id='" + idPrefix + Attribute.EXPERIENCE.getName() + "' style='cursor:pointer;'></div>"
+						+ "</div>"
+						+ "<div class='full-width-container' style='text-align:center;padding:0;margin:0;float:left;width:86%;'>"
+							+ "<div class='full-width-container' style='text-align:center;padding:0;margin:0;'>"
+								+ "<b style='color:"+ Femininity.valueOf(character.getFemininityValue()).getColour().toWebHexString() + ";'>"
+									+ (character.getName().length() == 0
+											? Util.capitaliseSentence(character.isFeminine()?character.getSubspecies().getSingularFemaleName():character.getSubspecies().getSingularMaleName())
+											: Util.capitaliseSentence(character.getName()))
+								+"</b>"
+								+ " - Level "+ character.getLevel()
+							+"</div>"
+							+ "<div class='full-width-container' style='text-align:center;padding:0;margin:0;background:#333; border-radius: 2px;'>"
+								+ (character.getLevel() != GameCharacter.LEVEL_CAP
+									? "<div style='mix-blend-mode: difference; width:" + (character.getExperience() / (character.getLevel() * 10f)) * 100 + "%; height:2vw; background:" + Colour.CLOTHING_BLUE_LIGHT.toWebHexString()
+											+ "; float:left; border-radius: 2px;'></div>"
+									: "<div style=' mix-blend-mode: difference; width:100%; height:2vw; background:" + Colour.GENERIC_EXCELLENT.toWebHexString() + "; float:left; border-radius: 2px;'></div>")
+							+"</div>"
+							+"<div class='overlay' id='"+idPrefix+"ATTRIBUTES' style='cursor:pointer;'></div>"
+						+"</div>"
+						+ (character.isPlayer()
+								?"<div class='full-width-container' style='text-align:center;'>"
+									+ "<div class='half-width-container' style='padding:0 8px;'>"+ UtilText.formatAsMoney(character.getMoney(), "b") +"</div>"
+									+ "<div class='half-width-container' style='padding:0 8px;'>"+ UtilText.formatAsEssences(character.getEssenceCount(TFEssence.ARCANE), "b", true) +"</div>"
+								+"</div>"
+								:"")
+					+"</div>");
+		
+		panelSB.append("<hr style='border:1px solid "+Colour.TEXT_GREY_DARK.toWebHexString()+"; margin: 2px 0;'></hr>");
+		
 
+		panelSB.append(
+				getAttributeBarThird(PhysiqueLevel.getPhysiqueLevelFromValue(character.getAttributeValue(Attribute.MAJOR_PHYSIQUE)).getRelatedStatusEffect().getSVGString(character),
+						Attribute.MAJOR_PHYSIQUE.getColour(),
+						character.getAttributeValue(Attribute.MAJOR_PHYSIQUE),
+						100,
+						idPrefix + Attribute.MAJOR_PHYSIQUE.getName())
+				
+				+getAttributeBarThird(IntelligenceLevel.getIntelligenceLevelFromValue(character.getAttributeValue(Attribute.MAJOR_ARCANE)).getRelatedStatusEffect().getSVGString(character),
+						Attribute.MAJOR_ARCANE.getColour(),
+						character.getAttributeValue(Attribute.MAJOR_ARCANE),
+						100,
+						idPrefix + Attribute.MAJOR_ARCANE.getName())
+			
+				+getAttributeBarThird(CorruptionLevel.getCorruptionLevelFromValue(character.getAttributeValue(Attribute.MAJOR_CORRUPTION)).getRelatedStatusEffect().getSVGString(character),
+						Attribute.MAJOR_CORRUPTION.getColour(),
+						character.getAttributeValue(Attribute.MAJOR_CORRUPTION),
+						100,
+						idPrefix + Attribute.MAJOR_CORRUPTION.getName())
+				);
+		
+		panelSB.append("<hr style='border:1px solid "+Colour.TEXT_GREY_DARK.toWebHexString()+"; margin: 2px 0;'></hr>");
+		
+		if(compact) {
+			panelSB.append(
+					getAttributeBarThird(Attribute.HEALTH_MAXIMUM.getSVGString(),
+							Colour.ATTRIBUTE_HEALTH,
+							character.getHealth(),
+							character.getAttributeValue(Attribute.HEALTH_MAXIMUM),
+							idPrefix + Attribute.HEALTH_MAXIMUM.getName())
+	
+					+getAttributeBarThird(Attribute.MANA_MAXIMUM.getSVGString(),
+							Colour.ATTRIBUTE_MANA,
+							character.getMana(),
+							character.getAttributeValue(Attribute.MANA_MAXIMUM),
+							idPrefix + Attribute.MANA_MAXIMUM.getName())
+					
+					+getAttributeBarThird(LustLevel.getLustLevelFromValue(character.getLust()).getRelatedStatusEffect().getSVGString(character),
+							Colour.ATTRIBUTE_LUST,
+							character.getLust(),
+							100,
+							idPrefix + Attribute.LUST.getName()));
+			
+		} else {
+			panelSB.append(
+					getAttributeBar(Attribute.HEALTH_MAXIMUM.getSVGString(),
+							Colour.ATTRIBUTE_HEALTH,
+							character.getHealth(),
+							character.getAttributeValue(Attribute.HEALTH_MAXIMUM),
+							idPrefix + Attribute.HEALTH_MAXIMUM.getName())
+	
+					+getAttributeBar(Attribute.MANA_MAXIMUM.getSVGString(),
+							Colour.ATTRIBUTE_MANA,
+							character.getMana(),
+							character.getAttributeValue(Attribute.MANA_MAXIMUM),
+							idPrefix + Attribute.MANA_MAXIMUM.getName())
+					
+					+getAttributeBar(LustLevel.getLustLevelFromValue(character.getLust()).getRelatedStatusEffect().getSVGString(character),
+							Colour.ATTRIBUTE_LUST,
+							character.getLust(),
+							100,
+							idPrefix + Attribute.LUST.getName()));
+		}
+		
+		
+		// Status effects:
+		panelSB.append("<hr style='border:1px solid "+Colour.TEXT_GREY_DARK.toWebHexString()+"; margin: 2px 0;'></hr>"
+				+"<div class='attribute-container' style='padding:0; overflow-y: auto;'>");
+		
+//		// Traits:
+//		for (Perk trait : character.getTraits()) {
+//			panelSB.append(
+//					"<div class='icon effect' style='border:1px solid "+Colour.TRAIT.toWebHexString()+"'>"
+//							+ "<div class='icon-content'>"
+//								+ trait.getSVGString()
+//								+ "<div class='overlay' id='TRAIT_" + idPrefix + trait + "'></div>"
+//							+ "</div>"
+//					+ "</div>");
+//		}
+		
+		if(!Main.game.isInCombat()) {
+			// Infinite duration:
+			for (StatusEffect se : character.getStatusEffects()) {
+				if (!se.isCombatEffect() && character.getStatusEffectDuration(se) == -1 && se.renderInEffectsPanel())
+					panelSB.append(
+							"<div class='icon effect'>"
+									+ "<div class='icon-content'>"
+										+ se.getSVGString(character)
+										+ "<div class='overlay' id='SE_" + idPrefix + se + "'></div>"
+									+ "</div>"
+							+ "</div>");
+			}
+			// Timed:
+			for (StatusEffect se : character.getStatusEffects()) {
+				if (!se.isCombatEffect() && character.getStatusEffectDuration(se) != -1 && se.renderInEffectsPanel()) {
+					int timerHeight = (int) ((character.getStatusEffectDuration(se)/(60*6f))*100);
+	
+					Colour timerColour = Colour.STATUS_EFFECT_TIME_HIGH;
+					
+					if(timerHeight>100) {
+						timerHeight=100;
+						timerColour = Colour.STATUS_EFFECT_TIME_OVERFLOW;
+					} else if(timerHeight<15) {
+						timerColour = Colour.STATUS_EFFECT_TIME_LOW;
+					} else if (timerHeight<50) {
+						timerColour = Colour.STATUS_EFFECT_TIME_MEDIUM;
+					}
+					
+					panelSB.append(
+							"<div class='icon effect'>"
+									+ "<div class='timer-background' style='width:"+timerHeight+"%; background:"+ timerColour.toWebHexString() + ";'></div>"
+									+ "<div class='icon-content'>"
+										+ se.getSVGString(character)
+										+ "<div class='overlay' id='SE_" + idPrefix + se + "'></div>"
+									+ "</div>"
+							+ "</div>");
+				}
+			}
+			
+			if(!character.isPlayer()) {
+				for (Fetish f : character.getFetishes()) {
+					panelSB.append(
+						"<div class='icon effect'>"
+							+ "<div class='icon-content'>"
+									+ f.getSVGString()
+									+ "<div class='overlay' id='FETISH_"+idPrefix + f + "'></div>"
+							+ "</div>"
+						+ "</div>");
+				}
+			}
+		
+		} else {
+			// Infinite duration:
+			for (StatusEffect se : character.getStatusEffects()) {
+				if (character.getStatusEffectDuration(se) == -1 && se.renderInEffectsPanel())
+					panelSB.append(
+							"<div class='icon effect' "+(se.isCombatEffect()?"style='border:1px solid "+(se.isBeneficial()?Colour.GENERIC_GOOD:Colour.GENERIC_BAD).toWebHexString()+";":"")+"'>"
+									+ "<div class='icon-content'>"
+										+ se.getSVGString(character)
+										+ "<div class='overlay' id='SE_" + idPrefix + se + "'></div>"
+									+ "</div>"
+							+ "</div>");
+			}
+			// Timed:
+			for (StatusEffect se : character.getStatusEffects()) {
+				if (character.getStatusEffectDuration(se) != -1 && se.renderInEffectsPanel() && se.isCombatEffect()) {
+					int timerHeight = (int) ((character.getStatusEffectDuration(se)/(60*6f))*100);
+
+					Colour timerColour = Colour.STATUS_EFFECT_TIME_HIGH;
+					
+					if(timerHeight>100) {
+						timerHeight=100;
+						timerColour = Colour.STATUS_EFFECT_TIME_OVERFLOW;
+					} else if(timerHeight<15) {
+						timerColour = Colour.STATUS_EFFECT_TIME_LOW;
+					} else if (timerHeight<50) {
+						timerColour = Colour.STATUS_EFFECT_TIME_MEDIUM;
+					}
+					
+					panelSB.append(
+							"<div class='icon effect' style='border:1px solid "+(se.isBeneficial()?Colour.GENERIC_GOOD:Colour.GENERIC_BAD).toWebHexString()+";'>"
+									+ "<div class='timer-background' style='width:"+timerHeight+"%; background:"+ timerColour.toWebHexString() + ";'></div>"
+									+ "<div class='icon-content'>"
+										+ se.getSVGString(character)
+										+ "<div class='overlay' id='SE_" + idPrefix + se + "'></div>"
+									+ "</div>"
+							+ "</div>");
+				}
+			}
+			
+			for (SpecialAttack sa : character.getSpecialAttacks()) {
+				int cooldown = Combat.getCooldown(character, sa);
+				if (cooldown > 0) {
+					int timerHeight = (int) ((Math.min(5, cooldown)/5f)*100);
+
+					Colour timerColour = Colour.STATUS_EFFECT_TIME_MEDIUM;
+					
+					if(timerHeight>=100) {
+						timerHeight=100;
+						timerColour = Colour.STATUS_EFFECT_TIME_LOW;
+					} else if(cooldown<2) {
+						timerColour = Colour.STATUS_EFFECT_TIME_OVERFLOW;
+					} else if (cooldown<4) {
+						timerColour = Colour.STATUS_EFFECT_TIME_HIGH;
+					}
+					
+					panelSB.append(
+							"<div class='icon effect' style='border:1px solid "+Colour.SPECIAL_ATTACK.toWebHexString()+"'>"
+									+ "<div class='timer-background' style='width:"+timerHeight+"%; background:"+ timerColour.toWebHexString() + ";'></div>"
+									+ "<div class='icon-content'>"
+										+ sa.getSVGString()
+									+ "</div>"
+									+ "<div style='width:100%;height:100%;position:absolute;right:0; top:0;'>"+SVGImages.SVG_IMAGE_PROVIDER.getStopwatch()+"</div>"
+									+ "<div class='overlay' id='SA_" + idPrefix + sa + "'></div>"
+							+ "</div>");
+					
+				}
+			}
+		}
+		
+		panelSB.append("</div></div>");
+		
+		return panelSB.toString();
+	}
+	
+	
+	
+	
+	private static String getCharacterPanelSexDiv(boolean compact, String idPrefix, GameCharacter character) {
+		StringBuilder panelSB = new StringBuilder();
+		
+		panelSB.append(
+				"<div class='attribute-container' style='"+ (Sex.getActivePartner()!=null && Sex.getActivePartner().equals(character)?"border:2px solid "+Colour.GENERIC_ARCANE.toWebHexString()+";":"border:1px solid "+Colour.TEXT_GREY_DARK.toWebHexString()+";")+ "'>"
+					+ "<div class='full-width-container' style='margin-bottom:4px;'>"
+						+ "<div class='icon' style='width:12%'>"
+							+ "<div class='icon-content'>"
+							+ (character.isRaceConcealed()?SVGImages.SVG_IMAGE_PROVIDER.getRaceUnknown():character.getMapIcon())
+							+ "</div>"
+							+"<div class='overlay' id='" + idPrefix + Attribute.EXPERIENCE.getName() + "' style='cursor:pointer;'></div>"
+						+ "</div>"
+						+ "<div class='full-width-container' style='text-align:center;padding:0;margin:0;float:left;width:86%;'>"
+							+ "<div class='full-width-container' style='text-align:center;padding:0;margin:0;'>"
+								+ "<b style='color:"+ Femininity.valueOf(character.getFemininityValue()).getColour().toWebHexString() + ";'>"
+									+ (character.getName().length() == 0
+											? Util.capitaliseSentence(character.isFeminine()?character.getSubspecies().getSingularFemaleName():character.getSubspecies().getSingularMaleName())
+											: Util.capitaliseSentence(character.getName()))
+								+"</b>"
+									+ " - <span style='color:"+Sex.getSexPace(character).getColour().toWebHexString()+";'>"+ Util.capitaliseSentence(Sex.getSexPace(character).getName())+"</span>"
+							+"</div>"
+							+ "<div class='full-width-container' style='text-align:center;padding:0;margin:0;background:#333; border-radius: 2px;'>"
+								+ (character.getLevel() != GameCharacter.LEVEL_CAP
+									? "<div style='mix-blend-mode: difference; width:" + (character.getExperience() / (character.getLevel() * 10f)) * 100 + "%; height:2vw; background:" + Colour.CLOTHING_BLUE_LIGHT.toWebHexString()
+											+ "; float:left; border-radius: 2px;'></div>"
+									: "<div style=' mix-blend-mode: difference; width:100%; height:2vw; background:" + Colour.GENERIC_EXCELLENT.toWebHexString() + "; float:left; border-radius: 2px;'></div>")
+							+"</div>"
+							+"<div class='overlay' id='"+idPrefix+"ATTRIBUTES' style='cursor:pointer;'></div>"
+						+"</div>"
+						+"<div class='full-width-container' style='text-align:center;'>"
+							+ Util.capitaliseSentence(Sex.getSexPositionSlot(character).getName())
+						+ "</div>"
+					+"</div>");
+		
+		panelSB.append("<hr style='border:1px solid "+Colour.TEXT_GREY_DARK.toWebHexString()+"; margin: 2px 0;'></hr>");
+		
+		panelSB.append(
+				getAttributeBarHalf(CorruptionLevel.getCorruptionLevelFromValue(character.getAttributeValue(Attribute.MAJOR_CORRUPTION)).getRelatedStatusEffect().getSVGString(character),
+						Attribute.MAJOR_CORRUPTION.getColour(),
+						character.getAttributeValue(Attribute.MAJOR_CORRUPTION),
+						100,
+						idPrefix + Attribute.MAJOR_CORRUPTION.getName())
+				
+				+getAttributeBarHalf(LustLevel.getLustLevelFromValue(character.getLust()).getRelatedStatusEffect().getSVGString(character),
+						Colour.ATTRIBUTE_LUST,
+						character.getLust(),
+						100,
+						idPrefix + Attribute.LUST.getName())
+				
+				+getAttributeBar(ArousalLevel.getArousalLevelFromValue(character.getAttributeValue(Attribute.AROUSAL)).getRelatedStatusEffect().getSVGString(character),
+						Colour.ATTRIBUTE_AROUSAL,
+						character.getArousal(),
+						100,
+						idPrefix + Attribute.AROUSAL.getName()));
+
+		
+		// Status effects:
+		panelSB.append("<hr style='border:1px solid "+Colour.TEXT_GREY_DARK.toWebHexString()+"; margin: 2px 0;'></hr>"
+				+"<div class='attribute-container' style='padding:0; overflow-y: auto;'>");
+
+//		// Traits:
+//		for (Perk trait : character.getTraits()) {
+//			panelSB.append(
+//					"<div class='icon effect' style='border:1px solid "+Colour.TRAIT.toWebHexString()+"'>"
+//							+ "<div class='icon-content'>"
+//								+ trait.getSVGString()
+//								+ "<div class='overlay' id='TRAIT_" + idPrefix + trait + "'></div>"
+//							+ "</div>"
+//					+ "</div>");
+//		}
+		
+		// Infinite duration:
+		for (StatusEffect se : character.getStatusEffects()) {
+			if (se.isSexEffect() && character.getStatusEffectDuration(se) == -1 && se.renderInEffectsPanel()) {
+				panelSB.append(
+						"<div class='icon effect'>"
+								+ "<div class='icon-content'>"
+									+ se.getSVGString(character)
+									+ "<div class='overlay' id='SE_" + idPrefix + se + "'></div>"
+								+ "</div>"
+						+ "</div>");
+			}
+		}
+		// Timed:
+		for (StatusEffect se : character.getStatusEffects()) {
+			if (se.isSexEffect() && character.getStatusEffectDuration(se) != -1 && se.renderInEffectsPanel()) {
+				int timerHeight = (int) ((character.getStatusEffectDuration(se)/(60*6f))*100);
+
+				Colour timerColour = Colour.STATUS_EFFECT_TIME_HIGH;
+				
+				if(timerHeight>100) {
+					timerHeight=100;
+					timerColour = Colour.STATUS_EFFECT_TIME_OVERFLOW;
+				} else if(timerHeight<15) {
+					timerColour = Colour.STATUS_EFFECT_TIME_LOW;
+				} else if (timerHeight<50) {
+					timerColour = Colour.STATUS_EFFECT_TIME_MEDIUM;
+				}
+				
+				panelSB.append(
+						"<div class='icon effect'>"
+								+ "<div class='timer-background' style='width:"+timerHeight+"%; background:"+ timerColour.toWebHexString() + ";'></div>"
+								+ "<div class='icon-content'>"
+									+ se.getSVGString(character)
+									+ "<div class='overlay' id='SE_" + idPrefix + se + "'></div>"
+								+ "</div>"
+						+ "</div>");
+			}
+		}
+		
+		if(!character.isPlayer()) {
+			for (Fetish f : character.getFetishes()) {
+				panelSB.append(
+					"<div class='icon effect'>"
+						+ "<div class='icon-content'>"
+								+ f.getSVGString()
+								+ "<div class='overlay' id='FETISH_"+idPrefix + f + "'></div>"
+						+ "</div>"
+					+ "</div>");
+			}
+		}
+		
+		panelSB.append("</div></div>");
+		
+		return panelSB.toString();
+	}
+
+	public static int getPageLeft() {
+		return pageLeft;
+	}
+
+	public static void setPageLeft(int pageLeft) {
+		RenderingEngine.pageLeft = pageLeft;
+	}
+
+	public static int getPageRight() {
+		return pageRight;
+	}
+
+	public static void setPageRight(int pageRight) {
+		RenderingEngine.pageRight = pageRight;
+	}
+	
 }

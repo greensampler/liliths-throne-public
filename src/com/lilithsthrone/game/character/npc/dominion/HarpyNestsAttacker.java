@@ -3,19 +3,19 @@ package com.lilithsthrone.game.character.npc.dominion;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.lilithsthrone.game.character.CharacterImportSetting;
 import com.lilithsthrone.game.character.CharacterUtils;
 import com.lilithsthrone.game.character.GameCharacter;
-import com.lilithsthrone.game.character.Name;
 import com.lilithsthrone.game.character.attributes.Attribute;
-import com.lilithsthrone.game.character.effects.Fetish;
 import com.lilithsthrone.game.character.gender.Gender;
 import com.lilithsthrone.game.character.npc.NPC;
+import com.lilithsthrone.game.character.persona.Name;
 import com.lilithsthrone.game.character.race.Race;
 import com.lilithsthrone.game.character.race.RaceStage;
 import com.lilithsthrone.game.character.race.RacialBody;
-import com.lilithsthrone.game.combat.Attack;
 import com.lilithsthrone.game.dialogue.DialogueNodeOld;
-import com.lilithsthrone.game.dialogue.npcDialogue.HarpyNestsAttackerDialogue;
+import com.lilithsthrone.game.dialogue.npcDialogue.SlaveDialogue;
+import com.lilithsthrone.game.dialogue.npcDialogue.dominion.HarpyNestsAttackerDialogue;
 import com.lilithsthrone.game.dialogue.responses.Response;
 import com.lilithsthrone.game.dialogue.utils.UtilText;
 import com.lilithsthrone.game.inventory.CharacterInventory;
@@ -45,15 +45,15 @@ public class HarpyNestsAttacker extends NPC {
 		this(gender, false);
 	}
 	
-	private HarpyNestsAttacker(Gender gender, boolean isImported) {
+	public HarpyNestsAttacker(boolean isImported) {
+		this(Gender.F_V_B_FEMALE, isImported);
+	}
+	
+	public HarpyNestsAttacker(Gender gender, boolean isImported) {
 		super(null, "", 4, gender, RacialBody.HARPY, RaceStage.LESSER,
 				new CharacterInventory(10), WorldType.HARPY_NEST, PlaceType.HARPY_NESTS_WALKWAYS, false);
 
 		if(!isImported) {
-			setAttribute(Attribute.STRENGTH, (int)(this.getAttributeValue(Attribute.STRENGTH) * (0.5f+Math.random())));
-			setAttribute(Attribute.INTELLIGENCE, (int)(this.getAttributeValue(Attribute.INTELLIGENCE) * (0.5f+Math.random())));
-			setAttribute(Attribute.FITNESS, (int)(this.getAttributeValue(Attribute.FITNESS) * (0.5f+Math.random())));
-			setAttribute(Attribute.CORRUPTION, (int)(20 * (0.5f+Math.random())));
 	
 			this.setWorldLocation(Main.game.getPlayer().getWorldLocation());
 			this.setLocation(new Vector2i(Main.game.getPlayer().getLocation().getX(), Main.game.getPlayer().getLocation().getY()));
@@ -63,10 +63,18 @@ public class HarpyNestsAttacker extends NPC {
 			
 			
 			// RACE & NAME:
-			if(gender.isFeminine()) {
-				setBody(Gender.F_V_B_FEMALE, RacialBody.HARPY, RaceStage.LESSER);
+			if(this.hasPenis()) {
+				if(this.hasBreasts()) {
+					setBody(Gender.F_P_B_SHEMALE, RacialBody.HARPY, RaceStage.LESSER);
+				} else {
+					setBody(Gender.F_P_TRAP, RacialBody.HARPY, RaceStage.LESSER);
+				}
 			} else {
-				setBody(Gender.F_P_TRAP, RacialBody.HARPY, RaceStage.LESSER);
+				if(this.hasBreasts()) {
+					setBody(Gender.F_V_B_FEMALE, RacialBody.HARPY, RaceStage.LESSER);
+				} else {
+					setBody(Gender.F_V_FEMALE, RacialBody.HARPY, RaceStage.LESSER);
+				}
 			}
 	
 			setName(Name.getRandomTriplet(Race.HARPY));
@@ -83,26 +91,22 @@ public class HarpyNestsAttacker extends NPC {
 			// INVENTORY:
 			resetInventory();
 			inventory.setMoney(10 + Util.random.nextInt(getLevel()*10) + 1);
+			CharacterUtils.generateItemsInInventory(this);
 			
 			CharacterUtils.equipClothing(this, true, false);
 			CharacterUtils.applyMakeup(this, true);
 	
 			setMana(getAttributeValue(Attribute.MANA_MAXIMUM));
 			setHealth(getAttributeValue(Attribute.HEALTH_MAXIMUM));
-			setStamina(getAttributeValue(Attribute.STAMINA_MAXIMUM));
 		}
 
-		this.setEnslavementDialogue(HarpyNestsAttackerDialogue.ENSLAVEMENT_DIALOGUE);
+		this.setEnslavementDialogue(SlaveDialogue.DEFAULT_ENSLAVEMENT_DIALOGUE);
 		
 	}
 	
 	@Override
-	public HarpyNestsAttacker loadFromXML(Element parentElement, Document doc) {
-		HarpyNestsAttacker npc = new  HarpyNestsAttacker(Gender.F_V_B_FEMALE, true);
-
-		loadNPCVariablesFromXML(npc, null, parentElement, doc);
-		
-		return npc;
+	public void loadFromXML(Element parentElement, Document doc, CharacterImportSetting... settings) {
+		loadNPCVariablesFromXML(this, null, parentElement, doc, settings);
 	}
 	
 	@Override
@@ -141,110 +145,11 @@ public class HarpyNestsAttacker extends NPC {
 	// Combat:
 
 	@Override
-	public String getCombatDescription() {
-		if(this.isPregnant()) {
-			if(hasFetish(Fetish.FETISH_PREGNANCY)) {
-				return "Visibly pregnant, [npc.name] has an elated grin on [npc.her] face, but although [npc.she] seems happy about being knocked up, [npc.she]'s still intent on 'teaching you a lesson'...";
-				
-			} else {
-				return "The consequence of finishing inside [npc.name] is standing right before you."
-						+ " Visibly pregnant, [npc.she] has a devious grin on [npc.her] face, and it's quite clear that [npc.she] wants to get some revenge...";
-			}
-		} else {
-			return UtilText.parse(this,
-					"[npc.Name] is angry that you've strayed too close to [npc.her] nest, and seems more than willing to fight you in order to teach you a lesson.");
-		}
-	}
-
-	@Override
-	public String getAttackDescription(Attack attackType, boolean isHit) {
-
-		if (attackType == Attack.MAIN) {
-			switch (Util.random.nextInt(3)) {
-			case 0:
-				return UtilText.parse(this,
-						"<p>"
-							+ "[npc.Name] feints a punch, and as you dodge away, [npc.she] tries to deliver a kick aimed at your legs."
-							+ (isHit ? "" : " You see [npc.her] kick coming and jump backwards out of harm's way.")
-						+ "</p>");
-			case 1:
-				return UtilText.parse(this,
-						"<p>"
-							+ "[npc.Name] jumps forwards, trying to deliver a punch to your upper torso."
-							+ (isHit ? "" : " You manage to twist to one side, narrowly avoiding [npc.her] attack.")
-						+ "</p>");
-			default:
-				return UtilText.parse(this,
-						"<p>"
-							+ "[npc.Name] darts forwards, throwing a punch at your torso."
-							+ (isHit ? "" : " You manage to dodge [npc.her] attack by leaping to one side.")
-						+ "</p>");
-			}
-		} else {
-			if(isFeminine()) {
-				switch (Util.random.nextInt(3)) {
-					case 0:
-						return UtilText.parse(this,
-								"<p>"
-									+ "[npc.Name] erotically runs [npc.her] hands down [npc.her] legs and bends forwards as [npc.she] teases you, "
-									+ "[npc.speech(Come on baby, I can show you a good time!)]"
-								+ "</p>");
-					case 1:
-						return UtilText.parse(this,
-								"<p>"
-									+ "[npc.Name] pushes out [npc.her] chest and lets out an erotic moan, "
-									+ "[npc.speech(Come play with me!)]"
-								+ "</p>");
-					default:
-						return UtilText.parse(this,
-								"<p>"
-									+ "[npc.Name] slowly runs [npc.her] hands down between [npc.her] thighs, "
-									+ "[npc.speech(You know you want it!)]"
-								+ "</p>");
-				}
-			} else {
-				switch (Util.random.nextInt(3)) {
-					case 0:
-						return UtilText.parse(this,
-								"<p>"
-									+ "[npc.Name] winks at you and flexes [npc.his] muscles, "
-									+ "[npc.speech(My body's aching for your touch!)]"
-								+ "</p>");
-					case 1:
-						return UtilText.parse(this,
-								"<p>"
-									+ "[npc.Name] strikes a heroic pose before blowing a kiss your way, "
-									+ "[npc.speech(Come on, I can show you a good time!)]"
-								+ "</p>");
-					default:
-						return UtilText.parse(this,
-								"<p>"
-									+ "[npc.Name] grins at you as [npc.he] reaches down and grabs [npc.his] crotch, "
-									+ "[npc.speech(You know you want a taste of this!)]"
-								+ "</p>");
-				}
-
-			}
-		}
-	}
-
-	@Override
 	public Response endCombat(boolean applyEffects, boolean victory) {
 		if (victory) {
 			return new Response("", "", HarpyNestsAttackerDialogue.AFTER_COMBAT_VICTORY);
 		} else {
 			return new Response ("", "", HarpyNestsAttackerDialogue.AFTER_COMBAT_DEFEAT);
-		}
-	}
-
-	
-
-	@Override
-	public Attack attackType() {
-		if (Math.random() < 0.7) {
-			return Attack.SEDUCTION;
-		} else {
-			return Attack.MAIN;
 		}
 	}
 	
@@ -260,7 +165,7 @@ public class HarpyNestsAttacker extends NPC {
 			}else{
 				if(item.getItemType().equals(ItemType.PROMISCUITY_PILL)) {
 						Main.game.getPlayer().useItem(item, target, false);
-						if(Sex.isPlayerDom()) {
+						if(Sex.isDom(Main.game.getPlayer())) {
 							return "<p>"
 									+ "Holding out a 'Promiscuity pill' to [npc.name], you tell [npc.her] to swallow it so that you don't have to worry about any unexpected pregnancies."
 									+ " Letting out a reluctant sigh, [npc.she] nevertheless takes the pill out of your hand, and, popping it out of its wrapping, [npc.she] whines at you,"
@@ -277,7 +182,7 @@ public class HarpyNestsAttacker extends NPC {
 				} else if(item.getItemType().equals(ItemType.VIXENS_VIRILITY)) {
 					
 						Main.game.getPlayer().useItem(item, target, false);
-						if(Sex.isPlayerDom()) {
+						if(Sex.isDom(Main.game.getPlayer())) {
 							return "<p>"
 									+ "Holding out a 'Vixen's Virility' pill to [npc.name], you tell [npc.her] to swallow it."
 									+ " Letting out a reluctant sigh, [npc.she] nevertheless takes the pill out of your hand, and, popping it out of its wrapping, [npc.she] whines at you,"
@@ -293,7 +198,7 @@ public class HarpyNestsAttacker extends NPC {
 						
 				} else if(item.getItemType().equals(ItemType.POTION) || item.getItemType().equals(ItemType.ELIXIR) || item.getItemType().equals(ItemType.FETISH_UNREFINED) || item.getItemType().equals(ItemType.FETISH_REFINED)) {
 					
-						if(Sex.isPlayerDom()) {
+						if(Sex.isDom(Main.game.getPlayer())) {
 							return "<p>"
 										+ "Taking your "+item.getName()+" out from your inventory, you hold it out to [npc.name]."
 										+ " Seeing what you're offering [npc.herHim], [npc.she] shifts about uncomfortably, "
@@ -315,7 +220,7 @@ public class HarpyNestsAttacker extends NPC {
 						
 				} else if(item.getItemType().equals(ItemType.MOTHERS_MILK)) {
 					
-						if(Sex.isPlayerDom()) {
+						if(Sex.isDom(Main.game.getPlayer())) {
 							return "<p>"
 										+ "Taking the bottle of "+item.getName()+" out from your inventory, you hold it out to [npc.name]."
 										+ " Seeing what you're offering [npc.herHim], [npc.she] shifts about uncomfortably, "
@@ -344,7 +249,7 @@ public class HarpyNestsAttacker extends NPC {
 						|| item.getItemType().equals(ItemType.RACE_INGREDIENT_WOLF_MORPH)
 						|| item.getItemType().equals(ItemType.RACE_INGREDIENT_COW_MORPH)) {
 					
-						if(Sex.isPlayerDom()) {
+						if(Sex.isDom(Main.game.getPlayer())) {
 							return "<p>"
 										+ "Taking the "+item.getName()+" out from your inventory, you hold it out to [npc.name]."
 										+ " Seeing what you're offering [npc.herHim], [npc.she] shifts about uncomfortably, "
@@ -366,7 +271,7 @@ public class HarpyNestsAttacker extends NPC {
 						
 				} else if(item.getItemType().equals(ItemType.SEX_INGREDIENT_HARPY_PERFUME)) {
 					
-						if(Sex.isPlayerDom()) {
+						if(Sex.isDom(Main.game.getPlayer())) {
 							return "<p>"
 										+ "Taking the "+item.getName()+" out from your inventory, you hold it out to [npc.name]."
 										+ " Seeing what you're offering [npc.herHim], [npc.she] shifts about uncomfortably, "
@@ -396,7 +301,7 @@ public class HarpyNestsAttacker extends NPC {
 						|| item.getItemType().equals(ItemType.STR_INGREDIENT_SWAMP_WATER)
 						|| item.getItemType().equals(ItemType.STR_INGREDIENT_BUBBLE_MILK)) {
 					
-						if(Sex.isPlayerDom()) {
+						if(Sex.isDom(Main.game.getPlayer())) {
 							return "<p>"
 										+ "Taking the bottle of "+item.getName()+" out from your inventory, you hold it out to [npc.name]."
 										+ " Seeing what you're offering [npc.herHim], [npc.she] shifts about uncomfortably, "
@@ -418,7 +323,7 @@ public class HarpyNestsAttacker extends NPC {
 	
 				} else if(item.getItemType().equals(ItemType.EGGPLANT)) {
 					
-					if(Sex.isPlayerDom()) {
+					if(Sex.isDom(Main.game.getPlayer())) {
 						return "<p>"
 									+ "Taking the eggplant from your inventory, you hold it out to [npc.name]."
 									+ " Seeing what you're offering [npc.herHim], [npc.she] shifts about uncomfortably, "
@@ -445,7 +350,7 @@ public class HarpyNestsAttacker extends NPC {
 			
 		// NPC is using an item:
 		}else{
-			return Sex.getPartner().useItem(item, target, false);
+			return Sex.getActivePartner().useItem(item, target, false);
 		}
 	}
 }

@@ -5,6 +5,11 @@ import java.util.List;
 import com.lilithsthrone.game.character.body.types.BodyPartType;
 import com.lilithsthrone.utils.Colour;
 
+/**
+ * @since 0.1.?
+ * @version 0.1.?
+ * @author Innoxia
+ */
 public abstract class ParserCommand {
 	private boolean allowsCapitalisation, allowPronoun;
 	private String description, arguments;
@@ -63,16 +68,17 @@ public abstract class ParserCommand {
 	 * Some methods might return a null or empty string for a descriptor. This method accounts for that, applying a descriptor if one is available and then returning the descriptor + name combination.
 	 */
 	protected static String applyDescriptor(String descriptor, String name) {
-		if(descriptor==null)
+		if(descriptor==null) {
 			return name;
+		}
 		
-		return (descriptor.length() > 0 ? descriptor + " " : "") + name;
+		return (descriptor.length() > 0 ? descriptor + (descriptor.charAt(descriptor.length()-1)=='-'?"":" ") : "") + name;
 	}
 	
 	/**
 	 * Some methods might return a null or empty string for a determiner. This method accounts for that, applying a special determiner if one is available and then returning the descriptor + name combination.
 	 */
-	protected static String applyDeterminer(String descriptor, String input) {
+	protected String applyDeterminer(String descriptor, String input) {
 		if(descriptor==null)
 			return input;
 		

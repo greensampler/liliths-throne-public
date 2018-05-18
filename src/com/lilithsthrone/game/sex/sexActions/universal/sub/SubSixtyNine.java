@@ -7,6 +7,7 @@ import com.lilithsthrone.game.sex.OrificeType;
 import com.lilithsthrone.game.sex.PenetrationType;
 import com.lilithsthrone.game.sex.Sex;
 import com.lilithsthrone.game.sex.SexPace;
+import com.lilithsthrone.game.sex.SexParticipantType;
 import com.lilithsthrone.game.sex.sexActions.SexAction;
 import com.lilithsthrone.game.sex.sexActions.SexActionType;
 import com.lilithsthrone.main.Main;
@@ -22,11 +23,12 @@ public class SubSixtyNine {
 	
 	public static final SexAction PARTNER_MOUND_SNOG = new SexAction(
 			SexActionType.PARTNER_REQUIRES_NO_PENETRATION_AND_EXPOSED,
-			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.ONE_MINIMUM,
+			ArousalIncrease.THREE_NORMAL,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.TONGUE_PARTNER,
-			OrificeType.VAGINA_PLAYER,
+			PenetrationType.TONGUE,
+			OrificeType.VAGINA,
+			SexParticipantType.PITCHER,
 			null,
 			SexPace.DOM_ROUGH) {
 		@Override
@@ -56,11 +58,12 @@ public class SubSixtyNine {
 	
 	public static final SexAction PARTNER_MOUND_KISSING = new SexAction(
 			SexActionType.PARTNER_REQUIRES_NO_PENETRATION_AND_EXPOSED,
-			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.ONE_MINIMUM,
+			ArousalIncrease.THREE_NORMAL,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.TONGUE_PARTNER,
-			OrificeType.VAGINA_PLAYER,
+			PenetrationType.TONGUE,
+			OrificeType.VAGINA,
+			SexParticipantType.PITCHER,
 			null,
 			SexPace.DOM_NORMAL) {
 		@Override
@@ -90,11 +93,12 @@ public class SubSixtyNine {
 	
 	public static final SexAction PARTNER_GENTLE_MOUND_KISSING = new SexAction(
 			SexActionType.PARTNER_REQUIRES_NO_PENETRATION_AND_EXPOSED,
-			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.ONE_MINIMUM,
+			ArousalIncrease.THREE_NORMAL,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.TONGUE_PARTNER,
-			OrificeType.VAGINA_PLAYER,
+			PenetrationType.TONGUE,
+			OrificeType.VAGINA,
+			SexParticipantType.PITCHER,
 			null,
 			SexPace.DOM_GENTLE) {
 		@Override
@@ -129,8 +133,9 @@ public class SubSixtyNine {
 			ArousalIncrease.ONE_MINIMUM,
 			ArousalIncrease.THREE_NORMAL,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.TONGUE_PLAYER,
-			OrificeType.VAGINA_PARTNER,
+			PenetrationType.TONGUE,
+			OrificeType.VAGINA,
+			SexParticipantType.PITCHER,
 			SexPace.SUB_EAGER,
 			null) {
 		@Override
@@ -145,7 +150,7 @@ public class SubSixtyNine {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return !Sex.getPartner().hasVagina() && !Sex.getPartner().hasPenis();
+			return !Sex.getActivePartner().hasVagina() && !Sex.getActivePartner().hasPenis();
 		}
 
 		@Override
@@ -164,8 +169,9 @@ public class SubSixtyNine {
 			ArousalIncrease.ONE_MINIMUM,
 			ArousalIncrease.THREE_NORMAL,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.TONGUE_PLAYER,
-			OrificeType.VAGINA_PARTNER,
+			PenetrationType.TONGUE,
+			OrificeType.VAGINA,
+			SexParticipantType.PITCHER,
 			SexPace.SUB_NORMAL,
 			null) {
 		@Override
@@ -180,7 +186,7 @@ public class SubSixtyNine {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return !Sex.getPartner().hasVagina() && !Sex.getPartner().hasPenis();
+			return !Sex.getActivePartner().hasVagina() && !Sex.getActivePartner().hasPenis();
 		}
 
 		@Override

@@ -1,24 +1,27 @@
 package com.lilithsthrone.game.character.npc.dominion;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.lilithsthrone.game.Season;
+import com.lilithsthrone.game.character.CharacterImportSetting;
 import com.lilithsthrone.game.character.CharacterUtils;
 import com.lilithsthrone.game.character.GameCharacter;
-import com.lilithsthrone.game.character.History;
-import com.lilithsthrone.game.character.Name;
-import com.lilithsthrone.game.character.SexualOrientation;
 import com.lilithsthrone.game.character.attributes.Attribute;
 import com.lilithsthrone.game.character.gender.Gender;
 import com.lilithsthrone.game.character.npc.NPC;
+import com.lilithsthrone.game.character.persona.History;
+import com.lilithsthrone.game.character.persona.Name;
+import com.lilithsthrone.game.character.persona.SexualOrientation;
 import com.lilithsthrone.game.character.race.FurryPreference;
-import com.lilithsthrone.game.character.race.Race;
 import com.lilithsthrone.game.character.race.RaceStage;
 import com.lilithsthrone.game.character.race.RacialBody;
-import com.lilithsthrone.game.combat.Attack;
+import com.lilithsthrone.game.character.race.Subspecies;
+import com.lilithsthrone.game.dialogue.DialogueFlagValue;
 import com.lilithsthrone.game.dialogue.DialogueNodeOld;
 import com.lilithsthrone.game.dialogue.responses.Response;
 import com.lilithsthrone.game.dialogue.utils.UtilText;
@@ -32,7 +35,6 @@ import com.lilithsthrone.game.sex.Sex;
 import com.lilithsthrone.game.slavery.SlaveJobSetting;
 import com.lilithsthrone.main.Main;
 import com.lilithsthrone.utils.Util;
-import com.lilithsthrone.utils.Util.Value;
 import com.lilithsthrone.world.WorldType;
 import com.lilithsthrone.world.places.PlaceType;
 
@@ -53,22 +55,22 @@ public class SlaveInStocks extends NPC {
 		this(gender, false);
 	}
 	
+	public SlaveInStocks(boolean isImported) {
+		this(Gender.F_V_B_FEMALE, isImported);
+	}
+	
 	public SlaveInStocks(Gender gender, boolean isImported) {
 		super(null, "", 3, gender, RacialBody.DOG_MORPH, RaceStage.GREATER,
 				new CharacterInventory(10), WorldType.SLAVER_ALLEY, PlaceType.SLAVER_ALLEY_PUBLIC_STOCKS, false);
 
 		if(!isImported) {
-			setAttribute(Attribute.STRENGTH, (int)(this.getAttributeValue(Attribute.STRENGTH) * (0.5f+Math.random())));
-			setAttribute(Attribute.INTELLIGENCE, (int)(this.getAttributeValue(Attribute.INTELLIGENCE) * (0.5f+Math.random())));
-			setAttribute(Attribute.FITNESS, (int)(this.getAttributeValue(Attribute.FITNESS) * (0.5f+Math.random())));
-			setAttribute(Attribute.CORRUPTION, (int)(20 * (0.5f+Math.random())));
 			
 			// Set random level from 1 to 3:
 			setLevel(Util.random.nextInt(3) + 1);
 			
 			// RACE & NAME:
 			
-			Race race = Race.DOG_MORPH;
+			Subspecies species = Subspecies.DOG_MORPH;
 			
 			double humanChance = 0;
 			
@@ -85,23 +87,103 @@ public class SlaveInStocks extends NPC {
 				humanChance = 0.75f;
 			}
 			
-			Map<Race, Integer> availableRaces = Util.newHashMapOfValues(
-					new Value<>(Race.DOG_MORPH, 20),
-					new Value<>(Race.CAT_MORPH, 20),
-					new Value<>(Race.HORSE_MORPH, 20),
-					new Value<>(Race.WOLF_MORPH, 20),
-					new Value<>(Race.SQUIRREL_MORPH, 10),
-					new Value<>(Race.COW_MORPH, 10),
-					new Value<>(Race.DEMON, 5));
+			Map<Subspecies, Integer> availableRaces = new HashMap<>();
+			for(Subspecies s : Subspecies.values()) {
+				switch(s) {
+					// No spawn chance:
+					case ANGEL:
+					case DEMON:
+					case HARPY:
+					case HARPY_RAVEN:
+					case HUMAN:
+					case IMP:
+					case IMP_ALPHA:
+					case SLIME:
+					case SLIME_ALLIGATOR:
+					case SLIME_ANGEL:
+					case SLIME_CAT:
+					case SLIME_COW:
+					case SLIME_DEMON:
+					case SLIME_DOG:
+					case SLIME_DOG_DOBERMANN:
+					case SLIME_DOG_BORDER_COLLIE:
+					case SLIME_HARPY:
+					case SLIME_HARPY_RAVEN:
+					case SLIME_HORSE:
+					case SLIME_IMP:
+					case SLIME_REINDEER:
+					case SLIME_SQUIRREL:
+					case SLIME_WOLF:
+					case SLIME_RAT:
+					case SLIME_BAT:
+					case SLIME_RABBIT:
+					case ELEMENTAL_AIR:
+					case ELEMENTAL_ARCANE:
+					case ELEMENTAL_EARTH:
+					case ELEMENTAL_FIRE:
+					case ELEMENTAL_WATER:
+						break;
+					
+					// Special spawns:
+					case REINDEER_MORPH:
+						if(Main.game.getSeason()==Season.WINTER && Main.game.getDialogueFlags().hasFlag(DialogueFlagValue.hasSnowedThisWinter)) {
+							addToSubspeciesMap(10, gender, s, availableRaces);
+						}
+						break;
+						
+					// Rare spawns:
+					case ALLIGATOR_MORPH:
+						addToSubspeciesMap(5, gender, s, availableRaces);
+						break;
+					case BAT_MORPH:
+						addToSubspeciesMap(5, gender, s, availableRaces);
+						break;
+					case RAT_MORPH:
+						addToSubspeciesMap(5, gender, s, availableRaces);
+						break;
+						
+					// Common spawns:
+					case CAT_MORPH:
+						addToSubspeciesMap(20, gender, s, availableRaces);
+						break;
+					case COW_MORPH:
+						addToSubspeciesMap(10, gender, s, availableRaces);
+						break;
+					case DOG_MORPH:
+						addToSubspeciesMap(20, gender, s, availableRaces);
+						break;
+					case DOG_MORPH_DOBERMANN:
+						addToSubspeciesMap(5, gender, s, availableRaces);
+						break;
+					case DOG_MORPH_BORDER_COLLIE:
+						addToSubspeciesMap(5, gender, s, availableRaces);
+						break;
+					case HORSE_MORPH:
+						addToSubspeciesMap(20, gender, s, availableRaces);
+						break;
+					case SQUIRREL_MORPH:
+						addToSubspeciesMap(10, gender, s, availableRaces);
+						break;
+					case WOLF_MORPH:
+						addToSubspeciesMap(20, gender, s, availableRaces);
+						break;
+					case RABBIT_MORPH:
+						addToSubspeciesMap(3, gender, s, availableRaces);
+						break;
+					case RABBIT_MORPH_LOP:
+						addToSubspeciesMap(3, gender, s, availableRaces);
+						break;
+				}
+			}
 			
 			if(gender.isFeminine()) {
-				for(Entry<Race, FurryPreference> entry : Main.getProperties().raceFemininePreferencesMap.entrySet()) {
+				for(Entry<Subspecies, FurryPreference> entry : Main.getProperties().subspeciesFeminineFurryPreferencesMap.entrySet()) {
 					if(entry.getValue() == FurryPreference.HUMAN) {
 						availableRaces.remove(entry.getKey());
 					}
 				}
 			} else {
-				for(Entry<Race, FurryPreference> entry : Main.getProperties().raceMasculinePreferencesMap.entrySet()) {
+				for(Entry<Subspecies, FurryPreference> entry : Main.getProperties().subspeciesMasculineFurryPreferencesMap.entrySet()) {
 					if(entry.getValue() == FurryPreference.HUMAN) {
 						availableRaces.remove(entry.getKey());
 					}
@@ -112,56 +194,42 @@ public class SlaveInStocks extends NPC {
 				setBody(gender, RacialBody.HUMAN, RaceStage.HUMAN);
 				
 			} else {
-				int total = 0;
-				for(int i : availableRaces.values()) {
-					total+=i;
-				}
-				
-				int choice = Util.random.nextInt(total) + 1;
-				
-				total = 0;
-				for(Entry<Race, Integer> entry : availableRaces.entrySet()) {
-					total+=entry.getValue();
-					if(choice<=total) {
-						race = entry.getKey();
-						break;
-					}
-				}
+				species = Util.getRandomObjectFromWeightedMap(availableRaces);
 				
 				if(gender.isFeminine()) {
-					switch(Main.getProperties().raceFemininePreferencesMap.get(race)) {
+					switch(Main.getProperties().subspeciesFeminineFurryPreferencesMap.get(species)) {
 						case HUMAN:
 							setBody(gender, RacialBody.HUMAN, RaceStage.HUMAN);
 							break;
 						case MINIMUM:
-							setBodyFromPreferences(1, gender, race);
+							setBodyFromPreferences(1, gender, species);
 							break;
 						case REDUCED:
-							setBodyFromPreferences(2, gender, race);
+							setBodyFromPreferences(2, gender, species);
 							break;
 						case NORMAL:
-							setBodyFromPreferences(3, gender, race);
+							setBodyFromPreferences(3, gender, species);
 							break;
 						case MAXIMUM:
-							setBody(gender, RacialBody.valueOfRace(race), RaceStage.GREATER);
+							setBody(gender, species, RaceStage.GREATER);
 							break;
 					}
 				} else {
-					switch(Main.getProperties().raceMasculinePreferencesMap.get(race)) {
+					switch(Main.getProperties().subspeciesMasculineFurryPreferencesMap.get(species)) {
 						case HUMAN:
 							setBody(gender, RacialBody.HUMAN, RaceStage.HUMAN);
 							break;
 						case MINIMUM:
-							setBodyFromPreferences(1, gender, race);
+							setBodyFromPreferences(1, gender, species);
 							break;
 						case REDUCED:
-							setBodyFromPreferences(2, gender, race);
+							setBodyFromPreferences(2, gender, species);
 							break;
 						case NORMAL:
-							setBodyFromPreferences(3, gender, race);
+							setBodyFromPreferences(3, gender, species);
 							break;
 						case MAXIMUM:
-							setBody(gender, RacialBody.valueOfRace(race), RaceStage.GREATER);
+							setBody(gender, species, RaceStage.GREATER);
 							break;
 					}
 				}
@@ -169,10 +237,10 @@ public class SlaveInStocks extends NPC {
 			
 			setSexualOrientation(RacialBody.valueOfRace(getRace()).getSexualOrientation(gender));
 	
-			setName(Name.getRandomTriplet(race));
+			setName(Name.getRandomTriplet(species.getRace()));
 			this.setPlayerKnowsName(false);
 			setDescription(UtilText.parse(this,
-					"[npc.Name] is a resident of Dominion, who, for reasons of [npc.her] own, prowls the back alleys in search of victims to prey upon."));
+					"[npc.Name] is a slave, who, for one reason or another, has been locked into the stocks for public use."));
 			
 			// PERSONALITY & BACKGROUND:
 			
@@ -225,25 +293,32 @@ public class SlaveInStocks extends NPC {
 			
 			setMana(getAttributeValue(Attribute.MANA_MAXIMUM));
 			setHealth(getAttributeValue(Attribute.HEALTH_MAXIMUM));
-			setStamina(getAttributeValue(Attribute.STAMINA_MAXIMUM));
+		}
+	}
+	
+	private void addToSubspeciesMap(int weight, Gender gender, Subspecies subspecies, Map<Subspecies, Integer> map) {
+		if(gender.isFeminine()) {
+			if(Main.getProperties().subspeciesFeminineFurryPreferencesMap!=FurryPreference.HUMAN && Main.getProperties().subspeciesFemininePreferencesMap.get(subspecies).getValue()>0) {
+				map.put(subspecies, weight*Main.getProperties().subspeciesFemininePreferencesMap.get(subspecies).getValue());
+			}
+		} else {
+			if(Main.getProperties().subspeciesMasculineFurryPreferencesMap!=FurryPreference.HUMAN && Main.getProperties().subspeciesMasculinePreferencesMap.get(subspecies).getValue()>0) {
+				map.put(subspecies, weight*Main.getProperties().subspeciesMasculinePreferencesMap.get(subspecies).getValue());
+			}
 		}
 	}
 	
 	@Override
-	public SlaveInStocks loadFromXML(Element parentElement, Document doc) {
-		SlaveInStocks npc = new SlaveInStocks(Gender.F_V_B_FEMALE, true);
-		
-		loadNPCVariablesFromXML(npc, null, parentElement, doc);
-		
-		return npc;
+	public void loadFromXML(Element parentElement, Document doc, CharacterImportSetting... settings) {
+		loadNPCVariablesFromXML(this, null, parentElement, doc, settings);
 	}
 	
 	@Override
 	public boolean isUnique() {
 		return false;
 	}
-	
-	private void setBodyFromPreferences(int i, Gender gender, Race race) {
+
+	private void setBodyFromPreferences(int i, Gender gender, Subspecies species) {
 		int choice = Util.random.nextInt(i)+1;
 		RaceStage raceStage = RaceStage.PARTIAL;
 		
@@ -255,7 +330,7 @@ public class SlaveInStocks extends NPC {
 			raceStage = RaceStage.GREATER;
 		}
 		
-		setBody(gender, RacialBody.valueOfRace(race), raceStage);
+		setBody(gender, species, raceStage);
 	}
 	
 	@Override
@@ -320,7 +395,7 @@ public class SlaveInStocks extends NPC {
 			}else{
 				if(item.getItemType().equals(ItemType.PROMISCUITY_PILL)) {
 						Main.game.getPlayer().useItem(item, target, false);
-						if(Sex.isPlayerDom()) {
+						if(Sex.isDom(Main.game.getPlayer())) {
 							return "<p>"
 									+ "Holding out a 'Promiscuity pill' to [npc.name], you tell [npc.her] to swallow it so that you don't have to worry about any unexpected pregnancies."
 									+ " Letting out a reluctant sigh, [npc.she] nevertheless takes the pill out of your hand, and, popping it out of its wrapping, [npc.she] whines at you,"
@@ -337,7 +412,7 @@ public class SlaveInStocks extends NPC {
 				} else if(item.getItemType().equals(ItemType.VIXENS_VIRILITY)) {
 					
 						Main.game.getPlayer().useItem(item, target, false);
-						if(Sex.isPlayerDom()) {
+						if(Sex.isDom(Main.game.getPlayer())) {
 							return "<p>"
 									+ "Holding out a 'Vixen's Virility' pill to [npc.name], you tell [npc.her] to swallow it."
 									+ " Letting out a reluctant sigh, [npc.she] nevertheless takes the pill out of your hand, and, popping it out of its wrapping, [npc.she] whines at you,"
@@ -353,7 +428,7 @@ public class SlaveInStocks extends NPC {
 						
 				} else if(item.getItemType().equals(ItemType.POTION) || item.getItemType().equals(ItemType.ELIXIR) || item.getItemType().equals(ItemType.FETISH_UNREFINED) || item.getItemType().equals(ItemType.FETISH_REFINED)) {
 					
-						if(Sex.isPlayerDom()) {
+						if(Sex.isDom(Main.game.getPlayer())) {
 							return "<p>"
 										+ "Taking your "+item.getName()+" out from your inventory, you hold it out to [npc.name]."
 										+ " Seeing what you're offering [npc.herHim], [npc.she] shifts about uncomfortably, "
@@ -375,7 +450,7 @@ public class SlaveInStocks extends NPC {
 						
 				} else if(item.getItemType().equals(ItemType.MOTHERS_MILK)) {
 					
-						if(Sex.isPlayerDom()) {
+						if(Sex.isDom(Main.game.getPlayer())) {
 							return "<p>"
 										+ "Taking the bottle of "+item.getName()+" out from your inventory, you hold it out to [npc.name]."
 										+ " Seeing what you're offering [npc.herHim], [npc.she] shifts about uncomfortably, "
@@ -404,7 +479,7 @@ public class SlaveInStocks extends NPC {
 						|| item.getItemType().equals(ItemType.RACE_INGREDIENT_WOLF_MORPH)
 						|| item.getItemType().equals(ItemType.RACE_INGREDIENT_COW_MORPH)) {
 					
-						if(Sex.isPlayerDom()) {
+						if(Sex.isDom(Main.game.getPlayer())) {
 							return "<p>"
 										+ "Taking the "+item.getName()+" out from your inventory, you hold it out to [npc.name]."
 										+ " Seeing what you're offering [npc.herHim], [npc.she] shifts about uncomfortably, "
@@ -426,7 +501,7 @@ public class SlaveInStocks extends NPC {
 						
 				} else if(item.getItemType().equals(ItemType.SEX_INGREDIENT_HARPY_PERFUME)) {
 					
-						if(Sex.isPlayerDom()) {
+						if(Sex.isDom(Main.game.getPlayer())) {
 							return "<p>"
 										+ "Taking the "+item.getName()+" out from your inventory, you hold it out to [npc.name]."
 										+ " Seeing what you're offering [npc.herHim], [npc.she] shifts about uncomfortably, "
@@ -456,7 +531,7 @@ public class SlaveInStocks extends NPC {
 						|| item.getItemType().equals(ItemType.STR_INGREDIENT_SWAMP_WATER)
 						|| item.getItemType().equals(ItemType.STR_INGREDIENT_BUBBLE_MILK)) {
 					
-						if(Sex.isPlayerDom()) {
+						if(Sex.isDom(Main.game.getPlayer())) {
 							return "<p>"
 										+ "Taking the bottle of "+item.getName()+" out from your inventory, you hold it out to [npc.name]."
 										+ " Seeing what you're offering [npc.herHim], [npc.she] shifts about uncomfortably, "
@@ -478,7 +553,7 @@ public class SlaveInStocks extends NPC {
 	
 				} else if(item.getItemType().equals(ItemType.EGGPLANT)) {
 					
-					if(Sex.isPlayerDom()) {
+					if(Sex.isDom(Main.game.getPlayer())) {
 						return "<p>"
 									+ "Taking the eggplant from your inventory, you hold it out to [npc.name]."
 									+ " Seeing what you're offering [npc.herHim], [npc.she] shifts about uncomfortably, "
@@ -505,20 +580,8 @@ public class SlaveInStocks extends NPC {
 			
 		// NPC is using an item:
 		}else{
-			return Sex.getPartner().useItem(item, target, false);
+			return Sex.getActivePartner().useItem(item, target, false);
 		}
-	}
-
-	@Override
-	public String getCombatDescription() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getAttackDescription(Attack attackType, boolean isHit) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
@@ -527,10 +590,4 @@ public class SlaveInStocks extends NPC {
 		return null;
 	}
 
-	@Override
-	public Attack attackType() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
 }

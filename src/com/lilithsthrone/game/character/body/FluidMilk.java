@@ -2,20 +2,25 @@ package com.lilithsthrone.game.character.body;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import com.lilithsthrone.game.character.CharacterUtils;
 import com.lilithsthrone.game.character.GameCharacter;
 import com.lilithsthrone.game.character.body.types.BodyPartTypeInterface;
 import com.lilithsthrone.game.character.body.types.FluidType;
 import com.lilithsthrone.game.character.body.valueEnums.FluidFlavour;
 import com.lilithsthrone.game.character.body.valueEnums.FluidModifier;
 import com.lilithsthrone.game.dialogue.utils.UtilText;
-import com.lilithsthrone.game.inventory.item.ItemEffect;
+import com.lilithsthrone.game.inventory.enchanting.ItemEffect;
 import com.lilithsthrone.utils.Util;
 
 /**
  * @since 0.1.83
- * @version 0.1.83
+ * @version 0.2.5
  * @author Innoxia
  */
 public class FluidMilk implements BodyPartInterface, Serializable {
@@ -32,11 +37,76 @@ public class FluidMilk implements BodyPartInterface, Serializable {
 		transformativeEffects = new ArrayList<>();
 		
 		fluidModifiers = new ArrayList<>();
-		for(FluidModifier fm : type.getFluidModifiers()) {
-			fluidModifiers.add(fm);
-		}
+		fluidModifiers.addAll(type.getFluidModifiers());
 	}
 
+	public Element saveAsXML(Element parentElement, Document doc) {
+		Element element = doc.createElement("milk");
+		parentElement.appendChild(element);
+
+		CharacterUtils.addAttribute(doc, element, "type", this.type.toString());
+		CharacterUtils.addAttribute(doc, element, "flavour", this.flavour.toString());
+		Element cumModifiers = doc.createElement("milkModifiers");
+		element.appendChild(cumModifiers);
+		for(FluidModifier fm : FluidModifier.values()) {
+			CharacterUtils.addAttribute(doc, cumModifiers, fm.toString(), String.valueOf(this.hasFluidModifier(fm)));
+		}
+		
+		return element;
+	}
+	
+	public static FluidMilk loadFromXML(Element parentElement, Document doc) {
+		
+		Element milk = (Element)parentElement.getElementsByTagName("milk").item(0);
+		
+		FluidType fluidType = FluidType.MILK_HUMAN;
+		try {
+			fluidType = FluidType.valueOf(milk.getAttribute("type"));
+		} catch(Exception ex) {
+		}
+		
+		FluidMilk fluidMilk = new FluidMilk(fluidType);
+		
+		fluidMilk.flavour = (FluidFlavour.valueOf(milk.getAttribute("flavour")));
+		
+		Element milkModifiersElement = (Element)milk.getElementsByTagName("milkModifiers").item(0);
+		Collection<FluidModifier> milkFluidModifiers = fluidMilk.fluidModifiers;
+		Body.handleLoadingOfModifiers(FluidModifier.values(), null, milkModifiersElement, milkFluidModifiers);
+		
+//		Element milkModifiers = (Element)milk.getElementsByTagName("milkModifiers").item(0);
+//		fluidMilk.fluidModifiers.clear();
+//		for(FluidModifier fm : FluidModifier.values()) {
+//			if(Boolean.valueOf(milkModifiers.getAttribute(fm.toString()))) {
+//				fluidMilk.fluidModifiers.add(fm);
+//			}
+//		}
+		
+		return fluidMilk;
+	}
+	
+	@Override
+	public boolean equals (Object o) {
+		if(o instanceof FluidMilk){
+			if(((FluidMilk)o).getType().equals(this.getType())
+				&& ((FluidMilk)o).getFlavour() == this.getFlavour()
+				&& ((FluidMilk)o).getFluidModifiers().equals(this.getFluidModifiers())
+				&& ((FluidMilk)o).getTransformativeEffects().equals(this.getTransformativeEffects())){
+					return true;
+			}
+		}
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		int result = 17;
+		result = 31 * result + this.getType().hashCode();
+		result = 31 * result + this.getFlavour().hashCode();
+		result = 31 * result + this.getFluidModifiers().hashCode();
+		result = 31 * result + this.getTransformativeEffects().hashCode();
+		return result;
+	}
+	
 	@Override
 	public String getDeterminer(GameCharacter gc) {
 		return type.getDeterminer(gc);
@@ -89,6 +159,10 @@ public class FluidMilk implements BodyPartInterface, Serializable {
 		}
 
 		this.flavour = flavour;
+
+		if(owner == null) {
+			return "";
+		}
 		
 		if(owner.isPlayer()) {
 			return "<p>"
@@ -114,6 +188,10 @@ public class FluidMilk implements BodyPartInterface, Serializable {
 		}
 		
 		fluidModifiers.add(fluidModifier);
+		
+		if(owner == null) {
+			return "";
+		}
 		
 		switch(fluidModifier) {
 			case ADDICTIVE:
@@ -231,6 +309,10 @@ public class FluidMilk implements BodyPartInterface, Serializable {
 		}
 		
 		fluidModifiers.remove(fluidModifier);
+		
+		if(owner == null) {
+			return "";
+		}
 		
 		switch(fluidModifier) {
 			case ADDICTIVE:
@@ -375,5 +457,16 @@ public class FluidMilk implements BodyPartInterface, Serializable {
 	
 	public List<ItemEffect> getTransformativeEffects() {
 		return transformativeEffects;
+	}
+
+	/**
+	 * DO NOT MODIFY!
+	 */
+	public List<FluidModifier> getFluidModifiers() {
+		return fluidModifiers;
+	}
+	
+	public float getValuePerMl() {
+		return 0.1f + this.getFluidModifiers().size()*0.4f + (this.getFlavour()!=FluidFlavour.MILK?0.5f:0);
 	}
 }

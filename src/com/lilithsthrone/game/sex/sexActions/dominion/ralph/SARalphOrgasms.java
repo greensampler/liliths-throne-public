@@ -2,6 +2,7 @@ package com.lilithsthrone.game.sex.sexActions.dominion.ralph;
 
 import java.util.List;
 
+import com.lilithsthrone.game.character.GameCharacter;
 import com.lilithsthrone.game.character.attributes.CorruptionLevel;
 import com.lilithsthrone.game.character.body.CoverableArea;
 import com.lilithsthrone.game.character.body.types.PenisType;
@@ -14,13 +15,13 @@ import com.lilithsthrone.game.sex.OrificeType;
 import com.lilithsthrone.game.sex.PenetrationType;
 import com.lilithsthrone.game.sex.Sex;
 import com.lilithsthrone.game.sex.SexFlags;
+import com.lilithsthrone.game.sex.SexParticipantType;
 import com.lilithsthrone.game.sex.sexActions.SexAction;
 import com.lilithsthrone.game.sex.sexActions.SexActionPriority;
 import com.lilithsthrone.game.sex.sexActions.SexActionType;
 import com.lilithsthrone.main.Main;
 import com.lilithsthrone.utils.Colour;
 import com.lilithsthrone.utils.Util;
-import com.lilithsthrone.utils.Util.ListValue;
 
 /**
  * @since 0.1.64
@@ -35,7 +36,8 @@ public class SARalphOrgasms {
 			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.ZERO_PURE,
 			null,
-			null) {
+			null,
+			SexParticipantType.MISC) {
 		
 		@Override
 		public String getActionTitle() {
@@ -49,7 +51,7 @@ public class SARalphOrgasms {
 		
 		@Override
 		public String getDescription() {
-			switch(Sex.getSexPacePlayer()) {
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
 				case DOM_GENTLE:
 					return "You let out a soft [pc.moan] of encouragement as you prepare for [npc.name] to reach [npc.her] orgasm.";
 				case DOM_NORMAL:
@@ -74,7 +76,8 @@ public class SARalphOrgasms {
 			ArousalIncrease.FIVE_EXTREME,
 			CorruptionLevel.ZERO_PURE,
 			null,
-			null) {
+			null,
+			SexParticipantType.MISC) {
 		@Override
 		public String getActionTitle() {
 			return "Orgasm";
@@ -94,13 +97,13 @@ public class SARalphOrgasms {
 		public String getDescription() {
 			UtilText.nodeContentSB.setLength(0);
 			
-			if(Sex.getPenetrationTypeInOrifice(OrificeType.MOUTH_PLAYER) == PenetrationType.PENIS_PARTNER) {
+			if(Sex.getPenetrationTypeInOrifice(Main.game.getPlayer(), OrificeType.MOUTH) == PenetrationType.PENIS) {
 				UtilText.nodeContentSB.append("As Ralph's huge black cock thrusts deep down your throat, you feel yourself reaching your climax, and before you know what's happening, you're letting out a desperate, muffled [pc.moan].");
 				
-			} else if(Sex.getPenetrationTypeInOrifice(OrificeType.VAGINA_PLAYER) == PenetrationType.PENIS_PARTNER) {
+			} else if(Sex.getPenetrationTypeInOrifice(Main.game.getPlayer(), OrificeType.VAGINA) == PenetrationType.PENIS) {
 				UtilText.nodeContentSB.append("As Ralph's huge black cock thrusts deep into your [pc.pussy+], you feel yourself reaching your climax, and before you know what's happening, you're letting out [pc.a_moan+].");
 				
-			} else if(Sex.getPenetrationTypeInOrifice(OrificeType.ANUS_PLAYER) == PenetrationType.PENIS_PARTNER) {
+			} else if(Sex.getPenetrationTypeInOrifice(Main.game.getPlayer(), OrificeType.ANUS) == PenetrationType.PENIS) {
 				UtilText.nodeContentSB.append("As Ralph's huge black cock thrusts deep into your [pc.asshole+], you feel yourself reaching your climax, and before you know what's happening, you're letting out [pc.a_moan+].");
 				
 			} else {
@@ -109,7 +112,7 @@ public class SARalphOrgasms {
 			
 			// PENIS ORGASM:
 			
-			if(Main.game.getPlayer().getPenisType()!=PenisType.NONE){
+			if(Main.game.getPlayer().hasPenisIgnoreDildo()){
 
 				UtilText.nodeContentSB.append("</br></br>");
 				
@@ -180,38 +183,43 @@ public class SARalphOrgasms {
 				UtilText.nodeContentSB.append("</br></br>"
 						+ "A desperate, shuddering heat suddenly crashes up from your [pc.pussy+], and you let out a manic squeal as a blinding wave of pure ecstasy washes over you.");
 				
-				if (Sex.getPenetrationTypeInOrifice(OrificeType.VAGINA_PLAYER) != null) {
-					switch(Sex.getPenetrationTypeInOrifice(OrificeType.VAGINA_PLAYER)) {
-						case FINGER_PARTNER:
-							UtilText.nodeContentSB.append(" [npc.Name]'s fingers carry on pumping away at your [pc.pussy+]"
-									+", and you let out a series of high-pitched moans as your vaginal muscles grip and squeeze around the intruding digits.");
+				if (Sex.getPenetrationTypeInOrifice(Main.game.getPlayer(), OrificeType.VAGINA) != null) {
+					GameCharacter characterPenetrating = Sex.getPenetratingCharacterUsingOrifice(Main.game.getPlayer(), OrificeType.VAGINA);
+					switch(Sex.getPenetrationTypeInOrifice(Main.game.getPlayer(), OrificeType.VAGINA)) {
+						case FINGER:
+							if(characterPenetrating.isPlayer()) {
+								UtilText.nodeContentSB.append(" You curl your fingers up deep inside your [pc.pussy+]"
+										+", and, while desperately stroking in a 'come-hither' motion, you let out a series of high-pitched moans as your vaginal muscles grip and squeeze around your intruding digits.");
+							} else {
+								UtilText.nodeContentSB.append(" [npc.Name]'s fingers carry on pumping away at your [pc.pussy+]"
+										+", and you let out a series of high-pitched moans as your vaginal muscles grip and squeeze around the intruding digits.");
+							}
 							break;
-						case FINGER_PLAYER:
-							UtilText.nodeContentSB.append(" You curl your fingers up deep inside your [pc.pussy+]"
-									+", and, while desperately stroking in a 'come-hither' motion, you let out a series of high-pitched moans as your vaginal muscles grip and squeeze around your intruding digits.");
+						case PENIS:
+							if(characterPenetrating.isPlayer()) {
+								UtilText.nodeContentSB.append(" You carry on fucking yourself through your orgasm, and you let out a series of high-pitched moans as your vaginal muscles grip and squeeze around your [pc.cock+].");
+							} else {
+								UtilText.nodeContentSB.append(" Ralph carries on fucking your [pc.pussy+] through your orgasm, and you let out a series of high-pitched moans as your vaginal muscles grip and squeeze around his meaty equine shaft."
+										+ " Encouraged by the squeezing, milking sensation of your vagina, Ralph buries his thick black horse-cock deep into your [pc.pussy+] and leans down heavily on top of you."
+										+ " You feel the heat of his strong, masculine body pressing down on your back, and you let out a defeated moan as his equine shaft claims you as his most recent sexual conquest.");
+							}
 							break;
-						case PENIS_PARTNER:
-							UtilText.nodeContentSB.append(" Ralph carries on fucking your [pc.pussy+] through your orgasm, and you let out a series of high-pitched moans as your vaginal muscles grip and squeeze around his meaty equine shaft."
-									+ " Encouraged by the squeezing, milking sensation of your vagina, Ralph buries his thick black horse-cock deep into your [pc.pussy+] and leans down heavily on top of you."
-									+ " You feel the heat of his strong, masculine body pressing down on your back, and you let out a defeated moan as his equine shaft claims you as his most recent sexual conquest.");
+						case TAIL:
+							if(characterPenetrating.isPlayer()) {
+								UtilText.nodeContentSB.append(" You carry on using your tail to fuck yourself through your orgasm, and you let out a series of high-pitched moans as your vaginal muscles grip and squeeze around the intruding object.");
+							} else {
+								UtilText.nodeContentSB.append(" [npc.Name]'s tail carries on fucking your [pc.pussy+]"
+										+" through your orgasm, and you let out a series of high-pitched moans as your vaginal muscles grip and squeeze around the intruding object.");
+							}
 							break;
-						case PENIS_PLAYER:
-							UtilText.nodeContentSB.append(" You carry on fucking yourself through your orgasm, and you let out a series of high-pitched moans as your vaginal muscles grip and squeeze around your [pc.cock+].");
-							break;
-						case TAIL_PARTNER:
-							UtilText.nodeContentSB.append(" [npc.Name]'s tail carries on fucking your [pc.pussy+]"
-									+" through your orgasm, and you let out a series of high-pitched moans as your vaginal muscles grip and squeeze around the intruding object.");
-							break;
-						case TAIL_PLAYER:
-							UtilText.nodeContentSB.append(" You carry on using your tail to fuck yourself through your orgasm, and you let out a series of high-pitched moans as your vaginal muscles grip and squeeze around the intruding object.");
-							break;
-						case TONGUE_PARTNER:
-							UtilText.nodeContentSB.append(" [npc.Name] carries on eating you out, licking and kissing at your [pc.pussy+]"
-									+" while you orgasm, and you let out a series of high-pitched moans as your vaginal muscles grip and squeeze around the intruding muscle.");
-							break;
-						case TONGUE_PLAYER:
-							UtilText.nodeContentSB.append(" You carry on thrusting your tongue deep into your [pc.pussy+]"
-									+" as you orgasm, and you let out a series of high-pitched moans as your vaginal muscles grip and squeeze around the intruding muscle.");
+						case TONGUE:
+							if(characterPenetrating.isPlayer()) {
+								UtilText.nodeContentSB.append(" You carry on thrusting your tongue deep into your [pc.pussy+]"
+										+" as you orgasm, and you let out a series of high-pitched moans as your vaginal muscles grip and squeeze around the intruding muscle.");
+							} else {
+								UtilText.nodeContentSB.append(" [npc.Name] carries on eating you out, licking and kissing at your [pc.pussy+]"
+										+" while you orgasm, and you let out a series of high-pitched moans as your vaginal muscles grip and squeeze around the intruding muscle.");
+							}
 							break;
 						default:
 							break;
@@ -239,8 +247,7 @@ public class SARalphOrgasms {
 						+ ", and you let out a defeated sigh as you realise that you forgot they were there.");
 			}
 			
-			return UtilText.genderParsing(Sex.getPartner(),
-					UtilText.nodeContentSB.toString());
+			return UtilText.parse(Sex.getActivePartner(), UtilText.nodeContentSB.toString());
 		}
 
 		@Override
@@ -263,7 +270,8 @@ public class SARalphOrgasms {
 			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.ZERO_PURE,
 			null,
-			null) {
+			null,
+			SexParticipantType.MISC) {
 		
 		@Override
 		public String getActionTitle() {
@@ -277,7 +285,7 @@ public class SARalphOrgasms {
 		
 		@Override
 		public String getDescription() {
-			switch(Sex.getSexPacePlayer()) {
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
 				case DOM_GENTLE:
 					return "[npc.Name] lets out a soft [npc.moan] of encouragement as [npc.she] prepares for you to reach your orgasm.";
 				case DOM_NORMAL:
@@ -302,7 +310,8 @@ public class SARalphOrgasms {
 			ArousalIncrease.FIVE_EXTREME,
 			CorruptionLevel.ZERO_PURE,
 			null,
-			null) {
+			null,
+			SexParticipantType.MISC) {
 		@Override
 		public String getActionTitle() {
 			return "Stay in position";
@@ -327,13 +336,13 @@ public class SARalphOrgasms {
 		public String getDescription() {
 			UtilText.nodeContentSB.setLength(0);
 			
-			if(Sex.getPenetrationTypeInOrifice(OrificeType.VAGINA_PLAYER)!=null){
+			if(Sex.getPenetrationTypeInOrifice(Main.game.getPlayer(), OrificeType.VAGINA)!=null){
 				UtilText.nodeContentSB.append("Ralph starts letting out a series of low, heavy grunts, and you gasp as you feel his member start to twitch inside of you."
 						+ " With a roar, he slams his massive horse-cock deep into your cunt, and you let out a squeal as you feel his powerful shaft ride up inside of you as it prepares for its master's orgasm."
 						+ "</br>"
 						+ " Grinding the base of his cock against your outer folds, his massive balls tense up as Ralph starts to cum.");
 				
-				if(Sex.getPartner().isWearingCondom()) {
+				if(Sex.getActivePartner().isWearingCondom()) {
 					UtilText.nodeContentSB.append(" With a powerful rocking motion, his gigantic dick spurts out its potent load directly into the condom, and as you feel the hot seed ballooning out the rubber inside of you, you let out a satisfied sigh."
 							+ " His cock continues to pump a few more times, the huge, black equine shaft quickly depositing its seed harmlessly into the protection you've provided."
 							+ "</br></br>"
@@ -359,13 +368,13 @@ public class SARalphOrgasms {
 							+ UtilText.parseSpeech("Hey! I've got a shop to run here, remember? Anyway, I think you've more than earned that discount...", Main.game.getRalph()));
 				}
 				
-			}else if(Sex.getPenetrationTypeInOrifice(OrificeType.ANUS_PLAYER)!=null){
+			}else if(Sex.getPenetrationTypeInOrifice(Main.game.getPlayer(), OrificeType.ANUS)!=null){
 				UtilText.nodeContentSB.append("Ralph starts letting out a series of low, heavy grunts, and you gasp as you feel his member start to twitch inside of you."
 						+ " With a roar, he slams his massive horse-cock deep into your ass, and you let out a cry as you feel his powerful shaft ride up inside of you as it prepares for its master's orgasm."
 						+ "</br>"
 						+ " Grinding the base of his cock against your asshole, his massive balls tense up as Ralph starts to cum.");
 				 
-				if(Sex.getPartner().isWearingCondom()) {
+				if(Sex.getActivePartner().isWearingCondom()) {
 					UtilText.nodeContentSB.append(" With a powerful rocking motion, his gigantic dick spurts out its potent load directly into the condom, and as you feel the hot seed ballooning out the rubber inside of you, you let out a satisfied sigh."
 							+ " His cock continues to pump a few more times, the huge, black equine shaft quickly depositing its seed harmlessly into the protection you've provided."
 							+ "</br></br>"
@@ -407,7 +416,7 @@ public class SARalphOrgasms {
 						+ "</br></br>"
 						+ "Grinding the base of his cock against your lips, his massive balls tense up as Ralph starts to cum.");
 				
-				if(Sex.getPartner().isWearingCondom()) {
+				if(Sex.getActivePartner().isWearingCondom()) {
 					UtilText.nodeContentSB.append(" With a powerful rocking motion, his gigantic dick spurts out its potent load directly into the condom, and as you feel the hot seed ballooning out the tip of the protection you've provided,"
 								+ " you let out a very muffled moan."
 							+ " The huge, black equine shaft continues to pump and twitch a few more times as it deposits its seed harmlessly into the protection you've provided."
@@ -463,19 +472,23 @@ public class SARalphOrgasms {
 		}
 		
 		@Override
-		public List<OrificeType> getPlayerAreasCummedIn() {
-			if(Sex.getPenetrationTypeInOrifice(OrificeType.VAGINA_PLAYER) == PenetrationType.PENIS_PARTNER) {
-				return Util.newArrayListOfValues(new ListValue<>(OrificeType.VAGINA_PLAYER));
-				
-			} else if(Sex.getPenetrationTypeInOrifice(OrificeType.ANUS_PLAYER) == PenetrationType.PENIS_PARTNER) {
-				return Util.newArrayListOfValues(new ListValue<>(OrificeType.ANUS_PLAYER));
-				
-			} else if(Sex.getPenetrationTypeInOrifice(OrificeType.MOUTH_PLAYER) == PenetrationType.PENIS_PARTNER) {
-				return Util.newArrayListOfValues(new ListValue<>(OrificeType.MOUTH_PLAYER));
-				
-			} else if(Sex.getPenetrationTypeInOrifice(OrificeType.NIPPLE_PLAYER) == PenetrationType.PENIS_PARTNER) {
-				return Util.newArrayListOfValues(new ListValue<>(OrificeType.NIPPLE_PLAYER));
-				
+		public List<OrificeType> getAreasCummedIn(GameCharacter cumProvider, GameCharacter cumTarget) {
+			if(!cumProvider.isPlayer() && cumTarget.equals(Sex.getTargetedPartner(cumProvider))) {
+				if (Sex.getPenetrationTypeInOrifice(cumTarget, OrificeType.VAGINA) == PenetrationType.PENIS && Sex.getPenetratingCharacterUsingOrifice(cumTarget, OrificeType.VAGINA).equals(cumProvider)) {
+					return Util.newArrayListOfValues(OrificeType.VAGINA);
+					
+				} else if (Sex.getPenetrationTypeInOrifice(cumTarget, OrificeType.ANUS) == PenetrationType.PENIS && Sex.getPenetratingCharacterUsingOrifice(cumTarget, OrificeType.ANUS).equals(cumProvider)) {
+					return Util.newArrayListOfValues(OrificeType.ANUS);
+					
+				} else if (Sex.getPenetrationTypeInOrifice(cumTarget, OrificeType.MOUTH) == PenetrationType.PENIS && Sex.getPenetratingCharacterUsingOrifice(cumTarget, OrificeType.MOUTH).equals(cumProvider)) {
+					return Util.newArrayListOfValues(OrificeType.MOUTH);
+					
+				} else if (Sex.getPenetrationTypeInOrifice(cumTarget, OrificeType.NIPPLE) == PenetrationType.PENIS && Sex.getPenetratingCharacterUsingOrifice(cumTarget, OrificeType.NIPPLE).equals(cumProvider)) {
+					return Util.newArrayListOfValues(OrificeType.NIPPLE);
+					
+				} else {
+					return null;
+				}
 			} else {
 				return null;
 			}

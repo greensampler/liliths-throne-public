@@ -9,12 +9,14 @@ import com.lilithsthrone.game.sex.OrificeType;
 import com.lilithsthrone.game.sex.PenetrationType;
 import com.lilithsthrone.game.sex.Sex;
 import com.lilithsthrone.game.sex.SexPace;
+import com.lilithsthrone.game.sex.SexParticipantType;
 import com.lilithsthrone.game.sex.sexActions.SexAction;
 import com.lilithsthrone.game.sex.sexActions.SexActionType;
+import com.lilithsthrone.main.Main;
 
 /**
  * @since 0.1.79
- * @version 0.1.84
+ * @version 0.2.1
  * @author Innoxia
  */
 public class PlayerFingerNipple {
@@ -24,8 +26,9 @@ public class PlayerFingerNipple {
 			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.THREE_NORMAL,
 			CorruptionLevel.ZERO_PURE,
-			PenetrationType.FINGER_PLAYER,
-			OrificeType.NIPPLE_PARTNER) {
+			PenetrationType.FINGER,
+			OrificeType.NIPPLE,
+			SexParticipantType.PITCHER) {
 		@Override
 		public String getActionTitle() {
 			return "Grope breasts";
@@ -38,16 +41,16 @@ public class PlayerFingerNipple {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.getPartner().hasBreasts() && Sex.getSexPacePlayer()!=SexPace.SUB_RESISTING;
+			return Sex.getActivePartner().hasBreasts() && Sex.getSexPace(Main.game.getPlayer())!=SexPace.SUB_RESISTING;
 		}
 
 		@Override
 		public String getDescription() {
-			if(!Sex.getPartner().isCoverableAreaExposed(CoverableArea.NIPPLES)){
+			if(!Sex.getActivePartner().isCoverableAreaExposed(CoverableArea.NIPPLES)){
 
 				UtilText.nodeContentSB.setLength(0);
 				
-				switch(Sex.getSexPacePlayer()) {
+				switch(Sex.getSexPace(Main.game.getPlayer())) {
 					case DOM_GENTLE:
 						UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 								"Reaching up to [npc.name]'s chest, you let out a soft [pc.moan] as you start fondling and groping [npc.her] [npc.breastRows] [npc.breasts+],"
@@ -91,7 +94,7 @@ public class PlayerFingerNipple {
 					default:
 						break;
 				}
-				switch(Sex.getSexPacePartner()) {
+				switch(Sex.getSexPace(Sex.getActivePartner())) {
 					case DOM_GENTLE:
 						UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 								" [npc.She] lets out a soft [npc.moan] at your touch, before gently encouraging you to continue giving [npc.her] [npc.breasts+] your full attention.",
@@ -132,7 +135,7 @@ public class PlayerFingerNipple {
 						break;
 				}
 				
-				switch (Sex.getPartner().getBreastLactation()) {
+				switch (Sex.getActivePartner().getBreastStoredMilk()) {
 					case ONE_TRICKLE:
 						UtilText.nodeContentSB.append(" A small trickle of [npc.milk] leaks out into [npc.her] [npc.lowClothing(nipples)] as you squeeze down on [npc.her] [npc.nipples+].");
 						break;
@@ -164,7 +167,7 @@ public class PlayerFingerNipple {
 				
 				UtilText.nodeContentSB.setLength(0);
 				
-				switch(Sex.getSexPacePlayer()) {
+				switch(Sex.getSexPace(Main.game.getPlayer())) {
 					case DOM_GENTLE:
 						UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 								"Reaching up to [npc.name]'s chest, you let out a soft [pc.moan] as you start gently fondling and groping [npc.her] [npc.breastRows] [npc.breasts+].",
@@ -198,7 +201,7 @@ public class PlayerFingerNipple {
 					default:
 						break;
 				}
-				switch(Sex.getSexPacePartner()) {
+				switch(Sex.getSexPace(Sex.getActivePartner())) {
 					case DOM_GENTLE:
 						UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 								" [npc.She] lets out a soft [npc.moan] at your touch, before gently encouraging you to continue giving [npc.her] [npc.breasts+] your full attention.",
@@ -239,7 +242,7 @@ public class PlayerFingerNipple {
 						break;
 				}
 			
-				switch (Sex.getPartner().getBreastLactation()) {
+				switch (Sex.getActivePartner().getBreastStoredMilk()) {
 					case ONE_TRICKLE:
 						UtilText.nodeContentSB.append(" A small trickle of [npc.milk] leaks out over your [pc.fingers] as you squeeze down on [npc.her] [npc.nipples+].");
 						break;
@@ -272,11 +275,16 @@ public class PlayerFingerNipple {
 
 		@Override
 		public void applyEffects(){
-			if(!Sex.getPartner().isCoverableAreaExposed(CoverableArea.NIPPLES) && Sex.getPartner().getBreastLactation().getMinimumValue()>=Lactation.ONE_TRICKLE.getMinimumValue()){
-				if(Sex.getPartner().getLowestZLayerCoverableArea(CoverableArea.NIPPLES)!=null) {
-					Sex.getPartner().getLowestZLayerCoverableArea(CoverableArea.NIPPLES).setDirty(true);
+			if(!Sex.getActivePartner().isCoverableAreaExposed(CoverableArea.NIPPLES) && Sex.getActivePartner().getBreastStoredMilk().getMinimumValue()>=Lactation.ONE_TRICKLE.getMinimumValue()){
+				if(Sex.getActivePartner().getLowestZLayerCoverableArea(CoverableArea.NIPPLES)!=null) {
+					Sex.getActivePartner().getLowestZLayerCoverableArea(CoverableArea.NIPPLES).setDirty(true);
 				}
 			}
+		}
+		
+		@Override
+		public String applyEffectsString() {
+			return Sex.getActivePartner().incrementBreastStoredMilk(-10);
 		}
 		
 	};
@@ -286,8 +294,9 @@ public class PlayerFingerNipple {
 			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.THREE_NORMAL,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.FINGER_PLAYER,
-			OrificeType.NIPPLE_PARTNER) {
+			PenetrationType.FINGER,
+			OrificeType.NIPPLE,
+			SexParticipantType.PITCHER) {
 		@Override
 		public String getActionTitle() {
 			return "Pinch nipples";
@@ -300,14 +309,14 @@ public class PlayerFingerNipple {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.getPartner().hasBreasts() && Sex.getSexPacePlayer()!=SexPace.SUB_RESISTING;
+			return Sex.getSexPace(Main.game.getPlayer())!=SexPace.SUB_RESISTING;
 		}
 
 		@Override
 		public String getDescription() {
 			UtilText.nodeContentSB.setLength(0);
 			
-			switch(Sex.getSexPacePlayer()) {
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Reaching up to [npc.name]'s [npc.breasts+], you let out a soft [pc.moan] as you start to gently pinch and rub at [npc.her] [npc.nipples+].",
@@ -341,7 +350,7 @@ public class PlayerFingerNipple {
 				default:
 					break;
 			}
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" [npc.She] lets out a soft [npc.moan] at your touch, before gently encouraging you to continue giving [npc.her] [npc.nipples+] your full attention.",
@@ -382,7 +391,7 @@ public class PlayerFingerNipple {
 					break;
 			}
 			
-			switch (Sex.getPartner().getBreastLactation()) {
+			switch (Sex.getActivePartner().getBreastStoredMilk()) {
 				case ONE_TRICKLE:
 					UtilText.nodeContentSB.append(" As you start pinching [npc.her] [npc.nipples], a small trickle of [npc.milk] leaks out to run down [npc.her] [npc.breasts+].");
 					break;
@@ -413,11 +422,141 @@ public class PlayerFingerNipple {
 
 		@Override
 		public void applyEffects(){
-			if(!Sex.getPartner().isCoverableAreaExposed(CoverableArea.NIPPLES) && Sex.getPartner().getBreastLactation().getMinimumValue()>=Lactation.ONE_TRICKLE.getMinimumValue()){
-				if(Sex.getPartner().getLowestZLayerCoverableArea(CoverableArea.NIPPLES)!=null) {
-					Sex.getPartner().getLowestZLayerCoverableArea(CoverableArea.NIPPLES).setDirty(true);
+			if(!Sex.getActivePartner().isCoverableAreaExposed(CoverableArea.NIPPLES) && Sex.getActivePartner().getBreastStoredMilk().getMinimumValue()>=Lactation.ONE_TRICKLE.getMinimumValue()){
+				if(Sex.getActivePartner().getLowestZLayerCoverableArea(CoverableArea.NIPPLES)!=null) {
+					Sex.getActivePartner().getLowestZLayerCoverableArea(CoverableArea.NIPPLES).setDirty(true);
 				}
 			}
+		}
+		
+		@Override
+		public String applyEffectsString() {
+			return Sex.getActivePartner().incrementBreastStoredMilk(-10);
+		}
+		
+	};
+	
+	public static final SexAction PLAYER_MILK_PARTNER = new SexAction(
+			SexActionType.PLAYER_REQUIRES_NO_PENETRATION_AND_EXPOSED,
+			ArousalIncrease.TWO_LOW,
+			ArousalIncrease.THREE_NORMAL,
+			CorruptionLevel.ONE_VANILLA,
+			PenetrationType.FINGER,
+			OrificeType.NIPPLE,
+			SexParticipantType.PITCHER) {
+		@Override
+		public String getActionTitle() {
+			return "Milk [npc.name]";
+		}
+
+		@Override
+		public String getActionDescription() {
+			return "Reach up to [npc.name]'s [npc.breasts] and start milking [npc.herHim].";
+		}
+
+		@Override
+		public boolean isBaseRequirementsMet() {
+			return Sex.getActivePartner().hasBreasts()
+					&& Sex.getActivePartner().getBreastRawStoredMilkValue()>0
+					&& Sex.getSexPace(Main.game.getPlayer())!=SexPace.SUB_RESISTING;
+		}
+
+		@Override
+		public String getDescription() {
+			UtilText.nodeContentSB.setLength(0);
+			
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
+				case DOM_GENTLE:
+					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
+							"Tracing your [pc.fingers+] up and over [npc.name]'s [npc.breasts+], you home in on [npc.her] [npc.nipples+]."
+								+ " Gently tugging and squeezing at [npc.her] [npc.nipples+], you let out a soft cry as you manage to draw out",
+							"With a soft [pc.moan], you gently press your [pc.fingers] into [npc.name]'s [npc.breasts+], before moving down to tease [npc.her] [npc.nipples+]."
+								+ " Delicately pinching and squeezing at [npc.her] [npc.nipples+], you let out a delighted cry as you manage to draw out"));
+					break;
+				case SUB_NORMAL: case DOM_NORMAL: case SUB_EAGER:
+					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
+							"Eagerly tracing your [pc.fingers+] up and over [npc.name]'s [npc.breasts+], you quickly home in on [npc.her] [npc.nipples+]."
+								+ " Gently tugging and squeezing at [npc.her] [npc.nipples+], you let out a delighted cry as you manage to draw out",
+							"With [pc.a_moan+], you eagerly press your [pc.fingers] into [npc.name]'s [npc.breasts+], before moving down to tease [npc.her] [npc.nipples+]."
+								+ " Greedily pinching and squeezing at [npc.her] [npc.nipples+], you let out a delighted cry as you manage to draw out"));
+					break;
+				case DOM_ROUGH:
+					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
+							"Roughly digging your [pc.fingers+] into [npc.name]'s [npc.breasts+], you quickly home in on [npc.her] [npc.nipples+]."
+								+ " Forcefully tugging and squeezing at [npc.her] [npc.nipples+], you let out a delighted cry as you manage to draw out",
+							"With [pc.a_moan+], you roughly press your [pc.fingers] into [npc.name]'s [npc.breasts+], before moving down to flick [npc.her] [npc.nipples+]."
+								+ " Dominantly pinching and squeezing at [npc.her] [npc.nipples+], you let out [pc.a_moan+] as you manage to draw out"));
+					break;
+				case SUB_RESISTING:
+					break;
+			}
+			
+			switch (Sex.getActivePartner().getBreastStoredMilk()) {
+				case ZERO_NONE:
+					UtilText.nodeContentSB.append(" no [npc.milk] from [npc.her] [npc.breasts+]."); //Shouldn't be able to be reached
+					break;
+				case ONE_TRICKLE:
+					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
+							" a small trickle of [npc.milk] from [npc.her] [npc.breasts+].",
+							" a little trickle of [npc.milk] from [npc.her] [npc.breasts+]."));
+					break;
+				case TWO_SMALL_AMOUNT:
+					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
+							" a small squirt of [npc.milk] from [npc.her] [npc.breasts+].",
+							" a little stream of [npc.milk] from [npc.her] [npc.breasts+]."));
+					break;
+				case THREE_DECENT_AMOUNT:
+					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
+							" a squirt of [npc.milk] from [npc.her] [npc.breasts+].",
+							" a trickle of [npc.milk] from [npc.her] [npc.breasts+]."));
+					break;
+				case FOUR_LARGE_AMOUNT:
+					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
+							" a flow of [npc.milk] from [npc.her] [npc.breasts+].",
+							" a stream of [npc.milk] from [npc.her] [npc.breasts+]."));
+					break;
+				case FIVE_VERY_LARGE_DROOLING:
+					UtilText.nodeContentSB.append(" a heavy flow of [npc.milk] from [npc.her] [npc.breasts+].");
+					break;
+				case SIX_EXTREME_AMOUNT_DRIPPING:
+					UtilText.nodeContentSB.append(" a considerable amount of [npc.milk] from [npc.her] [npc.breasts+].");
+					break;
+				case SEVEN_MONSTROUS_AMOUNT_POURING:
+					UtilText.nodeContentSB.append(" a huge amount of [npc.milk] from [npc.her] [npc.breasts+].");
+					break;
+			}
+			
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
+				case DOM_GENTLE:
+					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
+							" [npc.Name] lets out a soft [npc.moan] as you start to milk [npc.herHim], and, pushing [npc.her] [npc.breasts] out into your [pc.hands], [npc.she] gently encourages you to continue.",
+							" [npc.Name] can't help but [npc.moanVerb] at the delightful feeling of having [npc.her] [npc.breasts] milked, and, biting [npc.her] [npc.lip], [npc.she] gently pleads with you to continue."));
+					break;
+				case DOM_NORMAL:
+				case SUB_EAGER:
+				case SUB_NORMAL:
+					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
+							" [npc.Name] lets out a delighted [npc.moan] as you start to milk [npc.herHim], and, frantically pushing [npc.her] [npc.breasts] out into your [pc.hands], [npc.she] happily encourages you to continue.",
+							" [npc.Name] can't help but [npc.moanVerb] at the delightful feeling of having [npc.her] [npc.breasts] milked, and, biting [npc.her] [npc.lip], [npc.she] eagerly pleads with you to continue."));
+					break;
+				case DOM_ROUGH:
+					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
+							" [npc.Name] lets out a deeply satisfied growl as you start to milk [npc.herHim], and, pushing [npc.her] [npc.breasts] out into your [pc.hands], [npc.she] roughly orders you to continue.",
+							" [npc.Name] can't help but [npc.moanVerb] at the delightful feeling of having [npc.her] [npc.breasts] milked, and, biting [npc.her] [npc.lip], [npc.she] roughly orders you to continue."));
+					break;
+				case SUB_RESISTING:
+					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
+							" [npc.Name] lets out [npc.a_moan+] as you start to milk [npc.herHim], and, trying to pull [npc.her] [npc.breasts] away from your [pc.hands], [npc.she] desperately pleads with you to stop.",
+							" Desperately trying to pull [npc.her] [npc.breasts+] away from the unwanted milking, [npc.name] pleads with you to leave [npc.herHim] alone."));
+					break;
+			}
+			
+			return UtilText.nodeContentSB.toString();
+		}
+		
+		@Override
+		public String applyEffectsString() {
+			return Sex.getActivePartner().incrementBreastStoredMilk(-Sex.getActivePartner().getBreastRawMilkStorageValue()/5);
 		}
 		
 	};
@@ -427,8 +566,9 @@ public class PlayerFingerNipple {
 			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.THREE_NORMAL,
 			CorruptionLevel.TWO_HORNY,
-			PenetrationType.FINGER_PLAYER,
-			OrificeType.NIPPLE_PARTNER) {
+			PenetrationType.FINGER,
+			OrificeType.NIPPLE,
+			SexParticipantType.PITCHER) {
 		@Override
 		public String getActionTitle() {
 			return "Start nipple fingering";
@@ -444,7 +584,7 @@ public class PlayerFingerNipple {
 			
 			UtilText.nodeContentSB.setLength(0);
 			
-			switch(Sex.getSexPacePlayer()) {
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Teasing your [pc.fingers] over [npc.name]'s [npc.breasts+], you circle around one of [npc.her] [npc.nipples+], before slowly pushing your digits into the inviting orifice.",
@@ -474,7 +614,7 @@ public class PlayerFingerNipple {
 					break;
 			}
 			
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" [npc.She] lets out a soft [npc.moan] as you start fingering [npc.her] [npc.breasts], gently pushing [npc.her] chest out to help you sink your [pc.fingers] even deeper into [npc.her] [npc.nipple+].",
@@ -520,8 +660,9 @@ public class PlayerFingerNipple {
 			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.THREE_NORMAL,
 			CorruptionLevel.TWO_HORNY,
-			PenetrationType.FINGER_PLAYER,
-			OrificeType.NIPPLE_PARTNER,
+			PenetrationType.FINGER,
+			OrificeType.NIPPLE,
+			SexParticipantType.PITCHER,
 			SexPace.DOM_GENTLE,
 			null) {
 		@Override
@@ -536,7 +677,7 @@ public class PlayerFingerNipple {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isPlayerDom();
+			return Sex.isDom(Main.game.getPlayer());
 		}
 
 		@Override
@@ -546,10 +687,10 @@ public class PlayerFingerNipple {
 			
 			UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 					"Gently sinking your [pc.fingers+] deep into [npc.name]'s [npc.nipple+], you slowly start sliding in and out of [npc.her] [npc.breast].",
-					"You gently lean in against [npc.name], breathing in [npc.her] "+(Sex.getPartner().isFeminine()?"feminine scent":"masculine musk")+" as you gently pump your [pc.fingers+] in and out of [npc.her] [npc.nipple+].",
+					"You gently lean in against [npc.name], breathing in [npc.her] "+(Sex.getActivePartner().isFeminine()?"feminine scent":"masculine musk")+" as you gently pump your [pc.fingers+] in and out of [npc.her] [npc.nipple+].",
 					"Gently pressing yourself in against [npc.name], you let out [pc.a_moan+] as you softly pump your [pc.fingers+] in and out of [npc.her] [npc.nipple+]."));
 			
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case SUB_EAGER:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" [npc.She] pushes [npc.her] chest out in response, letting out a delighted [npc.moan] as [npc.she] starts enthusiastically imploring you to continue fingering [npc.her] [npc.breasts].",
@@ -581,8 +722,9 @@ public class PlayerFingerNipple {
 			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.THREE_NORMAL,
 			CorruptionLevel.TWO_HORNY,
-			PenetrationType.FINGER_PLAYER,
-			OrificeType.NIPPLE_PARTNER,
+			PenetrationType.FINGER,
+			OrificeType.NIPPLE,
+			SexParticipantType.PITCHER,
 			SexPace.DOM_NORMAL,
 			null) {
 		@Override
@@ -597,7 +739,7 @@ public class PlayerFingerNipple {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isPlayerDom();
+			return Sex.isDom(Main.game.getPlayer());
 		}
 
 		@Override
@@ -607,10 +749,10 @@ public class PlayerFingerNipple {
 			
 			UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 					"Sinking your [pc.fingers+] deep into [npc.name]'s [npc.nipple+], you start sliding in and out, eagerly fingering [npc.her] [npc.breast] as you press yourself up against [npc.herHim].",
-					"You lean in against [npc.name], breathing in [npc.her] "+(Sex.getPartner().isFeminine()?"feminine scent":"masculine musk")+" as you start eagerly pumping your [pc.fingers+] in and out of [npc.her] [npc.nipple+].",
+					"You lean in against [npc.name], breathing in [npc.her] "+(Sex.getActivePartner().isFeminine()?"feminine scent":"masculine musk")+" as you start eagerly pumping your [pc.fingers+] in and out of [npc.her] [npc.nipple+].",
 					"Pressing yourself in against [npc.herHim], you let out [pc.a_moan+] as you start eagerly pumping your [pc.fingers+] in and out of [npc.her] [npc.nipple+]."));
 			
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case SUB_EAGER:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" [npc.She] pushes [npc.her] chest out in response, letting out a delighted [npc.moan] as [npc.she] starts enthusiastically imploring you to continue fingering [npc.her] [npc.breasts].",
@@ -642,8 +784,9 @@ public class PlayerFingerNipple {
 			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.THREE_DIRTY,
-			PenetrationType.FINGER_PLAYER,
-			OrificeType.NIPPLE_PARTNER,
+			PenetrationType.FINGER,
+			OrificeType.NIPPLE,
+			SexParticipantType.PITCHER,
 			SexPace.DOM_ROUGH,
 			null) {
 		@Override
@@ -658,7 +801,7 @@ public class PlayerFingerNipple {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isPlayerDom();
+			return Sex.isDom(Main.game.getPlayer());
 		}
 
 		@Override
@@ -668,10 +811,10 @@ public class PlayerFingerNipple {
 			
 			UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 					"Greedily plunging your [pc.fingers+] deep into [npc.name]'s [npc.nipple+], you start roughly slamming in and out, rapidly fingering [npc.her] [npc.breast] as you grind yourself up against [npc.herHim].",
-					"You grind yourself against [npc.name], inhaling [npc.her] "+(Sex.getPartner().isFeminine()?"feminine scent":"masculine musk")+" as you start roughly slamming your [pc.fingers+] in and out of [npc.her] [npc.nipple+].",
+					"You grind yourself against [npc.name], inhaling [npc.her] "+(Sex.getActivePartner().isFeminine()?"feminine scent":"masculine musk")+" as you start roughly slamming your [pc.fingers+] in and out of [npc.her] [npc.nipple+].",
 					"Grinding yourself up against [npc.name], you let out [pc.a_moan+] as you start roughly slamming your [pc.fingers+] in and out of [npc.her] [npc.nipple+]."));
 			
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case SUB_EAGER:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" [npc.She] pushes [npc.her] chest out in response, letting out a delighted [npc.moan] as [npc.she] starts enthusiastically imploring you to continue fingering [npc.her] [npc.breasts].",
@@ -704,8 +847,9 @@ public class PlayerFingerNipple {
 			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.THREE_NORMAL,
 			CorruptionLevel.TWO_HORNY,
-			PenetrationType.FINGER_PLAYER,
-			OrificeType.NIPPLE_PARTNER,
+			PenetrationType.FINGER,
+			OrificeType.NIPPLE,
+			SexParticipantType.PITCHER,
 			SexPace.SUB_NORMAL,
 			null) {
 		@Override
@@ -720,7 +864,7 @@ public class PlayerFingerNipple {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return !Sex.isPlayerDom();
+			return !Sex.isDom(Main.game.getPlayer());
 		}
 
 		@Override
@@ -730,10 +874,10 @@ public class PlayerFingerNipple {
 			
 			UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 					"Sinking your [pc.fingers+] deep into [npc.name]'s [npc.nipple+], you start sliding in and out, fingering [npc.her] [npc.breast] as you press yourself up against [npc.herHim].",
-					"You lean in against [npc.name], breathing in [npc.her] "+(Sex.getPartner().isFeminine()?"feminine scent":"masculine musk")+" as you start pumping your [pc.fingers+] in and out of [npc.her] [npc.nipple+].",
+					"You lean in against [npc.name], breathing in [npc.her] "+(Sex.getActivePartner().isFeminine()?"feminine scent":"masculine musk")+" as you start pumping your [pc.fingers+] in and out of [npc.her] [npc.nipple+].",
 					"Pressing yourself in against [npc.herHim], you let out [pc.a_moan+] as you start pumping your [pc.fingers+] in and out of [npc.her] [npc.nipple+]."));
 			
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" [npc.She] pushes [npc.her] chest out in response, letting out a delighted [npc.moan] as [npc.she] starts enthusiastically imploring you to continue fingering [npc.her] [npc.breasts].",
@@ -767,8 +911,9 @@ public class PlayerFingerNipple {
 			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.THREE_NORMAL,
 			CorruptionLevel.TWO_HORNY,
-			PenetrationType.FINGER_PLAYER,
-			OrificeType.NIPPLE_PARTNER,
+			PenetrationType.FINGER,
+			OrificeType.NIPPLE,
+			SexParticipantType.PITCHER,
 			SexPace.SUB_EAGER,
 			null) {
 		@Override
@@ -783,7 +928,7 @@ public class PlayerFingerNipple {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return !Sex.isPlayerDom();
+			return !Sex.isDom(Main.game.getPlayer());
 		}
 
 		@Override
@@ -793,10 +938,10 @@ public class PlayerFingerNipple {
 			
 			UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 					"Sinking your [pc.fingers+] deep into [npc.name]'s [npc.nipple+], you start sliding in and out, eagerly fingering [npc.her] [npc.breast] as you press yourself up against [npc.herHim].",
-					"You lean in against [npc.name], breathing in [npc.her] "+(Sex.getPartner().isFeminine()?"feminine scent":"masculine musk")+" as you start eagerly pumping your [pc.fingers+] in and out of [npc.her] [npc.nipple+].",
+					"You lean in against [npc.name], breathing in [npc.her] "+(Sex.getActivePartner().isFeminine()?"feminine scent":"masculine musk")+" as you start eagerly pumping your [pc.fingers+] in and out of [npc.her] [npc.nipple+].",
 					"Pressing yourself in against [npc.herHim], you let out [pc.a_moan+] as you start eagerly pumping your [pc.fingers+] in and out of [npc.her] [npc.nipple+]."));
 			
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" [npc.She] pushes [npc.her] chest out in response, letting out a delighted [npc.moan] as [npc.she] starts enthusiastically imploring you to continue fingering [npc.her] [npc.breasts].",
@@ -827,11 +972,12 @@ public class PlayerFingerNipple {
 	
 	public static final SexAction PARTNER_FORCE_FEEL_BREASTS = new SexAction(
 			SexActionType.PARTNER_REQUIRES_NO_PENETRATION,
-			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.THREE_NORMAL,
+			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.ZERO_PURE,
-			PenetrationType.FINGER_PLAYER,
-			OrificeType.NIPPLE_PARTNER) {
+			PenetrationType.FINGER,
+			OrificeType.NIPPLE,
+			SexParticipantType.CATCHER) {
 		@Override
 		public String getActionTitle() {
 			return "Force breast grope";
@@ -844,15 +990,15 @@ public class PlayerFingerNipple {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.getPartner().hasBreasts() && (!Sex.isPlayerDom() ||Sex.isConsensual());
+			return Sex.getActivePartner().hasBreasts() && (!Sex.isDom(Main.game.getPlayer()) ||Sex.isConsensual());
 		}
 
 		@Override
 		public String getDescription() {
-			if(!Sex.getPartner().isCoverableAreaExposed(CoverableArea.NIPPLES)){
+			if(!Sex.getActivePartner().isCoverableAreaExposed(CoverableArea.NIPPLES)){
 				UtilText.nodeContentSB.setLength(0);
 				
-				switch(Sex.getSexPacePartner()) {
+				switch(Sex.getSexPace(Sex.getActivePartner())) {
 					case DOM_GENTLE:
 						UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 								"Taking your [pc.hands] in [npc.hers], [npc.name] guides them up to [npc.her] chest, letting out a soft [npc.moan] as [npc.she] presses them into [npc.her] [npc.breasts+],"
@@ -896,7 +1042,7 @@ public class PlayerFingerNipple {
 					default:
 						break;
 				}
-				switch(Sex.getSexPacePlayer()) {
+				switch(Sex.getSexPace(Main.game.getPlayer())) {
 					case DOM_GENTLE:
 						UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 								" You let out a soft [pc.moan] in response to [npc.her] eagerness, before gently pressing your [pc.hands] into the flesh of [npc.her] [npc.breasts+].",
@@ -937,7 +1083,7 @@ public class PlayerFingerNipple {
 						break;
 				}
 				
-				switch (Sex.getPartner().getBreastLactation()) {
+				switch (Sex.getActivePartner().getBreastStoredMilk()) {
 					case ONE_TRICKLE:
 						UtilText.nodeContentSB.append(" A small trickle of [npc.milk] leaks out into [npc.her] [npc.lowClothing(nipples)] as you squeeze down on [npc.her] [npc.nipples+].");
 						break;
@@ -969,7 +1115,7 @@ public class PlayerFingerNipple {
 				
 				UtilText.nodeContentSB.setLength(0);
 				
-				switch(Sex.getSexPacePartner()) {
+				switch(Sex.getSexPace(Sex.getActivePartner())) {
 					case DOM_GENTLE:
 						UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 								"Taking your [pc.hands] in [npc.hers], [npc.name] guides them up to [npc.her] chest, letting out a soft [npc.moan] as [npc.she] presses them into [npc.her] [npc.breasts+].",
@@ -1003,7 +1149,7 @@ public class PlayerFingerNipple {
 					default:
 						break;
 				}
-				switch(Sex.getSexPacePlayer()) {
+				switch(Sex.getSexPace(Main.game.getPlayer())) {
 					case DOM_GENTLE:
 						UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 								" You let out a soft [pc.moan] in response to [npc.her] eagerness, before gently pressing your [pc.hands] into the flesh of [npc.her] [npc.breasts+].",
@@ -1044,7 +1190,7 @@ public class PlayerFingerNipple {
 						break;
 				}
 				
-				switch (Sex.getPartner().getBreastLactation()) {
+				switch (Sex.getActivePartner().getBreastStoredMilk()) {
 					case ONE_TRICKLE:
 						UtilText.nodeContentSB.append(" A small trickle of [npc.milk] leaks out over your [pc.fingers] as you squeeze down on [npc.her] [npc.nipples+].");
 						break;
@@ -1077,11 +1223,144 @@ public class PlayerFingerNipple {
 
 		@Override
 		public void applyEffects(){
-			if(!Sex.getPartner().isCoverableAreaExposed(CoverableArea.NIPPLES) && Sex.getPartner().getBreastLactation().getMinimumValue()>=Lactation.ONE_TRICKLE.getMinimumValue()){
-				if(Sex.getPartner().getLowestZLayerCoverableArea(CoverableArea.NIPPLES)!=null) {
-					Sex.getPartner().getLowestZLayerCoverableArea(CoverableArea.NIPPLES).setDirty(true);
+			if(!Sex.getActivePartner().isCoverableAreaExposed(CoverableArea.NIPPLES) && Sex.getActivePartner().getBreastStoredMilk().getMinimumValue()>=Lactation.ONE_TRICKLE.getMinimumValue()){
+				if(Sex.getActivePartner().getLowestZLayerCoverableArea(CoverableArea.NIPPLES)!=null) {
+					Sex.getActivePartner().getLowestZLayerCoverableArea(CoverableArea.NIPPLES).setDirty(true);
 				}
 			}
+		}
+		
+		@Override
+		public String applyEffectsString() {
+			return Sex.getActivePartner().incrementBreastStoredMilk(-10);
+		}
+		
+	};
+
+	public static final SexAction PARTNER_GET_MILKED = new SexAction(
+			SexActionType.PARTNER_REQUIRES_NO_PENETRATION_AND_EXPOSED,
+			ArousalIncrease.TWO_LOW,
+			ArousalIncrease.THREE_NORMAL,
+			CorruptionLevel.ONE_VANILLA,
+			PenetrationType.FINGER,
+			OrificeType.NIPPLE,
+			SexParticipantType.CATCHER) {
+		@Override
+		public String getActionTitle() {
+			return "Get milked";
+		}
+
+		@Override
+		public String getActionDescription() {
+			return "";
+		}
+
+		@Override
+		public boolean isBaseRequirementsMet() {
+			return Sex.getActivePartner().hasBreasts()
+					&& Sex.getActivePartner().getBreastRawStoredMilkValue()>0
+					&& Sex.getSexPace(Sex.getActivePartner())!=SexPace.SUB_RESISTING;
+		}
+
+		@Override
+		public String getDescription() {
+			UtilText.nodeContentSB.setLength(0);
+			
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
+				case DOM_GENTLE:
+					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
+							"Taking hold of your [pc.hand], [npc.name] encourages you to trace your [pc.fingers+] up and over [npc.her] [npc.breasts+], before gently guiding you down to [npc.her] [npc.nipples+]."
+								+ " Instructing you to tug and squeeze at [npc.her] [npc.nipples+], [npc.she] lets out a soft cry as you manage to draw out",
+							"With a soft [npc.moan], [npc.name] gently guides your [pc.fingers] into [npc.her] [npc.breasts+], before moving your touch down to tease [npc.her] [npc.nipples+]."
+								+ " Instructing you to pinch and squeeze at [npc.her] [npc.nipples+], [npc.she] lets out a delighted cry as you manage to draw out"));
+					break;
+				case SUB_NORMAL: case DOM_NORMAL: case SUB_EAGER:
+					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
+							"Taking hold of your [pc.hand], [npc.name] guides your [pc.fingers+] up and over [npc.her] [npc.breasts+], before greedily guiding you down to [npc.her] [npc.nipples+]."
+								+ " Telling you to tug and squeeze at [npc.her] [npc.nipples+], [npc.she] lets out [npc.a_moan+] as you manage to draw out",
+							"With [npc.a_moan+], [npc.name] eagerly guides your [pc.fingers] into [npc.her] [npc.breasts+], before moving your touch down to tease [npc.her] [npc.nipples+]."
+								+ " Instructing you to pinch and squeeze at [npc.her] [npc.nipples+], [npc.she] lets out a delighted cry as you manage to draw out"));
+					break;
+				case DOM_ROUGH:
+					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
+							"Grabbing hold of your [pc.hand], [npc.name] roughly forces your [pc.fingers+] up and over [npc.her] [npc.breasts+], before dominantly guiding you down to [npc.her] [npc.nipples+]."
+								+ " Ordering you to tug and squeeze at [npc.her] [npc.nipples+], [npc.she] lets out [npc.a_moan+] as you manage to draw out",
+							"With [npc.a_moan+], [npc.name] forcefully guides your [pc.fingers] into [npc.her] [npc.breasts+], before moving your touch down to tease [npc.her] [npc.nipples+]."
+								+ " Ordering you to pinch and squeeze at [npc.her] [npc.nipples+], [npc.she] lets out a delighted cry as you manage to draw out"));
+					break;
+				case SUB_RESISTING:
+					break;
+			}
+			
+			switch (Sex.getActivePartner().getBreastStoredMilk()) {
+				case ZERO_NONE:
+					UtilText.nodeContentSB.append(" no [npc.milk] from [npc.her] [npc.breasts+]."); //Shouldn't be able to be reached
+					break;
+				case ONE_TRICKLE:
+					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
+							" a small trickle of [npc.milk] from [npc.her] [npc.breasts+].",
+							" a little trickle of [npc.milk] from [npc.her] [npc.breasts+]."));
+					break;
+				case TWO_SMALL_AMOUNT:
+					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
+							" a small squirt of [npc.milk] from [npc.her] [npc.breasts+].",
+							" a little stream of [npc.milk] from [npc.her] [npc.breasts+]."));
+					break;
+				case THREE_DECENT_AMOUNT:
+					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
+							" a squirt of [npc.milk] from [npc.her] [npc.breasts+].",
+							" a trickle of [npc.milk] from [npc.her] [npc.breasts+]."));
+					break;
+				case FOUR_LARGE_AMOUNT:
+					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
+							" a flow of [npc.milk] from [npc.her] [npc.breasts+].",
+							" a stream of [npc.milk] from [npc.her] [npc.breasts+]."));
+					break;
+				case FIVE_VERY_LARGE_DROOLING:
+					UtilText.nodeContentSB.append(" a heavy flow of [npc.milk] from [npc.her] [npc.breasts+].");
+					break;
+				case SIX_EXTREME_AMOUNT_DRIPPING:
+					UtilText.nodeContentSB.append(" a considerable amount of [npc.milk] from [npc.her] [npc.breasts+].");
+					break;
+				case SEVEN_MONSTROUS_AMOUNT_POURING:
+					UtilText.nodeContentSB.append(" a huge amount of [npc.milk] from [npc.her] [npc.breasts+].");
+					break;
+			}
+			
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
+				case DOM_GENTLE:
+					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
+							" You let out a soft [pc.moan] as you start to milk [npc.name], and as [npc.she] pushes [npc.her] [npc.breasts] out into your [pc.hands], you continue gently drawing the [npc.milk+] from [npc.her] [npc.nipples].",
+							" You can't help but [pc.moanVerb] at the delightful feeling of milking [npc.name]'s [npc.breasts], and,"
+									+ " encouraged by the similar sounds that [npc.she]'s making, you continue gently teasing the [npc.milk+] from [npc.her] [npc.nipples]."));
+					break;
+				case DOM_NORMAL:
+				case SUB_EAGER:
+				case SUB_NORMAL:
+					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
+							" You let out [pc.a_moan+] as you start to milk [npc.name], and as [npc.she] pushes [npc.her] [npc.breasts] out into your [pc.hands], you continue eagerly drawing the [npc.milk+] from [npc.her] [npc.nipples].",
+							" You can't help but [pc.moanVerb] at the delightful feeling of milking [npc.name]'s [npc.breasts], and,"
+									+ " encouraged by the similar sounds that [npc.she]'s making, you continue greedily teasing the [npc.milk+] from [npc.her] [npc.nipples]."));
+					break;
+				case DOM_ROUGH:
+					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
+							" You let out a growl as you start to milk [npc.name], and as [npc.she] pushes [npc.her] [npc.breasts] out into your [pc.hands], you continue roughly drawing the [npc.milk+] from [npc.her] [npc.nipples].",
+							" You can't help but [pc.moanVerb] at the feeling of milking [npc.name]'s [pc.breasts], and, encouraged by the similar sounds that [npc.she]'s making, you continue roughly squeezing the [npc.milk+] from [npc.her] [npc.nipples]."));
+					break;
+				case SUB_RESISTING:
+					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
+							" You let out [pc.a_moan+] and try to pull away, but, with a forceful yank, [npc.name] pulls your [pc.hands] back into [npc.her] [npc.breasts],"
+									+ " making it quite clear that you have no choice but to squeeze the [npc.milk+] from [npc.her] [npc.nipples].",
+							" You desperately try to pull away from [npc.name]'s [npc.breasts], but, grabbing hold of your [pc.hand], [npc.she] forces you to continue squeezing the [npc.milk+] from [npc.her] [npc.nipples]."));
+					break;
+			}
+			
+			return UtilText.nodeContentSB.toString();
+		}
+		
+		@Override
+		public String applyEffectsString() {
+			return Sex.getActivePartner().incrementBreastStoredMilk(-Sex.getActivePartner().getBreastRawMilkStorageValue()/5);
 		}
 		
 	};
@@ -1091,8 +1370,9 @@ public class PlayerFingerNipple {
 			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.ZERO_PURE,
-			PenetrationType.FINGER_PLAYER,
-			OrificeType.NIPPLE_PARTNER) {
+			PenetrationType.FINGER,
+			OrificeType.NIPPLE,
+			SexParticipantType.PITCHER) {
 		@Override
 		public String getActionTitle() {
 			return "Stop nipple fingering";
@@ -1108,20 +1388,20 @@ public class PlayerFingerNipple {
 			
 			UtilText.nodeContentSB.setLength(0);
 			
-			switch(Sex.getSexPacePlayer()) {
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
 				case DOM_ROUGH:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Yanking your [pc.fingers] out of [npc.name]'s nipple, you give [npc.her] [npc.breast] one last rough squeeze as you stop fingering [npc.her] chest.",
-							"Taking in one last breath of [npc.name]'s "+(Sex.getPartner().isFeminine()?"feminine scent":"masculine musk")+", you yank your [pc.fingers] out of [npc.her] nipple."));
+							"Taking in one last breath of [npc.name]'s "+(Sex.getActivePartner().isFeminine()?"feminine scent":"masculine musk")+", you yank your [pc.fingers] out of [npc.her] nipple."));
 					break;
 				default:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Sliding your [pc.fingers] out of [npc.name]'s nipple, you give [npc.her] [npc.breast] one last squeeze as you stop fingering [npc.her] chest.",
-							"Taking in one last breath of [npc.name]'s "+(Sex.getPartner().isFeminine()?"feminine scent":"masculine musk")+", you slide your [pc.fingers] out of [npc.her] nipple."));
+							"Taking in one last breath of [npc.name]'s "+(Sex.getActivePartner().isFeminine()?"feminine scent":"masculine musk")+", you slide your [pc.fingers] out of [npc.her] nipple."));
 					break;
 			}
 			
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case SUB_RESISTING:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" [npc.Name] lets out a relieved sigh, which soon turns into [npc.a_sob+] as [npc.she] continues to struggle against you.",
@@ -1146,8 +1426,9 @@ public class PlayerFingerNipple {
 			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.ZERO_PURE,
-			PenetrationType.FINGER_PLAYER,
-			OrificeType.NIPPLE_PARTNER,
+			PenetrationType.FINGER,
+			OrificeType.NIPPLE,
+			SexParticipantType.CATCHER,
 			null,
 			SexPace.SUB_RESISTING) {
 		@Override
@@ -1162,7 +1443,7 @@ public class PlayerFingerNipple {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isPlayerDom();
+			return Sex.isDom(Main.game.getPlayer());
 		}
 
 		@Override
@@ -1175,7 +1456,7 @@ public class PlayerFingerNipple {
 					"[npc.Name] lets out [npc.a_sob+], frantically trying to pull [npc.her] chest away from your unwanted touch as [npc.she] struggles against you.",
 					"Trying desperately to pull [npc.her] [npc.breasts+] away from your greedy [pc.fingers], [npc.name] [npc.sobs] in distress as [npc.she] struggles against you."));
 			
-			switch(Sex.getSexPacePlayer()) {
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
 				case DOM_GENTLE:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" You let out a soothing [pc.moan], ignoring [npc.her] weak protests as you continue gently sliding your [pc.fingers+] in and out of [npc.her] [npc.nipple+].",
@@ -1208,12 +1489,13 @@ public class PlayerFingerNipple {
 			ArousalIncrease.TWO_LOW,
 			ArousalIncrease.TWO_LOW,
 			CorruptionLevel.ZERO_PURE,
-			PenetrationType.FINGER_PLAYER,
-			OrificeType.NIPPLE_PARTNER) {
+			PenetrationType.FINGER,
+			OrificeType.NIPPLE,
+			SexParticipantType.CATCHER) {
 
 		@Override
 		public boolean isBaseRequirementsMet() {
-			return Sex.isConsensual() || !Sex.isPlayerDom(); // Partner can only stop in consensual sex or if they're the dom.
+			return Sex.isConsensual() || !Sex.isDom(Main.game.getPlayer()); // Partner can only stop in consensual sex or if they're the dom.
 		}
 		
 		@Override
@@ -1231,20 +1513,20 @@ public class PlayerFingerNipple {
 			
 			UtilText.nodeContentSB.setLength(0);
 			
-			switch(Sex.getSexPacePartner()) {
+			switch(Sex.getSexPace(Sex.getActivePartner())) {
 				case DOM_ROUGH:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Yanking your [pc.fingers] out of [npc.her] nipple, [npc.name] growls at you as [npc.she] commands you to stop fingering [npc.her] chest.",
-							"[npc.Name] leans into you, causing you to inhale [npc.her] "+(Sex.getPartner().isFeminine()?"feminine scent":"masculine musk")+" before [npc.she] yanks your [pc.fingers] out of [npc.her] nipple."));
+							"[npc.Name] leans into you, causing you to inhale [npc.her] "+(Sex.getActivePartner().isFeminine()?"feminine scent":"masculine musk")+" before [npc.she] yanks your [pc.fingers] out of [npc.her] nipple."));
 					break;
 				default:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							"Sliding your [pc.fingers] out of [npc.her] nipple, [npc.name] lets out [npc.a_moan+] as [npc.she] tells you to stop fingering [npc.her] chest.",
-							"[npc.Name] leans into you, causing you to inhale [npc.her] "+(Sex.getPartner().isFeminine()?"feminine scent":"masculine musk")+" before [npc.she] slides your [pc.fingers] out of [npc.her] nipple."));
+							"[npc.Name] leans into you, causing you to inhale [npc.her] "+(Sex.getActivePartner().isFeminine()?"feminine scent":"masculine musk")+" before [npc.she] slides your [pc.fingers] out of [npc.her] nipple."));
 					break;
 			}
 			
-			switch(Sex.getSexPacePlayer()) {
+			switch(Sex.getSexPace(Main.game.getPlayer())) {
 				case SUB_RESISTING:
 					UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 							" You let out a relieved sigh, which soon turns into [pc.a_sob+] as you realise that [npc.she] isn't finished with you yet.",
