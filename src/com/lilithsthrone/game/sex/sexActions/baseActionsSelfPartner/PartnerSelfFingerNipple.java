@@ -3,14 +3,16 @@ package com.lilithsthrone.game.sex.sexActions.baseActionsSelfPartner;
 import com.lilithsthrone.game.character.attributes.CorruptionLevel;
 import com.lilithsthrone.game.dialogue.utils.UtilText;
 import com.lilithsthrone.game.sex.ArousalIncrease;
-import com.lilithsthrone.game.sex.OrificeType;
-import com.lilithsthrone.game.sex.PenetrationType;
 import com.lilithsthrone.game.sex.Sex;
+import com.lilithsthrone.game.sex.SexAreaOrifice;
+import com.lilithsthrone.game.sex.SexAreaPenetration;
 import com.lilithsthrone.game.sex.SexPace;
 import com.lilithsthrone.game.sex.SexParticipantType;
 import com.lilithsthrone.game.sex.sexActions.SexAction;
+import com.lilithsthrone.game.sex.sexActions.SexActionLimitation;
 import com.lilithsthrone.game.sex.sexActions.SexActionType;
-import com.lilithsthrone.main.Main;
+import com.lilithsthrone.utils.Util;
+import com.lilithsthrone.utils.Util.Value;
 
 /**
  * @since 0.1.79
@@ -21,13 +23,16 @@ public class PartnerSelfFingerNipple {
 	
 	
 	public static final SexAction PARTNER_PINCH_NIPPLES = new SexAction(
-			SexActionType.PARTNER_REQUIRES_NO_PENETRATION_AND_EXPOSED,
+			SexActionType.REQUIRES_NO_PENETRATION_AND_EXPOSED,
 			ArousalIncrease.ONE_MINIMUM,
 			ArousalIncrease.THREE_NORMAL,
 			CorruptionLevel.ZERO_PURE,
-			PenetrationType.FINGER,
-			OrificeType.NIPPLE,
+			Util.newHashMapOfValues(new Value<>(SexAreaPenetration.FINGER, SexAreaOrifice.NIPPLE)),
 			SexParticipantType.SELF) {
+		@Override
+		public SexActionLimitation getLimitation() {
+			return SexActionLimitation.NPC_ONLY;
+		}
 		@Override
 		public String getActionTitle() {
 			return "Pinch nipples";
@@ -44,14 +49,11 @@ public class PartnerSelfFingerNipple {
 
 			UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 					"[npc.Name] reaches up and starts playing with [npc.her] hard [npc.nipples], pinching and rubbing them as [npc.she] moans with arousal.",
-					
-					"[npc.Name]'s fingertips tease over [npc.her] [npc.breasts+], stopping to pinch and tug at [npc.her] [npc.nipples+] as [npc.she] moans and sighs in delight.",
-					
+					"[npc.NamePos] fingertips tease over [npc.her] [npc.breasts+], stopping to pinch and tug at [npc.her] [npc.nipples+] as [npc.she] moans and sighs in delight.",
 					"[npc.Name] reaches up to [npc.her] [npc.breasts+], and, with eager fingers, starts to pinch and rub at [npc.her] exposed [npc.nipples].",
-					
 					"With [npc.a_moan+], [npc.name] reaches up to [npc.her] [npc.nipples+], pinching and flicking them as [npc.she] continues to cry out in delight."));
 			
-			switch (Sex.getActivePartner().getBreastStoredMilk()) {
+			switch (Sex.getCharacterPerformingAction().getBreastStoredMilk()) {
 				case ONE_TRICKLE:
 					UtilText.nodeContentSB.append(" A small trickle of [npc.milk] leaks out around [npc.her] fingertips.");
 					break;
@@ -82,20 +84,23 @@ public class PartnerSelfFingerNipple {
 		
 		@Override
 		public String applyEffectsString() {
-			return Sex.getActivePartner().incrementBreastStoredMilk(-10);
+			return Sex.getCharacterPerformingAction().incrementBreastStoredMilk(-10);
 		}
 
 	};
 	
 	
 	public static final SexAction PARTNER_SELF_FINGER_NIPPLE_PENETRATION = new SexAction(
-			SexActionType.PARTNER_PENETRATION,
+			SexActionType.START_ONGOING,
 			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.ONE_MINIMUM,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.FINGER,
-			OrificeType.NIPPLE,
+			Util.newHashMapOfValues(new Value<>(SexAreaPenetration.FINGER, SexAreaOrifice.NIPPLE)),
 			SexParticipantType.SELF) {
+		@Override
+		public SexActionLimitation getLimitation() {
+			return SexActionLimitation.NPC_ONLY;
+		}
 		@Override
 		public String getActionTitle() {
 			return "Finger nipples (self)";
@@ -113,14 +118,14 @@ public class PartnerSelfFingerNipple {
 			UtilText.nodeContentSB.append(UtilText.returnStringAtRandom(
 					"[npc.Name] reaches up, letting out a lewd moan as [npc.she] eagerly sinks [npc.her] fingers into [npc.her] fuckable nipples.",
 					
-					"[npc.Name]'s fingertips tease over [npc.her] breasts, circling around [npc.her] nipples before greedily sinking inside.",
+					"[npc.NamePos] fingertips tease over [npc.her] breasts, circling around [npc.her] nipples before greedily sinking inside.",
 					
 					"[npc.Name] moans and squeals as [npc.she] starts eagerly fingering [npc.her] nipple-cunts.",
 					
 					"With a lewd cry, [npc.name] sinks [npc.her] digits into [npc.her] inviting nipple-cunts, panting heavily as [npc.she] start eagerly fingering [npc.herself]."));
 			
 		
-			switch (Sex.getActivePartner().getBreastStoredMilk()) {
+			switch (Sex.getCharacterPerformingAction().getBreastStoredMilk()) {
 				case ONE_TRICKLE:
 					UtilText.nodeContentSB.append(" A small trickle of [npc.milk] leaks out around [npc.her] fingertips.");
 					break;
@@ -151,25 +156,22 @@ public class PartnerSelfFingerNipple {
 		
 		@Override
 		public String applyEffectsString() {
-			return Sex.getActivePartner().incrementBreastStoredMilk(-10);
+			return Sex.getCharacterPerformingAction().incrementBreastStoredMilk(-10);
 		}
 		
 	};
 	
 	public static final SexAction DOM_PARTNER_SELF_FINGER_NIPPLE_GENTLE = new SexAction(
-			SexActionType.PARTNER,
+			SexActionType.ONGOING,
 			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.ONE_MINIMUM,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.FINGER,
-			OrificeType.NIPPLE,
+			Util.newHashMapOfValues(new Value<>(SexAreaPenetration.FINGER, SexAreaOrifice.NIPPLE)),
 			SexParticipantType.SELF,
-			null,
 			SexPace.DOM_GENTLE) {
-		
 		@Override
-		public boolean isBaseRequirementsMet() {
-			return !Sex.isDom(Main.game.getPlayer());
+		public SexActionLimitation getLimitation() {
+			return SexActionLimitation.NPC_ONLY;
 		}
 		
 		@Override
@@ -185,7 +187,7 @@ public class PartnerSelfFingerNipple {
 		@Override
 		public String getDescription() {
 			return UtilText.returnStringAtRandom(
-					"[npc.A_moan+] escapes from between [npc.name]'s [npc.lips+] as [npc.she] slowly pushes [npc.her] [npc.fingers] deep inside [npc.her] [npc.nipple+].",
+					"[npc.A_moan+] escapes from between [npc.namePos] [npc.lips+] as [npc.she] slowly pushes [npc.her] [npc.fingers] deep inside [npc.her] [npc.nipple+].",
 					
 					"Gently pumping [npc.her] [npc.fingers] in and out of [npc.her] [npc.nipple+], [npc.name] starts letting out a series of delighted [npc.moans] as [npc.she] rhythmically fingers [npc.her] [npc.breast+].",
 					
@@ -197,19 +199,16 @@ public class PartnerSelfFingerNipple {
 	};
 	
 	public static final SexAction DOM_PARTNER_SELF_FINGER_NIPPLE_NORMAL = new SexAction(
-			SexActionType.PARTNER,
+			SexActionType.ONGOING,
 			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.ONE_MINIMUM,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.FINGER,
-			OrificeType.NIPPLE,
+			Util.newHashMapOfValues(new Value<>(SexAreaPenetration.FINGER, SexAreaOrifice.NIPPLE)),
 			SexParticipantType.SELF,
-			null,
 			SexPace.DOM_NORMAL) {
-		
 		@Override
-		public boolean isBaseRequirementsMet() {
-			return !Sex.isDom(Main.game.getPlayer());
+		public SexActionLimitation getLimitation() {
+			return SexActionLimitation.NPC_ONLY;
 		}
 		
 		@Override
@@ -225,7 +224,7 @@ public class PartnerSelfFingerNipple {
 		@Override
 		public String getDescription() {
 			return UtilText.returnStringAtRandom(
-					"[npc.A_moan+] escapes from between [npc.name]'s [npc.lips+] as [npc.she] greedily pushes [npc.her] [npc.fingers] deep inside [npc.her] [npc.nipple+].",
+					"[npc.A_moan+] escapes from between [npc.namePos] [npc.lips+] as [npc.she] greedily pushes [npc.her] [npc.fingers] deep inside [npc.her] [npc.nipple+].",
 					
 					"Pumping [npc.her] [npc.fingers] in and out of [npc.her] [npc.nipple+], [npc.name] starts letting out a series of delighted [npc.moans] as [npc.she] rhythmically fingers [npc.her] [npc.breast+].",
 					
@@ -237,19 +236,16 @@ public class PartnerSelfFingerNipple {
 	};
 	
 	public static final SexAction DOM_PARTNER_SELF_FINGER_NIPPLE_ROUGH = new SexAction(
-			SexActionType.PARTNER,
+			SexActionType.ONGOING,
 			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.ONE_MINIMUM,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.FINGER,
-			OrificeType.NIPPLE,
+			Util.newHashMapOfValues(new Value<>(SexAreaPenetration.FINGER, SexAreaOrifice.NIPPLE)),
 			SexParticipantType.SELF,
-			null,
 			SexPace.DOM_ROUGH) {
-		
 		@Override
-		public boolean isBaseRequirementsMet() {
-			return !Sex.isDom(Main.game.getPlayer());
+		public SexActionLimitation getLimitation() {
+			return SexActionLimitation.NPC_ONLY;
 		}
 		
 		@Override
@@ -265,7 +261,7 @@ public class PartnerSelfFingerNipple {
 		@Override
 		public String getDescription() {
 			return UtilText.returnStringAtRandom(
-					"[npc.A_moan+] escapes from between [npc.name]'s [npc.lips+] as [npc.she] roughly slams [npc.her] [npc.fingers] deep inside [npc.her] [npc.nipple+], before starting to rapidly finger [npc.her] [npc.breast].",
+					"[npc.A_moan+] escapes from between [npc.namePos] [npc.lips+] as [npc.she] roughly [npc.verb(slam)] [npc.her] [npc.fingers] deep inside [npc.her] [npc.nipple+], before starting to rapidly finger [npc.her] [npc.breast].",
 					
 					"Roughly pumping [npc.her] [npc.fingers] in and out of [npc.her] [npc.nipple+], [npc.name] starts letting out a series of delighted [npc.moans] as [npc.she] rhythmically fingers [npc.her] [npc.breast+].",
 					
@@ -277,19 +273,16 @@ public class PartnerSelfFingerNipple {
 	};
 	
 	public static final SexAction SUB_PARTNER_SELF_FINGER_NIPPLE_NORMAL = new SexAction(
-			SexActionType.PARTNER,
+			SexActionType.ONGOING,
 			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.ONE_MINIMUM,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.FINGER,
-			OrificeType.NIPPLE,
+			Util.newHashMapOfValues(new Value<>(SexAreaPenetration.FINGER, SexAreaOrifice.NIPPLE)),
 			SexParticipantType.SELF,
-			null,
 			SexPace.SUB_NORMAL) {
-		
 		@Override
-		public boolean isBaseRequirementsMet() {
-			return Sex.isDom(Main.game.getPlayer());
+		public SexActionLimitation getLimitation() {
+			return SexActionLimitation.NPC_ONLY;
 		}
 		
 		@Override
@@ -305,7 +298,7 @@ public class PartnerSelfFingerNipple {
 		@Override
 		public String getDescription() {
 			return UtilText.returnStringAtRandom(
-					"[npc.A_moan+] escapes from between [npc.name]'s [npc.lips+] as [npc.she] greedily pushes [npc.her] [npc.fingers] deep inside [npc.her] [npc.nipple+].",
+					"[npc.A_moan+] escapes from between [npc.namePos] [npc.lips+] as [npc.she] greedily pushes [npc.her] [npc.fingers] deep inside [npc.her] [npc.nipple+].",
 					
 					"Pumping [npc.her] [npc.fingers] in and out of [npc.her] [npc.nipple+], [npc.name] starts letting out a series of delighted [npc.moans] as [npc.she] rhythmically fingers [npc.her] [npc.breast+].",
 					
@@ -317,19 +310,16 @@ public class PartnerSelfFingerNipple {
 	};
 	
 	public static final SexAction SUB_PARTNER_SELF_FINGER_NIPPLE_EAGER = new SexAction(
-			SexActionType.PARTNER,
+			SexActionType.ONGOING,
 			ArousalIncrease.THREE_NORMAL,
 			ArousalIncrease.ONE_MINIMUM,
 			CorruptionLevel.ONE_VANILLA,
-			PenetrationType.FINGER,
-			OrificeType.NIPPLE,
+			Util.newHashMapOfValues(new Value<>(SexAreaPenetration.FINGER, SexAreaOrifice.NIPPLE)),
 			SexParticipantType.SELF,
-			null,
 			SexPace.SUB_EAGER) {
-		
 		@Override
-		public boolean isBaseRequirementsMet() {
-			return Sex.isDom(Main.game.getPlayer());
+		public SexActionLimitation getLimitation() {
+			return SexActionLimitation.NPC_ONLY;
 		}
 		
 		@Override
@@ -345,7 +335,7 @@ public class PartnerSelfFingerNipple {
 		@Override
 		public String getDescription() {
 			return UtilText.returnStringAtRandom(
-					"[npc.A_moan+] escapes from between [npc.name]'s [npc.lips+] as [npc.she] eagerly slams [npc.her] [npc.fingers] deep inside [npc.her] [npc.nipple+], before starting to desperately finger [npc.her] [npc.breast].",
+					"[npc.A_moan+] escapes from between [npc.namePos] [npc.lips+] as [npc.she] eagerly slams [npc.her] [npc.fingers] deep inside [npc.her] [npc.nipple+], before starting to desperately finger [npc.her] [npc.breast].",
 					
 					"Enthusiastically pumping [npc.her] [npc.fingers] in and out of [npc.her] [npc.nipple+], [npc.name] starts letting out a series of delighted [npc.moans] as [npc.she] frantically fingers [npc.her] [npc.breast+].",
 					
@@ -357,13 +347,16 @@ public class PartnerSelfFingerNipple {
 	};
 	
 	public static final SexAction PARTNER_SELF_FINGER_NIPPLE_STOP_PENETRATION = new SexAction(
-			SexActionType.PARTNER_STOP_PENETRATION,
+			SexActionType.STOP_ONGOING,
 			ArousalIncrease.ONE_MINIMUM,
 			ArousalIncrease.ONE_MINIMUM,
 			CorruptionLevel.ZERO_PURE,
-			PenetrationType.FINGER,
-			OrificeType.NIPPLE,
+			Util.newHashMapOfValues(new Value<>(SexAreaPenetration.FINGER, SexAreaOrifice.NIPPLE)),
 			SexParticipantType.SELF) {
+		@Override
+		public SexActionLimitation getLimitation() {
+			return SexActionLimitation.NPC_ONLY;
+		}
 		
 		@Override
 		public String getActionTitle() {

@@ -12,8 +12,11 @@ import com.lilithsthrone.game.character.attributes.Attribute;
 import com.lilithsthrone.game.character.attributes.CorruptionLevel;
 import com.lilithsthrone.game.character.body.types.VaginaType;
 import com.lilithsthrone.game.character.effects.Perk;
+import com.lilithsthrone.game.character.persona.SexualOrientation;
+import com.lilithsthrone.game.character.race.Subspecies;
 import com.lilithsthrone.game.dialogue.utils.UtilText;
 import com.lilithsthrone.utils.Colour;
+import com.lilithsthrone.utils.SvgUtil;
 import com.lilithsthrone.utils.Util;
 import com.lilithsthrone.utils.Util.Value;
 
@@ -32,7 +35,7 @@ public enum Fetish {
 			"anal",
 			"performing anal",
 			"fetish_anal_giving",
-			Fetish.BASE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			null,
 			Util.newArrayListOfValues(
@@ -64,7 +67,7 @@ public enum Fetish {
 			"buttslut",
 			"receiving anal",
 			"fetish_anal_receiving",
-			Fetish.BASE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			null,
 			Util.newArrayListOfValues(
@@ -96,7 +99,7 @@ public enum Fetish {
 			"vaginal",
 			"performing vaginal",
 			"fetish_vaginal_giving",
-			Fetish.BASE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			null,
 			Util.newArrayListOfValues(
@@ -128,7 +131,7 @@ public enum Fetish {
 			"pussy slut",
 			"receiving vaginal",
 			"fetish_vaginal_receiving",
-			Fetish.BASE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			null,
 			Util.newArrayListOfValues(
@@ -160,7 +163,7 @@ public enum Fetish {
 			"oral",
 			"receiving oral",
 			"fetish_oral_receiving",
-			Fetish.BASE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			null,
 			Util.newArrayListOfValues(
@@ -192,7 +195,7 @@ public enum Fetish {
 			"oral performer",
 			"giving oral",
 			"fetish_oral_giving",
-			Fetish.BASE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			null,
 			Util.newArrayListOfValues(
@@ -224,7 +227,7 @@ public enum Fetish {
 			"breasts lover",
 			"others' breasts",
 			"fetish_breasts_others",
-			Fetish.BASE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			null,
 			Util.newArrayListOfValues(
@@ -256,7 +259,7 @@ public enum Fetish {
 			"breasts",
 			"self breast play",
 			"fetish_breasts_self",
-			Fetish.BASE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			null,
 			Util.newArrayListOfValues(
@@ -288,7 +291,7 @@ public enum Fetish {
 			"milk lover",
 			"being breast-fed",
 			"fetish_lactation_others",
-			Fetish.BASE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			null,
 			Util.newArrayListOfValues(
@@ -320,7 +323,7 @@ public enum Fetish {
 			"lactation",
 			"lactating",
 			"fetish_lactation_self",
-			Fetish.BASE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			null,
 			Util.newArrayListOfValues(
@@ -352,7 +355,7 @@ public enum Fetish {
 			"leg lover",
 			"partner's legs",
 			"fetish_leg_lover",
-			Fetish.BASE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			null,
 			Util.newArrayListOfValues(
@@ -384,7 +387,7 @@ public enum Fetish {
 			"strutter",
 			"having legs used",
 			"fetish_strutter",
-			Fetish.BASE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			null,
 			Util.newArrayListOfValues(
@@ -412,11 +415,136 @@ public enum Fetish {
 		}
 	},
 	
+
+	FETISH_FOOT_GIVING(60,
+			"dominant foot",
+			"using feet",
+			"fetish_foot_giving",
+			FetishExperience.BASE_EXPERIENCE_GAIN,
+			Colour.GENERIC_ARCANE,
+			null,
+			Util.newArrayListOfValues(
+					"<span style='color:"+ Colour.GENERIC_GOOD.toWebHexString()+ ";'>Unlocks</span> <span style='color:"+ Colour.GENERIC_SEX.toWebHexString()+ ";'>dominant foot tease</span>",
+					"<span style='color:"+ Colour.GENERIC_BAD.toWebHexString()+ ";'>Weak to</span> <span style='color:"+ Colour.GENERIC_SEX.toWebHexString()+ ";'>submissive foot tease</span>"),
+			null) {
+
+		@Override
+		public String getDescription(GameCharacter owner) {
+			if (owner.isPlayer()) {
+				return "You absolutely love using your feet in sex. Getting your partner to worship and perform sexual acts on your feet and toes turns you on like nothing else.";
+			} else {
+				return UtilText.parse(owner, "[npc.Name] has a fetish for using [npc.her] feet in sex.");
+			}
+		}
+
+		@Override
+		public String getFetishDesireDescription(GameCharacter target, FetishDesire desire) {
+			return getGenericFetishDesireDescription(target, desire, "using your feet in sex");
+		}
+		
+		@Override
+		public CorruptionLevel getAssociatedCorruptionLevel() {
+			return CorruptionLevel.ONE_VANILLA;
+		}
+	},
+	
+	FETISH_FOOT_RECEIVING(60,
+			"submissive foot",
+			"using partner's feet",
+			"fetish_foot_receiving",
+			FetishExperience.BASE_EXPERIENCE_GAIN,
+			Colour.GENERIC_ARCANE,
+			null,
+			Util.newArrayListOfValues(
+					"<span style='color:"+ Colour.GENERIC_GOOD.toWebHexString()+ ";'>Unlocks</span> <span style='color:"+ Colour.GENERIC_SEX.toWebHexString()+ ";'>submissive foot tease</span>",
+					"<span style='color:"+ Colour.GENERIC_BAD.toWebHexString()+ ";'>Weak to</span> <span style='color:"+ Colour.GENERIC_SEX.toWebHexString()+ ";'>dominant foot tease</span>"),
+			null) {
+		
+		@Override
+		public String getDescription(GameCharacter owner) {
+			if (owner.isPlayer()) {
+				return "You absolutely love feet. Getting your partner to use their feet and toes in sex is the ultimate turn-on for you.";
+			} else {
+				return UtilText.parse(owner, "[npc.Name] has a fetish for using other people's feet.");
+			}
+		}
+		
+		@Override
+		public String getFetishDesireDescription(GameCharacter target, FetishDesire desire) {
+			return getGenericFetishDesireDescription(target, desire, "others' feet");
+		}
+		
+		@Override
+		public CorruptionLevel getAssociatedCorruptionLevel() {
+			return CorruptionLevel.ONE_VANILLA;
+		}
+	},
+	
+	FETISH_PENIS_RECEIVING(60,
+			"cock addict",
+			"others cocks",
+			"fetish_cock_addict",
+			FetishExperience.BASE_EXPERIENCE_GAIN,
+			Colour.GENERIC_ARCANE,
+			null,
+			Util.newArrayListOfValues("<span style='color:"+ Colour.GENERIC_GOOD.toWebHexString()+ ";'>Unlocks</span> <span style='color:"+ Colour.GENERIC_SEX.toWebHexString()+ ";'>cock addict tease</span>",
+					"<span style='color:"+ Colour.GENERIC_BAD.toWebHexString()+ ";'>Weak to</span> <span style='color:"+ Colour.GENERIC_SEX.toWebHexString()+ ";'>cock stud tease</span>"),
+			null) {
+
+		@Override
+		public String getDescription(GameCharacter owner) {
+			if (owner.isPlayer())
+				return "You are hopelessly addicted to cock. Large, small, fat, thin, you really don't care about the looks, just so long as it's pumping in and out of one of your holes...";
+			else
+				return UtilText.parse(owner, "[npc.Name] is hopelessly addicted to cock.");
+		}
+
+		@Override
+		public String getFetishDesireDescription(GameCharacter target, FetishDesire desire) {
+			return getGenericFetishDesireDescription(target, desire, "others' cocks");
+		}
+		
+		@Override
+		public CorruptionLevel getAssociatedCorruptionLevel() {
+			return CorruptionLevel.TWO_HORNY;
+		}
+	},
+	
+	FETISH_PENIS_GIVING(60,
+			"cock stud",
+			"using their cock",
+			"fetish_dick_dealer",
+			FetishExperience.BASE_EXPERIENCE_GAIN,
+			Colour.GENERIC_ARCANE,
+			null,
+			Util.newArrayListOfValues("<span style='color:"+ Colour.GENERIC_GOOD.toWebHexString()+ ";'>Unlocks</span> <span style='color:"+ Colour.GENERIC_SEX.toWebHexString()+ ";'>cock stud tease</span> (Requires penis)",
+					"<span style='color:"+ Colour.GENERIC_BAD.toWebHexString()+ ";'>Weak to</span> <span style='color:"+ Colour.GENERIC_SEX.toWebHexString()+ ";'>cock addict tease</span>"),
+			null) {
+
+		@Override
+		public String getDescription(GameCharacter owner) {
+			if (owner.isPlayer())
+				return "You are obsessed with penetrative sex. Thrusting your cock into any available orifice is all you can think about...";
+			else
+				return UtilText.parse(owner, "[npc.Name] has a fetish for using [npc.her] cock.");
+		}
+
+		@Override
+		public String getFetishDesireDescription(GameCharacter target, FetishDesire desire) {
+			return getGenericFetishDesireDescription(target, desire, "using your cock");
+		}
+		
+		@Override
+		public CorruptionLevel getAssociatedCorruptionLevel() {
+			return CorruptionLevel.TWO_HORNY;
+		}
+	},
+	
 	FETISH_CUM_STUD(60,
 			"cum stud",
 			"cumming",
 			"fetish_cum",
-			Fetish.BASE_RARE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_RARE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			null,
 			Util.newArrayListOfValues("<span style='color:"+ Colour.GENERIC_GOOD.toWebHexString()+ ";'>Unlocks</span> <span style='color:"+ Colour.GENERIC_SEX.toWebHexString()+ ";'>cum stud tease</span> (Requires penis)",
@@ -425,10 +553,8 @@ public enum Fetish {
 
 		@Override
 		public String getDescription(GameCharacter owner) {
-			if (owner.isPlayer())
-				return "You love cumming. You don't really care where it goes; all you want is to pump out load after load of your salty seed...";
-			else
-				return UtilText.parse(owner, "[npc.Name] has a fetish for cumming.");
+				return UtilText.parse(owner,
+						"[npc.NameHasFull] a particular obsession with cumming. Pumping any and all orifices full of cum is what [npc.she] [npc.verb(love)] the most, but spurting it all over someone's body is also an acceptable pastime.");
 		}
 
 		@Override
@@ -446,7 +572,7 @@ public enum Fetish {
 			"cum addict",
 			"cum-play",
 			"fetish_cum_addict",
-			Fetish.BASE_RARE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_RARE_EXPERIENCE_GAIN,
 			Colour.CLOTHING_WHITE,
 			null,
 			Util.newArrayListOfValues("<span style='color:"+ Colour.GENERIC_GOOD.toWebHexString()+ ";'>Unlocks</span> <span style='color:"+ Colour.GENERIC_SEX.toWebHexString()+ ";'>cum addict tease</span>",
@@ -477,7 +603,7 @@ public enum Fetish {
 			"deflowering",
 			"deflowering",
 			"fetish_deflowering",
-			Fetish.BASE_VERY_RARE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			null,
 			Util.newArrayListOfValues("Gain <span style='color:"+ Colour.GENERIC_EXPERIENCE.toWebHexString()+ ";'>xp</span> from <span style='color:"+ Colour.GENERIC_ARCANE.toWebHexString()+ ";'>taking virginities</span>"),
@@ -508,7 +634,7 @@ public enum Fetish {
 			"virginity",
 			"retaining virginity",
 			"fetish_virginity",
-			Fetish.BASE_VERY_RARE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_VERY_RARE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			null,
 			Util.newArrayListOfValues(
@@ -569,7 +695,7 @@ public enum Fetish {
 			"masturbation",
 			"masturbating",
 			"fetish_masturbation",
-			Fetish.BASE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			null,
 			Util.newArrayListOfValues(
@@ -613,7 +739,7 @@ public enum Fetish {
 			"pregnancy",
 			"being pregnant",
 			"fetish_pregnancy",
-			Fetish.BASE_RARE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_RARE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			Util.newHashMapOfValues(new Value<Attribute, Integer>(Attribute.FERTILITY, 5)),
 			Util.newArrayListOfValues("<span style='color:"
@@ -645,7 +771,7 @@ public enum Fetish {
 			"impregnation",
 			"impregnating",
 			"fetish_impregnation",
-			Fetish.BASE_RARE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_RARE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			Util.newHashMapOfValues(new Value<Attribute, Integer>(Attribute.VIRILITY, 5)),
 			Util.newArrayListOfValues("<span style='color:"
@@ -673,73 +799,11 @@ public enum Fetish {
 		}
 	},
 	
-	FETISH_BROODMOTHER(60,
-			"broodmother",
-			"mothering offspring",
-			"fetish_broodmother",
-			Fetish.BASE_RARE_EXPERIENCE_GAIN,
-			Colour.GENERIC_ARCANE,
-			Util.newHashMapOfValues(new Value<Attribute, Integer>(Attribute.FERTILITY, 10)),
-			Util.newArrayListOfValues("2x <span style='color:"+ Colour.GENERIC_SEX.toWebHexString()+ ";'>Maximum offspring in mothered litters</span>"),
-			null) {
-
-		@Override
-		public String getDescription(GameCharacter owner) {
-			if (owner.isPlayer()) {
-				return "Your body is built for one thing; pumping out as many children as possible."
-							+ " Whether due to an effect of your arcane aura, or perhaps just because of your body's natural fertility, you seem to always give birth to huge numbers of children at once.";
-			} else {
-				return UtilText.parse(owner, "[npc.Name]'s body is built for one thing; pumping out as many children as possible."
-						+ " [npc.She] seems to always give birth to huge numbers of children at once.");
-			}
-		}
-		
-		@Override
-		public String getFetishDesireDescription(GameCharacter target, FetishDesire desire) {
-			return getGenericFetishDesireDescription(target, desire, "birthing as many offspring as possible");
-		}
-		
-		@Override
-		public CorruptionLevel getAssociatedCorruptionLevel() {
-			return CorruptionLevel.TWO_HORNY;
-		}
-	},
-	
-	FETISH_SEEDER(60,
-			"seeder",
-			"fathering offspring",
-			"fetish_seeder",
-			Fetish.BASE_RARE_EXPERIENCE_GAIN,
-			Colour.GENERIC_ARCANE,
-			Util.newHashMapOfValues(new Value<Attribute, Integer>(Attribute.VIRILITY, 10)),
-			Util.newArrayListOfValues("2x <span style='color:"+ Colour.GENERIC_SEX.toWebHexString()+ ";'>Maximum offspring in fathered litters</span>"),
-			null) {
-
-		@Override
-		public String getDescription(GameCharacter owner) {
-			if (owner.isPlayer()) {
-				return "Your seed has the potent effect of causing anyone impregnated by it to give birth to huge numbers of children.";
-			} else {
-				return UtilText.parse(owner, "[npc.Name]'s seed has the potent effect of causing anyone impregnated by it to give birth to huge numbers of children.");
-			}
-		}
-
-		@Override
-		public String getFetishDesireDescription(GameCharacter target, FetishDesire desire) {
-			return getGenericFetishDesireDescription(target, desire, "fathering as many offspring as possible");
-		}
-		
-		@Override
-		public CorruptionLevel getAssociatedCorruptionLevel() {
-			return CorruptionLevel.TWO_HORNY;
-		}
-	},
-	
 	FETISH_TRANSFORMATION_GIVING(60,
 			"transformer",
 			"transforming others",
 			"fetish_transformation_giving",
-			Fetish.BASE_RARE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_RARE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			null,
 			Util.newArrayListOfValues(
@@ -770,7 +834,7 @@ public enum Fetish {
 			"test subject",
 			"being transformed",
 			"fetish_transformation_receiving",
-			Fetish.BASE_RARE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_RARE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			null,
 			Util.newArrayListOfValues(
@@ -803,7 +867,7 @@ public enum Fetish {
 			"giving others fetishes",
 //			"fetish_transformation_giving",
 			"fetish_kink_giving",
-			Fetish.BASE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			null,
 			Util.newArrayListOfValues(
@@ -833,14 +897,14 @@ public enum Fetish {
 	
 	FETISH_KINK_RECEIVING(60,
 			"kink curious",
-			"being given new fetishes",
+			"gaining fetishes",
 //			"fetish_transformation_receiving",
 			"fetish_kink_receiving",
-			Fetish.BASE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			null,
 			Util.newArrayListOfValues(
-					// Unclear what extra effects this fetish should provide, other than not taking corruption from recieving forced fetishes
+					// Unclear what extra effects this fetish should provide, other than not taking corruption from receiving forced fetishes
 					"<span style='color:"+ Colour.GENERIC_GOOD.toWebHexString()+ ";'>Removes corruption gain when a fetish is forced on you.</span>"),
 			null) {
 
@@ -871,11 +935,10 @@ public enum Fetish {
 			"orgasm denier",
 			"denying orgasms",
 			"fetish_denial",
-			Fetish.BASE_RARE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_RARE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			null,
-			Util.newArrayListOfValues(
-					"Unlocks <span style='color:"+ Colour.GENERIC_ARCANE.toWebHexString()+ ";'>Deny</span> in non-submissive sex"),
+			null,
 			null) {
 
 		@Override
@@ -901,9 +964,11 @@ public enum Fetish {
 			"self-denial",
 			"being denied",
 			"fetish_denial_self",
-			Fetish.BASE_RARE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_RARE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
-			Util.newHashMapOfValues(new Value<Attribute, Integer>(Attribute.MAJOR_PHYSIQUE, 2)),
+			Util.newHashMapOfValues(
+					new Value<Attribute, Integer>(Attribute.RESISTANCE_PHYSICAL, 1),
+					new Value<Attribute, Integer>(Attribute.RESISTANCE_LUST, 2)),
 			null,
 			null) {
 
@@ -930,7 +995,7 @@ public enum Fetish {
 			"dominant",
 			"acting dominantly",
 			"fetish_dominant",
-			Fetish.BASE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			Util.newHashMapOfValues(new Value<Attribute, Integer>(Attribute.MANA_MAXIMUM, 5)),
 			Util.newArrayListOfValues(
@@ -960,13 +1025,12 @@ public enum Fetish {
 			"submissive",
 			"acting submissively",
 			"fetish_submissive",
-			Fetish.BASE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			Util.newHashMapOfValues(new Value<Attribute, Integer>(Attribute.MAJOR_PHYSIQUE, 2)),
 			Util.newArrayListOfValues(
 					"<span style='color:"+ Colour.GENERIC_GOOD.toWebHexString()+ ";'>Unlocks</span> <span style='color:"+ Colour.GENERIC_SEX.toWebHexString()+ ";'>submissive tease</span>",
-					"<span style='color:"+ Colour.GENERIC_BAD.toWebHexString()+ ";'>Weak to</span> <span style='color:"+ Colour.GENERIC_SEX.toWebHexString()+ ";'>dominant tease</span>",
-					"Unlocks <span style='color:"+ Colour.GENERIC_ARCANE.toWebHexString()+ ";'>submissive sex</span>"),
+					"<span style='color:"+ Colour.GENERIC_BAD.toWebHexString()+ ";'>Weak to</span> <span style='color:"+ Colour.GENERIC_SEX.toWebHexString()+ ";'>dominant tease</span>"),
 			null) {
 		@Override
 		public String getDescription(GameCharacter owner) {
@@ -991,7 +1055,7 @@ public enum Fetish {
 			"incest",
 			"incestuous sex",
 			"fetish_incest",
-			Fetish.BASE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			null,
 			Util.newArrayListOfValues(
@@ -999,15 +1063,21 @@ public enum Fetish {
 			null) {
 		@Override
 		public String getDescription(GameCharacter owner) {
-			if (owner.isPlayer())
-				return "You always did have the hots for your aunt Lily...";
-			else
+			if (owner.isPlayer()) {
+				if(owner.getSexualOrientation()==SexualOrientation.ANDROPHILIC) {
+					return "You always did have the hots for your male cousin...";
+				} else {
+					return "You always did have the hots for your aunt Lily, as well as your female cousin...";
+				}
+				
+			} else {
 				return UtilText.parse(owner, "[npc.Name] has a fetish for incestuous sex.");
+			}
 		}
 
 		@Override
 		public String getFetishDesireDescription(GameCharacter target, FetishDesire desire) {
-			return getGenericFetishDesireDescription(target, desire, "having sex with your relations");
+			return getGenericFetishDesireDescription(target, desire, "having sex with your relatives");
 		}
 		
 		@Override
@@ -1020,12 +1090,13 @@ public enum Fetish {
 			"masochist",
 			"pain and humiliation",
 			"fetish_masochist",
-			Fetish.BASE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
-			Util.newHashMapOfValues(new Value<Attribute, Integer>(Attribute.RESISTANCE_PHYSICAL, 5)),
+			Util.newHashMapOfValues(new Value<Attribute, Integer>(Attribute.RESISTANCE_PHYSICAL, 2)),
 			Util.newArrayListOfValues(
-					"All incoming <span style='color:"+ Colour.ATTRIBUTE_HEALTH.toWebHexString()+ ";'>energy damage</span> is reduced by 25%",
-					"Reduced damage is converted to <span style='color:"+ Attribute.DAMAGE_LUST.getColour().toWebHexString()+ ";'>lust damage</span>"),
+					"All incoming <span style='color:"+ Colour.ATTRIBUTE_HEALTH.toWebHexString()+ ";'>"+Attribute.HEALTH_MAXIMUM.getName()+" damage</span> is reduced by 25%",
+					"Reduced damage is converted to <span style='color:"+ Attribute.DAMAGE_LUST.getColour().toWebHexString()+ ";'>lust damage</span>",
+					"Gain [style.boldArcane(1 essence)] when you are critically hit"),
 			null) {
 
 		@Override
@@ -1051,12 +1122,13 @@ public enum Fetish {
 			"sadist",
 			"inflicting pain",
 			"fetish_sadist",
-			Fetish.BASE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			Util.newHashMapOfValues(new Value<Attribute, Integer>(Attribute.DAMAGE_PHYSICAL, 5)),
 			Util.newArrayListOfValues(
-					"You take 10% of dealt <span style='color:" + Colour.ATTRIBUTE_HEALTH.toWebHexString() + ";'>energy damage</span> as "
-										+ "<span style='color:"+ Attribute.DAMAGE_LUST.getColour().toWebHexString()+ ";'>lust damage</span>"),
+					"All dealt [style.colourHealth("+Attribute.HEALTH_MAXIMUM.getName()+" damage)] is increased by 5%",
+					"You take 10% of dealt [style.colourHealth("+Attribute.HEALTH_MAXIMUM.getName()+" damage)] as <span style='color:"+ Attribute.DAMAGE_LUST.getColour().toWebHexString()+ ";'>lust damage</span>",
+					"Gain [style.boldArcane(1 essence)] when you critically hit"),
 			null) {
 
 		@Override
@@ -1082,7 +1154,7 @@ public enum Fetish {
 			"non-consent",
 			"raping",
 			"fetish_noncon_dom",
-			Fetish.BASE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			null,
 			Util.newArrayListOfValues(
@@ -1114,7 +1186,7 @@ public enum Fetish {
 			"unwilling fuck-toy",
 			"being raped",
 			"fetish_noncon_sub",
-			Fetish.BASE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			null,
 			Util.newArrayListOfValues(
@@ -1146,7 +1218,7 @@ public enum Fetish {
 			"exhibitionist",
 			"exposing themself",
 			"fetish_exhibitionist",
-			Fetish.BASE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			null,
 			Util.newArrayListOfValues(
@@ -1177,7 +1249,7 @@ public enum Fetish {
 			"voyeurist",
 			"watching others",
 			"fetish_voyeurist",
-			Fetish.BASE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			null,
 			Util.newArrayListOfValues(
@@ -1207,31 +1279,89 @@ public enum Fetish {
 	FETISH_BIMBO(60,
 			"bimbo",
 			"being a bimbo",
-			"fetish_bimbo",
-			Fetish.BASE_EXPERIENCE_GAIN,
+			null,
+			FetishExperience.BASE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			Util.newHashMapOfValues(new Value<Attribute, Integer>(Attribute.DAMAGE_LUST, 10)),
-			Util.newArrayListOfValues("<span style='color:"
-					+ Colour.GENERIC_SEX.toWebHexString()
-					+ ";'>Talk like a bimbo</span>"),
+			Util.newArrayListOfValues("<span style='color:"+ Colour.GENERIC_SEX.toWebHexString()+ ";'>Talk like a bimbo</span>"),
 			null) {
-
+		
+		@Override
+		public String getName(GameCharacter owner) {
+			if(owner==null ||owner.isFeminine()) {
+				return "bimbo";
+			} else {
+				return "bro";
+			}
+		}
+		
+		@Override
+		public String getShortDescriptor(GameCharacter target) {
+			if (target==null ||target.isFeminine()) {
+				return "being a bimbo";
+			} else {
+				return "being a bro";
+			}
+		}
+		
 		@Override
 		public String getDescription(GameCharacter owner) {
-			if (owner.isPlayer())
-				return "You're obsessed with the idea of acting like a complete bimbo. It's gotten to the point where no matter how intelligent you might actually be, you can't imagine yourself as anything other than a braindead slut.";
-			else
-				return UtilText.parse(owner, "[npc.Name] loves acting like a complete bimbo.");
+			if (owner==null || owner.isFeminine()) {
+				return UtilText.parse(owner,
+						"[npc.NameIs] obsessed with the idea of acting like a complete bimbo."
+						+ " It's gotten to the point where no matter how intelligent [npc.she] might actually be, [npc.she] can't imagine [npc.herself] as anything other than a ditzy airhead.");
+			} else {
+				return UtilText.parse(owner,
+						"[npc.NameIs] obsessed with the idea of acting like a dopey surfer bro."
+						+ " It's gotten to the point where no matter how intelligent [npc.she] might actually be, [npc.she] can't imagine [npc.herself] as anything other than an airheaded meathead.");
+			}
 		}
 
 		@Override
 		public String getFetishDesireDescription(GameCharacter target, FetishDesire desire) {
-			return getGenericFetishDesireDescription(target, desire, "acting like a bimbo");
+			if(target==null || target.isFeminine()) {
+				return getGenericFetishDesireDescription(target, desire, "acting like a bimbo");
+			} else {
+				return getGenericFetishDesireDescription(target, desire, "acting like a bro");
+			}
+		}
+
+		@Override
+		public List<String> getExtraEffects(GameCharacter owner) {
+			if(owner==null || owner.isFeminine()) {
+				return Util.newArrayListOfValues("<span style='color:"+ Colour.GENERIC_SEX.toWebHexString()+ ";'>Talk like a bimbo</span>");
+			} else {
+				return Util.newArrayListOfValues("<span style='color:"+ Colour.GENERIC_SEX.toWebHexString()+ ";'>Talk like a bro</span>");
+			}
 		}
 		
 		@Override
 		public CorruptionLevel getAssociatedCorruptionLevel() {
 			return CorruptionLevel.ONE_VANILLA;
+		}
+		
+		@Override
+		public String getSVGString(GameCharacter owner) {
+//			String bimboString = "";
+//			if(Main.game!=null && Main.game.isStarted()) {
+//				try {
+//					InputStream is = Fetish.class.getClassLoader().getResourceAsStream("/com/lilithsthrone/res/fetishes/fetish_bimbo.svg");
+//					if(is==null) {
+//						System.err.println("Error! Fetish icon file does not exist (Trying to read from 'com/lilithsthrone/res/fetishes/fetish_bimbo')!");
+//					}
+//					bimboString = Util.inputStreamToString(is);
+//					bimboString = SvgUtil.colourReplacement("FETISH_BIMBO", Colour.BASE_PINK, bimboString);
+//					is.close();
+//				} catch (IOException e) {
+//					e.printStackTrace();
+//				}
+//			}
+//			return bimboString;
+			if(owner==null || owner.isFeminine()) {
+				return bimboString;
+			} else {
+				return broString;
+			}
 		}
 	},
 	
@@ -1239,7 +1369,7 @@ public enum Fetish {
 			"cross dressing",
 			"cross dressing",
 			"fetish_cross_dresser",
-			Fetish.BASE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			Util.newHashMapOfValues(new Value<Attribute, Integer>(Attribute.MANA_MAXIMUM, 10)),
 			Util.newArrayListOfValues("<span style='color:"+ Colour.GENERIC_GOOD.toWebHexString()+ ";'>Immune to clothing femininity status effects</span>"),
@@ -1271,7 +1401,7 @@ public enum Fetish {
 			"switch",
 			"being a switch",
 			"fetish_switch",
-			Fetish.BASE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			Util.newHashMapOfValues(
 					new Value<Attribute, Integer>(Attribute.MAJOR_PHYSIQUE, 5)),
@@ -1303,7 +1433,7 @@ public enum Fetish {
 			"breeder",
 			"breeding",
 			"fetish_breeder",
-			Fetish.BASE_RARE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_RARE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			Util.newHashMapOfValues(
 					new Value<Attribute, Integer>(Attribute.FERTILITY, 25),
@@ -1311,9 +1441,7 @@ public enum Fetish {
 			null,
 			Util.newArrayListOfValues(
 					Fetish.FETISH_PREGNANCY,
-					Fetish.FETISH_IMPREGNATION,
-					Fetish.FETISH_BROODMOTHER,
-					Fetish.FETISH_SEEDER)) {
+					Fetish.FETISH_IMPREGNATION)) {
 
 		@Override
 		public String getDescription(GameCharacter owner) {
@@ -1338,10 +1466,10 @@ public enum Fetish {
 			"sadomasochist",
 			"sadomasochism",
 			"fetish_sadomasochist",
-			Fetish.BASE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			Util.newHashMapOfValues(
-					new Value<Attribute, Integer>(Attribute.RESISTANCE_PHYSICAL, 10),
+					new Value<Attribute, Integer>(Attribute.RESISTANCE_PHYSICAL, 3),
 					new Value<Attribute, Integer>(Attribute.DAMAGE_PHYSICAL, 10)),
 			null,
 			Util.newArrayListOfValues(
@@ -1371,7 +1499,7 @@ public enum Fetish {
 			"lusty maiden",
 			"lusty maiden",
 			"fetish_lusty_maiden",
-			Fetish.BASE_RARE_EXPERIENCE_GAIN,
+			FetishExperience.BASE_RARE_EXPERIENCE_GAIN,
 			Colour.GENERIC_ARCANE,
 			null,
 			Util.newArrayListOfValues(
@@ -1418,17 +1546,38 @@ public enum Fetish {
 	private List<String> modifiersList;
 	
 	private List<Fetish> fetishesForAutomaticUnlock;
-	
-	private static final int BASE_EXPERIENCE_GAIN = 2;
-	private static final int BASE_RARE_EXPERIENCE_GAIN = 10;
-	private static final int BASE_VERY_RARE_EXPERIENCE_GAIN = 25;
 
+	
+	private static String bimboString = "";
+	private static String broString = "";
+	static {
+		try {
+			InputStream is = Subspecies.class.getClassLoader().getResourceAsStream("com/lilithsthrone/res/fetishes/fetish_bimbo.svg");
+			if(is==null) {
+				System.err.println("Error! Fetish icon file does not exist (Trying to read from 'com/lilithsthrone/res/fetishes/fetish_bimbo')!");
+			}
+			bimboString = Util.inputStreamToString(is);
+			bimboString = SvgUtil.colourReplacement("FETISH_BIMBO", Colour.BASE_PINK, bimboString);
+			is.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		try {
+			InputStream is = Subspecies.class.getClassLoader().getResourceAsStream("com/lilithsthrone/res/fetishes/fetish_bro.svg");
+			broString = Util.inputStreamToString(is);
+			broString = SvgUtil.colourReplacement("FETISH_BRO", Colour.BASE_BLUE, broString);
+			is.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	private Fetish(
 			int renderingPriority,
 			String name,
 			String shortDescriptor,
 			String pathName,
-			int experienceGainFromSexAction,
+			FetishExperience experienceGainFromSexAction,
 			Colour colourShade,
 			HashMap<Attribute, Integer> attributeModifiers,
 			List<String> extraEffects,
@@ -1437,7 +1586,7 @@ public enum Fetish {
 		this.renderingPriority = renderingPriority;
 		this.name = name;
 		this.shortDescriptor = shortDescriptor;
-		this.experienceGainFromSexAction = experienceGainFromSexAction;
+		this.experienceGainFromSexAction = experienceGainFromSexAction.getExperience();
 		
 		this.attributeModifiers = attributeModifiers;
 
@@ -1449,37 +1598,29 @@ public enum Fetish {
 			this.fetishesForAutomaticUnlock = fetishesForAutomaticUnlock;
 		}
 		
-		try {
-			InputStream is = this.getClass().getResourceAsStream("/com/lilithsthrone/res/fetishes/" + pathName + ".svg");
-			if(is==null) {
-				System.err.println("Error! Fetish icon file does not exist (Trying to read from '"+pathName+"')!");
+		if(pathName!=null) {
+			try {
+				InputStream is = this.getClass().getResourceAsStream("/com/lilithsthrone/res/fetishes/" + pathName + ".svg");
+				if(is==null) {
+					System.err.println("Error! Fetish icon file does not exist (Trying to read from '"+pathName+"')!");
+				}
+				SVGString = Util.inputStreamToString(is);
+				SVGString = SvgUtil.colourReplacement(this.toString(), colourShade, SVGString);
+				is.close();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-			SVGString = Util.inputStreamToString(is);
-
-			SVGString = SVGString.replaceAll("#ff2a2a", colourShade.getShades()[0]);
-			SVGString = SVGString.replaceAll("#ff5555", colourShade.getShades()[1]);
-			SVGString = SVGString.replaceAll("#ff8080", colourShade.getShades()[2]);
-			SVGString = SVGString.replaceAll("#ffaaaa", colourShade.getShades()[3]);
-			SVGString = SVGString.replaceAll("#ffd5d5", colourShade.getShades()[4]);
-
-			is.close();
-
-		} catch (IOException e) {
-			e.printStackTrace();
+		} else {
+			SVGString = "";
 		}
-
+		
 		modifiersList = new ArrayList<>();
 
-		if (attributeModifiers != null) {
+		if(attributeModifiers != null) {
 			for (Entry<Attribute, Integer> e : attributeModifiers.entrySet()) {
 				modifiersList.add("<b>"+(e.getValue() > 0 ? "+" : "") + e.getValue() + "</b> <b style='color: "+ e.getKey().getColour().toWebHexString()+ ";'>"+ Util.capitaliseSentence(e.getKey().getAbbreviatedName())+ "</b>");
 			}
 		}
-		
-		if (extraEffects != null) {
-			modifiersList.addAll(extraEffects);
-		}
-//		modifiersList.add("[style.boldBad(Locks)] desire to <b style='color:"+FetishDesire.FOUR_LOVE.getColour().toWebHexString()+";'>"+FetishDesire.FOUR_LOVE.getName()+"</b>");
 	}
 	
 	public List<Fetish> getFetishesForAutomaticUnlock() {
@@ -1501,7 +1642,7 @@ public enum Fetish {
 		return name;
 	}
 	
-	public String getShortDescriptor() {
+	public String getShortDescriptor(GameCharacter target) {
 		return shortDescriptor;
 	}
 
@@ -1534,14 +1675,11 @@ public enum Fetish {
 	}
 
 	public List<String> getModifiersAsStringList(GameCharacter owner) {
-//		List<String> modListWithArousal = new ArrayList<>(modifiersList);
-//		float arousalIncreaseOwner = owner.getFetishLevel(this).getBonusArousalIncrease();
-//		float arousalIncreasePartner = owner.getFetishLevel(this).getBonusArousalIncreasePartner();
-//		
-//		modListWithArousal.add("<b>"+(arousalIncreaseOwner >= 0 ? "+" : "") + arousalIncreaseOwner + "</b> <b style='color: "+ Attribute.AROUSAL.getColour().toWebHexString()+ ";'> Self-"+ Attribute.AROUSAL.getAbbreviatedName()+ "</b>");
-//		modListWithArousal.add("<b>"+(arousalIncreasePartner >= 0 ? "+" : "") + arousalIncreasePartner + "</b> <b style='color: "+ Attribute.AROUSAL.getColour().toWebHexString()+ ";'> Partner "+ Attribute.AROUSAL.getAbbreviatedName()+ "</b>");
-		
-		return modifiersList;
+		List<String> modList = new ArrayList<>(modifiersList);
+		if(getExtraEffects(owner) != null) {
+			modList.addAll(getExtraEffects(owner));
+		}
+		return modList;
 	}
 
 	public HashMap<Attribute, Integer> getAttributeModifiers() {
@@ -1572,11 +1710,11 @@ public enum Fetish {
 		return renderingPriority;
 	}
 
-	public List<String> getExtraEffects() {
+	public List<String> getExtraEffects(GameCharacter owner) {
 		return extraEffects;
 	}
 
-	public String getSVGString() {
+	public String getSVGString(GameCharacter owner) {
 		return SVGString;
 	}
 	

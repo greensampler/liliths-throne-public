@@ -3,31 +3,30 @@ package com.lilithsthrone.game.sex.managers.dominion.zaranix;
 import java.util.Map;
 
 import com.lilithsthrone.game.character.GameCharacter;
-import com.lilithsthrone.game.sex.SexPositionType;
-import com.lilithsthrone.game.sex.Sex;
-import com.lilithsthrone.game.sex.SexPositionSlot;
 import com.lilithsthrone.game.sex.managers.SexManagerDefault;
+import com.lilithsthrone.game.sex.positions.SexPosition;
+import com.lilithsthrone.game.sex.positions.slots.SexSlot;
 
 /**
  * @since 0.1.95
- * @version 0.1.97
+ * @version 0.3.4
  * @author Innoxia
  */
 public class SMAmberDoggyFucked extends SexManagerDefault {
 
-	public SMAmberDoggyFucked(Map<GameCharacter, SexPositionSlot> dominants, Map<GameCharacter, SexPositionSlot> submissives) {
-		super(SexPositionType.DOGGY_AMBER,
+	public SMAmberDoggyFucked(Map<GameCharacter, SexSlot> dominants, Map<GameCharacter, SexSlot> submissives) {
+		super(SexPosition.ALL_FOURS,
 				dominants,
 				submissives);
 	}
 	
 	@Override
-	public boolean isPlayerAbleToSwapPositions() {
+	public boolean isSwapPositionAllowed(GameCharacter character, GameCharacter target) {
 		return false;
 	}
-
-	@Override
-	public boolean isPartnerWantingToStopSex() {
-		return Sex.getNumberOfOrgasms(Sex.getActivePartner())>0;
-	}
+	
+//	@Override
+//	public boolean isPositionChangingAllowed(GameCharacter character) {
+//		return false;
+//	}
 }

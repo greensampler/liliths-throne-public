@@ -1,10 +1,11 @@
 package com.lilithsthrone.game.character.effects;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import com.lilithsthrone.game.character.CharacterUtils;
 import com.lilithsthrone.game.character.body.types.FluidType;
@@ -12,36 +13,36 @@ import com.lilithsthrone.utils.XMLSaving;
 
 /**
  * @since 0.2.0
- * @version 0.2.0
+ * @version 0.3.1
  * @author Innoxia
  */
 public class Addiction implements XMLSaving {
 
 	private FluidType fluid;
 	private long lastTimeSatisfied;
-	private List<String> providerIDs;
+	private Set<String> providerIDs;
 	
 	public Addiction(FluidType fluid, long lastTimeSatisfied) {
 		this.fluid = fluid;
 		this.lastTimeSatisfied = lastTimeSatisfied;
-		this.providerIDs = new ArrayList<>();
+		this.providerIDs = new HashSet<>();
 	}
 	
 	public Addiction(FluidType fluid, long lastTimeSatisfied, String providerID) {
 		this.fluid = fluid;
 		this.lastTimeSatisfied = lastTimeSatisfied;
-		this.providerIDs = new ArrayList<>();
+		this.providerIDs = new HashSet<>();
 		this.providerIDs.add(providerID);
 	}
 	
-	public Addiction(FluidType fluid, long lastTimeSatisfied, List<String> providerIDs) {
+	public Addiction(FluidType fluid, long lastTimeSatisfied, Set<String> providerIDs) {
 		this.fluid = fluid;
 		this.lastTimeSatisfied = lastTimeSatisfied;
 		this.providerIDs = providerIDs;
 	}
 
 	@Override
-	public boolean equals (Object o) {
+	public boolean equals(Object o) {
 		if(super.equals(o)) {
 			return (o instanceof Addiction)
 					&& ((Addiction)o).getFluid().equals(this.getFluid())
@@ -54,7 +55,7 @@ public class Addiction implements XMLSaving {
 	
 	@Override
 	public int hashCode() {
-		int result = super.hashCode();
+		int result = 17;
 		result = 31 * result + this.getFluid().hashCode();
 		result = 31 * result + (int)this.getLastTimeSatisfied();
 		result = 31 * result + this.getProviderIDs().hashCode();
@@ -81,15 +82,13 @@ public class Addiction implements XMLSaving {
 	}
 
 	public static Addiction loadFromXML(StringBuilder log, Element parentElement, Document doc) {
-		
-		List<String> IDs = new ArrayList<>();
-		Element element = (Element)parentElement.getElementsByTagName("providerIDs").item(0);
-		for(int i=0; i<element.getElementsByTagName("id").getLength(); i++){
-			Element e = ((Element)element.getElementsByTagName("id").item(i));
-			IDs.add(e.getAttribute("value"));
+		Set<String> IDs = new HashSet<>();
+		NodeList idList = ((Element)parentElement.getElementsByTagName("providerIDs").item(0)).getElementsByTagName("id");
+		for(int i = 0; i < idList.getLength(); i++){
+			IDs.add(((Element)idList.item(i)).getAttribute("value"));
 		}
 		
-		return new Addiction(FluidType.valueOf(parentElement.getAttribute("fluid")),
+		return new Addiction(FluidType.getTypeFromString(parentElement.getAttribute("fluid")),
 				Long.valueOf(parentElement.getAttribute("lastTimeSatisfied")),
 				IDs);
 	}
@@ -110,7 +109,7 @@ public class Addiction implements XMLSaving {
 		this.lastTimeSatisfied = lastTimeSatisfied;
 	}
 	
-	public List<String> getProviderIDs() {
+	public Set<String> getProviderIDs() {
 		return providerIDs;
 	}
 	

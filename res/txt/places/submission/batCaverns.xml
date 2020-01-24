@@ -3,11 +3,10 @@
 
 	<htmlContent tag="STAIRCASE"><![CDATA[
 	<p>
-		This area of the bat caverns is home to the staircase that leads back up to Submission.
-		 Apart from that notable feature, the rest of this area lacks any significant landmark.
+		This area of the bat caverns is home to the staircase that leads back up to Submission. A wooden sign next to the staircase warns any traveller against consuming the mushrooms found in certain parts of the caverns. A picture of some glowing blue mushrooms is displayed next to this warning, and beneath that, there's some information that identifies this particular fungi to be an exception. Apparently, it's the only edible type of mushroom that grows down here, and is highly sought-after by the slimes which inhabit these caverns. Apparently, eating these mushrooms has caused the slimes down here to glow, and also causes them to experience psychedelic effects, which makes their behaviour highly unpredictable.
 	</p>
 	<p>
-		Looking up towards the top of the staircase, you see the relatively-bright lighting of Submission's tunnels shining down to illuminate the top dozen or so steps.
+		Looking up towards the top of the staircase, you see the relatively bright lighting of Submission's tunnels shining down to illuminate the top dozen or so steps.
 		 Perhaps because of that ever-present source of light, this area seems entirely deserted...
 	</p>
 	]]>
@@ -15,7 +14,7 @@
 	
 	<htmlContent tag="CAVERN_DARK"><![CDATA[
 	<p>
-		The thick, inky blackness of the bat caverns is kept at bay by the softly glowing moss beneath your feet. With every step, a new pool of the low light blooms outward as the previous one fades, allowing you to see out to roughly fifteen metres all around you. Above your head, the cavern's roof is so high that all you can see is a blanket of completely-impenetrable darkness. Occasionally you think you hear a sound, a high-pitched keening, from somewhere up there, but you try not to think too hard about it.
+		The oppressive, inky blackness of the bat caverns is kept at bay by the softly glowing moss beneath your feet. With every step, a new pool of the low light blooms outward as the previous one fades, allowing you to see out to roughly [unit.lSizes(1500)] all around you. Above your head, the cavern's roof is so high that all you can see is a blanket of completely impenetrable darkness. Occasionally you think you hear a sound, a high-pitched keening, from somewhere up there, but you try not to think too hard about it.
 	</p>
 	<p>
 		There's an ever-present dripping sound that echoes from everywhere and nowhere, giving the caverns its own ambient, if unfocused, melody. The air is also surprisingly fresh, clean and cool; not at all what you'd expect from a typical cave. Indeed, the fresh air down here is certainly chilly enough to raise goosebumps on any exposed skin and harden nipples beneath clothing. 
@@ -28,10 +27,10 @@
 	
 	<htmlContent tag="CAVERN_LIGHT"><![CDATA[
 	<p>
-		Compared to the majority of the bat caverns, the area you find yourself standing in is lit up like a beacon. The moss carpet beneath your feet thrives in amongst bioluminescent fungi of all shapes, sizes, and colours, and forms trailing little paths that wind through the area. While some of these mushroom-like plants approach the height of trees, the vast majority are no more than twenty-or-so centimetres tall. Pools of still, shallow water are to be found scattered throughout the floor of this underground forest, and by reflecting the many hues of light from the surrounding flora, they give this place an unearthly, almost ethereal ambiance.
+		Compared to the majority of the bat caverns, the area you find yourself standing in is lit up like a beacon. The moss carpet beneath your feet thrives in amongst bioluminescent fungi of all shapes, sizes, and colours, and forms trailing paths which wind through the area. While some of these mushroom-like plants approach the height of trees, the vast majority are no more than twenty-or-so [unit.sizes] tall. Pools of still, shallow water are to be found scattered throughout the floor of this underground forest, and by reflecting the many hues of light from the surrounding flora, they give this place an unearthly, almost ethereal ambiance.
 	</p>
 	<p>
-		The luminescence given off by the fungi is bright enough to reveal just how colossal these caves are. The tips of stalactites, illuminated by the taller of the tree-sized mushrooms, look to be almost a hundred metres above your head, while the base where they connect to the ceiling, still shrouded in darkness, is significantly higher even than that. Some of the largest of these spires have points of light shining out from them, and you realise that you're looking upon the carved-out windows of bat-morphs' roosts.
+		The luminescence given off by the fungi is bright enough to reveal just how colossal these caves are. The tips of stalactites, illuminated by the taller of the tree-sized mushrooms, look to be almost [unit.lSizes(10000)] above your head, while the base where they connect to the ceiling, still shrouded in darkness, is significantly higher even than that. Some of the largest of these spires have points of light shining out from them, and you realise that you're looking upon the carved-out windows of bat-morphs' roosts.
 	</p>
 	<p>
 		Just like the dark parts of the caverns, there's an ever-present dripping sound that echoes from everywhere and nowhere, producing an ambient, if unfocused, melody. The air is also surprisingly fresh, clean and cool; not at all what you'd expect from a typical cave. Indeed, the fresh air down here is certainly chilly enough to raise goosebumps on any exposed skin and harden nipples beneath clothing. 
@@ -70,7 +69,7 @@
 		A slow-moving underground river carves its way through the bat caverns, and it's beside this body of water that you find yourself travelling. While the river's surface is illuminated by the bioluminescent lichen, the light is too dim to penetrate the cool, dark depths, and you wonder what sort of creatures, if any, would call such an inhospitable place home.
 	</p>
 	<p>
-		The cavern's roof slopes down before you, and the path that you were walking on suddenly comes to an abrupt halt as it meets a solid wall of stone. The river to your side drops away into a pitch-black abyss, and by the light of the lichen underfoot, you see that a finely-meshed metal grate has been built to save anyone from being swept down into the bottomless depths below.
+		The cavern's roof slopes down before you, and the path that you were walking on suddenly comes to an abrupt halt as it meets a solid wall of stone. The river to your side drops away into a pitch-black abyss, and by the light of the lichen underfoot, you see that a finely meshed metal grate has been built to save anyone from being swept down into the bottomless depths below.
 	</p>
 	<p>
 		With no way forwards, you'll have to turn around and double-back on yourself...
@@ -98,7 +97,7 @@
 	<htmlContent tag="SLIME_LAKE_QUEEN_GUESS"><![CDATA[
 	<p>
 		You have a strong feeling that this is the place where the elusive 'Slime Queen' is hiding. Looking around for a way to cross the wide expanse of water, you soon find a small jetty, which has been built behind several particularly large mushroom-trees in order to try and keep it hidden from passersby. There are several little wooden boats tied up beside it, each one complete with a pair of oars. You suppose that this is how the Queen's visitors travel back and forth from her tower, and wonder if you should use one of these boats to pay her a visit.
-		#IFpc.isAbleToFly#THEN
+		#IFpc.isAbleToFly()#THEN
 		 Then again, you could always just fly over there...
 		#ENDIF
 	</p>
@@ -108,7 +107,7 @@
 	<htmlContent tag="SLIME_LAKE_QUEEN_KNOWLEDGE"><![CDATA[
 	<p>
 		You now know that this is the place where the elusive 'Slime Queen' lives. Walking over to the place where the jetty is concealed, you see that there are several little wooden boats still tied up beside it. You suppose that this is how the Queen's visitors travel back and forth from her tower, and wonder if you should use one of the boats to pay her a visit.
-		#IFpc.isAbleToFly#THEN
+		#IFpc.isAbleToFly()#THEN
 		 Then again, you could always just fly over there...
 		#ENDIF
 	</p>
@@ -165,6 +164,46 @@
 	</p>
 	<p>
 		It only takes a minute or so to reach your destination, and, with a final flap of your wings, you've reached your destination. Smiling to yourself as you think about those poor people who aren't able to fly, you set off to continue on your journey.
+	</p>
+	]]>
+	</htmlContent>
+	
+	<htmlContent tag="FIND_MUSHROOMS_LIGHT"><![CDATA[
+	<p>
+		Although there's no shortage of bioluminescent fungi in this area, you can tell that the vast majority of it is poisonous, and is clearly unsuitable for consumption. As you walk past a particularly large mushroom-tree, however, you see a little cluster of glowing blue mushrooms that look to be quite different from all the rest. Crouching down, you take a look at this peculiar fungi, and, comparing it to the mushrooms on the sign at the entrance to the Bat Caverns, you're certain that these are the ones that are edible.
+	</p>
+	]]>
+	</htmlContent>
+	
+	<htmlContent tag="FIND_MUSHROOMS_DARK"><![CDATA[
+	<p>
+		As you walk through the dark caverns, your footsteps causing the bioluminescent lichen underfoot to illuminate your way, you see a faint glimmer of light on the floor up ahead. Approaching this irregularity, you find that the light source is in fact a small cluster of glowing blue mushrooms. Crouching down, you take a look at this peculiar fungi, and, comparing it to the mushrooms on the sign at the entrance to the Bat Caverns, you're certain that these are the ones that are edible.
+	</p>
+	]]>
+	</htmlContent>
+	
+	<htmlContent tag="FIND_ITEM_LIGHT"><![CDATA[
+	<p>
+		As you travel through the underground mushroom forest, you see a splash of bright purple slime sprayed up the side of a nearby mushroom-tree. First glancing around to check that the slime who left this mark is long gone, you then take a step towards this purple goo in order to investigate further.
+	</p>
+	<p>
+		As you approach, you see that there's a similar patch of glowing slime on the floor at the base of the tree, but unlike the goo splashed up the trunk, this slime is a bright orange. Beside this pool of orange goo, you see that one of the participants of what you assume to have been a sexual encounter has dropped a little package.
+	</p>
+	<p>
+		Opening this package reveals:
+	</p>
+	]]>
+	</htmlContent>
+	
+	<htmlContent tag="FIND_ITEM_DARK"><![CDATA[
+	<p>
+		As you walk through the dark caverns, your footsteps causing the bioluminescent lichen underfoot to illuminate your way, you see a splash of bright pink slime sprayed up the side of the wall up ahead. First glancing around to check that the slime who left this mark is long gone, you then take a step towards this pink goo in order to investigate further.
+	</p>
+	<p>
+		As you approach, you see that there's a similar patch of glowing slime on the floor at the base of the wall, but unlike the goo which first drew your attention, this slime is a bright green. Beside this pool of green goo, you see that one of the participants of what you assume to have been a sexual encounter has dropped a little package.
+	</p>
+	<p>
+		Opening this package reveals:
 	</p>
 	]]>
 	</htmlContent>

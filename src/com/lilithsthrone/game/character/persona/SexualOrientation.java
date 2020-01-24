@@ -1,45 +1,32 @@
 package com.lilithsthrone.game.character.persona;
 
-import com.lilithsthrone.game.character.effects.StatusEffect;
 import com.lilithsthrone.utils.Colour;
 
 /**
  * @since 0.1.79
- * @version 0.1.79
+ * @version 0.3.5
  * @author Innoxia
  */
 public enum SexualOrientation {
+	ANDROPHILIC("androphilic", false, true, Colour.MASCULINE, SexualOrientationPreference.THREE_AVERAGE),
 
-	ANDROPHILIC("androphilic", Colour.MASCULINE) {
-		@Override
-		public StatusEffect getRelatedStatusEffect() {
-			return StatusEffect.AROUSAL_PERK_0;
-		}
-	},
+	AMBIPHILIC("ambiphilic", true, true, Colour.ANDROGYNOUS, SexualOrientationPreference.THREE_AVERAGE),
 
-	GYNEPHILIC("gynephilic",Colour.FEMININE) {
-		@Override
-		public StatusEffect getRelatedStatusEffect() {
-			return StatusEffect.AROUSAL_PERK_1;
-		}
-	},
+	GYNEPHILIC("gynephilic", true, false, Colour.FEMININE, SexualOrientationPreference.THREE_AVERAGE);
 
-	AMBIPHILIC("ambiphilic", Colour.ANDROGYNOUS) {
-		@Override
-		public StatusEffect getRelatedStatusEffect() {
-			return StatusEffect.AROUSAL_PERK_2;
-		}
-	};
-	
 	private String name;
 	private Colour colour;
+	private SexualOrientationPreference orientationPreferenceDefault;
+	private boolean attractedToFeminine;
+	private boolean attractedToMasculine;
 
-	private SexualOrientation(String name, Colour colour) {
+	private SexualOrientation(String name, boolean attractedToFeminine, boolean attractedToMasculine, Colour colour, SexualOrientationPreference orientationPreferenceDefault) {
 		this.name = name;
 		this.colour = colour;
+		this.orientationPreferenceDefault = orientationPreferenceDefault;
+		this.attractedToMasculine = attractedToMasculine;
+		this.attractedToFeminine = attractedToFeminine;
 	}
-	
-	public abstract StatusEffect getRelatedStatusEffect();
 
 	public String getName() {
 		return name;
@@ -48,5 +35,18 @@ public enum SexualOrientation {
 	public Colour getColour() {
 		return colour;
 	}
+	
+	public SexualOrientationPreference getOrientationPreferenceDefault() {
+		return orientationPreferenceDefault;
+	}
+
+	public boolean isAttractedToFeminine() {
+		return attractedToFeminine;
+	}
+
+	public boolean isAttractedToMasculine() {
+		return attractedToMasculine;
+	}
+	
 	
 }

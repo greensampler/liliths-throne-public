@@ -2,7 +2,7 @@ package com.lilithsthrone.game.dialogue;
 
 /**
  * @since 0.1.89
- * @version 0.2.5
+ * @version 0.3.5.5
  * @author Innoxia
  */
 public enum DialogueFlagValue {
@@ -24,6 +24,15 @@ public enum DialogueFlagValue {
 	visitedSubmission,
 	mommyFound,
 	
+	daddyFound,
+	rudeToDaddy,
+	flirtingWithDaddy,
+	talkedWithDaddy,
+	daddySendingReward,
+	
+	playerCaptive,
+	
+	
 	// Gym:
 	gymIntroduced,
 	gymHadTour,
@@ -40,13 +49,33 @@ public enum DialogueFlagValue {
 	nyanIntroduced,
 	kateIntroduced,
 	vickyIntroduced,
+	vanessaIntroduced,
+
+	roxyIntroduced,
+	axelIntroduced,
+	eponaIntroduced,
+	elizabethIntroduced,
+	vengarIntroduced,
+	murkIntroduced,
 	
 	
 	// Red-light district:
 	prostitutionLicenseObtained,
+
+	
+	// City hall:
+	vanessaHelped,
+	vanessaDailyHelped,
+	vanessaDailyMassage,
+	vanessaMassaged,
+	vanessaFucked,
+	vanessaAskedAboutCatalogue,
+	vanessaAskedAboutSolitary,
 	
 	
 	// Shopping arcade:
+	ralphAskedAboutHundredKisses,
+	
 	nyanTalkedTo,
 	nyanComplimented,
 	nyanFlirtedWith,
@@ -64,37 +93,38 @@ public enum DialogueFlagValue {
 	
 	reactedToKatePregnancy,
 	
-	
 	// Lilaya's Home:
 	knowsDate,
 	lilayaDateTalk,
 	auntHomeJustEntered,
 	hadSexWithLilaya,
+	lilayaCondomBroke,
 	reactedToPregnancyLilaya,
 	waitingOnLilayaPregnancyResults,
+	waitingOnLilayaBirthNews,
 	essenceExtractionKnown,
 	roseToldOnYou,
+	lilayaReactedToPlayerAsDemon,
 	
 	readBook1,
 	readBook2,
 	readBook3,
 	readBook4,
 	
-	arthursRoomInstalled,
 	arthursPackageObtained,
 	
 	givenLilayaPresent1,
 	givenLilayaPresent2,
 	givenLilayaPresent3,
 	
-	// Brax:
+	// Enforcer HQ:
 	braxEncountered,
 	accessToEnforcerHQ,
 	braxTransformedPlayer,
-	braxBeaten,
 	seenBraxAfterQuest,
 	feminisedBrax,
 	bimbofiedBrax,
+	candiHarpyTransformation,
 	
 	// Harpy Nests:
 	hasHarpyNestAccess,
@@ -104,10 +134,11 @@ public enum DialogueFlagValue {
 	dominantPacified,
 	nymphoEncountered,
 	nymphoPacified,
-	punishedByAlexa,
+	punishedByHelena,
 	
 	// Slaver Alley:
 	finchIntroduced,
+	statueTruthRevealed,
 	
 	// Zaranix:
 	zaranixDiscoveredHome,
@@ -135,9 +166,132 @@ public enum DialogueFlagValue {
 	slimeGuardsDefeated,
 	slimeRoyalGuardIntroduced,
 	slimeRoyalGuardDefeated,
+	slimeRoyalGuardDefeatReacted,
 	slimeQueenHelped,
 	slimeQueenConvinced,
-	slimeQueenForced
+	slimeQueenForced,
 	
+	// Gambling Den:
+	axelMentionedVengar,
+	axelExplainedVengar,
+	axelToldSubmit,
+	
+	axelSissified,
+	axelFeminised,
+	axelClothingFeminine,
+	axelClothingWhore,
+	axelClothingMaid,
+	
+	roxyAddicted,
+	roxyVengarOwnerIntroduced,
+	playedPregnancyRouletteAsMother,
+	playedPregnancyRouletteAsBreeder,
+	
+	eponaMurkOwnerIntroduced,
+	eponaMurkSubmitted,
+	
+	// Nightlife:
+	julesIntroduced,
+	suckedJulesCock,
+	passedJules,
+	kalahariIntroduced,
+	kalahariWantsSex,
+	krugerIntroduced,
+	
+	// Submission:
+	claireAskedTeleportation,
+	claireWarning,
+	clairePadsInvestigated,
+	claireEnclosureEscaped,
+	claireObtainedLightningGlobe,
+	claireAskedWarehouseEscape,
+	
+	impCitadelEncountered,
+	impCitadelArcanistEncountered,
+	impCitadelArcanistAcceptedTF,
+	impCitadelTreasurySearched,
+	impCitadelLaboratorySearched,
+
+	impCitadelPrisonerMale,
+	impCitadelPrisonerFemale,
+	impCitadelPrisonerAlpha,
+	
+	impFortressAlphaGuardsPacified,
+	impFortressAlphaBossEncountered,
+	impFortressAlphaPacified,
+	impFortressAlphaDefeated,
+	
+	impFortressFemalesGuardsPacified,
+	impFortressFemalesBossEncountered,
+	impFortressFemalesPacified,
+	impFortressFemalesDefeated,
+	
+	impFortressMalesGuardsPacified,
+	impFortressMalesBossEncountered,
+	impFortressMalesPacified,
+	impFortressMalesDefeated,
+	
+	impFortressDemonBossEncountered,
+	impFortressDemonDefeated,
+	impFortressDemonImpsDefeated,
+	
+	elizabethAskedAboutUniforms,
+	elizabethAskedAboutSurname,
+	
+	lyssiethQuestionAsked1,
+	lyssiethQuestionAsked2,
+	lyssiethQuestionAsked3,
+	lyssiethQuestionAsked4,
+	lyssiethQuestionAsked5,
+
+	meraxisRepeatDemonTF,
+	
+	
+	// Rat warrens:
+	
+	ratWarrensEntry,
+	ratWarrensEntryWhore,
+	ratWarrensHostile,
+	ratWarrensEntranceGuardsFight,
+	
+	ratWarrensClearedLeft,
+	ratWarrensClearedCentre,
+	ratWarrensClearedRight,
+	
+	ratWarrensLootedDiceDen,
+	
+	vengarThreatened,
+	vengarPersuaded,
+	vengarSeduced,
+	ratWarrensRaid,
+
+	vengarCaptiveRoomCleaned, // Reset to false every day
+	vengarCaptiveVengarSatisfied, // Reset to false every day
+	vengarCaptiveShadowSatisfied, // Reset to false every day
+	vengarCaptiveSilenceSatisfied, // Reset to false every day
+	vengarCaptiveCompanionGivenBirth, // Reset to false every day
+	vengarCaptiveGangBanged, // Reset to false every day
+	
+	ratWarrensCaptiveAttemptingEscape,
+	ratWarrensCaptiveEscaped,
+	ratWarrensCaptiveTransformationsStarted,
+	
+	ratWarrensCaptiveFeminine,
+	ratWarrensCaptiveFuta,
+	ratWarrensCaptiveMasculine,
+	ratWarrensCaptiveSissy,
+
+	ratWarrensCaptiveFuckedByMurk,
+	ratWarrensCaptiveCompanionFuckedByMurk,
+	
+	ratWarrensCaptiveMilkingStarted,
+	ratWarrensCaptiveMilkingStartedCompanion,
+
+	ratWarrensCaptiveCalledOut, // Reset to false when sleep
+	
+	ratWarrensCaptiveCompanionGivenBirth, // Reset to false every day
+	ratWarrensCaptiveOwnerSex, // Reset to false every day
+	ratWarrensCaptiveOwnerCompanionSex, // Reset to false every day
+	ratWarrensCaptiveDailyTransformed // Reset to false every day
 	;
 }

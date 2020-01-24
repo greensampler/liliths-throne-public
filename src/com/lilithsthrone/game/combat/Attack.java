@@ -12,7 +12,7 @@ import com.lilithsthrone.utils.Util;
 
 /**
  * @since 0.1.0
- * @version 0.2.4
+ * @version 0.3.4
  * @author Innoxia
  */
 public enum Attack {
@@ -50,30 +50,15 @@ public enum Attack {
 	public static float getHitChance(GameCharacter attacker, GameCharacter defender) {
 
 		// Calculate hit:
-		float chanceToHit = (100 - Util.getModifiedDropoffValue(attacker.getAttributeValue(Attribute.MISS_CHANCE), 100))/100f;
+		float chanceToHit = 1;//(100 - Util.getModifiedDropoffValue(attacker.getAttributeValue(Attribute.MISS_CHANCE), 100))/100f;
 		
-		chanceToHit *= (1 - (Util.getModifiedDropoffValue(defender.getAttributeValue(Attribute.DODGE_CHANCE), 100)/100f));
+//		chanceToHit *= (1 - (Util.getModifiedDropoffValue(defender.getAttributeValue(Attribute.DODGE_CHANCE), 100)/100f));
 		
 		return chanceToHit > 1 ? 1 : (chanceToHit < 0 ? 0 : chanceToHit);
 	}
 	
 	public static boolean rollForHit(GameCharacter attacker, GameCharacter defender) {
 		return Math.random() < getHitChance(attacker, defender);
-	}
-
-	public static boolean rollForCritical(GameCharacter attacker, GameCharacter defender) {
-		return rollForCritical(attacker, defender, null);
-	}
-	
-	
-	public static boolean rollForCritical(GameCharacter attacker, GameCharacter defender, Spell spell) {
-		float criticalChance = attacker.getAttributeValue(Attribute.CRITICAL_CHANCE);
-		
-		if(spell == Spell.ICE_SHARD && attacker.hasSpellUpgrade(SpellUpgrade.ICE_SHARD_2) && defender.hasStatusEffect(StatusEffect.FREEZING_FOG)) {
-			criticalChance += 25;
-		}
-		
-		return Math.random() < (Util.getModifiedDropoffValue(criticalChance, 100)/100f);
 	}
 
 	/**
@@ -85,7 +70,7 @@ public enum Attack {
 			return 0;
 		}
 		if (weapon == null) {
-			return 1 + (int)(attacker.getAttributeValue(Attribute.MAJOR_PHYSIQUE)/10);
+			return attacker.getUnarmedDamage();
 		} else {
 			return weapon.getWeaponType().getDamage();
 		}
@@ -101,41 +86,57 @@ public enum Attack {
 		}
 		return 10;
 	}
-
-	public static float calculateDamage(GameCharacter attacker, GameCharacter defender, Attack attackType, boolean critical) {
-
-		float damage = getMinimumDamage(attacker, defender, attackType);
-
-		// Add variation:
-		if (getMaximumDamage(attacker, defender, attackType) - getMinimumDamage(attacker, defender, attackType) > 0) {
-			float difference = getMaximumDamage(attacker, defender, attackType) - getMinimumDamage(attacker, defender, attackType);
-			
-			damage += Math.random()*difference;
-		}
-
+	
+	public static int calculateSeductionDamage(GameCharacter attacker, GameCharacter defender, int baseDamage, boolean critical) {
+		float damage = getModifiedDamage(attacker, defender, Attack.SEDUCTION, null, DamageType.LUST, baseDamage);
+		
 		// Is critical:
 		if (critical) {
 			damage *= (attacker.getAttributeValue(Attribute.CRITICAL_DAMAGE) / 100f);
 		}
 		
-		if(attacker.isPlayer()||Main.game.getPlayer().hasCompanion(attacker)) {
+		if(attacker.isPlayer()||(attacker.getPartyLeader()!=null && attacker.getPartyLeader().isPlayer())) {
+			damage *= Main.getProperties().difficultyLevel.getDamageModifierPlayer();
+		} else {
+			damage *= Main.getProperties().difficultyLevel.getDamageModifierNPC();
+		}
+
+		return Math.round(damage);
+	}
+	
+	public static int calculateDamage(GameCharacter attacker, GameCharacter defender, Attack attackType, AbstractWeapon weapon, boolean critical) {
+		float damage = getMinimumDamage(attacker, defender, attackType, weapon);
+
+		// Add variation:
+		if (getMaximumDamage(attacker, defender, attackType, weapon) - getMinimumDamage(attacker, defender, attackType, weapon) > 0) {
+			float difference = getMaximumDamage(attacker, defender, attackType, weapon) - getMinimumDamage(attacker, defender, attackType, weapon);
+			
+			damage += Math.random()*difference;
+		}
+
+		return applyFinalDamageModifiers(attacker, defender, damage, critical);
+	}
+	
+	public static int applyFinalDamageModifiers(GameCharacter attacker, GameCharacter defender, float damage, boolean critical) {
+		// Is critical:
+		if (critical) {
+			damage *= (attacker.getAttributeValue(Attribute.CRITICAL_DAMAGE) / 100f);
+		}
+		
+		if(attacker.isPlayer() || (attacker.getPartyLeader()!=null && attacker.getPartyLeader().isPlayer())) {
 			damage *= Main.getProperties().difficultyLevel.getDamageModifierPlayer();
 		} else {
 			damage *= Main.getProperties().difficultyLevel.getDamageModifierNPC();
 		}
 		
-		// Round float value to nearest 1 decimal place:
-		damage = (Math.round(damage*10))/10f;
-
 		if(attacker.hasTrait(Perk.JOB_SOLDIER, true) && Main.game.isInCombat() && Combat.getTurn()==0) {
-			return 2 * damage;
+			return 2 * Math.round(damage);
 		} else {
-			return damage;
+			return Math.round(damage);
 		}
 	}
 	
-	public static float calculateSpellDamage(GameCharacter attacker, GameCharacter defender, DamageType damageType, float damage, DamageVariance damageVariance, boolean critical) {
-
+	public static int calculateSpellDamage(GameCharacter attacker, GameCharacter defender, DamageType damageType, float damage, DamageVariance damageVariance, boolean critical) {
 		float minimumDamage = getMinimumSpellDamage(attacker, defender, damageType, damage, damageVariance);
 		float maximumDamage = getMaximumSpellDamage(attacker, defender, damageType, damage, damageVariance);
 
@@ -152,24 +153,20 @@ public enum Attack {
 			finalDamage *= (attacker.getAttributeValue(Attribute.CRITICAL_DAMAGE) / 100f);
 		}
 		
-		if(attacker.isPlayer()||Main.game.getPlayer().hasCompanion(attacker)) {
+		if(attacker.isPlayer()||(attacker.getPartyLeader()!=null && attacker.getPartyLeader().isPlayer())) {
 			finalDamage *= Main.getProperties().difficultyLevel.getDamageModifierPlayer();
 		} else {
 			finalDamage *= Main.getProperties().difficultyLevel.getDamageModifierNPC();
 		}
 		
-		// Round float value to nearest 1 decimal place:
-		finalDamage = (Math.round(finalDamage*10))/10f;
-		
 		if(attacker.hasTrait(Perk.JOB_SOLDIER, true) && Main.game.isInCombat() && Combat.getTurn()==0) {
-			return 2 * finalDamage;
+			return 2 * Math.round(finalDamage);
 		} else {
-			return finalDamage;
+			return Math.round(finalDamage);
 		}
 	}
 	
-	public static float calculateSpecialAttackDamage(GameCharacter attacker, GameCharacter defender, DamageType damageType, float damage, DamageVariance damageVariance, boolean critical) {
-
+	public static int calculateSpecialAttackDamage(GameCharacter attacker, GameCharacter defender, DamageType damageType, float damage, DamageVariance damageVariance, boolean critical) {
 		float minimumDamage = getMinimumSpecialAttackDamage(attacker, defender, damageType, damage, damageVariance);
 		float maximumDamage = getMaximumSpecialAttackDamage(attacker, defender, damageType, damage, damageVariance);
 
@@ -186,19 +183,16 @@ public enum Attack {
 			finalDamage *= (attacker.getAttributeValue(Attribute.CRITICAL_DAMAGE) / 100f);
 		}
 		
-		if(attacker.isPlayer()||Main.game.getPlayer().hasCompanion(attacker)) {
+		if(attacker.isPlayer()||(attacker.getPartyLeader()!=null && attacker.getPartyLeader().isPlayer())) {
 			finalDamage *= Main.getProperties().difficultyLevel.getDamageModifierPlayer();
 		} else {
 			finalDamage *= Main.getProperties().difficultyLevel.getDamageModifierNPC();
 		}
-
-		// Round float value to nearest 1 decimal place:
-		finalDamage = (Math.round(finalDamage*10))/10f;
-
+		
 		if(attacker.hasTrait(Perk.JOB_SOLDIER, true) && Main.game.isInCombat() && Combat.getTurn()==0) {
-			return 2 * finalDamage;
+			return 2 * Math.round(finalDamage);
 		} else {
-			return finalDamage;
+			return Math.round(finalDamage);
 		}
 	}
 
@@ -213,62 +207,31 @@ public enum Attack {
 	 *            The defending character.
 	 * @param attackType
 	 *            Type of this attack.
+	 * @param weapon
+	 *            The weapon being used. Pass in null if this attack type is not MAIN or OFFHAND.
 	 * @return Minimum damage possible for this attack.
 	 */
-
-	public static float getMinimumDamage(GameCharacter attacker, GameCharacter defender, Attack attackType) {
-		return getMinimumDamage(attacker, defender, attackType, (attackType == MAIN ? attacker.getMainWeapon() : attackType == OFFHAND ? attacker.getOffhandWeapon() : null));
-	}
-	public static float getMinimumDamage(GameCharacter attacker, GameCharacter defender, Attack attackType, AbstractWeapon weapon) {
-		
+	public static int getMinimumDamage(GameCharacter attacker, GameCharacter defender, Attack attackType, AbstractWeapon weapon) {
 		float damage = 0;
 		
-		if (attackType == MAIN) {
+		if (attackType == MAIN
+				|| attackType == OFFHAND) {
 			damage = getModifiedDamage(attacker,
 					defender,
 					attackType,
+					weapon,
 					(weapon == null
 						? attacker.getBodyMaterial().getUnarmedDamageType()
 						: weapon.getDamageType()),
 					getMeleeDamage(attacker, weapon) * (weapon == null
-																? 1 - DamageVariance.MEDIUM.getPercentage()
+																? 1f - DamageVariance.MEDIUM.getPercentage()
 																: 1f - weapon.getWeaponType().getDamageVariance().getPercentage()));
 			
-			if(weapon==null) {
-				damage *= 1 + Util.getModifiedDropoffValue(attacker.getAttributeValue(Attribute.DAMAGE_UNARMED), 100)/100f;
-			} else {
-				if(weapon.getWeaponType().isMelee()) {
-					damage *= 1 + Util.getModifiedDropoffValue(attacker.getAttributeValue(Attribute.DAMAGE_MELEE_WEAPON), 100)/100f;
-				} else {
-					damage *= 1 + Util.getModifiedDropoffValue(attacker.getAttributeValue(Attribute.DAMAGE_RANGED_WEAPON), 100)/100f;
-				}
-			}
-			
-		} else if (attackType == OFFHAND) {
-			damage = getModifiedDamage(attacker, defender, attackType,
-						(weapon == null
-							? attacker.getBodyMaterial().getUnarmedDamageType()
-							: weapon.getDamageType()),
-					getMeleeDamage(attacker, weapon) * (weapon == null ? 1 - DamageVariance.MEDIUM.getPercentage() : 1f - weapon.getWeaponType().getDamageVariance().getPercentage()));
-
-			if(weapon==null) {
-				damage *= 1 + Util.getModifiedDropoffValue(attacker.getAttributeValue(Attribute.DAMAGE_UNARMED), 100)/100f;
-			} else {
-				if(weapon.getWeaponType().isMelee()) {
-					damage *= 1 + Util.getModifiedDropoffValue(attacker.getAttributeValue(Attribute.DAMAGE_MELEE_WEAPON), 100)/100f;
-				} else {
-					damage *= 1 + Util.getModifiedDropoffValue(attacker.getAttributeValue(Attribute.DAMAGE_RANGED_WEAPON), 100)/100f;
-				}
-			}
-			
 		} else {
-			damage = (getModifiedDamage(attacker, defender, attackType, DamageType.LUST, getSeductionDamage(attacker) * 0.9f));
+			damage = (getModifiedDamage(attacker, defender, attackType, weapon, DamageType.LUST, getSeductionDamage(attacker) * 0.9f)); // TODO why is it 90%?
 		}
 		
-		// Round float value to nearest 1 decimal place:
-		damage = (Math.round(damage*10))/10f;
-		
-		return damage;
+		return Math.round(damage);
 	}
 
 	/**
@@ -282,55 +245,28 @@ public enum Attack {
 	 *            The defending character.
 	 * @param attackType
 	 *            Type of this attack.
+	 * @param weapon
+	 *            The weapon being used. Pass in null if this attack type is not MAIN or OFFHAND.
 	 * @return Minimum damage possible for this attack.
 	 */
-	public static float getMaximumDamage(GameCharacter attacker, GameCharacter defender, Attack attackType) {
-		return getMaximumDamage(attacker, defender, attackType, (attackType == MAIN ? attacker.getMainWeapon() : attackType == OFFHAND ? attacker.getOffhandWeapon() : null));
-	}
-	public static float getMaximumDamage(GameCharacter attacker, GameCharacter defender, Attack attackType, AbstractWeapon weapon) {
+	public static int getMaximumDamage(GameCharacter attacker, GameCharacter defender, Attack attackType, AbstractWeapon weapon) {
 
 		float damage = 0;
 		
-		if (attackType == MAIN) {
-			damage = (getModifiedDamage(attacker, defender, attackType, (weapon == null ? attacker.getBodyMaterial().getUnarmedDamageType() : weapon.getDamageType()),
-					getMeleeDamage(attacker, weapon) * (weapon == null ? 1 + DamageVariance.MEDIUM.getPercentage() : 1f + weapon.getWeaponType().getDamageVariance().getPercentage())));
-
-			if(weapon==null) {
-				damage *= 1 + Util.getModifiedDropoffValue(attacker.getAttributeValue(Attribute.DAMAGE_UNARMED), 100)/100f;
-			} else {
-				if(weapon.getWeaponType().isMelee()) {
-					damage *= 1 + Util.getModifiedDropoffValue(attacker.getAttributeValue(Attribute.DAMAGE_MELEE_WEAPON), 100)/100f;
-				} else {
-					damage *= 1 + Util.getModifiedDropoffValue(attacker.getAttributeValue(Attribute.DAMAGE_RANGED_WEAPON), 100)/100f;
-				}
-			}
-			
-		}  else if (attackType == OFFHAND) {
-			damage = getModifiedDamage(attacker, defender, attackType, (weapon == null ? attacker.getBodyMaterial().getUnarmedDamageType() : weapon.getDamageType()),
-					getMeleeDamage(attacker, weapon) * (weapon == null ? 1 + DamageVariance.MEDIUM.getPercentage() : 1f + weapon.getWeaponType().getDamageVariance().getPercentage()));
-	
-			if(weapon==null) {
-				damage *= 1 + Util.getModifiedDropoffValue(attacker.getAttributeValue(Attribute.DAMAGE_UNARMED), 100)/100f;
-			} else {
-				if(weapon.getWeaponType().isMelee()) {
-					damage *= 1 + Util.getModifiedDropoffValue(attacker.getAttributeValue(Attribute.DAMAGE_MELEE_WEAPON), 100)/100f;
-				} else {
-					damage *= 1 + Util.getModifiedDropoffValue(attacker.getAttributeValue(Attribute.DAMAGE_RANGED_WEAPON), 100)/100f;
-				}
-			}
+		if (attackType == MAIN
+				|| attackType == OFFHAND) {
+			damage = getModifiedDamage(attacker, defender, attackType, weapon, (weapon == null ? attacker.getBodyMaterial().getUnarmedDamageType() : weapon.getDamageType()),
+					getMeleeDamage(attacker, weapon) * (weapon == null ? 1f + DamageVariance.MEDIUM.getPercentage() : 1f + weapon.getWeaponType().getDamageVariance().getPercentage()));
 			
 		} else {
-			damage = (getModifiedDamage(attacker, defender, attackType, DamageType.LUST, getSeductionDamage(attacker) * 1.1f));
+			damage = (getModifiedDamage(attacker, defender, attackType, weapon, DamageType.LUST, getSeductionDamage(attacker) * 1.1f));
 		}
 
-		// Round float value to nearest 1 decimal place:
-		damage = (Math.round(damage*10))/10f;
-		
-		return damage;
+		return Math.round(damage);
 	}
 
 	public static float getMinimumSpellDamage(GameCharacter attacker, GameCharacter defender, DamageType damageType, float damage, DamageVariance damageVariance) {
-		float minDamage = getModifiedDamage(attacker, defender, Attack.SPELL, damageType, damage * (1 - damageVariance.getPercentage()));
+		float minDamage = getModifiedDamage(attacker, defender, Attack.SPELL, null, damageType, damage * (1 - damageVariance.getPercentage()));
 
 		// Round float value to nearest 1 decimal place:
 		minDamage = (Math.round(minDamage*10))/10f;
@@ -338,7 +274,7 @@ public enum Attack {
 		return minDamage;
 	}
 	public static float getMaximumSpellDamage(GameCharacter caster, GameCharacter target, DamageType damageType, float damage, DamageVariance damageVariance) {
-		float maxDamage = getModifiedDamage(caster, target, Attack.SPELL, damageType, damage * (1 + damageVariance.getPercentage()));
+		float maxDamage = getModifiedDamage(caster, target, Attack.SPELL, null, damageType, damage * (1 + damageVariance.getPercentage()));
 
 		// Round float value to nearest 1 decimal place:
 		maxDamage = (Math.round(maxDamage*10))/10f;
@@ -347,7 +283,7 @@ public enum Attack {
 	}
 	
 	public static float getMinimumSpecialAttackDamage(GameCharacter attacker, GameCharacter defender, DamageType damageType, float damage, DamageVariance damageVariance) {
-		float minDamage = getModifiedDamage(attacker, defender, Attack.SPECIAL_ATTACK, damageType, damage * (1 - damageVariance.getPercentage()));
+		float minDamage = getModifiedDamage(attacker, defender, Attack.SPECIAL_ATTACK, null, damageType, damage * (1 - damageVariance.getPercentage()));
 
 		// Round float value to nearest 1 decimal place:
 		minDamage = (Math.round(minDamage*10))/10f;
@@ -357,7 +293,7 @@ public enum Attack {
 		return minDamage;
 	}
 	public static float getMaximumSpecialAttackDamage(GameCharacter caster, GameCharacter target, DamageType damageType, float damage, DamageVariance damageVariance) {
-		float maxDamage = getModifiedDamage(caster, target, Attack.SPECIAL_ATTACK, damageType, damage * (1 + damageVariance.getPercentage()));
+		float maxDamage = getModifiedDamage(caster, target, Attack.SPECIAL_ATTACK, null, damageType, damage * (1 + damageVariance.getPercentage()));
 
 		// Round float value to nearest 1 decimal place:
 		maxDamage = (Math.round(maxDamage*10))/10f;
@@ -368,7 +304,7 @@ public enum Attack {
 	}
 	
 	/**
-	 * Applies attacker and defender resistances and bonuses to the supplied attack value, then returns the result.
+	 * Applies attacker bonuses to the supplied attack value, then returns the result.
 	 * 
 	 * 
 	 * @param attacker
@@ -379,8 +315,8 @@ public enum Attack {
 	 *            Type of this attack.
 	 * @return Modified damage value.
 	 */
-	private static float getModifiedDamage(GameCharacter attacker, GameCharacter defender, Attack attackType, DamageType damageType, float attackersDamage) {
-		float damage = attackersDamage;
+	public static float getModifiedDamage(GameCharacter attacker, GameCharacter defender, Attack attackType, AbstractWeapon weapon, DamageType damageType, float attackersDamage) {
+		float damage = 0;
 		boolean damageDoubledFromElemental = false;
 		
 		if(defender!=null && defender.isImmuneToDamageType(damageType)) {
@@ -413,63 +349,64 @@ public enum Attack {
 		}
 		
 		if (attackType == MAIN || attackType == OFFHAND || attackType == SPECIAL_ATTACK) {
-			
 			if(damageDoubledFromElemental) {
-				damage*=2;
+				damage += attackersDamage*2;
+			} else {
+				damage += attackersDamage;
 			}
 			
-			if (attacker != null) {
-				// Attacker modifiers:
-				// Damage Type modifier:
-				damage *= 1 + Util.getModifiedDropoffValue(attacker.getAttributeValue(damageType.getMultiplierAttribute()), 100)/100f;
-
+			if (attacker != null) { // Attacker modifiers:
+				damage += attackersDamage * (Util.getModifiedDropoffValue(attacker.getAttributeValue(damageType.getMultiplierAttribute()), 100)/100f);
+				
+				if(weapon!=null) {
+					if(weapon.getWeaponType().isMelee()) {
+						damage += attackersDamage * (Util.getModifiedDropoffValue(attacker.getAttributeValue(Attribute.DAMAGE_MELEE_WEAPON), 100)/100f);
+					} else {
+						damage += attackersDamage * (Util.getModifiedDropoffValue(attacker.getAttributeValue(Attribute.DAMAGE_RANGED_WEAPON), 100)/100f);
+					}
+				} else {
+					damage += attackersDamage * (Util.getModifiedDropoffValue(attacker.getAttributeValue(Attribute.DAMAGE_UNARMED), 100)/100f);
+				}
+				
 				if (damage < 1) {
 					damage = 1;
 				}
 			}
 
-			if (defender != null && !defender.hasStatusEffect(StatusEffect.DESPERATE_FOR_SEX)) {
-				// Defender modifiers:
-				// Damage Type modifier:
-				damage *= 1 - Util.getModifiedDropoffValue(defender.getAttributeValue(damageType.getResistAttribute()), 100)/100f;
-
-				if (damage < 1) {
-					damage = 1;
-				}
-			}
+//			if (defender != null && !defender.hasStatusEffect(StatusEffect.DESPERATE_FOR_SEX)) { // Defender modifiers:
+//				damage *= 1 - Util.getModifiedDropoffValue(defender.getAttributeValue(damageType.getResistAttribute()), 100)/100f;
+//				
+//				if (damage < 1) {
+//					damage = 1;
+//				}
+//			}
 			
 		} else if(attackType == SPELL) {
-			
 			if(damageDoubledFromElemental) {
-				damage*=2;
+				damage += attackersDamage*2;
+			} else {
+				damage += attackersDamage;
 			}
 			
-			if (attacker != null) {
-				// Attacker modifiers:
-				damage *= 1 + Util.getModifiedDropoffValue(attacker.getAttributeValue(Attribute.DAMAGE_SPELLS), 100)/100f;
-
-				damage *= 1 + Util.getModifiedDropoffValue(attacker.getAttributeValue(damageType.getMultiplierAttribute()), 100)/100f;
+			if (attacker != null) { // Attacker modifiers:
+				damage += attackersDamage * (Util.getModifiedDropoffValue(attacker.getAttributeValue(Attribute.DAMAGE_SPELLS), 100)/100f);
+				damage += attackersDamage * (Util.getModifiedDropoffValue(attacker.getAttributeValue(damageType.getMultiplierAttribute()), 100)/100f);
 			}
 
-			if (defender != null && !defender.hasStatusEffect(StatusEffect.DESPERATE_FOR_SEX)) {
-				// Defender modifiers:
-				damage *= 1 - Util.getModifiedDropoffValue(defender.getAttributeValue(damageType.getResistAttribute()), 100)/100f;
-				
-			}
+//			if (defender != null && !defender.hasStatusEffect(StatusEffect.DESPERATE_FOR_SEX)) {
+//				damage *= 1 - Util.getModifiedDropoffValue(defender.getAttributeValue(damageType.getResistAttribute()), 100)/100f;
+//			}
 			
 		} else {
-
-			if (attacker != null) {
-				// Attacker modifiers:
-				damage *= 1 + Util.getModifiedDropoffValue(attacker.getAttributeValue(Attribute.DAMAGE_LUST), 100)/100f;
+			if (attacker != null) { // Attacker modifiers:
+				damage += attackersDamage * (1 + Util.getModifiedDropoffValue(attacker.getAttributeValue(Attribute.DAMAGE_LUST), 100)/100f);
 				
-				if(attacker.hasTrait(Perk.FEMALE_ATTRACTION, true) && defender.isFeminine()) {
-					damage *=1.1f;
+				if(defender!=null) {
+					if((attacker.hasTrait(Perk.FEMALE_ATTRACTION, true) && defender.isFeminine())
+							|| (attacker.hasTrait(Perk.MALE_ATTRACTION, true) && !defender.isFeminine())) {
+						damage += attackersDamage * 0.1f;
+					}
 				}
-				if(attacker.hasTrait(Perk.MALE_ATTRACTION, true) && !defender.isFeminine()) {
-					damage *=1.1f;
-				}
-
 				if (damage < 1) {
 					damage = 1;
 				}
@@ -477,34 +414,31 @@ public enum Attack {
 
 			if (defender != null && !defender.hasStatusEffect(StatusEffect.DESPERATE_FOR_SEX)) {
 				// Defender modifiers:
-				damage *= 1 - Util.getModifiedDropoffValue(defender.getAttributeValue(Attribute.RESISTANCE_LUST), 100)/100f;
-				
-				if(defender.getSexualOrientation()==SexualOrientation.ANDROPHILIC && attacker.isFeminine()) {
-					damage*=0.5f;
+//				damage *= 1 - Util.getModifiedDropoffValue(defender.getAttributeValue(Attribute.RESISTANCE_LUST), 100)/100f;
+				if(attacker!=null) {
+					if((defender.getSexualOrientation()==SexualOrientation.ANDROPHILIC && attacker.isFeminine())
+							|| (attacker.getSexualOrientation()==SexualOrientation.ANDROPHILIC && defender.isFeminine())) {
+						damage*=0.5f;
+					}
+					if((defender.getSexualOrientation()==SexualOrientation.GYNEPHILIC && !attacker.isFeminine())
+							|| (attacker.getSexualOrientation()==SexualOrientation.GYNEPHILIC && !defender.isFeminine())) {
+						damage*=0.5f;
+					}
 				}
-				if(defender.getSexualOrientation()==SexualOrientation.GYNEPHILIC && !attacker.isFeminine()) {
-					damage*=0.5f;
-				}
-				
 				if (damage < 1) {
 					damage = 1;
 				}
 			}
-
 		}
-
-		if (defender != null) {
-			// Modifiers based on race resistance:
-			if(!defender.hasStatusEffect(StatusEffect.DESPERATE_FOR_SEX)) {
-				damage *= 1 - Util.getModifiedDropoffValue(defender.getAttributeValue(attacker.getRace().getResistanceMultiplier()), 100)/100f;
-			}
+		
+		if (attacker != null && defender!=null) {
 			// Modifiers based on race damage:
-			damage *= 1 + Util.getModifiedDropoffValue(attacker.getAttributeValue(defender.getRace().getDamageMultiplier()), 100)/100f;
+			damage += attackersDamage * (Util.getModifiedDropoffValue(attacker.getAttributeValue(defender.getSubspecies().getDamageMultiplier()), 100)/100f);
 			
 			// Modifiers based on level:
-			float levelBoost = (attacker.getLevel() - defender.getLevel())*2;
-			levelBoost = Util.getModifiedDropoffValue(levelBoost, 100)/100f;
-			damage = damage * (1 + (levelBoost/100));
+//			float levelBoost = (attacker.getLevel() - defender.getLevel())*2;
+//			levelBoost = Util.getModifiedDropoffValue(levelBoost, 100)/100f;
+//			damage = damage * (1 + (levelBoost/100));
 		}
 		
 		return damage;

@@ -1,20 +1,26 @@
 package com.lilithsthrone.game.dialogue.places.dominion.zaranixHome;
 
+import java.util.List;
+import java.util.Map;
+
 import com.lilithsthrone.game.PropertyValue;
-import com.lilithsthrone.game.Weather;
+import com.lilithsthrone.game.character.GameCharacter;
 import com.lilithsthrone.game.character.attributes.CorruptionLevel;
 import com.lilithsthrone.game.character.body.CoverableArea;
 import com.lilithsthrone.game.character.fetishes.Fetish;
 import com.lilithsthrone.game.character.gender.Gender;
-import com.lilithsthrone.game.character.gender.GenderPreference;
 import com.lilithsthrone.game.character.npc.NPC;
+import com.lilithsthrone.game.character.npc.dominion.Amber;
+import com.lilithsthrone.game.character.npc.dominion.Zaranix;
+import com.lilithsthrone.game.character.npc.dominion.ZaranixMaidKatherine;
+import com.lilithsthrone.game.character.npc.dominion.ZaranixMaidKelly;
 import com.lilithsthrone.game.character.npc.misc.GenericSexualPartner;
 import com.lilithsthrone.game.character.persona.Name;
 import com.lilithsthrone.game.character.persona.SexualOrientation;
 import com.lilithsthrone.game.character.race.RaceStage;
 import com.lilithsthrone.game.character.race.RacialBody;
 import com.lilithsthrone.game.dialogue.DialogueFlagValue;
-import com.lilithsthrone.game.dialogue.DialogueNodeOld;
+import com.lilithsthrone.game.dialogue.DialogueNode;
 import com.lilithsthrone.game.dialogue.responses.Response;
 import com.lilithsthrone.game.dialogue.responses.ResponseCombat;
 import com.lilithsthrone.game.dialogue.responses.ResponseSex;
@@ -25,21 +31,23 @@ import com.lilithsthrone.game.inventory.clothing.AbstractClothing;
 import com.lilithsthrone.game.inventory.clothing.AbstractClothingType;
 import com.lilithsthrone.game.inventory.clothing.ClothingType;
 import com.lilithsthrone.game.sex.Sex;
-import com.lilithsthrone.game.sex.SexPositionSlot;
 import com.lilithsthrone.game.sex.managers.dominion.zaranix.SMAmberDoggyFucked;
 import com.lilithsthrone.game.sex.managers.dominion.zaranix.SMPetMounting;
 import com.lilithsthrone.game.sex.managers.dominion.zaranix.SMPetOral;
-import com.lilithsthrone.game.sex.managers.universal.SMStanding;
+import com.lilithsthrone.game.sex.managers.universal.SMGeneric;
+import com.lilithsthrone.game.sex.positions.slots.SexSlotAllFours;
+import com.lilithsthrone.game.sex.positions.slots.SexSlotUnique;
 import com.lilithsthrone.main.Main;
 import com.lilithsthrone.utils.Util;
 import com.lilithsthrone.utils.Util.Value;
 import com.lilithsthrone.world.Cell;
+import com.lilithsthrone.world.Weather;
 import com.lilithsthrone.world.WorldType;
 import com.lilithsthrone.world.places.PlaceType;
 
 /**
  * @since 0.2.2
- * @version 0.2.3
+ * @version 0.3.4
  * @author Innoxia
  */
 public class ZaranixHomeGroundFloorRepeat {
@@ -47,8 +55,15 @@ public class ZaranixHomeGroundFloorRepeat {
 	private static NPC pet;
 	private static NPC owner;
 	
-	public static final DialogueNodeOld OUTSIDE = new DialogueNodeOld("Zaranix's Home", "", true) {
-		private static final long serialVersionUID = 1L;
+
+	public static void resetHouseAfterLeaving() {
+		((Zaranix)Main.game.getNpc(Zaranix.class)).setStartingBody(false);
+		((Amber)Main.game.getNpc(Amber.class)).setStartingBody(false);
+		((ZaranixMaidKatherine)Main.game.getNpc(ZaranixMaidKatherine.class)).setStartingBody(false);
+		((ZaranixMaidKelly)Main.game.getNpc(ZaranixMaidKelly.class)).setStartingBody(false);
+	}
+	
+	public static final DialogueNode OUTSIDE = new DialogueNode("Zaranix's Home", "", true) {
 
 		@Override
 		public String getContent() {
@@ -66,14 +81,18 @@ public class ZaranixHomeGroundFloorRepeat {
 		@Override
 		public Response getResponse(int responseTab, int index) {
 			if (index == 1) {
+				if(!Main.game.isExtendedWorkTime()) {
+					return new Response("Knock door", "Amber is certainly not going to answer the door at such an unsociable time. You'll have to come back during the day...", null);
+				}
 				if(!Main.game.getDialogueFlags().hasFlag(DialogueFlagValue.amberRepeatEncountered)
-						&& (Main.game.getDialogueFlags().hasFlag(DialogueFlagValue.zaranixKnockedOnDoor) || Main.game.getAmber().getFoughtPlayerCount()!=0)) {
+						&& (Main.game.getDialogueFlags().hasFlag(DialogueFlagValue.zaranixKnockedOnDoor) || Main.game.getNpc(Amber.class).getFoughtPlayerCount()!=0)) {
 					return new Response("Knock door", "Knock on the door and wait for someone to answer.", OUTSIDE_KNOCK_ON_DOOR_KNOWS_AMBER) {
 						@Override
 						public void effects() {
-							Main.game.getAmber().setLocation(WorldType.DOMINION, PlaceType.DOMINION_DEMON_HOME_ARTHUR, false);
-							Main.game.getAmber().setPlayerKnowsName(true);
-							Main.game.getZaranix().returnToHome();
+							resetHouseAfterLeaving(); // Reset here as well in case the player teleported out of the house.
+							Main.game.getNpc(Amber.class).setLocation(WorldType.DOMINION, PlaceType.DOMINION_DEMON_HOME_ZARANIX, false);
+							Main.game.getNpc(Amber.class).setPlayerKnowsName(true);
+							Main.game.getNpc(Zaranix.class).returnToHome();
 						}
 					};
 					
@@ -81,15 +100,16 @@ public class ZaranixHomeGroundFloorRepeat {
 					return new Response("Knock door", "Knock on the door and wait for someone to answer.", OUTSIDE_KNOCK_ON_DOOR) {
 						@Override
 						public void effects() {
-							Main.game.getAmber().setLocation(WorldType.DOMINION, PlaceType.DOMINION_DEMON_HOME_ARTHUR, false);
-							Main.game.getAmber().setPlayerKnowsName(true);
-							Main.game.getZaranix().returnToHome();
+							resetHouseAfterLeaving(); // Reset here as well in case the player teleported out of the house.
+							Main.game.getNpc(Amber.class).setLocation(WorldType.DOMINION, PlaceType.DOMINION_DEMON_HOME_ZARANIX, false);
+							Main.game.getNpc(Amber.class).setPlayerKnowsName(true);
+							Main.game.getNpc(Zaranix.class).returnToHome();
 						}
 					};
 				}
 
 			} else if (index == 0) {
-				return new Response("Leave", "Turn around and walk away.", Main.game.getDefaultDialogueNoEncounter());
+				return new Response("Leave", "Turn around and walk away.", Main.game.getDefaultDialogue(false));
 
 			} else {
 				return null;
@@ -97,8 +117,7 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld OUTSIDE_KNOCK_ON_DOOR_KNOWS_AMBER = new DialogueNodeOld("Zaranix's Home", "", true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode OUTSIDE_KNOCK_ON_DOOR_KNOWS_AMBER = new DialogueNode("Zaranix's Home", "", true) {
 
 		@Override
 		public String getContent() {
@@ -111,8 +130,7 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld OUTSIDE_KNOCK_ON_DOOR = new DialogueNodeOld("Zaranix's Home", "", true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode OUTSIDE_KNOCK_ON_DOOR = new DialogueNode("Zaranix's Home", "", true) {
 
 		@Override
 		public String getContent() {
@@ -130,9 +148,9 @@ public class ZaranixHomeGroundFloorRepeat {
 				return new Response("Enter", "Step past Amber and enter Zaranix's home.", ENTRANCE) {
 					@Override
 					public void effects() {
-						Main.game.getTextEndStringBuilder().append(Main.game.getAmber().incrementAffection(Main.game.getPlayer(), -5));
+						Main.game.getTextEndStringBuilder().append(Main.game.getNpc(Amber.class).incrementAffection(Main.game.getPlayer(), -5));
 						Main.game.getDialogueFlags().setFlag(DialogueFlagValue.amberRepeatEncountered, true);
-						Main.game.getAmber().returnToHome();
+						Main.game.getNpc(Amber.class).returnToHome();
 						Main.game.getPlayer().setLocation(WorldType.ZARANIX_HOUSE_GROUND_FLOOR, PlaceType.ZARANIX_GF_ENTRANCE, false);
 						Main.game.getTextStartStringBuilder().append(UtilText.parseFromXMLFile("places/dominion/zaranixHome/groundFloorRepeat", "ENTRY"));
 					}
@@ -144,7 +162,7 @@ public class ZaranixHomeGroundFloorRepeat {
 					@Override
 					public void effects() {
 						Main.game.getDialogueFlags().setFlag(DialogueFlagValue.amberRepeatEncountered, true);
-						Main.game.getTextEndStringBuilder().append(Main.game.getAmber().incrementAffection(Main.game.getPlayer(), 2.5f));
+						Main.game.getTextEndStringBuilder().append(Main.game.getNpc(Amber.class).incrementAffection(Main.game.getPlayer(), 2.5f));
 					}
 				};
 
@@ -153,7 +171,7 @@ public class ZaranixHomeGroundFloorRepeat {
 					@Override
 					public void effects() {
 						Main.game.getDialogueFlags().setFlag(DialogueFlagValue.amberRepeatEncountered, true);
-						Main.game.getAmber().returnToHome();
+						Main.game.getNpc(Amber.class).returnToHome();
 						Main.game.getTextStartStringBuilder().append(
 								"<p>"
 									+ "[pc.speech(I just remembered that I need to be elsewhere right now,)]"
@@ -174,8 +192,7 @@ public class ZaranixHomeGroundFloorRepeat {
 	
 	
 	
-	public static final DialogueNodeOld OUTSIDE_APOLOGY = new DialogueNodeOld("Zaranix's Home", "", true, true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode OUTSIDE_APOLOGY = new DialogueNode("Zaranix's Home", "", true, true) {
 
 		@Override
 		public String getContent() {
@@ -199,26 +216,28 @@ public class ZaranixHomeGroundFloorRepeat {
 					return new Response("Enter", "Refuse to lick Amber's heels, and step past her into Zaranix's home.", ENTRANCE) {
 						@Override
 						public void effects() {
-							Main.game.getTextEndStringBuilder().append(Main.game.getAmber().incrementAffection(Main.game.getPlayer(), -2.5f));
-							Main.game.getAmber().returnToHome();
+							Main.game.getTextEndStringBuilder().append(Main.game.getNpc(Amber.class).incrementAffection(Main.game.getPlayer(), -2.5f));
+							Main.game.getNpc(Amber.class).returnToHome();
 							Main.game.getPlayer().setLocation(WorldType.ZARANIX_HOUSE_GROUND_FLOOR, PlaceType.ZARANIX_GF_ENTRANCE, false);
 							Main.game.getTextStartStringBuilder().append(UtilText.parseFromXMLFile("places/dominion/zaranixHome/groundFloorRepeat", "ENTRY_APOLOGISE"));
 						}
 					};
 					
 				} else if (index == 2) {
-					return new Response("Reluctantly Lick", "Reluctantly do as Amber says and start obediently licking her heels.", OUTSIDE_LICKING_RELUCTANT) {
+					return new Response("Reluctantly Lick", "Reluctantly do as Amber says and start obediently licking her heels.", OUTSIDE_LICKING_RELUCTANT,
+							Util.newArrayListOfValues(Fetish.FETISH_MASOCHIST, Fetish.FETISH_FOOT_RECEIVING), CorruptionLevel.THREE_DIRTY, null, null, null) {
 						@Override
 						public void effects() {
-							Main.game.getTextEndStringBuilder().append(Main.game.getAmber().incrementAffection(Main.game.getPlayer(), 2.5f));
+							Main.game.getTextEndStringBuilder().append(Main.game.getNpc(Amber.class).incrementAffection(Main.game.getPlayer(), 2.5f));
 						}
 					};
 	
 				} else if (index == 3) {
-					return new Response("Eagerly Lick", "Eagerly do as Amber says and start enthusiastically licking her heels.", OUTSIDE_LICKING_EAGER) {
+					return new Response("Eagerly Lick", "Eagerly do as Amber says and start enthusiastically licking her heels.", OUTSIDE_LICKING_EAGER,
+							Util.newArrayListOfValues(Fetish.FETISH_MASOCHIST, Fetish.FETISH_FOOT_RECEIVING), CorruptionLevel.THREE_DIRTY, null, null, null) {
 						@Override
 						public void effects() {
-							Main.game.getTextEndStringBuilder().append(Main.game.getAmber().incrementAffection(Main.game.getPlayer(), 2.5f));
+							Main.game.getTextEndStringBuilder().append(Main.game.getNpc(Amber.class).incrementAffection(Main.game.getPlayer(), 2.5f));
 						}
 					};
 	
@@ -231,7 +250,7 @@ public class ZaranixHomeGroundFloorRepeat {
 					return new Response("Enter", "Amber will now let you enter Zaranix's home.", ENTRANCE) {
 						@Override
 						public void effects() {
-							Main.game.getAmber().returnToHome();
+							Main.game.getNpc(Amber.class).returnToHome();
 							Main.game.getPlayer().setLocation(WorldType.ZARANIX_HOUSE_GROUND_FLOOR, PlaceType.ZARANIX_GF_ENTRANCE, false);
 							Main.game.getTextStartStringBuilder().append(UtilText.parseFromXMLFile("places/dominion/zaranixHome/groundFloorRepeat", "ENTRY_MOUTH_BLOCKED"));
 						}
@@ -244,8 +263,7 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld OUTSIDE_LICKING_RELUCTANT = new DialogueNodeOld("Zaranix's Home", "", true, true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode OUTSIDE_LICKING_RELUCTANT = new DialogueNode("Zaranix's Home", "", true, true) {
 
 		@Override
 		public String getContent() {
@@ -258,7 +276,7 @@ public class ZaranixHomeGroundFloorRepeat {
 				return new Response("Enter", "Finally, Amber will let you enter Zaranix's home...", ENTRANCE) {
 					@Override
 					public void effects() {
-						Main.game.getAmber().returnToHome();
+						Main.game.getNpc(Amber.class).returnToHome();
 						Main.game.getPlayer().setLocation(WorldType.ZARANIX_HOUSE_GROUND_FLOOR, PlaceType.ZARANIX_GF_ENTRANCE, false);
 						Main.game.getTextStartStringBuilder().append(UtilText.parseFromXMLFile("places/dominion/zaranixHome/groundFloorRepeat", "ENTRY_RELUCTANT_LICKING"));
 					}
@@ -270,8 +288,7 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld OUTSIDE_LICKING_EAGER = new DialogueNodeOld("Zaranix's Home", "", true, true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode OUTSIDE_LICKING_EAGER = new DialogueNode("Zaranix's Home", "", true, true) {
 
 		@Override
 		public String getContent() {
@@ -284,17 +301,18 @@ public class ZaranixHomeGroundFloorRepeat {
 				return new Response("Refuse", "Refuse to lick Amber's soles.", ENTRANCE) {
 					@Override
 					public void effects() {
-						Main.game.getAmber().returnToHome();
+						Main.game.getNpc(Amber.class).returnToHome();
 						Main.game.getPlayer().setLocation(WorldType.ZARANIX_HOUSE_GROUND_FLOOR, PlaceType.ZARANIX_GF_ENTRANCE, false);
 						Main.game.getTextStartStringBuilder().append(UtilText.parseFromXMLFile("places/dominion/zaranixHome/groundFloorRepeat", "ENTRY_EAGER_LICKING"));
 					}
 				};
 
 			} else if(index == 2) {
-				return new Response("Obey", "Do as Amber says and start cleaning the soles of her heels with your [pc.tongue].", OUTSIDE_LICKING_SOLES) {
+				return new Response("Obey", "Do as Amber says and start cleaning the soles of her heels with your [pc.tongue].", OUTSIDE_LICKING_SOLES,
+						Util.newArrayListOfValues(Fetish.FETISH_MASOCHIST, Fetish.FETISH_FOOT_RECEIVING), CorruptionLevel.THREE_DIRTY, null, null, null) {
 					@Override
 					public void effects() {
-						Main.game.getTextEndStringBuilder().append(Main.game.getAmber().incrementAffection(Main.game.getPlayer(), 5));
+						Main.game.getTextEndStringBuilder().append(Main.game.getNpc(Amber.class).incrementAffection(Main.game.getPlayer(), 5));
 					}
 				};
 				
@@ -305,8 +323,7 @@ public class ZaranixHomeGroundFloorRepeat {
 	};
 	
 	
-	public static final DialogueNodeOld OUTSIDE_LICKING_SOLES = new DialogueNodeOld("Zaranix's Home", "", true, true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode OUTSIDE_LICKING_SOLES = new DialogueNode("Zaranix's Home", "", true, true) {
 
 		@Override
 		public String getContent() {
@@ -319,7 +336,7 @@ public class ZaranixHomeGroundFloorRepeat {
 				return new Response("Enter", "Amber will now let you enter Zaranix's home.", ENTRANCE) {
 					@Override
 					public void effects() {
-						Main.game.getAmber().returnToHome();
+						Main.game.getNpc(Amber.class).returnToHome();
 						Main.game.getPlayer().setLocation(WorldType.ZARANIX_HOUSE_GROUND_FLOOR, PlaceType.ZARANIX_GF_ENTRANCE, false);
 						Main.game.getTextStartStringBuilder().append(UtilText.parseFromXMLFile("places/dominion/zaranixHome/groundFloorRepeat", "ENTRY_SOLES_LICKING"));
 					}
@@ -333,12 +350,11 @@ public class ZaranixHomeGroundFloorRepeat {
 	
 	// General places:
 	
-	public static final DialogueNodeOld ENTRANCE = new DialogueNodeOld("", "", false) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode ENTRANCE = new DialogueNode("", "", false) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 1;
+		public int getSecondsPassed() {
+			return 20;
 		}
 
 		@Override
@@ -358,10 +374,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		@Override
 		public Response getResponse(int responseTab, int index) {
 			if (index == 1) {
-				return new Response("Exit", "Leave Zaranix's house and head back out into Demon Home.", PlaceType.DOMINION_DEMON_HOME_ARTHUR.getDialogue(false)) {
+				return new Response("Exit", "Leave Zaranix's house and head back out into Demon Home.", PlaceType.DOMINION_DEMON_HOME_ZARANIX.getDialogue(false)) {
 					@Override
 					public void effects() {
-						Main.game.getPlayer().setLocation(WorldType.DOMINION, PlaceType.DOMINION_DEMON_HOME_ARTHUR, false);
+						resetHouseAfterLeaving();
+						Main.game.getPlayer().setLocation(WorldType.DOMINION, PlaceType.DOMINION_DEMON_HOME_ZARANIX, false);
 					}
 				};
 
@@ -371,12 +388,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld STAIRS = new DialogueNodeOld("", "", false) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode STAIRS = new DialogueNode("", "", false) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 1;
+		public int getSecondsPassed() {
+			return 10;
 		}
 
 		@Override
@@ -386,7 +402,7 @@ public class ZaranixHomeGroundFloorRepeat {
 
 		@Override
 		public boolean isTravelDisabled() {
-			return !Main.game.getDialogueFlags().hasFlag(DialogueFlagValue.katherineRepeatEncountered) && Main.game.getCharactersPresent().contains(Main.game.getKatherine());
+			return !Main.game.getDialogueFlags().hasFlag(DialogueFlagValue.katherineRepeatEncountered) && Main.game.getCharactersPresent().contains(Main.game.getNpc(ZaranixMaidKatherine.class));
 		}
 
 		@Override
@@ -395,7 +411,7 @@ public class ZaranixHomeGroundFloorRepeat {
 
 			UtilText.nodeContentSB.append(UtilText.parseFromXMLFile("places/dominion/zaranixHome/groundFloorRepeat", "STAIRS"));
 			
-			if(Main.game.getCharactersPresent().contains(Main.game.getKatherine())) {
+			if(Main.game.getCharactersPresent().contains(Main.game.getNpc(ZaranixMaidKatherine.class))) {
 				if(!Main.game.getDialogueFlags().hasFlag(DialogueFlagValue.katherineRepeatEncountered)) {
 					UtilText.nodeContentSB.append(UtilText.parseFromXMLFile("places/dominion/zaranixHome/groundFloorRepeat", "KATHERINE_PRESENT"));
 				} else {
@@ -421,13 +437,15 @@ public class ZaranixHomeGroundFloorRepeat {
 					};
 				}
 
-			} else if(Main.game.getCharactersPresent().contains(Main.game.getKatherine())) {
+			} else if(Main.game.getCharactersPresent().contains(Main.game.getNpc(ZaranixMaidKatherine.class))) {
 				if(index==2) {
 					return new ResponseSex("Sex", "Have some fun with Katherine.",
 							true, false,
-							new SMStanding(
-									Util.newHashMapOfValues(new Value<>(Main.game.getPlayer(), SexPositionSlot.STANDING_DOMINANT)),
-									Util.newHashMapOfValues(new Value<>(Main.game.getKatherine(), SexPositionSlot.STANDING_SUBMISSIVE))),
+							new SMGeneric(
+									Util.newArrayListOfValues(Main.game.getPlayer()),
+									Util.newArrayListOfValues(Main.game.getNpc(ZaranixMaidKatherine.class)),
+									null,
+									null),
 							AFTER_KATHERINE_SEX,
 							UtilText.parseFromXMLFile("places/dominion/zaranixHome/groundFloorRepeat", "KATHERINE_SEX")) {
 						@Override
@@ -440,10 +458,12 @@ public class ZaranixHomeGroundFloorRepeat {
 					return new ResponseSex("Submit",
 							"You can't bring yourself to take the dominant role, but you <i>do</i> want to have sex with Katherine. Perhaps if you submitted, [katherine.she]'d be willing to fuck you?",
 							Util.newArrayListOfValues(Fetish.FETISH_SUBMISSIVE), null, CorruptionLevel.THREE_DIRTY, null, null, null,
-							true, true,
-							new SMStanding(
-									Util.newHashMapOfValues(new Value<>(Main.game.getKatherine(), SexPositionSlot.STANDING_DOMINANT)),
-									Util.newHashMapOfValues(new Value<>(Main.game.getPlayer(), SexPositionSlot.STANDING_SUBMISSIVE))),
+							false, false,
+							new SMGeneric(
+									Util.newArrayListOfValues(Main.game.getNpc(ZaranixMaidKatherine.class)),
+									Util.newArrayListOfValues(Main.game.getPlayer()),
+									null,
+									null),
 							AFTER_KATHERINE_SEX,
 							UtilText.parseFromXMLFile("places/dominion/zaranixHome/groundFloorRepeat", "KATHERINE_SEX_SUB")) {
 						@Override
@@ -459,7 +479,7 @@ public class ZaranixHomeGroundFloorRepeat {
 						@Override
 						public void effects() {
 							Main.game.saveDialogueNode();
-							BodyChanging.setTarget(Main.game.getKatherine());
+							BodyChanging.setTarget(Main.game.getNpc(ZaranixMaidKatherine.class));
 						}
 					};
 					
@@ -482,13 +502,7 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld AFTER_KATHERINE_SEX = new DialogueNodeOld("", "Katherine lets out a deep sigh as she steps back.", false) {
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		public int getMinutesPassed() {
-			return 15;
-		}
+	public static final DialogueNode AFTER_KATHERINE_SEX = new DialogueNode("", "Katherine lets out a deep sigh as she steps back.", false) {
 
 		@Override
 		public String getLabel() {
@@ -499,7 +513,7 @@ public class ZaranixHomeGroundFloorRepeat {
 		public String getContent() {
 			UtilText.nodeContentSB.setLength(0);
 
-			if(Sex.getNumberOfOrgasms(Main.game.getKatherine()) == 0) {
+			if(Sex.getNumberOfOrgasms(Main.game.getNpc(ZaranixMaidKatherine.class)) == 0) {
 				UtilText.nodeContentSB.append(UtilText.parseFromXMLFile("places/dominion/zaranixHome/groundFloorRepeat", "AFTER_KATHERINE_SEX_NO_ORGASM"));
 			} else {
 				UtilText.nodeContentSB.append(UtilText.parseFromXMLFile("places/dominion/zaranixHome/groundFloorRepeat", "AFTER_KATHERINE_SEX"));
@@ -510,7 +524,7 @@ public class ZaranixHomeGroundFloorRepeat {
 
 		@Override
 		public Response getResponse(int responseTab, int index) {
-			if(Main.game.getPlayer().getLocationPlace().getPlaceType()==PlaceType.ZARANIX_GF_STAIRS) {
+			if(Main.game.getPlayer().getLocationPlace().getPlaceType().equals(PlaceType.ZARANIX_GF_STAIRS)) {
 				if(index==1) {
 					return new Response("Upstairs", "Head upstairs to the first floor of Zaranix's house.", PlaceType.ZARANIX_FF_STAIRS.getDialogue(false)) {
 						@Override
@@ -524,12 +538,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld KATHERINE_DECLINE = new DialogueNodeOld("", "", false, true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode KATHERINE_DECLINE = new DialogueNode("", "", false, true) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 1;
+		public int getSecondsPassed() {
+			return 60;
 		}
 
 		@Override
@@ -539,7 +552,7 @@ public class ZaranixHomeGroundFloorRepeat {
 
 		@Override
 		public Response getResponse(int responseTab, int index) {
-			if(Main.game.getPlayer().getLocationPlace().getPlaceType()==PlaceType.ZARANIX_GF_STAIRS) {
+			if(Main.game.getPlayer().getLocationPlace().getPlaceType().equals(PlaceType.ZARANIX_GF_STAIRS)) {
 				if(index==1) {
 					return new Response("Upstairs", "Head upstairs to the first floor of Zaranix's house.", PlaceType.ZARANIX_FF_STAIRS.getDialogue(false)) {
 						@Override
@@ -553,12 +566,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld CORRIDOR = new DialogueNodeOld("", "", false) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode CORRIDOR = new DialogueNode("", "", false) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 1;
+		public int getSecondsPassed() {
+			return 10;
 		}
 
 		@Override
@@ -568,7 +580,7 @@ public class ZaranixHomeGroundFloorRepeat {
 
 		@Override
 		public boolean isTravelDisabled() {
-			return !Main.game.getDialogueFlags().hasFlag(DialogueFlagValue.katherineRepeatEncountered) && Main.game.getCharactersPresent().contains(Main.game.getKatherine());
+			return !Main.game.getDialogueFlags().hasFlag(DialogueFlagValue.katherineRepeatEncountered) && Main.game.getCharactersPresent().contains(Main.game.getNpc(ZaranixMaidKatherine.class));
 		}
 		
 		@Override
@@ -577,7 +589,7 @@ public class ZaranixHomeGroundFloorRepeat {
 
 			UtilText.nodeContentSB.append(UtilText.parseFromXMLFile("places/dominion/zaranixHome/groundFloorRepeat", "CORRIDOR"));
 
-			if(Main.game.getCharactersPresent().contains(Main.game.getKatherine())) {
+			if(Main.game.getCharactersPresent().contains(Main.game.getNpc(ZaranixMaidKatherine.class))) {
 				if(!Main.game.getDialogueFlags().hasFlag(DialogueFlagValue.katherineRepeatEncountered)) {
 					UtilText.nodeContentSB.append(UtilText.parseFromXMLFile("places/dominion/zaranixHome/groundFloorRepeat", "KATHERINE_PRESENT"));
 				} else {
@@ -590,13 +602,15 @@ public class ZaranixHomeGroundFloorRepeat {
 
 		@Override
 		public Response getResponse(int responseTab, int index) {
-			if(Main.game.getCharactersPresent().contains(Main.game.getKatherine())) {
+			if(Main.game.getCharactersPresent().contains(Main.game.getNpc(ZaranixMaidKatherine.class))) {
 				if(index==1) {
 					return new ResponseSex("Sex", "Have some fun with Katherine.",
 							true, false,
-							new SMStanding(
-									Util.newHashMapOfValues(new Value<>(Main.game.getPlayer(), SexPositionSlot.STANDING_DOMINANT)),
-									Util.newHashMapOfValues(new Value<>(Main.game.getKatherine(), SexPositionSlot.STANDING_SUBMISSIVE))),
+							new SMGeneric(
+									Util.newArrayListOfValues(Main.game.getPlayer()),
+									Util.newArrayListOfValues(Main.game.getNpc(ZaranixMaidKatherine.class)),
+									null,
+									null),
 							AFTER_KATHERINE_SEX,
 							UtilText.parseFromXMLFile("places/dominion/zaranixHome/groundFloorRepeat", "KATHERINE_SEX")) {
 						@Override
@@ -609,10 +623,12 @@ public class ZaranixHomeGroundFloorRepeat {
 					return new ResponseSex("Submit",
 							"You can't bring yourself to take the dominant role, but you <i>do</i> want to have sex with Katherine. Perhaps if you submitted, [katherine.she]'d be willing to fuck you?",
 							Util.newArrayListOfValues(Fetish.FETISH_SUBMISSIVE), null, CorruptionLevel.THREE_DIRTY, null, null, null,
-							true, true,
-							new SMStanding(
-									Util.newHashMapOfValues(new Value<>(Main.game.getKatherine(), SexPositionSlot.STANDING_DOMINANT)),
-									Util.newHashMapOfValues(new Value<>(Main.game.getPlayer(), SexPositionSlot.STANDING_SUBMISSIVE))),
+							false, false,
+							new SMGeneric(
+									Util.newArrayListOfValues(Main.game.getNpc(ZaranixMaidKatherine.class)),
+									Util.newArrayListOfValues(Main.game.getPlayer()),
+									null,
+									null),
 							AFTER_KATHERINE_SEX,
 							UtilText.parseFromXMLFile("places/dominion/zaranixHome/groundFloorRepeat", "KATHERINE_SEX_SUB")) {
 						@Override
@@ -628,7 +644,7 @@ public class ZaranixHomeGroundFloorRepeat {
 						@Override
 						public void effects() {
 							Main.game.saveDialogueNode();
-							BodyChanging.setTarget(Main.game.getKatherine());
+							BodyChanging.setTarget(Main.game.getNpc(ZaranixMaidKatherine.class));
 						}
 					};
 					
@@ -651,12 +667,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld GARDEN_ENTRY = new DialogueNodeOld("", "", false) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode GARDEN_ENTRY = new DialogueNode("", "", false) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 1;
+		public int getSecondsPassed() {
+			return 30;
 		}
 
 		@Override
@@ -675,12 +690,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld GARDEN = new DialogueNodeOld("", "", false) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode GARDEN = new DialogueNode("", "", false) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 1;
+		public int getSecondsPassed() {
+			return 30;
 		}
 
 		@Override
@@ -699,12 +713,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld GARDEN_ROOM = new DialogueNodeOld("", "", false) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode GARDEN_ROOM = new DialogueNode("", "", false) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 1;
+		public int getSecondsPassed() {
+			return 20;
 		}
 
 		@Override
@@ -727,12 +740,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld ROOM = new DialogueNodeOld("", "", false) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode ROOM = new DialogueNode("", "", false) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 1;
+		public int getSecondsPassed() {
+			return 20;
 		}
 
 		@Override
@@ -751,12 +763,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld LOUNGE = new DialogueNodeOld("", "", false) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode LOUNGE = new DialogueNode("", "", false) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 1;
+		public int getSecondsPassed() {
+			return 30;
 		}
 
 		@Override
@@ -780,12 +791,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld LOUNGE_AMBER_GREETING = new DialogueNodeOld("", "", true, true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode LOUNGE_AMBER_GREETING = new DialogueNode("", "", true, true) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 1;
+		public int getSecondsPassed() {
+			return 60;
 		}
 
 		@Override
@@ -815,10 +825,10 @@ public class ZaranixHomeGroundFloorRepeat {
 					|| Main.game.getCurrentWeather()==Weather.RAIN) {
 				if(index==1) {
 					return new Response("Submit", "Do as Amber says and get down on all fours, ready to act as a foot stall for her.", LOUNGE_AMBER_FOOT_STALL,
-							Util.newArrayListOfValues(Fetish.FETISH_SUBMISSIVE), CorruptionLevel.THREE_DIRTY, null, null, null) {
+							Util.newArrayListOfValues(Fetish.FETISH_SUBMISSIVE, Fetish.FETISH_FOOT_RECEIVING), CorruptionLevel.THREE_DIRTY, null, null, null) {
 						@Override
 						public void effects() {
-							Main.game.getTextEndStringBuilder().append(Main.game.getAmber().incrementAffection(Main.game.getPlayer(), 2.5f));
+							Main.game.getTextEndStringBuilder().append(Main.game.getNpc(Amber.class).incrementAffection(Main.game.getPlayer(), 2.5f));
 						}
 					};
 					
@@ -826,12 +836,12 @@ public class ZaranixHomeGroundFloorRepeat {
 					return new Response("Decline", "Tell Amber that you're really not interested in that sort of thing.", LOUNGE_AMBER_DECLINED_FOOT_STALL) {
 						@Override
 						public void effects() {
-							Main.game.getTextEndStringBuilder().append(Main.game.getAmber().incrementAffection(Main.game.getPlayer(), -5));
+							Main.game.getTextEndStringBuilder().append(Main.game.getNpc(Amber.class).incrementAffection(Main.game.getPlayer(), -5));
 						}
 					};
 					
 				} else if(index==3) {
-					if(Main.game.getAmber().getAffection(Main.game.getPlayer())<100) {
+					if(Main.game.getNpc(Amber.class).getAffection(Main.game.getPlayer())<100) {
 						return new Response("Submissive sex",
 								"There's no way Amber will have sex with you if you were to simply ask for it. Maybe you could try it if you impressed her enough first... (Requires Amber to have maximum affection towards you.)",
 								null);
@@ -841,8 +851,10 @@ public class ZaranixHomeGroundFloorRepeat {
 								Util.newArrayListOfValues(Fetish.FETISH_SUBMISSIVE, Fetish.FETISH_MASOCHIST), null, CorruptionLevel.THREE_DIRTY, null, null, null,
 								true, false,
 								new SMAmberDoggyFucked(
-										Util.newHashMapOfValues(new Value<>(Main.game.getAmber(), SexPositionSlot.DOGGY_BEHIND_AMBER)),
-										Util.newHashMapOfValues(new Value<>(Main.game.getPlayer(), SexPositionSlot.DOGGY_ON_ALL_FOURS_AMBER))),
+										Util.newHashMapOfValues(new Value<>(Main.game.getNpc(Amber.class), SexSlotAllFours.BEHIND)),
+										Util.newHashMapOfValues(new Value<>(Main.game.getPlayer(), SexSlotAllFours.ALL_FOURS))),
+								null,
+								null,
 								AMBER_LOUNGE_POST_CONSENSUAL_SEX,
 								UtilText.parseFromXMLFile("places/dominion/zaranixHome/groundFloorRepeat", "LOUNGE_AMBER_BEG_FOR_SEX"));
 					}
@@ -851,7 +863,7 @@ public class ZaranixHomeGroundFloorRepeat {
 					return new Response("Fuck off", "Tell Amber to fuck off.", LOUNGE_AMBER_FURIOUS) {
 						@Override
 						public void effects() {
-							Main.game.getTextEndStringBuilder().append(Main.game.getAmber().incrementAffection(Main.game.getPlayer(), -25));
+							Main.game.getTextEndStringBuilder().append(Main.game.getNpc(Amber.class).incrementAffection(Main.game.getPlayer(), -25));
 						}
 					};
 					
@@ -868,9 +880,9 @@ public class ZaranixHomeGroundFloorRepeat {
 							if(Main.game.getPlayer().getClothingInSlot(InventorySlot.NECK)==null || Main.game.getPlayer().getClothingInSlot(InventorySlot.NECK).getClothingType()!=ClothingType.AMBERS_BITCH_CHOKER) {
 								AbstractClothing collar = AbstractClothingType.generateClothing(ClothingType.AMBERS_BITCH_CHOKER);
 								
-								if(Main.game.getPlayer().isAbleToEquip(collar, true, Main.game.getAmber())) {
+								if(Main.game.getPlayer().isAbleToEquip(collar, true, Main.game.getNpc(Amber.class))) {
 									Main.game.getTextEndStringBuilder().append(UtilText.parseFromXMLFile("places/dominion/zaranixHome/groundFloorRepeat", "LOUNGE_AMBER_WALKIES_ATTACHES_COLLAR"));
-									Main.game.getTextEndStringBuilder().append("<p style='text-align:center;'>"+Main.game.getPlayer().equipClothingFromNowhere(collar, true, Main.game.getAmber())+"</p>");
+									Main.game.getTextEndStringBuilder().append("<p style='text-align:center;'>"+Main.game.getPlayer().equipClothingFromNowhere(collar, true, Main.game.getNpc(Amber.class))+"</p>");
 								} else {
 									UtilText.nodeContentSB.append(UtilText.parseFromXMLFile("places/dominion/zaranixHome/groundFloorRepeat", "LOUNGE_AMBER_WALKIES_WITHOUT_COLLAR"));
 								}
@@ -882,7 +894,7 @@ public class ZaranixHomeGroundFloorRepeat {
 								UtilText.nodeContentSB.append(UtilText.parseFromXMLFile("places/dominion/zaranixHome/groundFloorRepeat", "LOUNGE_AMBER_WALKIES_WITHOUT_COLLAR"));
 							}
 							
-							Main.game.getTextEndStringBuilder().append(Main.game.getAmber().incrementAffection(Main.game.getPlayer(), 2.5f));
+							Main.game.getTextEndStringBuilder().append(Main.game.getNpc(Amber.class).incrementAffection(Main.game.getPlayer(), 2.5f));
 						}
 					};
 					
@@ -890,12 +902,12 @@ public class ZaranixHomeGroundFloorRepeat {
 					return new Response("Decline", "Tell Amber that you're really not interested in that sort of thing.", LOUNGE_AMBER_DECLINED_WALK) {
 						@Override
 						public void effects() {
-							Main.game.getTextEndStringBuilder().append(Main.game.getAmber().incrementAffection(Main.game.getPlayer(), -5));
+							Main.game.getTextEndStringBuilder().append(Main.game.getNpc(Amber.class).incrementAffection(Main.game.getPlayer(), -5));
 						}
 					};
 					
 				} else if(index==3) {
-					if(Main.game.getAmber().getAffection(Main.game.getPlayer())<100) {
+					if(Main.game.getNpc(Amber.class).getAffection(Main.game.getPlayer())<100) {
 						return new Response("Submissive sex",
 								"There's no way Amber will have sex with you if you were to simply ask for it. Maybe you could try it if you impressed her enough first... (Requires Amber to have maximum affection towards you.)",
 								null);
@@ -905,8 +917,10 @@ public class ZaranixHomeGroundFloorRepeat {
 								Util.newArrayListOfValues(Fetish.FETISH_SUBMISSIVE, Fetish.FETISH_MASOCHIST), null, CorruptionLevel.THREE_DIRTY, null, null, null,
 								true, false,
 								new SMAmberDoggyFucked(
-										Util.newHashMapOfValues(new Value<>(Main.game.getAmber(), SexPositionSlot.DOGGY_BEHIND_AMBER)),
-										Util.newHashMapOfValues(new Value<>(Main.game.getPlayer(), SexPositionSlot.DOGGY_ON_ALL_FOURS_AMBER))),
+										Util.newHashMapOfValues(new Value<>(Main.game.getNpc(Amber.class), SexSlotAllFours.BEHIND)),
+										Util.newHashMapOfValues(new Value<>(Main.game.getPlayer(), SexSlotAllFours.ALL_FOURS))),
+								null,
+								null,
 								AMBER_LOUNGE_POST_CONSENSUAL_SEX,
 								UtilText.parseFromXMLFile("places/dominion/zaranixHome/groundFloorRepeat", "LOUNGE_AMBER_BEG_FOR_SEX"));
 					}
@@ -915,7 +929,7 @@ public class ZaranixHomeGroundFloorRepeat {
 					return new Response("Fuck off", "Tell Amber to fuck off.", LOUNGE_AMBER_FURIOUS) {
 						@Override
 						public void effects() {
-							Main.game.getTextEndStringBuilder().append(Main.game.getAmber().incrementAffection(Main.game.getPlayer(), -25));
+							Main.game.getTextEndStringBuilder().append(Main.game.getNpc(Amber.class).incrementAffection(Main.game.getPlayer(), -25));
 						}
 					};
 					
@@ -926,12 +940,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld LOUNGE_AMBER_FOOT_STALL = new DialogueNodeOld("", "", true, true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode LOUNGE_AMBER_FOOT_STALL = new DialogueNode("", "", true, true) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 5;
+		public int getSecondsPassed() {
+			return 5*60;
 		}
 
 		@Override
@@ -947,10 +960,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		@Override
 		public Response getResponse(int responseTab, int index) {
 			if(index==1) {
-				return new Response("Massage feet", "Do as Amber says and take off her shoes and stockings to massage her feet.", LOUNGE_AMBER_FOOT_MASSAGE) {
+				return new Response("Massage feet", "Do as Amber says and take off her shoes and stockings to massage her feet.", LOUNGE_AMBER_FOOT_MASSAGE,
+						Util.newArrayListOfValues(Fetish.FETISH_SUBMISSIVE, Fetish.FETISH_FOOT_RECEIVING), CorruptionLevel.THREE_DIRTY, null, null, null) {
 					@Override
 					public void effects() {
-						Main.game.getTextEndStringBuilder().append(Main.game.getAmber().incrementAffection(Main.game.getPlayer(), 2.5f));
+						Main.game.getTextEndStringBuilder().append(Main.game.getNpc(Amber.class).incrementAffection(Main.game.getPlayer(), 2.5f));
 					}
 				};
 				
@@ -958,7 +972,7 @@ public class ZaranixHomeGroundFloorRepeat {
 				return new Response("Decline", "Stay still and refuse to massage Amber's feet.", LOUNGE_AMBER_FOOT_MASSAGE_REFUSED) {
 					@Override
 					public void effects() {
-						Main.game.getTextEndStringBuilder().append(Main.game.getAmber().incrementAffection(Main.game.getPlayer(), -5));
+						Main.game.getTextEndStringBuilder().append(Main.game.getNpc(Amber.class).incrementAffection(Main.game.getPlayer(), -5));
 					}
 				};
 				
@@ -968,12 +982,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld LOUNGE_AMBER_DECLINED_FOOT_STALL = new DialogueNodeOld("", "", false, true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode LOUNGE_AMBER_DECLINED_FOOT_STALL = new DialogueNode("", "", false, true) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 1;
+		public int getSecondsPassed() {
+			return 60;
 		}
 
 		@Override
@@ -992,12 +1005,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld LOUNGE_AMBER_FOOT_MASSAGE_REFUSED = new DialogueNodeOld("", "", false, true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode LOUNGE_AMBER_FOOT_MASSAGE_REFUSED = new DialogueNode("", "", false, true) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 1;
+		public int getSecondsPassed() {
+			return 60;
 		}
 
 		@Override
@@ -1016,12 +1028,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld LOUNGE_AMBER_FOOT_MASSAGE = new DialogueNodeOld("", "", true, true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode LOUNGE_AMBER_FOOT_MASSAGE = new DialogueNode("", "", true, true) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 5;
+		public int getSecondsPassed() {
+			return 5*60;
 		}
 
 		@Override
@@ -1053,10 +1064,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		public Response getResponse(int responseTab, int index) {
 			if(Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.MOUTH, true)) {
 				if(index==1) {
-					return new Response("Suck toes", "Do as Amber says and start giving her feet some oral attention.", LOUNGE_AMBER_FOOT_MASSAGE_ORAL) {
+					return new Response("Suck toes", "Do as Amber says and start giving her feet some oral attention.", LOUNGE_AMBER_FOOT_MASSAGE_ORAL,
+							Util.newArrayListOfValues(Fetish.FETISH_SUBMISSIVE, Fetish.FETISH_FOOT_RECEIVING), CorruptionLevel.THREE_DIRTY, null, null, null) {
 						@Override
 						public void effects() {
-							Main.game.getTextEndStringBuilder().append(Main.game.getAmber().incrementAffection(Main.game.getPlayer(), 10));
+							Main.game.getTextEndStringBuilder().append(Main.game.getNpc(Amber.class).incrementAffection(Main.game.getPlayer(), 10));
 						}
 					};
 					
@@ -1064,7 +1076,7 @@ public class ZaranixHomeGroundFloorRepeat {
 					return new Response("Decline", "Stay still and refuse to lick Amber's feet.", LOUNGE_AMBER_FOOT_MASSAGE_ORAL_REFUSED) {
 						@Override
 						public void effects() {
-							Main.game.getTextEndStringBuilder().append(Main.game.getAmber().incrementAffection(Main.game.getPlayer(), -5));
+							Main.game.getTextEndStringBuilder().append(Main.game.getNpc(Amber.class).incrementAffection(Main.game.getPlayer(), -5));
 						}
 					};
 					
@@ -1077,12 +1089,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld LOUNGE_AMBER_FOOT_MASSAGE_ORAL = new DialogueNodeOld("", "", false, true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode LOUNGE_AMBER_FOOT_MASSAGE_ORAL = new DialogueNode("", "", false, true) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 5;
+		public int getSecondsPassed() {
+			return 5*60;
 		}
 
 		@Override
@@ -1101,12 +1112,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld LOUNGE_AMBER_FOOT_MASSAGE_ORAL_REFUSED = new DialogueNodeOld("", "", false, true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode LOUNGE_AMBER_FOOT_MASSAGE_ORAL_REFUSED = new DialogueNode("", "", false, true) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 1;
+		public int getSecondsPassed() {
+			return 60;
 		}
 
 		@Override
@@ -1125,12 +1135,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld LOUNGE_AMBER_DECLINED_WALK = new DialogueNodeOld("", "", false, true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode LOUNGE_AMBER_DECLINED_WALK = new DialogueNode("", "", false, true) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 1;
+		public int getSecondsPassed() {
+			return 60;
 		}
 
 		@Override
@@ -1144,12 +1153,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld LOUNGE_AMBER_FURIOUS = new DialogueNodeOld("Lounge", "", true, true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode LOUNGE_AMBER_FURIOUS = new DialogueNode("Lounge", "", true, true) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 1;
+		public int getSecondsPassed() {
+			return 60;
 		}
 
 		@Override
@@ -1164,7 +1172,7 @@ public class ZaranixHomeGroundFloorRepeat {
 					@Override
 					public void effects() {
 						Main.game.getTextStartStringBuilder().append(UtilText.parseFromXMLFile("places/dominion/zaranixHome/groundFloorRepeat", "LOUNGE_AMBER_FURIOUS_NO_APOLOGY"));
-						Main.game.getTextEndStringBuilder().append(Main.game.getAmber().incrementAffection(Main.game.getPlayer(), -10));
+						Main.game.getTextEndStringBuilder().append(Main.game.getNpc(Amber.class).incrementAffection(Main.game.getPlayer(), -10));
 					}
 				};
 				
@@ -1174,13 +1182,15 @@ public class ZaranixHomeGroundFloorRepeat {
 						Util.newArrayListOfValues(Fetish.FETISH_SUBMISSIVE), null, CorruptionLevel.THREE_DIRTY, null, null, null,
 						!Main.getProperties().hasValue(PropertyValue.nonConContent), false,
 						new SMAmberDoggyFucked(
-								Util.newHashMapOfValues(new Value<>(Main.game.getAmber(), SexPositionSlot.DOGGY_BEHIND_AMBER)),
-								Util.newHashMapOfValues(new Value<>(Main.game.getPlayer(), SexPositionSlot.DOGGY_ON_ALL_FOURS_AMBER))),
+								Util.newHashMapOfValues(new Value<>(Main.game.getNpc(Amber.class), SexSlotAllFours.BEHIND)),
+								Util.newHashMapOfValues(new Value<>(Main.game.getPlayer(), SexSlotAllFours.ALL_FOURS))),
+						null,
+						null,
 						AMBER_LOUNGE_POST_SEX,
 						UtilText.parseFromXMLFile("places/dominion/zaranixHome/groundFloorRepeat", "LOUNGE_AMBER_FURIOUS_APOLOGY")) {
 					@Override
 					public void effects() {
-						Main.game.getTextEndStringBuilder().append(Main.game.getAmber().incrementAffection(Main.game.getPlayer(), 15));
+						Main.game.getTextEndStringBuilder().append(Main.game.getNpc(Amber.class).incrementAffection(Main.game.getPlayer(), 15));
 					}
 				};
 				
@@ -1193,7 +1203,7 @@ public class ZaranixHomeGroundFloorRepeat {
 					@Override
 					public void effects() {
 						Main.game.getTextStartStringBuilder().append(UtilText.parseFromXMLFile("places/dominion/zaranixHome/groundFloorRepeat", "LOUNGE_AMBER_FURIOUS_NO_APOLOGY"));
-						Main.game.getTextEndStringBuilder().append(Main.game.getAmber().incrementAffection(Main.game.getPlayer(), -25));
+						Main.game.getTextEndStringBuilder().append(Main.game.getNpc(Amber.class).incrementAffection(Main.game.getPlayer(), -25));
 					}
 				};
 				
@@ -1203,13 +1213,7 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld AMBER_LOUNGE_POST_CONSENSUAL_SEX = new DialogueNodeOld("Collapse", "Amber is finished with you.", false) {
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		public int getMinutesPassed() {
-			return 15;
-		}
+	public static final DialogueNode AMBER_LOUNGE_POST_CONSENSUAL_SEX = new DialogueNode("Collapse", "Amber is finished with you.", false) {
 
 		@Override
 		public String getContent() {
@@ -1222,13 +1226,7 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld AMBER_LOUNGE_POST_SEX = new DialogueNodeOld("Collapse", "Amber is finished with you.", false) {
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		public int getMinutesPassed() {
-			return 15;
-		}
+	public static final DialogueNode AMBER_LOUNGE_POST_SEX = new DialogueNode("Collapse", "Amber is finished with you.", false) {
 
 		@Override
 		public String getContent() {
@@ -1241,12 +1239,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld LOUNGE_AMBER_LOSES_IT = new DialogueNodeOld("Lounge", "", true, true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode LOUNGE_AMBER_LOSES_IT = new DialogueNode("Lounge", "", true, true) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 1;
+		public int getSecondsPassed() {
+			return 60;
 		}
 
 		@Override
@@ -1257,7 +1254,7 @@ public class ZaranixHomeGroundFloorRepeat {
 		@Override
 		public Response getResponse(int responseTab, int index) {
 			if(index == 1) {
-				return new ResponseCombat("Fight", "Defend yourself against Amber!", Main.game.getAmber());
+				return new ResponseCombat("Fight", "Defend yourself against Amber!", Main.game.getNpc(Amber.class));
 				
 			} else {
 				return null;
@@ -1265,12 +1262,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld COMBAT_LOSS = new DialogueNodeOld("", "", true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode COMBAT_LOSS = new DialogueNode("", "", true) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 1;
+		public int getSecondsPassed() {
+			return 60;
 		}
 
 		@Override
@@ -1284,8 +1280,10 @@ public class ZaranixHomeGroundFloorRepeat {
 				return new ResponseSex("Used", "Amber starts fucking you.",
 						false, false,
 						new SMAmberDoggyFucked(
-								Util.newHashMapOfValues(new Value<>(Main.game.getAmber(), SexPositionSlot.DOGGY_BEHIND_AMBER)),
-								Util.newHashMapOfValues(new Value<>(Main.game.getPlayer(), SexPositionSlot.DOGGY_ON_ALL_FOURS_AMBER))),
+								Util.newHashMapOfValues(new Value<>(Main.game.getNpc(Amber.class), SexSlotAllFours.BEHIND)),
+								Util.newHashMapOfValues(new Value<>(Main.game.getPlayer(), SexSlotAllFours.ALL_FOURS))),
+						null,
+						null,
 						AFTER_AMBER_SEX_LOSS,
 						UtilText.parseFromXMLFile("places/dominion/zaranixHome/groundFloorRepeat", "COMBAT_LOSS_SEX"));
 			} else {
@@ -1294,12 +1292,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld AFTER_AMBER_SEX_LOSS = new DialogueNodeOld("Used", "", false) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode AFTER_AMBER_SEX_LOSS = new DialogueNode("Used", "", false) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 15;
+		public int getSecondsPassed() {
+			return 15*60;
 		}
 
 		@Override
@@ -1313,12 +1310,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld COMBAT_VICTORY = new DialogueNodeOld("", "", true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode COMBAT_VICTORY = new DialogueNode("", "", true) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 1;
+		public int getSecondsPassed() {
+			return 60;
 		}
 
 		@Override
@@ -1339,9 +1335,11 @@ public class ZaranixHomeGroundFloorRepeat {
 			} if(index==2) {
 				return new ResponseSex("Sex", "Have some fun with Amber.",
 						true, false,
-						new SMStanding(
-								Util.newHashMapOfValues(new Value<>(Main.game.getPlayer(), SexPositionSlot.STANDING_DOMINANT)),
-								Util.newHashMapOfValues(new Value<>(Main.game.getAmber(), SexPositionSlot.STANDING_SUBMISSIVE))),
+						new SMGeneric(
+								Util.newArrayListOfValues(Main.game.getPlayer()),
+								Util.newArrayListOfValues(Main.game.getNpc(Amber.class)),
+								null,
+								null),
 						AFTER_AMBER_SEX_VICTORY,
 						UtilText.parseFromXMLFile("places/dominion/zaranixHome/groundFloorRepeat", "COMBAT_VICTORY_SEX"));
 				
@@ -1349,10 +1347,12 @@ public class ZaranixHomeGroundFloorRepeat {
 				return new ResponseSex("Submit",
 						"Amber's fiery personality is seriously turning you on. You can't bring yourself to take the dominant role, but you <i>do</i> want to have sex with her. Perhaps if you submitted, she'd be willing to fuck you?",
 						Util.newArrayListOfValues(Fetish.FETISH_SUBMISSIVE), null, CorruptionLevel.THREE_DIRTY, null, null, null,
-						true, true,
+						false, false,
 						new SMAmberDoggyFucked(
-								Util.newHashMapOfValues(new Value<>(Main.game.getAmber(), SexPositionSlot.DOGGY_BEHIND_AMBER)),
-								Util.newHashMapOfValues(new Value<>(Main.game.getPlayer(), SexPositionSlot.DOGGY_ON_ALL_FOURS_AMBER))),
+								Util.newHashMapOfValues(new Value<>(Main.game.getNpc(Amber.class), SexSlotAllFours.BEHIND)),
+								Util.newHashMapOfValues(new Value<>(Main.game.getPlayer(), SexSlotAllFours.ALL_FOURS))),
+						null,
+						null,
 						AFTER_AMBER_SEX_SUB_VICTORY,
 						UtilText.parseFromXMLFile("places/dominion/zaranixHome/groundFloorRepeat", "COMBAT_VICTORY_SEX_SEB"));
 				
@@ -1362,12 +1362,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld COMBAT_VICTORY_LEAVE = new DialogueNodeOld("Finished", "", false) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode COMBAT_VICTORY_LEAVE = new DialogueNode("Finished", "", false) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 15;
+		public int getSecondsPassed() {
+			return 15*60;
 		}
 
 		@Override
@@ -1381,12 +1380,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld AFTER_AMBER_SEX_VICTORY = new DialogueNodeOld("Finished", "", false) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode AFTER_AMBER_SEX_VICTORY = new DialogueNode("Finished", "", false) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 15;
+		public int getSecondsPassed() {
+			return 15*60;
 		}
 
 		@Override
@@ -1400,12 +1398,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld AFTER_AMBER_SEX_SUB_VICTORY = new DialogueNodeOld("Used", "", false) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode AFTER_AMBER_SEX_SUB_VICTORY = new DialogueNode("Used", "", false) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 15;
+		public int getSecondsPassed() {
+			return 15*60;
 		}
 
 		@Override
@@ -1419,12 +1416,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld LOUNGE_AMBER_WALKIES = new DialogueNodeOld("Lounge", "", true, true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode LOUNGE_AMBER_WALKIES = new DialogueNode("Lounge", "", true, true) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 1;
+		public int getSecondsPassed() {
+			return 60;
 		}
 
 		@Override
@@ -1441,7 +1437,7 @@ public class ZaranixHomeGroundFloorRepeat {
 			if(index==1) {
 				return new Response("Heel", "Crawl alongside Amber as she leads you out into Demon Home.", WALKIES_HUMILIATION) {
 					@Override
-					public DialogueNodeOld getNextDialogue() {
+					public DialogueNode getNextDialogue() {
 						double rnd = Math.random();
 //						if(rnd>0.01f) { // Testing:
 //							return WALKIES_PET_FUCKS;
@@ -1462,7 +1458,7 @@ public class ZaranixHomeGroundFloorRepeat {
 					@Override
 					public void effects() {
 						Cell c = Main.game.getWorlds().get(WorldType.DOMINION).getRandomCell(PlaceType.DOMINION_DEMON_HOME);
-						Main.game.getAmber().setLocation(WorldType.DOMINION, c.getLocation(), false);
+						Main.game.getNpc(Amber.class).setLocation(WorldType.DOMINION, c.getLocation(), false);
 						Main.game.getPlayer().setLocation(WorldType.DOMINION, c.getLocation(), false);
 						Main.game.getTextStartStringBuilder().append(UtilText.parseFromXMLFile("places/dominion/zaranixHome/groundFloorRepeat", "LOUNGE_AMBER_WALKIES_BEGIN"));
 					}
@@ -1474,12 +1470,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld WALKIES_HUMILIATION = new DialogueNodeOld("Demon Home", "", true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode WALKIES_HUMILIATION = new DialogueNode("Demon Home", "", true) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 15;
+		public int getSecondsPassed() {
+			return 15*60;
 		}
 
 		@Override
@@ -1493,7 +1488,7 @@ public class ZaranixHomeGroundFloorRepeat {
 				return new Response("Don't Lick", "Refuse to lick Amber's shoes in front of her friends.", WALKIES_HUMILIATION_REFUSE) {
 					@Override
 					public void effects() {
-						Main.game.getTextEndStringBuilder().append(Main.game.getAmber().incrementAffection(Main.game.getPlayer(), -10));
+						Main.game.getTextEndStringBuilder().append(Main.game.getNpc(Amber.class).incrementAffection(Main.game.getPlayer(), -10));
 					}
 				};
 				
@@ -1501,7 +1496,7 @@ public class ZaranixHomeGroundFloorRepeat {
 				return new Response("Reluctant Lick", "Reluctantly lick Amber's shoes in front of her friends.", WALKIES_HUMILIATION_RELUCTANT) {
 					@Override
 					public void effects() {
-						Main.game.getTextEndStringBuilder().append(Main.game.getAmber().incrementAffection(Main.game.getPlayer(), -2.5f));
+						Main.game.getTextEndStringBuilder().append(Main.game.getNpc(Amber.class).incrementAffection(Main.game.getPlayer(), -2.5f));
 					}
 				};
 				
@@ -1509,7 +1504,7 @@ public class ZaranixHomeGroundFloorRepeat {
 				return new Response("Eager Lick", "Eagerly lick Amber's shoes in front of her friends.", WALKIES_HUMILIATION_EAGER) {
 					@Override
 					public void effects() {
-						Main.game.getTextEndStringBuilder().append(Main.game.getAmber().incrementAffection(Main.game.getPlayer(), 5f));
+						Main.game.getTextEndStringBuilder().append(Main.game.getNpc(Amber.class).incrementAffection(Main.game.getPlayer(), 5f));
 					}
 				};
 				
@@ -1519,12 +1514,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld WALKIES_HUMILIATION_REFUSE = new DialogueNodeOld("Demon Home", "", true, true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode WALKIES_HUMILIATION_REFUSE = new DialogueNode("Demon Home", "", true, true) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 5;
+		public int getSecondsPassed() {
+			return 5*60;
 		}
 
 		@Override
@@ -1538,8 +1532,8 @@ public class ZaranixHomeGroundFloorRepeat {
 				return new Response("Home", "Crawl alongside Amber as she leads you back to Zaranix's Home.", WALKIES_HOME) {
 					@Override
 					public void effects() {
-						Main.game.getAmber().returnToHome();
-						Main.game.getPlayer().setLocation(WorldType.ZARANIX_HOUSE_GROUND_FLOOR, PlaceType.ZARANIX_GF_ENTRANCE, false);
+						Main.game.getNpc(Amber.class).returnToHome();
+						Main.game.getPlayer().setLocation(WorldType.ZARANIX_HOUSE_GROUND_FLOOR, PlaceType.ZARANIX_GF_LOUNGE, false);
 					}
 				};
 				
@@ -1549,12 +1543,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld WALKIES_HUMILIATION_RELUCTANT = new DialogueNodeOld("Demon Home", "", true, true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode WALKIES_HUMILIATION_RELUCTANT = new DialogueNode("Demon Home", "", true, true) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 5;
+		public int getSecondsPassed() {
+			return 5*60;
 		}
 
 		@Override
@@ -1568,8 +1561,8 @@ public class ZaranixHomeGroundFloorRepeat {
 				return new Response("Home", "Crawl alongside Amber as she leads you back to Zaranix's Home.", WALKIES_HOME) {
 					@Override
 					public void effects() {
-						Main.game.getAmber().returnToHome();
-						Main.game.getPlayer().setLocation(WorldType.ZARANIX_HOUSE_GROUND_FLOOR, PlaceType.ZARANIX_GF_ENTRANCE, false);
+						Main.game.getNpc(Amber.class).returnToHome();
+						Main.game.getPlayer().setLocation(WorldType.ZARANIX_HOUSE_GROUND_FLOOR, PlaceType.ZARANIX_GF_LOUNGE, false);
 					}
 				};
 				
@@ -1579,12 +1572,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld WALKIES_HUMILIATION_EAGER = new DialogueNodeOld("Demon Home", "", true, true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode WALKIES_HUMILIATION_EAGER = new DialogueNode("Demon Home", "", true, true) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 5;
+		public int getSecondsPassed() {
+			return 5*60;
 		}
 
 		@Override
@@ -1598,8 +1590,8 @@ public class ZaranixHomeGroundFloorRepeat {
 				return new Response("Home", "Crawl alongside Amber as she leads you back to Zaranix's Home.", WALKIES_HOME) {
 					@Override
 					public void effects() {
-						Main.game.getAmber().returnToHome();
-						Main.game.getPlayer().setLocation(WorldType.ZARANIX_HOUSE_GROUND_FLOOR, PlaceType.ZARANIX_GF_ENTRANCE, false);
+						Main.game.getNpc(Amber.class).returnToHome();
+						Main.game.getPlayer().setLocation(WorldType.ZARANIX_HOUSE_GROUND_FLOOR, PlaceType.ZARANIX_GF_LOUNGE, false);
 					}
 				};
 				
@@ -1609,12 +1601,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld WALKIES_PEACEFUL = new DialogueNodeOld("Demon Home", "", true, true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode WALKIES_PEACEFUL = new DialogueNode("Demon Home", "", true, true) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 5;
+		public int getSecondsPassed() {
+			return 15*60;
 		}
 
 		@Override
@@ -1628,8 +1619,8 @@ public class ZaranixHomeGroundFloorRepeat {
 				return new Response("Home", "Crawl alongside Amber as she leads you back to Zaranix's Home.", WALKIES_HOME) {
 					@Override
 					public void effects() {
-						Main.game.getAmber().returnToHome();
-						Main.game.getPlayer().setLocation(WorldType.ZARANIX_HOUSE_GROUND_FLOOR, PlaceType.ZARANIX_GF_ENTRANCE, false);
+						Main.game.getNpc(Amber.class).returnToHome();
+						Main.game.getPlayer().setLocation(WorldType.ZARANIX_HOUSE_GROUND_FLOOR, PlaceType.ZARANIX_GF_LOUNGE, false);
 					}
 				};
 				
@@ -1639,12 +1630,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld WALKIES_PUNISHMENT = new DialogueNodeOld("Demon Home", "", true, true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode WALKIES_PUNISHMENT = new DialogueNode("Demon Home", "", true, true) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 5;
+		public int getSecondsPassed() {
+			return 15*60;
 		}
 
 		@Override
@@ -1658,8 +1648,8 @@ public class ZaranixHomeGroundFloorRepeat {
 				return new Response("Home", "Crawl alongside Amber as she leads you back to Zaranix's Home.", WALKIES_HOME) {
 					@Override
 					public void effects() {
-						Main.game.getAmber().returnToHome();
-						Main.game.getPlayer().setLocation(WorldType.ZARANIX_HOUSE_GROUND_FLOOR, PlaceType.ZARANIX_GF_ENTRANCE, false);
+						Main.game.getNpc(Amber.class).returnToHome();
+						Main.game.getPlayer().setLocation(WorldType.ZARANIX_HOUSE_GROUND_FLOOR, PlaceType.ZARANIX_GF_LOUNGE, false);
 					}
 				};
 				
@@ -1669,12 +1659,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld WALKIES_AMBER_FUCKS = new DialogueNodeOld("Demon Home", "", true, true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode WALKIES_AMBER_FUCKS = new DialogueNode("Demon Home", "", true, true) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 5;
+		public int getSecondsPassed() {
+			return 15*60;
 		}
 
 		@Override
@@ -1688,7 +1677,7 @@ public class ZaranixHomeGroundFloorRepeat {
 				return new Response("Refuse", "Refuse to let Amber publicly fuck you.", WALKIES_AMBER_FUCKS_REFUSED) {
 					@Override
 					public void effects() {
-						Main.game.getTextEndStringBuilder().append(Main.game.getAmber().incrementAffection(Main.game.getPlayer(), -15f));
+						Main.game.getTextEndStringBuilder().append(Main.game.getNpc(Amber.class).incrementAffection(Main.game.getPlayer(), -15f));
 					}
 				};
 				
@@ -1698,18 +1687,15 @@ public class ZaranixHomeGroundFloorRepeat {
 						null, null, null, null, null, null,
 						true, false,
 						new SMAmberDoggyFucked(
-								Util.newHashMapOfValues(new Value<>(Main.game.getAmber(), SexPositionSlot.DOGGY_BEHIND_AMBER)),
-								Util.newHashMapOfValues(new Value<>(Main.game.getPlayer(), SexPositionSlot.DOGGY_ON_ALL_FOURS_AMBER))) {
-							@Override
-							public boolean isPublicSex() {
-								return true;
-							}
-						},
+								Util.newHashMapOfValues(new Value<>(Main.game.getNpc(Amber.class), SexSlotAllFours.BEHIND)),
+								Util.newHashMapOfValues(new Value<>(Main.game.getPlayer(), SexSlotAllFours.ALL_FOURS))),
+						null,
+						null,
 						WALKIES_AMBER_FUCKS_POST_SEX,
 						UtilText.parseFromXMLFile("places/dominion/zaranixHome/groundFloorRepeat", "WALKIES_AMBER_FUCKS_START")) {
 					@Override
 					public void effects() {
-						Main.game.getTextEndStringBuilder().append(Main.game.getAmber().incrementAffection(Main.game.getPlayer(), 10f));
+						Main.game.getTextEndStringBuilder().append(Main.game.getNpc(Amber.class).incrementAffection(Main.game.getPlayer(), 10f));
 					}
 				};
 				
@@ -1719,12 +1705,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld WALKIES_AMBER_FUCKS_REFUSED = new DialogueNodeOld("Demon Home", "", true, true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode WALKIES_AMBER_FUCKS_REFUSED = new DialogueNode("Demon Home", "", true, true) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 5;
+		public int getSecondsPassed() {
+			return 60;
 		}
 
 		@Override
@@ -1738,8 +1723,8 @@ public class ZaranixHomeGroundFloorRepeat {
 				return new Response("Home", "Crawl alongside Amber as she leads you back to Zaranix's Home.", WALKIES_HOME) {
 					@Override
 					public void effects() {
-						Main.game.getAmber().returnToHome();
-						Main.game.getPlayer().setLocation(WorldType.ZARANIX_HOUSE_GROUND_FLOOR, PlaceType.ZARANIX_GF_ENTRANCE, false);
+						Main.game.getNpc(Amber.class).returnToHome();
+						Main.game.getPlayer().setLocation(WorldType.ZARANIX_HOUSE_GROUND_FLOOR, PlaceType.ZARANIX_GF_LOUNGE, false);
 					}
 				};
 				
@@ -1749,13 +1734,7 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld WALKIES_AMBER_FUCKS_POST_SEX = new DialogueNodeOld("Used", "", true) {
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		public int getMinutesPassed() {
-			return 5;
-		}
+	public static final DialogueNode WALKIES_AMBER_FUCKS_POST_SEX = new DialogueNode("Used", "", true) {
 
 		@Override
 		public String getContent() {
@@ -1768,8 +1747,8 @@ public class ZaranixHomeGroundFloorRepeat {
 				return new Response("Home", "Crawl alongside Amber as she leads you back to Zaranix's Home.", WALKIES_HOME) {
 					@Override
 					public void effects() {
-						Main.game.getAmber().returnToHome();
-						Main.game.getPlayer().setLocation(WorldType.ZARANIX_HOUSE_GROUND_FLOOR, PlaceType.ZARANIX_GF_ENTRANCE, false);
+						Main.game.getNpc(Amber.class).returnToHome();
+						Main.game.getPlayer().setLocation(WorldType.ZARANIX_HOUSE_GROUND_FLOOR, PlaceType.ZARANIX_GF_LOUNGE, false);
 					}
 				};
 				
@@ -1779,12 +1758,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld WALKIES_PET_FUCKS = new DialogueNodeOld("Demon Home", "", true, true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode WALKIES_PET_FUCKS = new DialogueNode("Demon Home", "", true, true) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 5;
+		public int getSecondsPassed() {
+			return 15*60;
 		}
 
 		@Override
@@ -1795,16 +1773,16 @@ public class ZaranixHomeGroundFloorRepeat {
 		@Override
 		public Response getResponse(int responseTab, int index) {
 			if(index==1) {
-				return new Response("Amber's friend", "You stay by Mistress Amber's side as the two of you head over to what must be Mistress's friend.", WALKIES_PET_FUCKS_SNIFFING) {
+				return new Response("Amber's friend", "You stay by Mistress Amber's side as the two of you head over to who must be Mistress's friend.", WALKIES_PET_FUCKS_SNIFFING) {
 					@Override
 					public void effects() {
-						Gender petGender = GenderPreference.getGenderFromUserPreferences();
+						Gender petGender = Gender.getGenderFromUserPreferences(false, false);
 						
 						pet = new GenericSexualPartner(
 								petGender.getGenderName().isHasPenis()?petGender:(petGender.isFeminine()?Gender.F_P_V_B_FUTANARI:Gender.M_P_MALE), Main.game.getPlayer().getWorldLocation(), Main.game.getPlayer().getLocation(), false);
 						pet.setPlayerKnowsName(true);
 						owner = new GenericSexualPartner(Gender.F_P_V_B_FUTANARI, Main.game.getPlayer().getWorldLocation(), Main.game.getPlayer().getLocation(), false);
-						owner.setBody(GenderPreference.getGenderFromUserPreferences(), RacialBody.DEMON, RaceStage.GREATER);
+						owner.setBody(Gender.getGenderFromUserPreferences(false, false), RacialBody.DEMON, RaceStage.GREATER, false);
 						owner.setName(Name.getRandomTriplet(owner.getRace()));
 						
 						try {
@@ -1827,7 +1805,7 @@ public class ZaranixHomeGroundFloorRepeat {
 								break;
 							}
 							owner.addSlave(pet);
-							pet.unequipAllClothingIntoVoid();
+							pet.unequipAllClothingIntoVoid(true, true);
 							pet.clearFetishDesires();
 							pet.clearFetishes();
 							if(Main.game.getPlayer().hasVagina() && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.VAGINA, true)) {
@@ -1839,7 +1817,7 @@ public class ZaranixHomeGroundFloorRepeat {
 								pet.addFetish(Fetish.FETISH_ANAL_GIVING);
 							}
 							pet.addFetish(Fetish.FETISH_ORAL_RECEIVING);
-							pet.equipClothingFromNowhere(AbstractClothingType.generateClothing(ClothingType.NECK_SLAVE_COLLAR), true, owner);
+							pet.equipClothingFromNowhere(AbstractClothingType.generateClothing("innoxia_bdsm_metal_collar", false), true, owner);
 							if(Math.random()>0.5f) {
 								pet.equipClothingFromNowhere(AbstractClothingType.generateClothing(ClothingType.BDSM_BALLGAG), true, owner);
 							}
@@ -1859,12 +1837,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld WALKIES_PET_FUCKS_SNIFFING = new DialogueNodeOld("Demon Home", "", true, true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode WALKIES_PET_FUCKS_SNIFFING = new DialogueNode("Demon Home", "", true, true) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 5;
+		public int getSecondsPassed() {
+			return 5*60;
 		}
 
 		@Override
@@ -1894,8 +1871,8 @@ public class ZaranixHomeGroundFloorRepeat {
 					return new Response("Home", "Crawl alongside Amber as she leads you back to Zaranix's Home.", WALKIES_HOME) {
 						@Override
 						public void effects() {
-							Main.game.getAmber().returnToHome();
-							Main.game.getPlayer().setLocation(WorldType.ZARANIX_HOUSE_GROUND_FLOOR, PlaceType.ZARANIX_GF_ENTRANCE, false);
+							Main.game.getNpc(Amber.class).returnToHome();
+							Main.game.getPlayer().setLocation(WorldType.ZARANIX_HOUSE_GROUND_FLOOR, PlaceType.ZARANIX_GF_LOUNGE, false);
 							Main.game.banishNPC(owner);
 							Main.game.banishNPC(pet);
 						}
@@ -1910,7 +1887,7 @@ public class ZaranixHomeGroundFloorRepeat {
 					return new Response("Refuse", "Refuse to present yourself to [npc.name].", WALKIES_PET_FUCKS_REFUSE) {
 						@Override
 						public void effects() {
-							Main.game.getTextEndStringBuilder().append(Main.game.getAmber().incrementAffection(Main.game.getPlayer(), -10f));
+							Main.game.getTextEndStringBuilder().append(Main.game.getNpc(Amber.class).incrementAffection(Main.game.getPlayer(), -10f));
 						}
 					};
 					
@@ -1922,39 +1899,41 @@ public class ZaranixHomeGroundFloorRepeat {
 								null, null, null, null, null, null,
 								true, false,
 								new SMPetMounting(
-										Util.newHashMapOfValues(new Value<>(pet, SexPositionSlot.PET_MOUNTING_HUMPING)),
-										Util.newHashMapOfValues(new Value<>(Main.game.getPlayer(), SexPositionSlot.PET_MOUNTING_ON_ALL_FOURS))),
+										Util.newHashMapOfValues(new Value<>(pet, SexSlotUnique.PET_MOUNTING_HUMPING)),
+										Util.newHashMapOfValues(new Value<>(Main.game.getPlayer(), SexSlotUnique.PET_MOUNTING_ON_ALL_FOURS))) {
+									@Override
+									public Map<GameCharacter, List<CoverableArea>> exposeAtStartOfSexMap() {
+										return Util.newHashMapOfValues(new Value<>(Main.game.getPlayer(), Util.newArrayListOfValues(CoverableArea.ANUS, CoverableArea.VAGINA)));
+									}
+								},
+								null,
+								null,
 								WALKIES_PET_FUCKS_POST_SEX,
 								UtilText.parseFromXMLFile("places/dominion/zaranixHome/groundFloorRepeat", "WALKIES_PET_FUCKS_START", Util.newArrayListOfValues(owner, pet))
-								+ (Main.game.getPlayer().isCoverableAreaExposed(CoverableArea.ANUS) || (Main.game.getPlayer().hasVagina() && Main.game.getPlayer().isCoverableAreaExposed(CoverableArea.VAGINA))
+								+ (Main.game.getPlayer().isCoverableAreaVisible(CoverableArea.ANUS) || (Main.game.getPlayer().hasVagina() && Main.game.getPlayer().isCoverableAreaVisible(CoverableArea.VAGINA))
 										?UtilText.parseFromXMLFile("places/dominion/zaranixHome/groundFloorRepeat", "WALKIES_PET_FUCKS_START_EXPOSED", Util.newArrayListOfValues(owner, pet))
 										:UtilText.parseFromXMLFile("places/dominion/zaranixHome/groundFloorRepeat", "WALKIES_PET_FUCKS_START_CLOTHING", Util.newArrayListOfValues(owner, pet)))
 								) {
 							@Override
 							public void effects() {
-								Main.game.getTextEndStringBuilder().append(Main.game.getAmber().incrementAffection(Main.game.getPlayer(), 10f));
-								
-								Main.game.getPlayer().displaceClothingForAccess(CoverableArea.ANUS);
-								if((Main.game.getPlayer().hasVagina() && Main.game.getPlayer().isAbleToAccessCoverableArea(CoverableArea.VAGINA, true))) {
-									Main.game.getPlayer().displaceClothingForAccess(CoverableArea.VAGINA);
-								}
+								Main.game.getTextEndStringBuilder().append(Main.game.getNpc(Amber.class).incrementAffection(Main.game.getPlayer(), 10f));
 							}
 						};
 					
 					} else {
 						// Player performing oral:
 						return new ResponseSex("Perform oral",
-								"Do as Amber commands and get ready to suck [npc.name]'s [npc.cock+].",
+								"Do as Amber commands and get ready to suck [npc.namePos] [npc.cock+].",
 								null, null, null, null, null, null,
 								true, false,
 								new SMPetOral(
-										Util.newHashMapOfValues(new Value<>(pet, SexPositionSlot.PET_ORAL_COCKED_LEG)),
-										Util.newHashMapOfValues(new Value<>(Main.game.getPlayer(), SexPositionSlot.PET_ORAL_ON_ALL_FOURS))),
-								WALKIES_PET_FUCKS_POST_SEX_ORAL,
-								UtilText.parseFromXMLFile("places/dominion/zaranixHome/groundFloorRepeat", "WALKIES_PET_FUCKS_START_ORAL", Util.newArrayListOfValues(owner, pet))) {
+										Util.newHashMapOfValues(new Value<>(pet, SexSlotUnique.PET_ORAL_COCKED_LEG)),
+										Util.newHashMapOfValues(new Value<>(Main.game.getPlayer(), SexSlotUnique.PET_ORAL_ON_ALL_FOURS))),
+								null,
+								null, WALKIES_PET_FUCKS_POST_SEX_ORAL, UtilText.parseFromXMLFile("places/dominion/zaranixHome/groundFloorRepeat", "WALKIES_PET_FUCKS_START_ORAL", Util.newArrayListOfValues(owner, pet))) {
 							@Override
 							public void effects() {
-								Main.game.getTextEndStringBuilder().append(Main.game.getAmber().incrementAffection(Main.game.getPlayer(), 10f));
+								Main.game.getTextEndStringBuilder().append(Main.game.getNpc(Amber.class).incrementAffection(Main.game.getPlayer(), 10f));
 							}
 						};
 					}
@@ -1966,13 +1945,7 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld WALKIES_PET_FUCKS_POST_SEX = new DialogueNodeOld("Used", "", true) {
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		public int getMinutesPassed() {
-			return 10;
-		}
+	public static final DialogueNode WALKIES_PET_FUCKS_POST_SEX = new DialogueNode("Used", "", true) {
 
 		@Override
 		public String getContent() {
@@ -1985,10 +1958,10 @@ public class ZaranixHomeGroundFloorRepeat {
 				return new Response("Home", "Crawl alongside Amber as she leads you back to Zaranix's Home.", WALKIES_HOME) {
 					@Override
 					public void effects() {
-						Main.game.getAmber().returnToHome();
-						Main.game.getPlayer().setLocation(WorldType.ZARANIX_HOUSE_GROUND_FLOOR, PlaceType.ZARANIX_GF_ENTRANCE, false);
+						Main.game.getNpc(Amber.class).returnToHome();
+						Main.game.getPlayer().setLocation(WorldType.ZARANIX_HOUSE_GROUND_FLOOR, PlaceType.ZARANIX_GF_LOUNGE, false);
 						Main.game.banishNPC(owner);
-						owner.removeSlave(pet); //To stop issues with banisNPC() TODO fix this
+						owner.removeSlave(pet); //To stop issues with banishNPC() TODO fix this
 						Main.game.banishNPC(pet);
 					}
 				};
@@ -1999,13 +1972,7 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld WALKIES_PET_FUCKS_POST_SEX_ORAL = new DialogueNodeOld("Used", "", true) {
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		public int getMinutesPassed() {
-			return 10;
-		}
+	public static final DialogueNode WALKIES_PET_FUCKS_POST_SEX_ORAL = new DialogueNode("Used", "", true) {
 
 		@Override
 		public String getContent() {
@@ -2018,10 +1985,10 @@ public class ZaranixHomeGroundFloorRepeat {
 				return new Response("Home", "Crawl alongside Amber as she leads you back to Zaranix's Home.", WALKIES_HOME) {
 					@Override
 					public void effects() {
-						Main.game.getAmber().returnToHome();
-						Main.game.getPlayer().setLocation(WorldType.ZARANIX_HOUSE_GROUND_FLOOR, PlaceType.ZARANIX_GF_ENTRANCE, false);
+						Main.game.getNpc(Amber.class).returnToHome();
+						Main.game.getPlayer().setLocation(WorldType.ZARANIX_HOUSE_GROUND_FLOOR, PlaceType.ZARANIX_GF_LOUNGE, false);
 						Main.game.banishNPC(owner);
-						owner.removeSlave(pet); //To stop issues with banisNPC() TODO fix this
+						owner.removeSlave(pet); //To stop issues with banishNPC() TODO fix this
 						Main.game.banishNPC(pet);
 					}
 				};
@@ -2032,12 +1999,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld WALKIES_PET_FUCKS_REFUSE = new DialogueNodeOld("Demon Home", "", true, true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode WALKIES_PET_FUCKS_REFUSE = new DialogueNode("Demon Home", "", true, true) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 5;
+		public int getSecondsPassed() {
+			return 60;
 		}
 
 		@Override
@@ -2051,8 +2017,8 @@ public class ZaranixHomeGroundFloorRepeat {
 				return new Response("Home", "Crawl alongside Amber as she leads you back to Zaranix's Home.", WALKIES_HOME) {
 					@Override
 					public void effects() {
-						Main.game.getAmber().returnToHome();
-						Main.game.getPlayer().setLocation(WorldType.ZARANIX_HOUSE_GROUND_FLOOR, PlaceType.ZARANIX_GF_ENTRANCE, false);
+						Main.game.getNpc(Amber.class).returnToHome();
+						Main.game.getPlayer().setLocation(WorldType.ZARANIX_HOUSE_GROUND_FLOOR, PlaceType.ZARANIX_GF_LOUNGE, false);
 						Main.game.banishNPC(owner);
 						Main.game.banishNPC(pet);
 					}
@@ -2064,12 +2030,11 @@ public class ZaranixHomeGroundFloorRepeat {
 		}
 	};
 	
-	public static final DialogueNodeOld WALKIES_HOME = new DialogueNodeOld("", "", false) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode WALKIES_HOME = new DialogueNode("", "", false) {
 
 		@Override
-		public int getMinutesPassed() {
-			return 1;
+		public int getSecondsPassed() {
+			return 5*60;
 		}
 
 		@Override
@@ -2088,7 +2053,7 @@ public class ZaranixHomeGroundFloorRepeat {
 
 		@Override
 		public Response getResponse(int responseTab, int index) {
-			return ENTRANCE.getResponse(responseTab, index);
+			return LOUNGE.getResponse(responseTab, index);
 		}
 	};
 	

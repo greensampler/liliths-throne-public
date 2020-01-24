@@ -1,14 +1,16 @@
 package com.lilithsthrone.game.character.race;
 
+import com.lilithsthrone.main.Main;
 import com.lilithsthrone.utils.Colour;
+import com.lilithsthrone.utils.Util;
 
 /**
  * @since 0.1.0
- * @version 0.1.66
+ * @version 0.2.8
  * @author Innoxia
  */
 public enum RaceStage {
-	/**No animal-morph parts whatsoever.</br>
+	/**No animal-morph parts whatsoever.<br/>
 	 * <i>"Not furry"</i> by any standard.*/
 	HUMAN("", Colour.TRANSFORMATION_HUMAN) {
 		@Override
@@ -71,10 +73,14 @@ public enum RaceStage {
 		public boolean isWingFurry() {
 			return false;
 		}
+		@Override
+		public boolean isTentacleFurry() {
+			return false;
+		}
 	},
 	
-	/**Some minor animal-morph parts.</br>
-	 * When used in GameCharacter's setBody() method, will grant <b>only</b> ears, eyes, tail, horns, antenna, and wings (no genitalia).</br>
+	/**Some minor animal-morph parts.<br/>
+	 * When used in GameCharacter's setBody() method, will grant <b>only</b> hair, ears, eyes, tail, horns, antenna, and wings (no genitalia).<br/>
 	 * <i>"Not furry"</i> by most standards.*/
 	PARTIAL("partial", Colour.TRANSFORMATION_PARTIAL) {
 		@Override
@@ -107,7 +113,7 @@ public enum RaceStage {
 		}
 		@Override
 		public boolean isHairFurry() {
-			return false;
+			return true;
 		}
 		@Override
 		public boolean isHornFurry() {
@@ -137,9 +143,13 @@ public enum RaceStage {
 		public boolean isWingFurry() {
 			return true;
 		}
+		@Override
+		public boolean isTentacleFurry() {
+			return false;
+		}
 	},
 
-	/**All minor animal-morph parts (including genitalia).</br>
+	/**All minor animal-morph parts (including genitalia).<br/>
 	 * <i>"Borderline furry"</i> by most standards.*/
 	PARTIAL_FULL("minor", Colour.TRANSFORMATION_PARTIAL_FULL) {
 		@Override
@@ -152,11 +162,11 @@ public enum RaceStage {
 		}
 		@Override
 		public boolean isAssFurry() {
-			return false;
+			return true;
 		}
 		@Override
 		public boolean isBreastFurry() {
-			return false;
+			return true;
 		}
 		@Override
 		public boolean isEarFurry() {
@@ -202,9 +212,13 @@ public enum RaceStage {
 		public boolean isWingFurry() {
 			return true;
 		}
+		@Override
+		public boolean isTentacleFurry() {
+			return false;
+		}
 	},
 
-	/**All minor animal-morph parts (including genitalia), plus animal-morph arms and legs.</br>
+	/**All minor animal-morph parts (including genitalia), plus animal-morph arms and legs.<br/>
 	 * <i>"Low-level furry"</i> by most standards.*/
 	LESSER("lesser", Colour.TRANSFORMATION_LESSER) {
 		@Override
@@ -267,9 +281,13 @@ public enum RaceStage {
 		public boolean isWingFurry() {
 			return true;
 		}
+		@Override
+		public boolean isTentacleFurry() {
+			return false;
+		}
 	},
 
-	/**All minor animal-morph parts, animal-morph arms and legs, and animal-morph skin and face.</br>
+	/**All minor animal-morph parts, animal-morph arms and legs, and animal-morph skin and face.<br/>
 	 * <i>"Furry"</i> by all standards.*/
 	GREATER("greater", Colour.TRANSFORMATION_GREATER) {
 		@Override
@@ -332,6 +350,10 @@ public enum RaceStage {
 		public boolean isWingFurry() {
 			return true;
 		}
+		@Override
+		public boolean isTentacleFurry() {
+			return true;
+		}
 	};
 
 	private String name;
@@ -349,6 +371,27 @@ public enum RaceStage {
 	public Colour getColour() {
 		return colour;
 	}
+	
+	public static RaceStage getRaceStageFromUserPreferences(Subspecies subspecies) {
+		FurryPreference preference = Main.getProperties().getSubspeciesFeminineFurryPreferencesMap().get(subspecies);
+		
+		RaceStage raceStage = RaceStage.PARTIAL;
+		
+		switch(preference) {
+			case HUMAN:
+				return RaceStage.HUMAN;
+			case MINIMUM:
+				return RaceStage.PARTIAL;
+			case REDUCED:
+				return Util.randomItemFrom(Util.newArrayListOfValues(RaceStage.PARTIAL, RaceStage.LESSER));
+			case NORMAL:
+				return Util.randomItemFrom(Util.newArrayListOfValues(RaceStage.PARTIAL, RaceStage.LESSER, RaceStage.GREATER));
+			case MAXIMUM:
+				return RaceStage.GREATER;
+		}
+		
+		return raceStage;
+	}
 
 	public abstract boolean isAntennaFurry();
 	public abstract boolean isArmFurry();
@@ -363,6 +406,7 @@ public enum RaceStage {
 	public abstract boolean isPenisFurry();
 	public abstract boolean isSkinFurry();
 	public abstract boolean isTailFurry();
+	public abstract boolean isTentacleFurry();
 	public abstract boolean isVaginaFurry();
 	public abstract boolean isWingFurry();
 }

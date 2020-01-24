@@ -2,100 +2,62 @@ package com.lilithsthrone.game.sex.sexActions;
 
 /**
  * @since 0.1.65
- * @version 0.1.97
+ * @version 0.3.4
  * @author Innoxia
  */
 public enum SexActionType {
 	
-	// Player:
+	/**Standard ongoing action. Requires all SexAreaInterfaces to be occupied with each other.*/
+	ONGOING,
 
-	/**Standard player action. Requires the associated PenetrationType and OrificeType to be occupied with each other.*/
-	PLAYER(true),
+	/**An action in which a character is speaking.*/
+	SPEECH,
 	
-	/**Standard player action. Requires the associated PenetrationType and OrificeTypes to be free.*/
-	PLAYER_REQUIRES_NO_PENETRATION(true),
+	/**Standard non-penetrative action. Requires all SexAreaInterfaces to be exposed.*/
+	REQUIRES_EXPOSED,
 	
-	/**Standard player action. Requires the associated PenetrationType and OrificeTypes to be free.*/
-	PLAYER_REQUIRES_NO_PENETRATION_AND_EXPOSED(true),
+	/**Standard non-penetrative action. Requires all SexAreaInterfaces to be free (not involved in an ongoing action).*/
+	REQUIRES_NO_PENETRATION,
 	
-	/**Player action. Applies penetration.*/
-	PLAYER_PENETRATION(true),
+	/**Non-penetrative action which also requires all SexAreaInterfaces to be exposed.*/
+	REQUIRES_NO_PENETRATION_AND_EXPOSED,
 	
-	/**Player action. Stops penetration.*/
-	PLAYER_STOP_PENETRATION(true),
-	
-	/**Player action. Changes position.*/
-	PLAYER_POSITIONING(true),
+	/**Action which starts an ongoing penetration or action (such as performing a blowjob, or fingering someone).*/
+	START_ONGOING,
 
-	/**Player action. The action taken to prepare for partner's orgasm.*/
-	PLAYER_PREPARE_PARTNER_ORGASM(true),
+	/**Action which brings another character in to an ongoing penetration or action (such as getting a second kneeling NPC to join the first in giving you a blowjob, or fingering an NPC who is being fucked by a third party).*/
+	START_ADDITIONAL_ONGOING,
 	
-	/**Player action. Orgasm.*/
-	PLAYER_ORGASM(true),
+	/**Action which stops the ongoing process of all SexAreaInterfaces.*/
+	STOP_ONGOING,
 	
-	/**Player action. Orgasm that doesn't reset arousal.*/
-	PLAYER_ORGASM_NO_AROUSAL_RESET(true),
-	
-	/**Player action. Special miscellaneous actions such as stopping sex.*/
-	PLAYER_SPECIAL(true),
+	/**Positioning action.*/
+	POSITIONING,
 
-	
-//	// Mutual:
-//	
-//	/**Mutual orgasms. Player is always in control of these.*/
-//	MUTUAL_ORGASM(true),
-	
-	
-	// Partner:
+	/**OPening the positioning menu action.*/
+	POSITIONING_MENU,
 
-	/**Standard partner action. Requires the associated PenetrationType and OrificeType to be occupied with each other.*/
-	PARTNER(false),
+	/**The action taken to prepare for partner's orgasm.*/
+	PREPARE_FOR_PARTNER_ORGASM,
 	
-	/**Standard partner action. Requires the associated PenetrationType and OrificeTypes to be free.*/
-	PARTNER_REQUIRES_NO_PENETRATION(false),
+	/**Orgasm.*/
+	ORGASM,
 	
-	/**Standard partner action. Requires the associated PenetrationType and OrificeTypes to be free.*/
-	PARTNER_REQUIRES_NO_PENETRATION_AND_EXPOSED(false),
-
-	/**Partner action. Applies penetration.*/
-	PARTNER_PENETRATION(false),
+	/**Orgasm that it denied (so it doesn't reset arousal, increment orgasm count, nor apply any orgasm-related effects).*/
+	ORGASM_DENIAL,
 	
-	/**Partner action. Stops penetration.*/
-	PARTNER_STOP_PENETRATION(false),
+	/**Special miscellaneous actions such as stopping sex.*/
+	SPECIAL;
 	
-	/**Partner action. Changes position.*/
-	PARTNER_POSITIONING(false),
-	
-	/**Partner action. The action taken to prepare for player's orgasm.*/
-	PARTNER_PREPARE_PLAYER_ORGASM(false),
-	
-	/**Partner action. Orgasm.*/
-	PARTNER_ORGASM(false),
-	
-	/**Partner action. Orgasm that doesn't reset arousal.*/
-	PARTNER_ORGASM_NO_AROUSAL_RESET(false),
-	
-	/**Partner action. Special miscellaneous actions such as stopping sex.*/
-	PARTNER_SPECIAL(false);
-	
-	
-	private boolean playerAction;
-	
-	private SexActionType(boolean playerAction){
-		this.playerAction=playerAction;
-	}
-
-	public boolean isPlayerAction() {
-		return playerAction;
+	/**
+	 * @return True if this action <b>could</b> be a penetrating one.
+	 *  If the ongoing action involves no penetration, such as penis being rubbed over pussy without being inserted (there are none at the time of this method being created in v0.3.0.6), then this will not be accurate.
+	 */
+	public boolean isPenetratingOption() {
+		return this == START_ONGOING || this == ONGOING;
 	}
 	
 	public boolean isOrgasmOption() {
-		return this == PLAYER_ORGASM
-				|| this == PLAYER_ORGASM_NO_AROUSAL_RESET
-
-				|| this == PARTNER_ORGASM
-				|| this == PARTNER_ORGASM_NO_AROUSAL_RESET;
-				
-//				|| this == MUTUAL_ORGASM;
+		return this == ORGASM || this == ORGASM_DENIAL;
 	}
 }

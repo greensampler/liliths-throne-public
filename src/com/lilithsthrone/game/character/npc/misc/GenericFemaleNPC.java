@@ -1,15 +1,19 @@
 package com.lilithsthrone.game.character.npc.misc;
 
+import java.time.Month;
+import java.util.List;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.lilithsthrone.game.character.CharacterImportSetting;
+import com.lilithsthrone.game.character.EquipClothingSetting;
 import com.lilithsthrone.game.character.gender.Gender;
 import com.lilithsthrone.game.character.npc.NPC;
 import com.lilithsthrone.game.character.persona.NameTriplet;
 import com.lilithsthrone.game.character.race.RaceStage;
-import com.lilithsthrone.game.character.race.RacialBody;
-import com.lilithsthrone.game.dialogue.DialogueNodeOld;
+import com.lilithsthrone.game.character.race.Subspecies;
+import com.lilithsthrone.game.dialogue.DialogueNode;
 import com.lilithsthrone.game.inventory.CharacterInventory;
 import com.lilithsthrone.world.WorldType;
 import com.lilithsthrone.world.places.PlaceType;
@@ -21,15 +25,14 @@ import com.lilithsthrone.world.places.PlaceType;
  */
 public class GenericFemaleNPC extends NPC {
 
-	private static final long serialVersionUID = 1L;
-
 	public GenericFemaleNPC() {
 		this(false);
 	}
 	
 	public GenericFemaleNPC(boolean isImported) {
-		super(new NameTriplet("unknown female"), "Unknown.",
-				1, Gender.F_V_B_FEMALE, RacialBody.HUMAN, RaceStage.HUMAN,
+		super(isImported, new NameTriplet("unknown female"), null, "Unknown.",
+				25, Month.JUNE, 15,
+				1, Gender.F_V_B_FEMALE, Subspecies.HUMAN, RaceStage.HUMAN,
 				new CharacterInventory(0), WorldType.EMPTY, PlaceType.GENERIC_EMPTY_TILE, true);
 	}
 	
@@ -37,6 +40,16 @@ public class GenericFemaleNPC extends NPC {
 	public void loadFromXML(Element parentElement, Document doc, CharacterImportSetting... settings) {
 		loadNPCVariablesFromXML(this, null, parentElement, doc, settings);
 		this.setName(new NameTriplet("unknown female"));
+	}
+
+	@Override
+	public void setStartingBody(boolean setPersona) {
+		// Not needed
+	}
+
+	@Override
+	public void equipClothing(List<EquipClothingSetting> settings) {
+		// Not needed
 	}
 	
 	@Override
@@ -49,12 +62,8 @@ public class GenericFemaleNPC extends NPC {
 	}
 	
 	@Override
-	public DialogueNodeOld getEncounterDialogue() {
+	public DialogueNode getEncounterDialogue() {
 		return null;
-	}
-
-	@Override
-	public void endSex(boolean applyEffects) {
 	}
 	
 

@@ -9,64 +9,71 @@ import com.lilithsthrone.game.character.body.Body;
 import com.lilithsthrone.game.character.body.valueEnums.OrificeModifier;
 import com.lilithsthrone.game.character.race.Race;
 import com.lilithsthrone.game.dialogue.utils.UtilText;
-import com.lilithsthrone.game.sex.OrificeType;
-import com.lilithsthrone.game.sex.Sex;
-import com.lilithsthrone.main.Main;
-import com.lilithsthrone.utils.Util;
 
 /**
  * @since 0.1.0
- * @version 0.2.2
+ * @version 0.3.5.5
  * @author Innoxia
  */
 public enum VaginaType implements BodyPartTypeInterface {
 
-	NONE(null, FluidType.GIRL_CUM_HUMAN, null),
+	NONE(null, FluidType.GIRL_CUM_HUMAN, Race.NONE, false),
 
-	HUMAN(BodyCoveringType.VAGINA, FluidType.GIRL_CUM_HUMAN, Race.HUMAN),
+	HUMAN(BodyCoveringType.VAGINA, FluidType.GIRL_CUM_HUMAN, Race.HUMAN, false),
 
-	ANGEL(BodyCoveringType.VAGINA, FluidType.GIRL_CUM_ANGEL, Race.ANGEL, OrificeModifier.MUSCLE_CONTROL),
+	ANGEL(BodyCoveringType.VAGINA, FluidType.GIRL_CUM_ANGEL, Race.ANGEL, false, OrificeModifier.MUSCLE_CONTROL),
 
-	DEMON_COMMON(BodyCoveringType.VAGINA, FluidType.GIRL_CUM_DEMON, Race.DEMON, OrificeModifier.MUSCLE_CONTROL, OrificeModifier.TENTACLED),
+	DEMON_COMMON(BodyCoveringType.VAGINA, FluidType.GIRL_CUM_DEMON, Race.DEMON, false, OrificeModifier.MUSCLE_CONTROL),
 
-	IMP(BodyCoveringType.VAGINA, FluidType.GIRL_CUM_IMP, Race.IMP, OrificeModifier.MUSCLE_CONTROL, OrificeModifier.TENTACLED),
+	DOG_MORPH(BodyCoveringType.VAGINA, FluidType.GIRL_CUM_DOG_MORPH, Race.DOG_MORPH, false),
 
-	DOG_MORPH(BodyCoveringType.VAGINA, FluidType.GIRL_CUM_DOG_MORPH, Race.DOG_MORPH),
-
-	WOLF_MORPH(BodyCoveringType.VAGINA, FluidType.GIRL_CUM_WOLF_MORPH, Race.WOLF_MORPH),
-
-	SQUIRREL_MORPH(BodyCoveringType.VAGINA, FluidType.GIRL_CUM_SQUIRREL_MORPH, Race.SQUIRREL_MORPH),
-
-	RAT_MORPH(BodyCoveringType.VAGINA, FluidType.GIRL_CUM_RAT_MORPH, Race.RAT_MORPH),
-
-	RABBIT_MORPH(BodyCoveringType.VAGINA, FluidType.GIRL_CUM_RABBIT_MORPH, Race.RABBIT_MORPH),
-
-	BAT_MORPH(BodyCoveringType.VAGINA, FluidType.GIRL_CUM_BAT_MORPH, Race.BAT_MORPH),
+	WOLF_MORPH(BodyCoveringType.VAGINA, FluidType.GIRL_CUM_WOLF_MORPH, Race.WOLF_MORPH, false),
 	
-	ALLIGATOR_MORPH(BodyCoveringType.VAGINA, FluidType.GIRL_CUM_ALLIGATOR_MORPH, Race.ALLIGATOR_MORPH),
+	FOX_MORPH(BodyCoveringType.VAGINA, FluidType.GIRL_CUM_FOX_MORPH, Race.FOX_MORPH, false),
+
+	SQUIRREL_MORPH(BodyCoveringType.VAGINA, FluidType.GIRL_CUM_SQUIRREL_MORPH, Race.SQUIRREL_MORPH, false),
+
+	RAT_MORPH(BodyCoveringType.VAGINA, FluidType.GIRL_CUM_RAT_MORPH, Race.RAT_MORPH, false),
+
+	RABBIT_MORPH(BodyCoveringType.VAGINA, FluidType.GIRL_CUM_RABBIT_MORPH, Race.RABBIT_MORPH, false),
+
+	BAT_MORPH(BodyCoveringType.VAGINA, FluidType.GIRL_CUM_BAT_MORPH, Race.BAT_MORPH, false),
 	
-	CAT_MORPH(BodyCoveringType.VAGINA, FluidType.GIRL_CUM_CAT_MORPH, Race.CAT_MORPH),
+	ALLIGATOR_MORPH(BodyCoveringType.VAGINA, FluidType.GIRL_CUM_ALLIGATOR_MORPH, Race.ALLIGATOR_MORPH, true),
+	
+	CAT_MORPH(BodyCoveringType.VAGINA, FluidType.GIRL_CUM_CAT_MORPH, Race.CAT_MORPH, false),
 
-	COW_MORPH(BodyCoveringType.VAGINA, FluidType.GIRL_CUM_COW_MORPH, Race.COW_MORPH),
+	COW_MORPH(BodyCoveringType.VAGINA, FluidType.GIRL_CUM_COW_MORPH, Race.COW_MORPH, false),
 
-	HORSE_MORPH(BodyCoveringType.VAGINA, FluidType.GIRL_CUM_HORSE_MORPH, Race.HORSE_MORPH, OrificeModifier.PUFFY),
+	HORSE_MORPH(BodyCoveringType.VAGINA, FluidType.GIRL_CUM_HORSE_MORPH, Race.HORSE_MORPH, false, OrificeModifier.PUFFY, OrificeModifier.MUSCLE_CONTROL),
 
-	REINDEER_MORPH(BodyCoveringType.VAGINA, FluidType.GIRL_CUM_REINDEER_MORPH, Race.REINDEER_MORPH, OrificeModifier.PUFFY),
+	REINDEER_MORPH(BodyCoveringType.VAGINA, FluidType.GIRL_CUM_REINDEER_MORPH, Race.REINDEER_MORPH, false, OrificeModifier.PUFFY),
 
-	HARPY(BodyCoveringType.VAGINA, FluidType.GIRL_CUM_HARPY, Race.HARPY);
+	HARPY(BodyCoveringType.VAGINA, FluidType.GIRL_CUM_HARPY, Race.HARPY, true);
 
 	private BodyCoveringType skinType;
 	private FluidType fluidType;
 	private Race race;
 	private List<OrificeModifier> defaultRacialOrificeModifiers;
+	private boolean eggLayer;
 
-	private VaginaType(BodyCoveringType skinType, FluidType fluidType, Race race, OrificeModifier... defaultRacialOrificeModifiers) {
+	private VaginaType(BodyCoveringType skinType, FluidType fluidType, Race race, boolean eggLayer, OrificeModifier... defaultRacialOrificeModifiers) {
 		this.skinType = skinType;
 		this.fluidType = fluidType;
 		this.race = race;
-		
+		this.eggLayer = eggLayer;
 		this.defaultRacialOrificeModifiers = new ArrayList<>();
 		Collections.addAll(this.defaultRacialOrificeModifiers, defaultRacialOrificeModifiers);
+	}
+
+	/**
+	 * Use instead of <i>valueOf()</i>.
+	 */
+	public static VaginaType getTypeFromString(String value) {
+		if(value.equals("IMP")) {
+			value = "DEMON_COMMON";
+		}
+		return valueOf(value);
 	}
 
 	@Override
@@ -98,8 +105,7 @@ public enum VaginaType implements BodyPartTypeInterface {
 					"sex",
 					"slit",
 					"twat",
-					"twat",
-					(this==HORSE_MORPH?"horse-pussy":""));
+					"twat");
 			
 		} else {
 			return UtilText.returnStringAtRandom(
@@ -113,8 +119,7 @@ public enum VaginaType implements BodyPartTypeInterface {
 					"sex",
 					"slit",
 					"twat",
-					"twat",
-					(this==HORSE_MORPH?"horse-pussy":""));
+					"twat");
 		}
 	}
 	
@@ -137,8 +142,7 @@ public enum VaginaType implements BodyPartTypeInterface {
 					"sexes",
 					"slits",
 					"twats",
-					"twats",
-					(this==HORSE_MORPH?"horse-pussies":""));
+					"twats");
 			
 		} else {
 			return UtilText.returnStringAtRandom(
@@ -152,87 +156,68 @@ public enum VaginaType implements BodyPartTypeInterface {
 					"sexes",
 					"slits",
 					"twats",
-					"twats",
-					(this==HORSE_MORPH?"horse-pussies":""));
+					"twats");
 		}
 	}
 
 	@Override
 	public String getDescriptor(GameCharacter gc) {
-		// Randomly give a type-specific, wetness, or capacity descriptor:
-		switch(Util.random.nextInt(3)){
-			case 0:
-				switch(this){
-					case ANGEL:
-						return UtilText.returnStringAtRandom("perfect");
-					case DEMON_COMMON:
-						return UtilText.returnStringAtRandom("irresistible", "demonic");
-					case IMP:
-						return UtilText.returnStringAtRandom("irresistible", "impish");
-					case DOG_MORPH:
-						return UtilText.returnStringAtRandom("hot", "animalistic", "dog-like", "canine");
-					case WOLF_MORPH:
-						return UtilText.returnStringAtRandom("hot", "animalistic", "wolf-like", "lupine");
-					case CAT_MORPH:
-						return UtilText.returnStringAtRandom("hot", "animalistic", "cat-like", "feline");
-					case COW_MORPH:
-						return UtilText.returnStringAtRandom("hot", "animalistic", "cow-like", "bovine");
-					case ALLIGATOR_MORPH:
-						return UtilText.returnStringAtRandom("hot", "alligator-like", "reptilian");
-					case HORSE_MORPH:
-						return UtilText.returnStringAtRandom("hot", "animalistic", "equine");
-					case REINDEER_MORPH:
-						return UtilText.returnStringAtRandom("hot", "animalistic", "reindeer-like", "rangiferine");
-					case HUMAN:
-						return UtilText.returnStringAtRandom("hot");
-					case NONE:
-						return UtilText.returnStringAtRandom("");
-					case HARPY:
-						return UtilText.returnStringAtRandom("hot", "bird-like", "avian");
-					case SQUIRREL_MORPH:
-						return UtilText.returnStringAtRandom("hot", "squirrel-like", "rodent");
-					case BAT_MORPH:
-						return UtilText.returnStringAtRandom("hot", "bat-like");
-					case RAT_MORPH:
-						return UtilText.returnStringAtRandom("hot", "rat-like", "rodent");
-					case RABBIT_MORPH:
-						return UtilText.returnStringAtRandom("hot", "rabbit-like", "bunny");
-				}
-				return "";
-			case 1:
-				if(Main.game.isInSex()) {
-					if(!Sex.getWetOrificeTypes(gc).get(OrificeType.VAGINA).isEmpty()) {
-						return "wet";
-					} else {
-						return gc.getVaginaWetness().getDescriptor();
-					}
-				} else {
-					return gc.getVaginaWetness().getDescriptor();
-				}
-			default:
-				return gc.getVaginaCapacity().getDescriptor();
+		switch(this){
+			case ANGEL:
+				return UtilText.returnStringAtRandom("perfect");
+			case DEMON_COMMON:
+				return UtilText.returnStringAtRandom("irresistible", "demonic");
+			case DOG_MORPH:
+				return UtilText.returnStringAtRandom("hot", "dog-like", "canine");
+			case WOLF_MORPH:
+				return UtilText.returnStringAtRandom("hot", "wolf-like", "lupine");
+			case FOX_MORPH:
+				return UtilText.returnStringAtRandom("hot", "fox-like", "vulpine");
+			case CAT_MORPH:
+				return UtilText.returnStringAtRandom("hot", "cat-like", "feline");
+			case COW_MORPH:
+				return UtilText.returnStringAtRandom("hot", "cow-like", "bovine");
+			case ALLIGATOR_MORPH:
+				return UtilText.returnStringAtRandom("hot", "alligator-like", "reptilian");
+			case HORSE_MORPH:
+				return UtilText.returnStringAtRandom("hot", "equine");
+			case REINDEER_MORPH:
+				return UtilText.returnStringAtRandom("hot", "reindeer-like", "rangiferine");
+			case HUMAN:
+				return UtilText.returnStringAtRandom("hot");
+			case NONE:
+				return UtilText.returnStringAtRandom("");
+			case HARPY:
+				return UtilText.returnStringAtRandom("hot", "bird-like", "avian");
+			case SQUIRREL_MORPH:
+				return UtilText.returnStringAtRandom("hot", "squirrel-like", "rodent");
+			case BAT_MORPH:
+				return UtilText.returnStringAtRandom("hot", "bat-like");
+			case RAT_MORPH:
+				return UtilText.returnStringAtRandom("hot", "rat-like", "rodent");
+			case RABBIT_MORPH:
+				return UtilText.returnStringAtRandom("hot", "rabbit-like", "bunny");
 		}
-		
+		return "";
 	}
 
+	@Override
 	public String getTransformName() {
 		switch(this){
 			case ANGEL:
 				return "angelic";
 			case HARPY:
-				return "avian";
+				return "harpy";
 			case COW_MORPH:
 				return "bovine";
 			case DOG_MORPH:
 				return "canine";
 			case DEMON_COMMON:
 				return "demonic";
-			case IMP:
-				return "impish";
 			case HORSE_MORPH:
 				return "equine";
 			case REINDEER_MORPH:
-				return "rangiferine";
+				return "reindeer";
 			case CAT_MORPH:
 				return "feline";
 			case HUMAN:
@@ -244,7 +229,9 @@ public enum VaginaType implements BodyPartTypeInterface {
 			case ALLIGATOR_MORPH:
 				return "alligator";
 			case WOLF_MORPH:
-				return "lupine";
+				return "wolf";
+			case FOX_MORPH:
+				return "fox";
 			case BAT_MORPH:
 				return "bat";
 			case RAT_MORPH:
@@ -267,6 +254,10 @@ public enum VaginaType implements BodyPartTypeInterface {
 
 	public FluidType getFluidType() {
 		return fluidType;
+	}
+
+	public boolean isEggLayer() {
+		return eggLayer;
 	}
 
 	public List<OrificeModifier> getDefaultRacialOrificeModifiers() {

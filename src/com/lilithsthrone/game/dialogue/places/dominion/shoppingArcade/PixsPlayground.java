@@ -1,26 +1,30 @@
 package com.lilithsthrone.game.dialogue.places.dominion.shoppingArcade;
 
+import java.util.List;
+
 import com.lilithsthrone.game.PropertyValue;
+import com.lilithsthrone.game.character.GameCharacter;
 import com.lilithsthrone.game.character.attributes.Attribute;
+import com.lilithsthrone.game.character.npc.dominion.Pix;
 import com.lilithsthrone.game.dialogue.DialogueFlagValue;
-import com.lilithsthrone.game.dialogue.DialogueNodeOld;
+import com.lilithsthrone.game.dialogue.DialogueNode;
 import com.lilithsthrone.game.dialogue.responses.Response;
-import com.lilithsthrone.game.dialogue.responses.ResponseEffectsOnly;
 import com.lilithsthrone.game.dialogue.responses.ResponseSex;
 import com.lilithsthrone.game.dialogue.utils.UtilText;
-import com.lilithsthrone.game.sex.SexPositionSlot;
 import com.lilithsthrone.game.sex.managers.dominion.SMPixShowerTime;
-import com.lilithsthrone.game.sex.managers.universal.SMFaceToWall;
+import com.lilithsthrone.game.sex.managers.universal.SMAgainstWall;
+import com.lilithsthrone.game.sex.positions.AbstractSexPosition;
+import com.lilithsthrone.game.sex.positions.SexPosition;
+import com.lilithsthrone.game.sex.positions.slots.SexSlotAgainstWall;
+import com.lilithsthrone.game.sex.positions.slots.SexSlotUnique;
 import com.lilithsthrone.main.Main;
 import com.lilithsthrone.utils.Colour;
 import com.lilithsthrone.utils.Util;
 import com.lilithsthrone.utils.Util.Value;
-import com.lilithsthrone.world.WorldType;
-import com.lilithsthrone.world.places.PlaceType;
 
 /**
  * @since 0.1.66
- * @version 0.1.85
+ * @version 0.3.5.5
  * @author Innoxia
  */
 public class PixsPlayground {
@@ -39,7 +43,6 @@ public class PixsPlayground {
 					public void effects(){
 						Main.game.getPlayer().incrementHealth(-Main.game.getPlayer().getAttributeValue(Attribute.HEALTH_MAXIMUM) * 0.4f);
 						Main.game.getTextEndStringBuilder().append(
-//								Main.game.getPlayer().incrementAttribute(Attribute.MAJOR_PHYSIQUE, 0.25f)+ 
 								"<p style='text-align:center'>[style.boldBad(-5)] <b style='color:"+Colour.BODY_SIZE_THREE.toWebHexString()+";'>Body Size</b></p>"
 								+Main.game.getPlayer().incrementBodySize(-5));
 					}
@@ -84,45 +87,37 @@ public class PixsPlayground {
 				
 		} else if (index == 0) {
 			return new Response("Leave", "Decide to leave the gym.", GYM_EXTERIOR);
-			
-		} else
-			return null;
+		}
+		
+		return null;
 	}
 	
-	public static final DialogueNodeOld GYM_EXTERIOR = new DialogueNodeOld("Pix's Playground (Exterior)", "-", false) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode GYM_EXTERIOR = new DialogueNode("Pix's Playground (Exterior)", "-", false) {
 
 		@Override
 		public String getContent() {
-			if (!Main.game.getDialogueFlags().values.contains(DialogueFlagValue.gymIntroduced)) {
-				return UtilText.parseFromXMLFile("places/dominion/shoppingArcade/pixsPlayground", "GYM_EXTERIOR");
-				
-			} else {
-				return UtilText.parseFromXMLFile("places/dominion/shoppingArcade/pixsPlayground", "GYM_EXTERIOR_REPEAT");
-			}
+			return UtilText.parseFromXMLFile("places/dominion/shoppingArcade/pixsPlayground", "GYM_EXTERIOR");
+		}
+
+		@Override
+		public String getResponseTabTitle(int index) {
+			return ShoppingArcadeDialogue.getCoreResponseTab(index);
 		}
 
 		@Override
 		public Response getResponse(int responseTab, int index) {
-			if (index == 1) {
-				if(Main.game.getDialogueFlags().values.contains(DialogueFlagValue.gymHadTour)) {
-					return new Response("Enter", "Step inside the gym.", GYM_RETURNING);
-				} else {
-					return new Response("Enter", "Step inside the gym.", GYM);
-				}
-				
-				
-			} else if (index == 6) {
-				return new ResponseEffectsOnly("Arcade Entrance", "Fast travel to the entrance to the arcade."){
-					@Override
-					public void effects() {
-						Main.game.setActiveWorld(Main.game.getWorlds().get(WorldType.SHOPPING_ARCADE), PlaceType.SHOPPING_ARCADE_ENTRANCE, true);
+			if(responseTab==0) {
+				if (index == 1) {
+					if(!Main.game.isExtendedWorkTime()) {
+						return new Response("Enter", "The gym is currently closed. You'll have to return during opening hours if you want to work out here.", null);
+					} else if(Main.game.getDialogueFlags().values.contains(DialogueFlagValue.gymHadTour)) {
+						return new Response("Enter", "Step inside the gym.", GYM_RETURNING);
+					} else {
+						return new Response("Enter", "Step inside the gym.", GYM);
 					}
-				};
-
-			} else {
-				return null;
+				}
 			}
+			return ShoppingArcadeDialogue.getFastTravelResponses(responseTab, index);
 		}
 
 		@Override
@@ -131,8 +126,7 @@ public class PixsPlayground {
 		}
 	};
 
-	public static final DialogueNodeOld GYM = new DialogueNodeOld("Pix's Playground", "-", true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode GYM = new DialogueNode("Pix's Playground", "-", true) {
 
 		@Override
 		public String getContent() {
@@ -175,8 +169,7 @@ public class PixsPlayground {
 		}
 	};
 	
-	public static final DialogueNodeOld GYM_FOLLOW = new DialogueNodeOld("Pix's Playground", "-", true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode GYM_FOLLOW = new DialogueNode("Pix's Playground", "-", true) {
 		
 		@Override
 		public String getContent() {
@@ -237,8 +230,7 @@ public class PixsPlayground {
 			return true;
 		}
 	};
-	public static final DialogueNodeOld GYM_RETURNING = new DialogueNodeOld("Pix's Playground", "-", true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode GYM_RETURNING = new DialogueNode("Pix's Playground", "-", true) {
 
 		@Override
 		public String getContent() {
@@ -264,8 +256,7 @@ public class PixsPlayground {
 			return true;
 		}
 	};
-	public static final DialogueNodeOld GYM_SINGLE_PAYMENT = new DialogueNodeOld("Pix's Playground", "-", true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode GYM_SINGLE_PAYMENT = new DialogueNode("Pix's Playground", "-", true) {
 
 		@Override
 		public String getContent() {
@@ -282,8 +273,7 @@ public class PixsPlayground {
 			return true;
 		}
 	};
-	public static final DialogueNodeOld GYM_LIFETIME_PAYMENT = new DialogueNodeOld("Pix's Playground", "-", true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode GYM_LIFETIME_PAYMENT = new DialogueNode("Pix's Playground", "-", true) {
 
 		@Override
 		public String getContent() {
@@ -300,8 +290,7 @@ public class PixsPlayground {
 			return true;
 		}
 	};
-	public static final DialogueNodeOld GYM_MEMBER_ENTER = new DialogueNodeOld("Pix's Playground", "-", true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode GYM_MEMBER_ENTER = new DialogueNode("Pix's Playground", "-", true) {
 
 		@Override
 		public String getContent() {
@@ -318,12 +307,11 @@ public class PixsPlayground {
 			return true;
 		}
 	};
-	public static final DialogueNodeOld GYM_CARDIO = new DialogueNodeOld("Pix's Playground", "-", true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode GYM_CARDIO = new DialogueNode("Pix's Playground", "-", true) {
 		
 		@Override
-		public int getMinutesPassed(){
-			return 60;
+		public int getSecondsPassed() {
+			return 60*60;
 		}
 
 		@Override
@@ -355,12 +343,11 @@ public class PixsPlayground {
 			return true;
 		}
 	};
-	public static final DialogueNodeOld GYM_WEIGHTS = new DialogueNodeOld("Pix's Playground", "-", true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode GYM_WEIGHTS = new DialogueNode("Pix's Playground", "-", true) {
 		
 		@Override
-		public int getMinutesPassed(){
-			return 60;
+		public int getSecondsPassed() {
+			return 60*60;
 		}
 
 		@Override
@@ -392,12 +379,11 @@ public class PixsPlayground {
 			return true;
 		}
 	};
-	public static final DialogueNodeOld GYM_PIX_TRAINING = new DialogueNodeOld("Pix's Playground", "-", true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode GYM_PIX_TRAINING = new DialogueNode("Pix's Playground", "-", true) {
 		
 		@Override
-		public int getMinutesPassed(){
-			return 20;
+		public int getSecondsPassed() {
+			return 20*60;
 		}
 
 		@Override
@@ -461,12 +447,11 @@ public class PixsPlayground {
 		}
 	};
 	
-	public static final DialogueNodeOld GYM_PIX_TRAINING_CARDIO = new DialogueNodeOld("Pix's Playground", "-", true, true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode GYM_PIX_TRAINING_CARDIO = new DialogueNode("Pix's Playground", "-", true, true) {
 		
 		@Override
-		public int getMinutesPassed(){
-			return 30;
+		public int getSecondsPassed() {
+			return 30*60;
 		}
 
 		@Override
@@ -519,12 +504,11 @@ public class PixsPlayground {
 		}
 	};
 	
-	public static final DialogueNodeOld GYM_PIX_TRAINING_FINISH = new DialogueNodeOld("Pix's Playground", "-", true, true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode GYM_PIX_TRAINING_FINISH = new DialogueNode("Pix's Playground", "-", true, true) {
 		
 		@Override
-		public int getMinutesPassed(){
-			return 30;
+		public int getSecondsPassed() {
+			return 30*60;
 		}
 
 		@Override
@@ -537,16 +521,27 @@ public class PixsPlayground {
 			if (index == 1) {
 				if(Main.getProperties().hasValue(PropertyValue.nonConContent)) {
 					return new Response("Pix's reward",
-							"You have a good idea of what Pix means when she says she wants to give you a 'one-to-one cooldown exercise'...", // OR DO YOU?! :D
-							GYM_PIX_ASSAULT);
+							"You have a good idea of what Pix means when she says she wants to give you a 'one-to-one cooldown exercise'...",
+							GYM_PIX_ASSAULT) {
+						@Override
+						public void effects() {
+							Main.game.getPlayer().cleanAllDirtySlots();
+							Main.game.getNpc(Pix.class).cleanAllDirtySlots();
+						}
+					};
 				} else {
 					return new Response("Pix's reward",
 							"You have a good idea of what Pix means when she says she wants to give you a 'one-to-one cooldown exercise'...",
-							GYM_PIX_ASSAULT_CONSENSUAL);
+							GYM_PIX_ASSAULT_CONSENSUAL) {
+						@Override
+						public void effects() {
+							Main.game.getPlayer().cleanAllDirtySlots();
+							Main.game.getNpc(Pix.class).cleanAllDirtySlots();
+						}
+					};
 				}
 				
-			} else 
-				if (index == 2) {
+			} else if (index == 2) {
 				return new Response("Leave", "You're far too tired to deal with Pix right now. Get changed and leave the gym, avoiding Pix in the showers as you do so.", GYM_EXTERIOR);
 				
 			} else {
@@ -560,8 +555,7 @@ public class PixsPlayground {
 		}
 	};
 	
-	public static final DialogueNodeOld GYM_PIX_ASSAULT = new DialogueNodeOld("Pix's Playground", "-", true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode GYM_PIX_ASSAULT = new DialogueNode("Pix's Playground", "-", true) {
 
 		@Override
 		public String getContent() {
@@ -572,7 +566,7 @@ public class PixsPlayground {
 			if(Main.game.getPlayer().getHealthPercentage() < 0.4f) {
 				UtilText.nodeContentSB.append(UtilText.parseFromXMLFile("places/dominion/shoppingArcade/pixsPlayground", "GYM_PIX_ASSAULT_EXHAUSTED"));
 			} else {
-				if(Main.game.getPlayer().getAttributeValue(Attribute.MAJOR_PHYSIQUE)<Main.game.getPix().getAttributeValue(Attribute.MAJOR_PHYSIQUE)) {
+				if(Main.game.getPlayer().getAttributeValue(Attribute.MAJOR_PHYSIQUE)<Main.game.getNpc(Pix.class).getAttributeValue(Attribute.MAJOR_PHYSIQUE)) {
 					UtilText.nodeContentSB.append(UtilText.parseFromXMLFile("places/dominion/shoppingArcade/pixsPlayground", "GYM_PIX_ASSAULT_WEAKER"));
 				} else {
 					UtilText.nodeContentSB.append(UtilText.parseFromXMLFile("places/dominion/shoppingArcade/pixsPlayground", "GYM_PIX_ASSAULT_STRONGER"));
@@ -589,35 +583,35 @@ public class PixsPlayground {
 						"Tell Pix that you're far too tired to do any more physical exercise right now.",
 						false, false,
 						new SMPixShowerTime(
-								Util.newHashMapOfValues(new Value<>(Main.game.getPix(), SexPositionSlot.FACE_TO_WALL_AGAINST_WALL_SHOWER_PIX)),
-								Util.newHashMapOfValues(new Value<>(Main.game.getPlayer(), SexPositionSlot.FACE_TO_WALL_FACING_TARGET_SHOWER_PIX))),
-						PIX_POST_SEX,
-						UtilText.parseFromXMLFile("places/dominion/shoppingArcade/pixsPlayground", "GYM_PIX_ASSAULT_TOO_TIRED"));
+								Util.newHashMapOfValues(new Value<>(Main.game.getNpc(Pix.class), SexSlotUnique.FACE_TO_WALL_FACING_TARGET_SHOWER_PIX)),
+								Util.newHashMapOfValues(new Value<>(Main.game.getPlayer(), SexSlotUnique.FACE_TO_WALL_AGAINST_WALL_SHOWER_PIX))),
+						null,
+						null, PIX_POST_SEX, UtilText.parseFromXMLFile("places/dominion/shoppingArcade/pixsPlayground", "GYM_PIX_ASSAULT_TOO_TIRED"));
 				
 			} else if(index==2) {
 				return new ResponseSex("Offer sex",
 						"Tell Pix that you can make it up to her right now...",
 						false, false,
 						new SMPixShowerTime(
-								Util.newHashMapOfValues(new Value<>(Main.game.getPix(), SexPositionSlot.FACE_TO_WALL_AGAINST_WALL_SHOWER_PIX)),
-								Util.newHashMapOfValues(new Value<>(Main.game.getPlayer(), SexPositionSlot.FACE_TO_WALL_FACING_TARGET_SHOWER_PIX))),
-						PIX_POST_SEX,
-						UtilText.parseFromXMLFile("places/dominion/shoppingArcade/pixsPlayground", "GYM_PIX_ASSAULT_OFFER_SEX"));
+								Util.newHashMapOfValues(new Value<>(Main.game.getNpc(Pix.class), SexSlotUnique.FACE_TO_WALL_FACING_TARGET_SHOWER_PIX)),
+								Util.newHashMapOfValues(new Value<>(Main.game.getPlayer(), SexSlotUnique.FACE_TO_WALL_AGAINST_WALL_SHOWER_PIX))),
+						null,
+						null, PIX_POST_SEX, UtilText.parseFromXMLFile("places/dominion/shoppingArcade/pixsPlayground", "GYM_PIX_ASSAULT_OFFER_SEX"));
 				
 			} else if(index==3) {
 				return new ResponseSex("Accept punishment",
 						"Apologise to Pix and accept her punishment.",
 						false, false,
 						new SMPixShowerTime(
-								Util.newHashMapOfValues(new Value<>(Main.game.getPix(), SexPositionSlot.FACE_TO_WALL_AGAINST_WALL_SHOWER_PIX)),
-								Util.newHashMapOfValues(new Value<>(Main.game.getPlayer(), SexPositionSlot.FACE_TO_WALL_FACING_TARGET_SHOWER_PIX))),
-						PIX_POST_SEX,
-						UtilText.parseFromXMLFile("places/dominion/shoppingArcade/pixsPlayground", "GYM_PIX_ASSAULT_ACCEPT_PUNISHMENT"));
+								Util.newHashMapOfValues(new Value<>(Main.game.getNpc(Pix.class), SexSlotUnique.FACE_TO_WALL_FACING_TARGET_SHOWER_PIX)),
+								Util.newHashMapOfValues(new Value<>(Main.game.getPlayer(), SexSlotUnique.FACE_TO_WALL_AGAINST_WALL_SHOWER_PIX))),
+						null,
+						null, PIX_POST_SEX, UtilText.parseFromXMLFile("places/dominion/shoppingArcade/pixsPlayground", "GYM_PIX_ASSAULT_ACCEPT_PUNISHMENT"));
 				
 			} else if(index==4) {
 				if(Main.game.getPlayer().getHealthPercentage()<0.4f) {
 					return new Response("Break free",
-							"You simply don't have enough energy left to try and break free! You need at least 40% energy for this ("+(Main.game.getPlayer().getAttributeValue(Attribute.HEALTH_MAXIMUM)*0.4)+")",
+							"You simply don't have enough energy left to try and break free! You need at least 40% "+Attribute.HEALTH_MAXIMUM.getName()+" for this ("+(Main.game.getPlayer().getAttributeValue(Attribute.HEALTH_MAXIMUM)*0.4)+")",
 							null);
 					
 				} else {
@@ -627,36 +621,36 @@ public class PixsPlayground {
 				}
 				
 			} else if(index==5) {
-				if(Main.game.getPlayer().getAttributeValue(Attribute.MAJOR_PHYSIQUE)<Main.game.getPix().getAttributeValue(Attribute.MAJOR_PHYSIQUE)) {
+				if(Main.game.getPlayer().getAttributeValue(Attribute.MAJOR_PHYSIQUE)<Main.game.getNpc(Pix.class).getAttributeValue(Attribute.MAJOR_PHYSIQUE)) {
 					return new Response("Turn Tables",
-							"Pix is both stronger and fitter than you (her physique of "+Main.game.getPix().getAttributeValue(Attribute.MAJOR_PHYSIQUE)+" is greater than your physique of "
+							"Pix is both stronger and fitter than you (her physique of "+Main.game.getNpc(Pix.class).getAttributeValue(Attribute.MAJOR_PHYSIQUE)+" is greater than your physique of "
 									+Main.game.getPlayer().getAttributeValue(Attribute.MAJOR_PHYSIQUE)+"), so you don't stand a chance of turning the tables on her in this situation.",
 							null);
 					
 				} else if(Main.game.getPlayer().getHealthPercentage()<0.4f) {
 					return new Response("Turn Tables",
-							"You simply don't have enough energy left to try and turn the tables on Pix! You need at least 40% energy for this ("+(Main.game.getPlayer().getAttributeValue(Attribute.HEALTH_MAXIMUM)*0.4)+")",
+							"You simply don't have enough energy left to try and turn the tables on Pix! You need at least 40% "+Attribute.HEALTH_MAXIMUM.getName()+" for this ("+(Main.game.getPlayer().getAttributeValue(Attribute.HEALTH_MAXIMUM)*0.4)+")",
 							null);
 					
 				} else {
 					return new ResponseSex("Turn Tables",
 							"Use the energy that you've saved by holding back during your exercise to break free from Pix, and then turn the tables on her...",
 							false, false,
-							new SMFaceToWall(
-									Util.newHashMapOfValues(new Value<>(Main.game.getPlayer(), SexPositionSlot.FACE_TO_WALL_FACING_TARGET)),
-									Util.newHashMapOfValues(new Value<>(Main.game.getPix(), SexPositionSlot.FACE_TO_WALL_AGAINST_WALL))) {
+							new SMAgainstWall(
+									Util.newHashMapOfValues(new Value<>(Main.game.getPlayer(), SexSlotAgainstWall.STANDING_WALL)),
+									Util.newHashMapOfValues(new Value<>(Main.game.getNpc(Pix.class), SexSlotAgainstWall.FACE_TO_WALL))) {
 								@Override
-								public boolean isPlayerStartNaked() {
+								public boolean isCharacterStartNaked(GameCharacter character) {
 									return true;
 								}
-		
 								@Override
-								public boolean isPartnerStartNaked() {
-									return true;
+								public List<AbstractSexPosition> getAllowedSexPositions() {
+									return Util.newArrayListOfValues(
+											SexPosition.AGAINST_WALL);
 								}
 							},
-							PIX_POST_SEX_TABLES_TURNED,
-							UtilText.parseFromXMLFile("places/dominion/shoppingArcade/pixsPlayground", "GYM_PIX_ASSAULT_TURN_TABLES"));
+							null,
+							null, PIX_POST_SEX_TABLES_TURNED, UtilText.parseFromXMLFile("places/dominion/shoppingArcade/pixsPlayground", "GYM_PIX_ASSAULT_TURN_TABLES"));
 				}
 				
 			} else {
@@ -665,8 +659,7 @@ public class PixsPlayground {
 		}
 	};
 	
-	public static final DialogueNodeOld PIX_BREAK_FREE = new DialogueNodeOld("", "", true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode PIX_BREAK_FREE = new DialogueNode("", "", true) {
 		
 		@Override
 		public String getContent() {
@@ -683,12 +676,11 @@ public class PixsPlayground {
 		}
 	};
 	
-	public static final DialogueNodeOld PIX_POST_SEX_TABLES_TURNED = new DialogueNodeOld("Changing Rooms", "Carry Pix out to the changing rooms.", true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode PIX_POST_SEX_TABLES_TURNED = new DialogueNode("Changing Rooms", "Carry Pix out to the changing rooms.", true) {
 		
 		@Override
-		public int getMinutesPassed(){
-			return 60;
+		public int getSecondsPassed() {
+			return 10*60;
 		}
 
 		@Override
@@ -706,12 +698,11 @@ public class PixsPlayground {
 		}
 	};
 	
-	public static final DialogueNodeOld PIX_POST_SEX = new DialogueNodeOld("Pix dresses you", "You're too tired to complain as Pix starts dressing you.", true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode PIX_POST_SEX = new DialogueNode("Pix dresses you", "You're too tired to complain as Pix starts dressing you.", true) {
 		
 		@Override
-		public int getMinutesPassed(){
-			return 60;
+		public int getSecondsPassed() {
+			return 60*60;
 		}
 
 		@Override
@@ -729,8 +720,7 @@ public class PixsPlayground {
 		}
 	};
 	
-	public static final DialogueNodeOld GYM_PIX_ASSAULT_CONSENSUAL = new DialogueNodeOld("Pix's Playground", "-", true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode GYM_PIX_ASSAULT_CONSENSUAL = new DialogueNode("Pix's Playground", "-", true) {
 
 		@Override
 		public String getContent() {
@@ -748,10 +738,10 @@ public class PixsPlayground {
 						"Let Pix have her fun with you.",
 						true, false,
 						new SMPixShowerTime(
-								Util.newHashMapOfValues(new Value<>(Main.game.getPix(), SexPositionSlot.FACE_TO_WALL_AGAINST_WALL_SHOWER_PIX)),
-								Util.newHashMapOfValues(new Value<>(Main.game.getPlayer(), SexPositionSlot.FACE_TO_WALL_FACING_TARGET_SHOWER_PIX))),
-						PIX_POST_SEX_CONSENSUAL,
-						UtilText.parseFromXMLFile("places/dominion/shoppingArcade/pixsPlayground", "GYM_PIX_ASSAULT_CONSENSUAL_START"));
+								Util.newHashMapOfValues(new Value<>(Main.game.getNpc(Pix.class), SexSlotUnique.FACE_TO_WALL_FACING_TARGET_SHOWER_PIX)),
+								Util.newHashMapOfValues(new Value<>(Main.game.getPlayer(), SexSlotUnique.FACE_TO_WALL_AGAINST_WALL_SHOWER_PIX))),
+						null,
+						null, PIX_POST_SEX_CONSENSUAL, UtilText.parseFromXMLFile("places/dominion/shoppingArcade/pixsPlayground", "GYM_PIX_ASSAULT_CONSENSUAL_START"));
 				
 			} else if(index==2) {
 				return new Response("Decline",
@@ -764,8 +754,7 @@ public class PixsPlayground {
 		}
 	};
 	
-	public static final DialogueNodeOld GYM_PIX_ASSAULT_CONSENSUAL_DECLINED = new DialogueNodeOld("", "", true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode GYM_PIX_ASSAULT_CONSENSUAL_DECLINED = new DialogueNode("", "", true) {
 		
 		@Override
 		public String getContent() {
@@ -782,12 +771,11 @@ public class PixsPlayground {
 		}
 	};
 	
-	public static final DialogueNodeOld PIX_POST_SEX_CONSENSUAL = new DialogueNodeOld("Pix dresses you", "Pix helps you to get dressed.", true) {
-		private static final long serialVersionUID = 1L;
+	public static final DialogueNode PIX_POST_SEX_CONSENSUAL = new DialogueNode("Pix dresses you", "Pix helps you to get dressed.", true) {
 		
 		@Override
-		public int getMinutesPassed(){
-			return 60;
+		public int getSecondsPassed() {
+			return 60*60;
 		}
 
 		@Override

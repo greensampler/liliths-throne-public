@@ -1,11 +1,11 @@
 package com.lilithsthrone.game.inventory.item;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import com.lilithsthrone.game.character.CharacterUtils;
 import com.lilithsthrone.game.character.GameCharacter;
@@ -25,9 +25,8 @@ import com.lilithsthrone.utils.XMLSaving;
  * @version 0.1.97
  * @author Innoxia
  */
-public abstract class AbstractItem extends AbstractCoreItem implements Serializable, XMLSaving {
+public abstract class AbstractItem extends AbstractCoreItem implements XMLSaving {
 
-	private static final long serialVersionUID = 1L;
 	
 	protected AbstractItemType itemType;
 	protected List<ItemEffect> itemEffects;
@@ -40,7 +39,7 @@ public abstract class AbstractItem extends AbstractCoreItem implements Serializa
 	}
 	
 	@Override
-	public boolean equals (Object o) {
+	public boolean equals(Object o) {
 		if(super.equals(o)) {
 			return (o instanceof AbstractItem)
 					&& ((AbstractItem)o).getItemType().equals(itemType)
@@ -78,27 +77,25 @@ public abstract class AbstractItem extends AbstractCoreItem implements Serializa
 	
 	public static AbstractItem loadFromXML(Element parentElement, Document doc) {
 		try {
-			AbstractItem item = AbstractItemType.generateItem(ItemType.idToItemMap.get(parentElement.getAttribute("id")));
+			AbstractItem item = AbstractItemType.generateItem(ItemType.getIdToItemMap().get(parentElement.getAttribute("id")));
 			
 			if(!parentElement.getAttribute("name").isEmpty()) {
 				item.setName(parentElement.getAttribute("name"));
 			}
 			
 			List<ItemEffect> effectsToBeAdded = new ArrayList<>();
-			Element element = (Element)parentElement.getElementsByTagName("itemEffects").item(0);
-			for(int i=0; i<element.getElementsByTagName("effect").getLength(); i++){
-				Element e = ((Element)element.getElementsByTagName("effect").item(i));
+			NodeList element = ((Element) parentElement.getElementsByTagName("itemEffects").item(0)).getElementsByTagName("effect");
+			for(int i = 0; i < element.getLength(); i++){
+				Element e = ((Element)element.item(i));
 				ItemEffect itemEffect = ItemEffect.loadFromXML(e, doc);
-				if(itemEffect == null) {
-					System.err.println("Warning: Failed to import ItemEffect");
-				}
-				else {
+				if(itemEffect != null) {
 					effectsToBeAdded.add(itemEffect);
 				}
 			}
 			item.setItemEffects(effectsToBeAdded);
 			
-			if(!effectsToBeAdded.isEmpty() && (item.getItemType().getId().equals(ItemType.ELIXIR.getId()) || item.getItemType().getId().equals(ItemType.POTION.getId()))) {
+			if(!effectsToBeAdded.isEmpty()
+					&& (item.getItemType().getId().equals(ItemType.ELIXIR.getId()) || item.getItemType().getId().equals(ItemType.POTION.getId()) || item.getItemType().getId().equals(ItemType.ORIENTATION_HYPNO_WATCH.getId()))) {
 				item.setSVGString(EnchantingUtils.getImportedSVGString(item, (parentElement.getAttribute("colour").isEmpty()?Colour.GENERIC_ARCANE:Colour.valueOf(parentElement.getAttribute("colour"))), effectsToBeAdded));
 			}
 			
@@ -113,6 +110,15 @@ public abstract class AbstractItem extends AbstractCoreItem implements Serializa
 		return itemType;
 	}
 
+	public boolean isBreakOutOfInventory() {
+		for(ItemEffect effect : this.getEffects()) {
+			if(effect.getItemEffectType().isBreakOutOfInventory()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	@Override
 	public List<ItemEffect> getEffects() {
 		return itemEffects;
@@ -166,7 +172,15 @@ public abstract class AbstractItem extends AbstractCoreItem implements Serializa
 	}
 	
 	public String getDisplayName(boolean withRarityColour) {
-		return Util.capitaliseSentence((itemType.getDeterminer()==""?"":itemType.getDeterminer()+" ") + (withRarityColour ? ("<span style='color: " + rarity.getColour().toWebHexString() + ";'>" + name + "</span>") : name));
+		return Util.capitaliseSentence(
+				(!itemType.getDeterminer().equalsIgnoreCase("a") && !itemType.getDeterminer().equalsIgnoreCase("an")
+						? itemType.getDeterminer() + " "
+						: (Util.isVowel(name.charAt(0)) ? "an " : "a "))
+				+ (withRarityColour ? ("<span style='color: " + rarity.getColour().toWebHexString() + ";'>" + name + "</span>") : name));
+	}
+	
+	public String getDisplayNamePlural(boolean withRarityColour) {
+		return Util.capitaliseSentence((withRarityColour ? ("<span style='color: " + rarity.getColour().toWebHexString() + ";'>" + namePlural + "</span>") : namePlural));
 	}
 
 	@Override
@@ -176,18 +190,18 @@ public abstract class AbstractItem extends AbstractCoreItem implements Serializa
 	
 	@Override
 	public int getValue() {
-		return itemType.getValue();
+		return itemType.getValue(this.getEffects());
 	}
 	
 	public String getExtraDescription(GameCharacter user, GameCharacter target) {
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append("<p>"
-					+ "<b>Effects:</b></br>");
+					+ "<b>Effects:</b><br/>");
 		
 		for(ItemEffect ie : getEffects()) {
 			for(String s : ie.getEffectsDescription(user, target)) {
-				sb.append(s+"</br>");
+				sb.append(s+"<br/>");
 			}
 		}
 
@@ -228,11 +242,11 @@ public abstract class AbstractItem extends AbstractCoreItem implements Serializa
 	}
 
 	public boolean isAbleToBeUsedInCombat(){
-		return itemType.isAbleToBeUsedInCombat();
+		return !this.isBreakOutOfInventory() && itemType.isAbleToBeUsedInCombat();
 	}
 
 	public boolean isAbleToBeUsedInSex(){
-		return itemType.isAbleToBeUsedInSex();
+		return !this.isBreakOutOfInventory() && itemType.isAbleToBeUsedInSex();
 	}
 	
 	public boolean isGift() {

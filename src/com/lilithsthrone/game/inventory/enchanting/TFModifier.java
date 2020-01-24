@@ -4,16 +4,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.lilithsthrone.game.character.attributes.Attribute;
 import com.lilithsthrone.game.character.fetishes.Fetish;
+import com.lilithsthrone.game.character.race.Subspecies;
 import com.lilithsthrone.game.inventory.Rarity;
+import com.lilithsthrone.main.Main;
 import com.lilithsthrone.utils.Colour;
+import com.lilithsthrone.utils.SvgUtil;
 import com.lilithsthrone.utils.Util;
 
 /**
  * @since 0.1.7
- * @version 0.1.99
+ * @version 0.3.5.5
  * @author Innoxia
  */
 public enum TFModifier {
@@ -65,24 +69,36 @@ public enum TFModifier {
 			Rarity.LEGENDARY),
 	
 	// Attributes:
+
+	HEALTH_MAXIMUM(AttributeCategory.STRENGTH,
+			Attribute.HEALTH_MAXIMUM,
+			"Applies an effect related to the primary attribute 'Maximum Health'.",
+			"modifier_circle_strength",//"modifier_circle_health",
+			Rarity.EPIC),
+
+	MANA_MAXIMUM(AttributeCategory.INTELLIGENCE,
+			Attribute.MANA_MAXIMUM,
+			"Applies an effect related to the primary attribute 'Maximum Aura'.",
+			"modifier_circle_mana",
+			Rarity.EPIC),
 	
 	STRENGTH(AttributeCategory.STRENGTH,
 			Attribute.MAJOR_PHYSIQUE,
 			"Applies an effect related to the primary attribute 'Physique'.",
 			"modifier_circle_strength",
-			Rarity.EPIC),
+			Rarity.LEGENDARY),
 	
 	INTELLIGENCE(AttributeCategory.INTELLIGENCE,
 			Attribute.MAJOR_ARCANE,
 			"Applies an effect related to the primary attribute 'Arcane'.",
 			"modifier_circle_intelligence",
-			Rarity.EPIC),
+			Rarity.LEGENDARY),
 	
 	CORRUPTION(AttributeCategory.CORRUPTION,
 			Attribute.MAJOR_CORRUPTION,
 			"Applies an effect related to the primary attribute 'Corruption'.",
 			"modifier_circle_corruption",
-			Rarity.EPIC),
+			Rarity.LEGENDARY),
 	
 	
 	FERTILITY(AttributeCategory.CORRUPTION,
@@ -99,21 +115,15 @@ public enum TFModifier {
 	
 	SPELL_COST_MODIFIER(AttributeCategory.INTELLIGENCE,
 			Attribute.SPELL_COST_MODIFIER,
-			"Applies an effect related to the secondary attribute 'Spell cost reduction'.",
-			"modifier_circle",
+			"Applies an effect related to the secondary attribute '"+Attribute.SPELL_COST_MODIFIER.getName()+"'.",
+			"modifier_circle_spell_efficiency",
 			Rarity.RARE),
 	
-	
-	CRITICAL_CHANCE(AttributeCategory.STRENGTH,
-			Attribute.CRITICAL_CHANCE,
-			"Applies an effect related to the secondary attribute 'Critical chance'.",
-			"modifier_circle",
-			Rarity.RARE),
 	
 	CRITICAL_DAMAGE(AttributeCategory.STRENGTH,
 			Attribute.CRITICAL_DAMAGE,
-			"Applies an effect related to the secondary attribute 'Critical damage'.",
-			"modifier_circle",
+			"Applies an effect related to the secondary attribute 'Critical power'.",
+			"modifier_circle_critical_damage",
 			Rarity.RARE),
 	
 	
@@ -132,19 +142,19 @@ public enum TFModifier {
 	DAMAGE_UNARMED(AttributeCategory.STRENGTH,
 			Attribute.DAMAGE_UNARMED,
 			"Applies an effect related to the secondary attribute 'Unarmed damage'.",
-			"modifier_circle_damage",
+			"modifier_circle_damage_unarmed",
 			Rarity.RARE),
 
 	DAMAGE_MELEE_WEAPON(AttributeCategory.STRENGTH,
 			Attribute.DAMAGE_MELEE_WEAPON,
 			"Applies an effect related to the secondary attribute 'Melee weapon damage'.",
-			"modifier_circle_damage",
+			"modifier_circle_damage_melee",
 			Rarity.RARE),
 
 	DAMAGE_RANGED_WEAPON(AttributeCategory.STRENGTH,
 			Attribute.DAMAGE_RANGED_WEAPON,
 			"Applies an effect related to the secondary attribute 'Ranged weapon damage'.",
-			"modifier_circle_damage",
+			"modifier_circle_damage_ranged",
 			Rarity.RARE),
 	
 	DAMAGE_PHYSICAL(AttributeCategory.STRENGTH,
@@ -171,52 +181,84 @@ public enum TFModifier {
 			"modifier_circle_damage",
 			Rarity.RARE),
 	
+	/**
+	 * Utility value for initialising a weapon to have attribute bonuses related to its damage type.
+	 */
+	DAMAGE_WEAPON(AttributeCategory.STRENGTH,
+			Attribute.DAMAGE_PHYSICAL,
+			"Applies a damage effect related to the weapon's damage type.",
+			"modifier_circle_damage",
+			Rarity.RARE),
+	
 	
 	RESISTANCE_LUST(AttributeCategory.CORRUPTION,
 			Attribute.RESISTANCE_LUST,
-			"Applies an effect related to the secondary attribute 'Seduction resistance'.",
+			"Applies an effect related to the secondary attribute 'Seduction shielding'.",
 			"modifier_circle_resistance",
 			Rarity.RARE),
 	
 	RESISTANCE_PHYSICAL(AttributeCategory.STRENGTH,
 			Attribute.RESISTANCE_PHYSICAL,
-			"Applies an effect related to the secondary attribute 'Physical resistance'.",
+			"Applies an effect related to the secondary attribute 'Physical shielding'.",
 			"modifier_circle_resistance",
 			Rarity.RARE),
 	
 	RESISTANCE_FIRE(AttributeCategory.INTELLIGENCE,
 			Attribute.RESISTANCE_FIRE,
-			"Applies an effect related to the secondary attribute 'Fire resistance'.",
+			"Applies an effect related to the secondary attribute 'Fire shielding'.",
 			"modifier_circle_resistance",
 			Rarity.RARE),
 	
 	RESISTANCE_ICE(AttributeCategory.INTELLIGENCE,
 			Attribute.RESISTANCE_ICE,
-			"Applies an effect related to the secondary attribute 'Ice resistance'.",
+			"Applies an effect related to the secondary attribute 'Ice shielding'.",
 			"modifier_circle_resistance",
 			Rarity.RARE),
 	
 	RESISTANCE_POISON(AttributeCategory.INTELLIGENCE,
 			Attribute.RESISTANCE_POISON,
-			"Applies an effect related to the secondary attribute 'Poison resistance'.",
+			"Applies an effect related to the secondary attribute 'Poison shielding'.",
+			"modifier_circle_resistance",
+			Rarity.RARE),
+
+	/**
+	 * Utility value for initialising a weapon to have attribute bonuses related to its damage type.
+	 */
+	RESISTANCE_WEAPON(AttributeCategory.STRENGTH,
+			Attribute.RESISTANCE_PHYSICAL,
+			"Applies a shielding effect related to the weapon's damage type.",
 			"modifier_circle_resistance",
 			Rarity.RARE),
 	
 	
 	// Clothing parts:
 	
+	CLOTHING_MAJOR_ATTRIBUTE("core attribute",
+			"Applies a modifier to a core attribute.",
+			"attribute",
+			"modifier_circle_attribute_major",
+			Colour.GENERIC_ATTRIBUTE,
+			Rarity.LEGENDARY),
+	
 	CLOTHING_ATTRIBUTE("attribute",
 			"Applies a modifier to an attribute.",
 			"attribute",
-			"modifier_circle_arcane",
+			"modifier_circle_attribute",
 			Colour.GENERIC_ATTRIBUTE,
 			Rarity.UNCOMMON),
+
+	CLOTHING_SPECIAL("special effects",
+			"Applies a special effect.",
+			"special",
+			"modifier_circle_special",
+			Colour.BASE_TEAL,
+			Rarity.LEGENDARY),
 
 	CLOTHING_ENSLAVEMENT("enslavement",
 			"Makes this piece of clothing enslave the wearer.",
 			"enslavement",
 			"modifier_circle_enslavement",
-			Colour.BASE_PURPLE_DARK,
+			Colour.BASE_PURPLE,
 			Rarity.LEGENDARY),
 	
 	CLOTHING_SEALING("sealing",
@@ -226,8 +268,29 @@ public enum TFModifier {
 			Colour.SEALED,
 			Rarity.LEGENDARY),
 	
+	//CLOTHING_ANTI_SELF_TRANSFORMATION
+	CLOTHING_SERVITUDE("servitude",
+			"Makes the wearer unable to self-transform or unjinx clothing.",
+			"servitude",
+			"modifier_circle_servitude",
+			Colour.BASE_PINK_LIGHT,
+			Rarity.LEGENDARY),
+
+	CLOTHING_CONDOM("condom strength",
+			"Provides underlying strength to the condom.",
+			"condom strength",
+			"modifier_circle_resistance",
+			Colour.BASE_GREEN,
+			Rarity.COMMON),
 	
 	// Racial parts:
+
+	TF_MATERIAL_FLESH("flesh",
+			"Turns a person's body material to flesh.",
+			"flesh",
+			"modifier_circle_tf_material_flesh",
+			Colour.BASE_CRIMSON,
+			Rarity.LEGENDARY),
 	
 	TF_ANTENNA("antennae",
 			"Applies a transformative effect to your antennae.",
@@ -254,6 +317,13 @@ public enum TFModifier {
 			"Applies a transformative effect to your breasts.",
 			"breasts",
 			"modifier_circle_tf_breast",
+			Colour.TRANSFORMATION_SEXUAL,
+			Rarity.UNCOMMON),
+	
+	TF_BREASTS_CROTCH("crotch-boobs",
+			"Applies a transformative effect to your crotch-boobs/udders.",
+			"crotch-boobs",
+			"modifier_circle_tf_breast_crotch",
 			Colour.TRANSFORMATION_SEXUAL,
 			Rarity.UNCOMMON),
 	
@@ -313,9 +383,9 @@ public enum TFModifier {
 			Colour.TRANSFORMATION_SEXUAL,
 			Rarity.UNCOMMON),
 	
-	TF_SKIN("skin",
-			"Applies a transformative effect to your skin.",
-			"skin",
+	TF_SKIN("torso",
+			"Applies a transformative effect to your torso.",
+			"torso",
 			"modifier_circle_tf_skin",
 			Colour.TRANSFORMATION_GREATER,
 			Rarity.EPIC),
@@ -345,6 +415,13 @@ public enum TFModifier {
 			"Applies a transformative effect to your milk.",
 			"milk",
 			"modifier_circle_tf_milk",
+			Colour.TRANSFORMATION_SEXUAL,
+			Rarity.UNCOMMON),
+	
+	TF_MILK_CROTCH("udder-milk",
+			"Applies a transformative effect to your udder-milk.",
+			"udder-milk",
+			"modifier_circle_tf_milk_crotch",
 			Colour.TRANSFORMATION_SEXUAL,
 			Rarity.UNCOMMON),
 	
@@ -427,6 +504,69 @@ public enum TFModifier {
 			"modifier_circle_bodyHair",
 			Colour.BASE_TAN,
 			Rarity.COMMON),
+	
+	TF_MOD_FOOT_STRUCTURE_PLANTIGRADE("plantigrade feet",
+			"Applies an effect to give the user a plantigrade foot structure.",
+			"plantigrade feet",
+			"modifier_circle_tf_footStructure_plantigrade",
+			Colour.BASE_BLUE_LIGHT,
+			Rarity.LEGENDARY),
+	
+	TF_MOD_FOOT_STRUCTURE_DIGITIGRADE("digitigrade feet",
+			"Applies an effect to give the user a digitigrade foot structure.",
+			"digitigrade feet",
+			"modifier_circle_tf_footStructure_digitigrade",
+			Colour.BASE_BROWN_DARK,
+			Rarity.LEGENDARY),
+	
+	TF_MOD_FOOT_STRUCTURE_UNGULIGRADE("unguligrade feet",
+			"Applies an effect to give the user an unguligrade foot structure.",
+			"unguligrade feet",
+			"modifier_circle_tf_footStructure_unguligrade",
+			Colour.BASE_TAN,
+			Rarity.LEGENDARY),
+	
+	TF_MOD_LEG_CONFIG_BIPEDAL("bidepal body",
+			"Applies an effect to give the user a bipedal body.",
+			"bipedal body",
+			"modifier_circle_tf_legConfig_bipedal",
+			Colour.BASE_BLUE_LIGHT,
+			Rarity.LEGENDARY),
+	
+	TF_MOD_LEG_CONFIG_TAUR("taur body",
+			"Applies an effect to give the user a taur body.",
+			"taur body",
+			"modifier_circle_tf_legConfig_taur",
+			Colour.BASE_TAN,
+			Rarity.LEGENDARY),
+	
+	TF_MOD_LEG_CONFIG_TAIL_LONG("long-tailed body",
+			"Applies an effect to give the user a long-tailed body.",
+			"long-tailed body",
+			"modifier_circle_tf_legConfig_tail_long",
+			Colour.BASE_GREEN,
+			Rarity.LEGENDARY),
+	
+	TF_MOD_LEG_CONFIG_TAIL("tailed body",
+			"Applies an effect to give the user a tailed body.",
+			"tailed body",
+			"modifier_circle_tf_legConfig_tail",
+			Colour.BASE_AQUA,
+			Rarity.LEGENDARY),
+	
+	TF_MOD_LEG_CONFIG_ARACHNID("arachnid body",
+			"Applies an effect to give the user an arachnid body.",
+			"arachnid body",
+			"modifier_circle_tf_legConfig_arachnid",
+			Colour.BASE_BLACK,
+			Rarity.LEGENDARY),
+	
+	TF_MOD_LEG_CONFIG_CEPHALOPOD("cephalopod body",
+			"Applies an effect to give the user a cephalopod body.",
+			"cephalopod body",
+			"modifier_circle_tf_legConfig_cephalopod",
+			Colour.BASE_RED,
+			Rarity.LEGENDARY),
 	
 	TF_MOD_INTERNAL("internal",
 			"Applies an effect related to making a body part internal.",
@@ -647,46 +787,53 @@ public enum TFModifier {
 	
 	// breast shapes:
 	
+	TF_MOD_BREAST_SHAPE_UDDERS("udders",
+			"Applies an effect related to turning crotch-boobs into udders.",
+			"udders",
+			"modifier_circle_breastShape_udders",
+			Colour.BASE_TAN,
+			Rarity.COMMON),
+	
 	TF_MOD_BREAST_SHAPE_ROUND("round breasts",
 			"Applies an effect related to making breasts take on a round shape.",
 			"round",
 			"modifier_circle_breastShape_round",
-			Colour.BASE_PURPLE_LIGHT,
+			Colour.BASE_TAN,
 			Rarity.COMMON),
 	
 	TF_MOD_BREAST_SHAPE_NARROW("narrow breasts",
 			"Applies an effect related to making breasts take on a narrow shape.",
 			"narrow",
 			"modifier_circle_breastShape_narrow",
-			Colour.BASE_PURPLE_LIGHT,
+			Colour.BASE_TAN,
 			Rarity.COMMON),
 	
 	TF_MOD_BREAST_SHAPE_WIDE("wide breasts",
 			"Applies an effect related to making breasts take on a wide shape.",
 			"wide",
 			"modifier_circle_breastShape_wide",
-			Colour.BASE_PURPLE_LIGHT,
+			Colour.BASE_TAN,
 			Rarity.COMMON),
 	
 	TF_MOD_BREAST_SHAPE_POINTY("pointy breasts",
 			"Applies an effect related to making breasts take on a pointy shape.",
 			"pointy",
 			"modifier_circle_breastShape_pointy",
-			Colour.BASE_PURPLE_LIGHT,
+			Colour.BASE_TAN,
 			Rarity.COMMON),
 	
 	TF_MOD_BREAST_SHAPE_PERKY("perky breasts",
 			"Applies an effect related to making breasts take on a perky shape.",
 			"perky",
 			"modifier_circle_breastShape_perky",
-			Colour.BASE_PURPLE_LIGHT,
+			Colour.BASE_TAN,
 			Rarity.COMMON),
 	
 	TF_MOD_BREAST_SHAPE_SIDESET("side-set breasts",
 			"Applies an effect related to making breasts take on a side-set shape.",
 			"side-set",
 			"modifier_circle_breastShape_sideset",
-			Colour.BASE_PURPLE_LIGHT,
+			Colour.BASE_TAN,
 			Rarity.COMMON),
 	
 	// nipple shapes:
@@ -696,6 +843,13 @@ public enum TFModifier {
 			"normal nipples",
 			"modifier_circle_nipple_normal",
 			Colour.BASE_PURPLE_LIGHT,
+			Rarity.COMMON),
+
+	TF_MOD_NIPPLE_INVERTED("inverted nipples",
+			"Applies an effect related to making nipples inverted.",
+			"inverted nipples",
+			"modifier_circle_nipple_normal",
+			Colour.BASE_RED_LIGHT,
 			Rarity.COMMON),
 	
 	TF_MOD_NIPPLE_VAGINA("nipple cunts",
@@ -748,7 +902,7 @@ public enum TFModifier {
 			"Applies an effect related to adding tentacles to a tongue.",
 			"tentacled",
 			"modifier_circle_orifice_tentacled",
-			Colour.BASE_VIOLET,
+			Colour.BASE_PINK_SALMON,
 			Rarity.COMMON),
 	
 	TF_MOD_TONGUE_BIFURCATED("bifurcated",
@@ -758,69 +912,84 @@ public enum TFModifier {
 			Colour.BASE_CRIMSON,
 			Rarity.COMMON),
 	
-	// penis modifiers:
+	// penis & clit modifiers:
 	
 	TF_MOD_PENIS_SHEATHED("sheathing",
-			"Applies an effect related to making a penis sheathed.",
+			"Applies an effect related to making a body part sheathed.",
 			"sheathed",
 			"modifier_circle_penis_sheathed",
 			Colour.BASE_ORANGE,
 			Rarity.COMMON),
 	
 	TF_MOD_PENIS_RIBBED("ribbing",
-			"Applies an effect related to making a penis ribbed.",
+			"Applies an effect related to making a body part ribbed.",
 			"ribbed",
 			"modifier_circle_penis_ribbed",
 			Colour.BASE_PINK,
 			Rarity.COMMON),
 	
 	TF_MOD_PENIS_TENTACLED("tentacled",
-			"Applies an effect related to making a penis tentacled.",
+			"Applies an effect related to making a body part tentacled.",
 			"tentacled",
 			"modifier_circle_orifice_tentacled",
-			Colour.BASE_VIOLET,
+			Colour.BASE_PINK_SALMON,
 			Rarity.COMMON),
 	
 	TF_MOD_PENIS_KNOTTED("knotting",
-			"Applies an effect related to making a penis knotted.",
+			"Applies an effect related to making a body part knotted.",
 			"knotted",
 			"modifier_circle_penis_knotted",
 			Colour.BASE_CRIMSON,
 			Rarity.COMMON),
 	
 	TF_MOD_PENIS_TAPERED("tapering",
-			"Applies an effect related to making a penis tapered.",
+			"Applies an effect related to making a body part tapered.",
 			"tapered",
 			"modifier_circle_penis_tapered",
 			Colour.BASE_LILAC,
 			Rarity.COMMON),
 	
 	TF_MOD_PENIS_FLARED("flaring",
-			"Applies an effect related to making a penis flared.",
+			"Applies an effect related to making a body part flared.",
 			"flared",
 			"modifier_circle_penis_flared",
 			Colour.BASE_BROWN,
 			Rarity.COMMON),
 	
+	TF_MOD_PENIS_BLUNT("blunting",
+			"Applies an effect related to making a body part blunted.",
+			"blunt",
+			"modifier_circle_penis_blunt",
+			Colour.BASE_TAN,
+			Rarity.COMMON),
+	
 	TF_MOD_PENIS_BARBED("barbing",
-			"Applies an effect related to making a penis barbed.",
+			"Applies an effect related to making a body part barbed.",
 			"barbed",
 			"modifier_circle_penis_barbed",
 			Colour.BASE_RED,
 			Rarity.COMMON),
 	
 	TF_MOD_PENIS_VEINY("veins",
-			"Applies an effect related to making a penis veiny.",
+			"Applies an effect related to making a body part veiny.",
 			"veiny",
 			"modifier_circle_penis_veiny",
-			Colour.BASE_VIOLET,
+			Colour.BASE_PINK_SALMON,
 			Rarity.COMMON),
 	
 	TF_MOD_PENIS_PREHENSILE("prehensile",
-			"Applies an effect related to making a penis prehensile.",
+			"Applies an effect related to making a body part prehensile.",
 			"prehensile",
 			"modifier_circle_penis_prehensile",
 			Colour.BASE_TEAL,
+			Rarity.COMMON),
+
+	
+	TF_MOD_CUM_EXPULSION("cum expulsion",
+			"Applies an effect related to modifying the amount of cum expelled at each orgasm.",
+			"cumming",
+			"modifier_circle_squirter",
+			Colour.BASE_AQUA,
 			Rarity.COMMON),
 	
 	// vagina:
@@ -846,7 +1015,7 @@ public enum TFModifier {
 			"Applies an effect related to changing a fluid.",
 			"viscous",
 			"modifier_circle_fluid_modifier",
-			Colour.BASE_BLACK,
+			Colour.BASE_GREY,
 			Rarity.COMMON),
 	
 	TF_MOD_FLUID_STICKY("sticky",
@@ -890,84 +1059,98 @@ public enum TFModifier {
 			"modifier_circle_fluid_modifier",
 			Colour.BASE_MAGENTA,
 			Rarity.COMMON),
+
+	TF_MOD_FLUID_MINERAL_OIL("mineral oil",
+			"Applies an effect related to changing a fluid.",
+			"mineral oil",
+			"modifier_circle_fluid_modifier",
+			Colour.BASE_BLACK,
+			Rarity.COMMON),
 	
-	// fluid flavours:
+	// fluid flavours: TODO background
 	
 	TF_MOD_FLAVOUR_CUM("cum-flavour",
 			"Applies an effect related to changing a fluid's flavour.",
 			"cum-flavour",
-			"modifier_circle_flavour",
+			"modifier_circle_flavour_cum",
 			Colour.BASE_YELLOW_LIGHT,
 			Rarity.COMMON),
 	
 	TF_MOD_FLAVOUR_MILK("milk-flavour",
 			"Applies an effect related to changing a fluid's flavour.",
 			"milk-flavour",
-			"modifier_circle_flavour",
+			"modifier_circle_flavour_cum",
 			Colour.BASE_WHITE,
 			Rarity.COMMON),
 	
 	TF_MOD_FLAVOUR_GIRLCUM("girlcum-flavour",
 			"Applies an effect related to changing a fluid's flavour.",
 			"milk-flavour",
-			"modifier_circle_flavour",
+			"modifier_circle_flavour_cum",
 			Colour.BASE_PINK_LIGHT,
 			Rarity.COMMON),
 	
-	TF_MOD_FLAVOUR_SLIME("slime-flavour",
+	TF_MOD_FLAVOUR_BUBBLEGUM("bubblegum-flavour",
 			"Applies an effect related to changing a fluid's flavour.",
-			"slime-flavour",
-			"modifier_circle_flavour",
-			Colour.BASE_BLUE_LIGHT,
+			"bubblegum-flavour",
+			"modifier_circle_flavour_bubblegum",
+			Colour.BASE_PINK,
 			Rarity.COMMON),
 	
 	TF_MOD_FLAVOUR_BEER("beer-flavour",
 			"Applies an effect related to changing a fluid's flavour.",
 			"beer-flavour",
-			"modifier_circle_flavour",
+			"modifier_circle_flavour_beer",
 			Colour.BASE_ORANGE,
 			Rarity.COMMON),
 	
 	TF_MOD_FLAVOUR_VANILLA("vanilla-flavour",
 			"Applies an effect related to changing a fluid's flavour.",
 			"vanilla-flavour",
-			"modifier_circle_flavour",
-			Colour.BASE_YELLOW,
+			"modifier_circle_flavour_vanilla",
+			Colour.BASE_YELLOW_LIGHT,
 			Rarity.COMMON),
 	
 	TF_MOD_FLAVOUR_STRAWBERRY("strawberry-flavour",
 			"Applies an effect related to changing a fluid's flavour.",
 			"strawberry-flavour",
-			"modifier_circle_flavour",
+			"modifier_circle_flavour_strawberry",
 			Colour.BASE_RED,
 			Rarity.COMMON),
 	
 	TF_MOD_FLAVOUR_CHOCOLATE("chocolate-flavour",
 			"Applies an effect related to changing a fluid's flavour.",
 			"chocolate-flavour",
-			"modifier_circle_flavour",
+			"modifier_circle_flavour_chocolate",
 			Colour.BASE_BROWN_DARK,
 			Rarity.COMMON),
 	
 	TF_MOD_FLAVOUR_PINEAPPLE("pineapple-flavour",
 			"Applies an effect related to changing a fluid's flavour.",
 			"pineapple-flavour",
-			"modifier_circle_flavour",
+			"modifier_circle_flavour_pineapple",
 			Colour.BASE_YELLOW_LIGHT,
 			Rarity.COMMON),
 	
 	TF_MOD_FLAVOUR_HONEY("honey-flavour",
 			"Applies an effect related to changing a fluid's flavour.",
 			"honey-flavour",
-			"modifier_circle_flavour",
-			Colour.BASE_ORANGE,
+			"modifier_circle_flavour_honey",
+			Colour.BASE_YELLOW,
 			Rarity.COMMON),
 	
 	TF_MOD_FLAVOUR_MINT("mint-flavour",
 			"Applies an effect related to changing a fluid's flavour.",
 			"mint-flavour",
-			"modifier_circle_flavour",
+			"modifier_circle_flavour_mint",
 			Colour.BASE_GREEN_LIME,
+			Rarity.COMMON),
+
+	TF_MOD_FLAVOUR_CHERRY("cherry-flavour",
+			"Applies an effect related to changing a fluid's flavour.",
+			"cherry-flavour",
+			"modifier_circle_flavour_cherry",
+			Colour.BASE_CRIMSON,
 			Rarity.COMMON),
 	
 	
@@ -992,18 +1175,21 @@ public enum TFModifier {
 	TF_MOD_FETISH_ANAL_RECEIVING(Fetish.FETISH_ANAL_RECEIVING),
 	TF_MOD_FETISH_VAGINAL_GIVING(Fetish.FETISH_VAGINAL_GIVING),
 	TF_MOD_FETISH_VAGINAL_RECEIVING(Fetish.FETISH_VAGINAL_RECEIVING),
+	TF_MOD_FETISH_PENIS_GIVING(Fetish.FETISH_PENIS_GIVING),
+	TF_MOD_FETISH_PENIS_RECEIVING(Fetish.FETISH_PENIS_RECEIVING),
 	TF_MOD_FETISH_BREASTS_OTHERS(Fetish.FETISH_BREASTS_OTHERS),
 	TF_MOD_FETISH_BREASTS_SELF(Fetish.FETISH_BREASTS_SELF),
 	TF_MOD_FETISH_ORAL_GIVING(Fetish.FETISH_ORAL_GIVING),
 	TF_MOD_FETISH_ORAL_RECEIVING(Fetish.FETISH_ORAL_RECEIVING),
 	TF_MOD_FETISH_LEG_LOVER(Fetish.FETISH_LEG_LOVER),
 	TF_MOD_FETISH_STRUTTER(Fetish.FETISH_STRUTTER),
+	TF_MOD_FETISH_FOOT_GIVING(Fetish.FETISH_FOOT_GIVING),
+	TF_MOD_FETISH_FOOT_RECEIVING(Fetish.FETISH_FOOT_RECEIVING),
 	TF_MOD_FETISH_LACTATION_OTHERS(Fetish.FETISH_LACTATION_OTHERS),
 	TF_MOD_FETISH_LACTATION_SELF(Fetish.FETISH_LACTATION_SELF),
 	
 	TF_MOD_FETISH_DOMINANT(Fetish.FETISH_DOMINANT),
 	TF_MOD_FETISH_SUBMISSIVE(Fetish.FETISH_SUBMISSIVE),
-	TF_MOD_FETISH_BROODMOTHER(Fetish.FETISH_BROODMOTHER),
 	TF_MOD_FETISH_CROSS_DRESSER(Fetish.FETISH_CROSS_DRESSER),
 	TF_MOD_FETISH_CUM_ADDICT(Fetish.FETISH_CUM_ADDICT),
 	TF_MOD_FETISH_CUM_STUD(Fetish.FETISH_CUM_STUD),
@@ -1021,7 +1207,6 @@ public enum TFModifier {
 	TF_MOD_FETISH_PREGNANCY(Fetish.FETISH_PREGNANCY),
 	TF_MOD_FETISH_PURE_VIRGIN(Fetish.FETISH_PURE_VIRGIN),
 	TF_MOD_FETISH_SADIST(Fetish.FETISH_SADIST),
-	TF_MOD_FETISH_SEEDER(Fetish.FETISH_SEEDER),
 	TF_MOD_FETISH_TRANSFORMATION_GIVING(Fetish.FETISH_TRANSFORMATION_GIVING),
 	TF_MOD_FETISH_TRANSFORMATION_RECEIVING(Fetish.FETISH_TRANSFORMATION_RECEIVING),
 	TF_MOD_FETISH_BIMBO(Fetish.FETISH_BIMBO),
@@ -1040,6 +1225,13 @@ public enum TFModifier {
 
 	private static List<TFModifier> clothingPrimaryList = new ArrayList<>();
 	private static List<TFModifier> clothingAttributeList = new ArrayList<>();
+	private static List<TFModifier> clothingMajorAttributeList = new ArrayList<>();
+	
+	private static List<TFModifier> tattooPrimaryList = new ArrayList<>();
+
+	private static List<TFModifier> weaponPrimaryList = new ArrayList<>();
+	private static List<TFModifier> weaponAttributeList = new ArrayList<>();
+	private static List<TFModifier> weaponMajorAttributeList = new ArrayList<>();
 	
 	static {
 
@@ -1049,7 +1241,7 @@ public enum TFModifier {
 		TFModSexualList.add(NONE);
 		
 		for(TFModifier tfMod : TFModifier.values()) {
-			if(tfMod.getAttributeCategory()!=null) {
+			if(tfMod.getAttributeCategory()!=null && tfMod!=TFModifier.DAMAGE_WEAPON && tfMod!=TFModifier.RESISTANCE_WEAPON) {
 				switch(tfMod.getAttributeCategory()) {
 					case CORRUPTION:
 						TFModCorruptionList.add(tfMod);
@@ -1089,14 +1281,16 @@ public enum TFModifier {
 		
 		TFRacialBodyPartsList.add(TF_ASS);
 		TFRacialBodyPartsList.add(TF_BREASTS);
+		TFRacialBodyPartsList.add(TF_BREASTS_CROTCH);
 		TFRacialBodyPartsList.add(TF_PENIS);
 		TFRacialBodyPartsList.add(TF_VAGINA);
 		
 		TFRacialBodyPartsList.add(TF_MILK);
+		TFRacialBodyPartsList.add(TF_MILK_CROTCH);
 		TFRacialBodyPartsList.add(TF_CUM);
 		TFRacialBodyPartsList.add(TF_GIRLCUM);
 		
-		TFAttributeList.add(NONE);
+//		TFAttributeList.add(NONE);
 		TFAttributeList.add(ARCANE_BOOST);
 		
 
@@ -1108,8 +1302,12 @@ public enum TFModifier {
 		TFBodyPartFetishList.add(TF_MOD_FETISH_ORAL_RECEIVING);
 		TFBodyPartFetishList.add(TF_MOD_FETISH_VAGINAL_GIVING);
 		TFBodyPartFetishList.add(TF_MOD_FETISH_VAGINAL_RECEIVING);
+		TFBodyPartFetishList.add(TF_MOD_FETISH_PENIS_GIVING);
+		TFBodyPartFetishList.add(TF_MOD_FETISH_PENIS_RECEIVING);
 		TFBodyPartFetishList.add(TF_MOD_FETISH_LEG_LOVER);
 		TFBodyPartFetishList.add(TF_MOD_FETISH_STRUTTER);
+		TFBodyPartFetishList.add(TF_MOD_FETISH_FOOT_GIVING);
+		TFBodyPartFetishList.add(TF_MOD_FETISH_FOOT_RECEIVING);
 		TFBodyPartFetishList.add(TF_MOD_FETISH_LACTATION_OTHERS);
 		TFBodyPartFetishList.add(TF_MOD_FETISH_LACTATION_SELF);
 
@@ -1121,8 +1319,6 @@ public enum TFModifier {
 		TFBehaviouralFetishList.add(TF_MOD_FETISH_PURE_VIRGIN);
 		TFBehaviouralFetishList.add(TF_MOD_FETISH_IMPREGNATION);
 		TFBehaviouralFetishList.add(TF_MOD_FETISH_PREGNANCY);
-		TFBehaviouralFetishList.add(TF_MOD_FETISH_SEEDER);
-		TFBehaviouralFetishList.add(TF_MOD_FETISH_BROODMOTHER);
 		TFBehaviouralFetishList.add(TF_MOD_FETISH_TRANSFORMATION_GIVING);
 		TFBehaviouralFetishList.add(TF_MOD_FETISH_TRANSFORMATION_RECEIVING);
 		TFBehaviouralFetishList.add(TF_MOD_FETISH_SADIST);
@@ -1139,40 +1335,91 @@ public enum TFModifier {
 		TFBehaviouralFetishList.add(TF_MOD_FETISH_INCEST);
 		TFBehaviouralFetishList.add(TF_MOD_FETISH_KINK_GIVING);
 		TFBehaviouralFetishList.add(TF_MOD_FETISH_KINK_RECEIVING);
-		
+
+		clothingPrimaryList.add(TFModifier.CLOTHING_MAJOR_ATTRIBUTE);
 		clothingPrimaryList.add(TFModifier.CLOTHING_ATTRIBUTE);
-		clothingPrimaryList.add(TFModifier.CLOTHING_SEALING);
-		clothingPrimaryList.add(TFModifier.CLOTHING_ENSLAVEMENT);
+		clothingPrimaryList.add(TFModifier.CLOTHING_SPECIAL);
 		clothingPrimaryList.add(TFModifier.TF_MOD_FETISH_BODY_PART);
 		clothingPrimaryList.add(TFModifier.TF_MOD_FETISH_BEHAVIOUR);
 		clothingPrimaryList.add(TF_FACE);
 		clothingPrimaryList.add(TF_CORE);
+		clothingPrimaryList.add(TF_ARMS);
 		clothingPrimaryList.add(TF_HAIR);
 		clothingPrimaryList.add(TF_ASS);
 		clothingPrimaryList.add(TF_BREASTS);
+		clothingPrimaryList.add(TF_BREASTS_CROTCH);
 		clothingPrimaryList.add(TF_PENIS);
 		clothingPrimaryList.add(TF_VAGINA);
-		
 
+		clothingMajorAttributeList.add(TFModifier.HEALTH_MAXIMUM);
+		clothingMajorAttributeList.add(TFModifier.MANA_MAXIMUM);
+		clothingMajorAttributeList.add(TFModifier.STRENGTH);
+		clothingMajorAttributeList.add(TFModifier.INTELLIGENCE);
+		clothingMajorAttributeList.add(TFModifier.CORRUPTION);
+		
 		clothingAttributeList.add(TFModifier.FERTILITY);
 		clothingAttributeList.add(TFModifier.VIRILITY);
+		clothingAttributeList.add(TFModifier.DAMAGE_UNARMED);
+		clothingAttributeList.add(TFModifier.DAMAGE_MELEE_WEAPON);
+		clothingAttributeList.add(TFModifier.DAMAGE_RANGED_WEAPON);
+		clothingAttributeList.add(TFModifier.DAMAGE_PHYSICAL);
+		clothingAttributeList.add(TFModifier.DAMAGE_LUST);
+		clothingAttributeList.add(TFModifier.DAMAGE_FIRE);
+		clothingAttributeList.add(TFModifier.DAMAGE_ICE);
+		clothingAttributeList.add(TFModifier.DAMAGE_POISON);
+		clothingAttributeList.add(TFModifier.DAMAGE_SPELLS);
 		clothingAttributeList.add(TFModifier.RESISTANCE_FIRE);
 		clothingAttributeList.add(TFModifier.RESISTANCE_ICE);
 		clothingAttributeList.add(TFModifier.RESISTANCE_LUST);
 		clothingAttributeList.add(TFModifier.RESISTANCE_PHYSICAL);
 		clothingAttributeList.add(TFModifier.RESISTANCE_POISON);
-		clothingAttributeList.add(TFModifier.DAMAGE_FIRE);
-		clothingAttributeList.add(TFModifier.DAMAGE_ICE);
-		clothingAttributeList.add(TFModifier.DAMAGE_LUST);
-		clothingAttributeList.add(TFModifier.DAMAGE_UNARMED);
-		clothingAttributeList.add(TFModifier.DAMAGE_MELEE_WEAPON);
-		clothingAttributeList.add(TFModifier.DAMAGE_RANGED_WEAPON);
-		clothingAttributeList.add(TFModifier.DAMAGE_PHYSICAL);
-		clothingAttributeList.add(TFModifier.DAMAGE_POISON);
-		clothingAttributeList.add(TFModifier.DAMAGE_SPELLS);
 		clothingAttributeList.add(TFModifier.SPELL_COST_MODIFIER);
-		clothingAttributeList.add(TFModifier.CRITICAL_CHANCE);
 		clothingAttributeList.add(TFModifier.CRITICAL_DAMAGE);
+		
+
+		tattooPrimaryList.add(TFModifier.CLOTHING_ATTRIBUTE);
+		tattooPrimaryList.add(TFModifier.TF_MOD_FETISH_BODY_PART);
+		tattooPrimaryList.add(TFModifier.TF_MOD_FETISH_BEHAVIOUR);
+		tattooPrimaryList.add(TF_FACE);
+		tattooPrimaryList.add(TF_CORE);
+		tattooPrimaryList.add(TF_HAIR);
+		tattooPrimaryList.add(TF_ASS);
+		tattooPrimaryList.add(TF_BREASTS);
+		tattooPrimaryList.add(TF_BREASTS_CROTCH);
+		tattooPrimaryList.add(TF_PENIS);
+		tattooPrimaryList.add(TF_VAGINA);
+		
+
+		weaponPrimaryList.add(TFModifier.CLOTHING_MAJOR_ATTRIBUTE);
+		weaponPrimaryList.add(TFModifier.CLOTHING_ATTRIBUTE);
+		
+//		weaponAttributeList.add(TFModifier.RESISTANCE_WEAPON);
+//		weaponAttributeList.add(TFModifier.DAMAGE_WEAPON);
+
+		weaponMajorAttributeList.add(TFModifier.HEALTH_MAXIMUM);
+		weaponMajorAttributeList.add(TFModifier.MANA_MAXIMUM);
+		weaponMajorAttributeList.add(TFModifier.STRENGTH);
+		weaponMajorAttributeList.add(TFModifier.INTELLIGENCE);
+		weaponMajorAttributeList.add(TFModifier.CORRUPTION);
+		
+		weaponAttributeList.add(TFModifier.FERTILITY);
+		weaponAttributeList.add(TFModifier.VIRILITY);
+		weaponAttributeList.add(TFModifier.DAMAGE_UNARMED);
+		weaponAttributeList.add(TFModifier.DAMAGE_MELEE_WEAPON);
+		weaponAttributeList.add(TFModifier.DAMAGE_RANGED_WEAPON);
+		weaponAttributeList.add(TFModifier.DAMAGE_PHYSICAL);
+		weaponAttributeList.add(TFModifier.DAMAGE_LUST);
+		weaponAttributeList.add(TFModifier.DAMAGE_FIRE);
+		weaponAttributeList.add(TFModifier.DAMAGE_ICE);
+		weaponAttributeList.add(TFModifier.DAMAGE_POISON);
+		weaponAttributeList.add(TFModifier.DAMAGE_SPELLS);
+		weaponAttributeList.add(TFModifier.RESISTANCE_FIRE);
+		weaponAttributeList.add(TFModifier.RESISTANCE_ICE);
+		weaponAttributeList.add(TFModifier.RESISTANCE_LUST);
+		weaponAttributeList.add(TFModifier.RESISTANCE_PHYSICAL);
+		weaponAttributeList.add(TFModifier.RESISTANCE_POISON);
+		weaponAttributeList.add(TFModifier.SPELL_COST_MODIFIER);
+		weaponAttributeList.add(TFModifier.CRITICAL_DAMAGE);
 	}
 	
 	
@@ -1184,7 +1431,12 @@ public enum TFModifier {
 	
 	private AttributeCategory attributeCategory;
 	private Attribute associatedAttribute;
-	private String name, description, descriptor, SVGString;
+	
+	private String name;
+	private String description;
+	private String descriptor;
+	private String SVGString;
+	
 	private Colour colour;
 	private Rarity rarity;
 	private Fetish fetish;
@@ -1206,11 +1458,22 @@ public enum TFModifier {
 			}
 			String s = Util.inputStreamToString(is);
 
-			s = s.replaceAll("#ff2a2a", this.colour.getShades()[0]);
-			s = s.replaceAll("#ff5555", this.colour.getShades()[1]);
-			s = s.replaceAll("#ff8080", this.colour.getShades()[2]);
-			s = s.replaceAll("#ffaaaa", this.colour.getShades()[3]);
-			s = s.replaceAll("#ffd5d5", this.colour.getShades()[4]);
+			is.close();
+			
+			if(SVGString.contains("flavour")) {
+				String SVGStringBackground = "";
+				is = Subspecies.class.getClassLoader().getResourceAsStream("com/lilithsthrone/res/crafting/modifier_circle_flavour_background.svg");
+				if(is==null) {
+					System.err.println("Error! Subspecies background icon file does not exist (Trying to read from 'modifier_circle_flavour_background')!");
+				}
+				SVGStringBackground = "<div style='width:100%;height:100%;position:absolute;left:0;bottom:0;'>"+SvgUtil.colourReplacement(this.toString()+"_B", colour, Util.inputStreamToString(is))+"</div>";
+				
+				s = SVGStringBackground + "<div style='width:100%;height:100%;position:absolute;left:0;bottom:0;'>" + SvgUtil.colourReplacement(this.toString(), colour, s)+"</div>";
+				
+			} else {
+				s = SvgUtil.colourReplacement(this.toString(), colour, s);
+			}
+			
 			this.SVGString = s;
 
 			is.close();
@@ -1240,11 +1503,22 @@ public enum TFModifier {
 			}
 			String s = Util.inputStreamToString(is);
 
-			s = s.replaceAll("#ff2a2a", this.colour.getShades()[0]);
-			s = s.replaceAll("#ff5555", this.colour.getShades()[1]);
-			s = s.replaceAll("#ff8080", this.colour.getShades()[2]);
-			s = s.replaceAll("#ffaaaa", this.colour.getShades()[3]);
-			s = s.replaceAll("#ffd5d5", this.colour.getShades()[4]);
+			is.close();
+			
+			if(SVGString.contains("flavour")) {
+				String SVGStringBackground = "";
+				is = Subspecies.class.getClassLoader().getResourceAsStream("com/lilithsthrone/res/crafting/modifier_circle_flavour_background.svg");
+				if(is==null) {
+					System.err.println("Error! Subspecies background icon file does not exist (Trying to read from 'modifier_circle_flavour_background')!");
+				}
+				SVGStringBackground = "<div style='width:100%;height:100%;position:absolute;left:0;bottom:0;'>"+SvgUtil.colourReplacement(this.toString()+"_B", colour, Util.inputStreamToString(is))+"</div>";
+				
+				s = SVGStringBackground + "<div style='width:100%;height:100%;position:absolute;left:0;bottom:0;'>" + SvgUtil.colourReplacement(this.toString(), colour, s)+"</div>";
+				
+			} else {
+				s = SvgUtil.colourReplacement(this.toString(), colour, s);
+			}
+			
 			this.SVGString = s;
 
 			is.close();
@@ -1256,13 +1530,12 @@ public enum TFModifier {
 	
 	private TFModifier(Fetish f) {
 		this.name = f.getName(null);
-		this.description = "Applies an effect related to the "+name+" fetish. ("+f.getShortDescriptor()+")";
+		this.description = "Applies an effect related to the "+name+" fetish. ("+f.getShortDescriptor(null)+")";
 		this.descriptor = name;
 		this.rarity = Rarity.EPIC;
 		this.colour = Colour.FETISH;
 		this.fetish = f;
-		this.SVGString = f.getSVGString();
-		
+		this.SVGString = f.getSVGString(null);
 	}
 	
 	public int getValue() {
@@ -1274,11 +1547,13 @@ public enum TFModifier {
 			case UNCOMMON:
 				return 2;
 			case RARE:
-				return 3;
+				return 4;
 			case EPIC:
-				return 5;
-			case LEGENDARY:
 				return 8;
+			case LEGENDARY:
+				return 12;
+			case QUEST:
+				return 1;
 		}
 		return 1;
 	}
@@ -1336,6 +1611,9 @@ public enum TFModifier {
 	}
 
 	public static List<TFModifier> getTFRacialBodyPartsList() {
+		if(Main.getProperties().udders==0) {
+			return TFRacialBodyPartsList.stream().filter(mod -> mod!=TFModifier.TF_BREASTS_CROTCH && mod!=TFModifier.TF_MILK_CROTCH).collect(Collectors.toList());
+		}
 		return TFRacialBodyPartsList;
 	}
 
@@ -1359,7 +1637,32 @@ public enum TFModifier {
 		return clothingAttributeList;
 	}
 
+	public static List<TFModifier> getClothingMajorAttributeList() {
+		return clothingMajorAttributeList;
+	}
+
 	public static List<TFModifier> getClothingPrimaryList() {
+		if(!Main.game.isBodyHairEnabled()) {
+			List<TFModifier> noArms = new ArrayList<>(clothingPrimaryList);
+			noArms.remove(TF_ARMS);
+			return noArms;
+		}
 		return clothingPrimaryList;
+	}
+
+	public static List<TFModifier> getTattooPrimaryList() {
+		return tattooPrimaryList;
+	}
+
+	public static List<TFModifier> getWeaponPrimaryList() {
+		return weaponPrimaryList;
+	}
+
+	public static List<TFModifier> getWeaponMajorAttributeList() {
+		return weaponMajorAttributeList;
+	}
+	
+	public static List<TFModifier> getWeaponAttributeList() {
+		return weaponAttributeList;
 	}
 }

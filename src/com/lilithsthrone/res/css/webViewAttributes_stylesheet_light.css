@@ -1,6 +1,6 @@
 html {
 	background: #fcfcfc;
-	font-family:Calibri,Carlito;
+	font-family: Calibri, Carlito, sans-serif;
 	font-size:11pt;
 	font-size:7vw; /*font-size:2vw;*/
 	color: #262626;
@@ -220,6 +220,11 @@ h6{
 	opacity:0.20;
 	border-radius:5px;
 }
+.overlay.alt:hover{
+	background-color:#fff;
+	opacity:0.10;
+	border-radius:5px;
+}
 
 
 /***********************************************************/
@@ -245,7 +250,7 @@ h6{
 	box-sizing:border-box;
 	border-radius: 5px;
 	background: #ddd;
-	font-family:Calibri,Carlito;
+	font-family: Calibri, Carlito, sans-serif;
 	font-size:11pt;
 	width:100%;
 	overflow-y: scroll;
@@ -303,6 +308,7 @@ h6{
 	border-radius:5px;
 	background-color:#8f8f8f;
 	-webkit-user-select: none;
+	box-sizing: border-box;
 }
 .map-tile:after {
   content: "";
@@ -442,13 +448,8 @@ h6{
 	-webkit-user-select: none;
 }
 
-.inventory-item-slot.piercing{
-	width:40%;
-	margin:5%;
-}
-.inventory-item-slot.weapon{
-	width:46%;
-	margin:2%;
+.inventory-item-slot.secondary{
+	width:14.67%;
 }
 .inventory-item-slot.unequipped{
 	width:11.5%;
@@ -464,6 +465,15 @@ h6{
 	  135deg,
 	  #555,
 	  #555 10px,
+	  #ddd 10px,
+	  #ddd 20px
+	);
+}
+.inventory-item-slot.disabled-light, .inventory-item-slot.piercing.disabled-light {
+	background: repeating-linear-gradient(
+	  135deg,
+	  #aaa,
+	  #aaa 10px,
 	  #ddd 10px,
 	  #ddd 20px
 	);
@@ -490,6 +500,9 @@ h6{
 	opacity:0.20;
 	border-radius:5px;
 	cursor:pointer;
+}
+.overlay-inventory.no-pointer{
+	cursor:default;
 }
 
 .femininityIcon{
@@ -526,18 +539,18 @@ h6{
 	pointer-events: none;
 	-webkit-user-select: none;
 }
-.jinxedIcon{
+.scarIcon{
 	position:absolute;
 	width:40%;
 	height:40%;
-	left:0;
+	right:0;
 	pointer-events: none;
 	-webkit-user-select: none;
 }
 .raceBlockIcon{
 	position:absolute;
-	width:60%;
-	height:60%;
+	width:75%;
+	height:75%;
 	margin:20%;
 	pointer-events: none;
 	-webkit-user-select: none;
@@ -589,6 +602,12 @@ h6{
 }
 .legendary:hover{
 	background-color:#F7EAC5;
+}
+.quest {
+	background-color:#BEE4E4;
+}
+.quest:hover{
+	background-color:#E0F1F1;
 }
 .jinxed {
 	background-color:#E3B5B5;
